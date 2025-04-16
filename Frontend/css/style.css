@@ -1,136 +1,166 @@
-/* Stili personalizzati non replicabili con Bootstrap */
+/* Stili globali e reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-/* Colori personalizzati */
 :root {
-    --primary-color: #2c3e50;
-    --secondary-color: #3498db;
+    /* Colori principali */
+    --primary-color: #5e3b4d;
+    --secondary-color: #e2a76f;
+    --accent-color: #d64933;
+    --text-color: #333333;
+    --light-text: #ffffff;
+    --light-bg: #f7f7f7;
+    --border-color: #e1e1e1;
+    
+    /* Dimensioni */
+    --container-max-width: 1200px;
+    --header-height: 70px;
+    --footer-height: 150px;
+    
+    /* Spaziature */
+    --spacing-xs: 5px;
+    --spacing-sm: 10px;
+    --spacing-md: 20px;
+    --spacing-lg: 40px;
+    
+    /* Font */
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --font-size-small: 0.875rem;
+    --font-size-normal: 1rem;
+    --font-size-medium: 1.25rem;
+    --font-size-large: 1.5rem;
+    --font-size-xl: 2rem;
 }
 
-/* Stili per la navbar */
-.navbar {
-    background-color: var(--primary-color) !important;
-}
-
-/* Stili per la card di benvenuto */
-.welcome-card {
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-
-/* Effetti hover personalizzati */
-.btn-primary:hover {
-    transform: translateY(-2px);
-}
-
-.btn-outline-light:hover {
-    transform: translateY(-2px);
-}
-
-/* Transizioni personalizzate */
-.btn-primary,
-.btn-outline-light {
-    transition: all 0.3s ease;
-}
-
-/* Stili per le card dei prodotti (se necessario in futuro) */
-.product-card {
-    transition: transform 0.3s ease;
-}
-
-.product-card:hover {
-    transform: translateY(-5px);
-}
-
-/* Stili generali */
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f8f9fa;
-    color: #333;
+    font-family: var(--font-family);
+    color: var(--text-color);
+    line-height: 1.6;
+    background-color: var(--light-bg);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
 
-.navbar-brand {
-    font-weight: bold;
-    font-size: 1.5rem;
+a {
+    text-decoration: none;
+    color: var(--primary-color);
+    transition: color 0.3s ease;
 }
 
-/* Stili per il contenuto principale */
-.main-content {
-    flex: 1;
-    padding: 2rem 0;
+a:hover {
+    color: var(--accent-color);
 }
 
-.welcome-card h1 {
-    color: #2c3e50;
-    margin-bottom: 1.5rem;
-    font-weight: bold;
+ul {
+    list-style: none;
 }
 
-.welcome-card p {
-    color: #666;
-    font-size: 1.1rem;
-    margin-bottom: 2rem;
+img {
+    max-width: 100%;
+    height: auto;
 }
 
-/* Stili per i bottoni */
-.btn-primary {
-    background-color: #3498db;
-    border-color: #3498db;
-    padding: 0.5rem 2rem;
-    font-weight: 500;
-}
-
-.btn-outline-light {
-    border: 2px solid #fff;
-    padding: 0.5rem 1.5rem;
-    font-weight: 500;
-}
-
-/* Stili per il footer */
-.footer {
-    background-color: #2c3e50;
+button, .btn {
+    padding: 10px 20px;
+    background-color: var(--primary-color);
     color: white;
-    padding: 1rem 0;
-    margin-top: auto;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: var(--font-size-normal);
+    transition: background-color 0.3s ease;
 }
 
-/* Stili per i messaggi di errore */
-.alert {
-    border-radius: 8px;
-    margin-top: 1rem;
+button:hover, .btn:hover {
+    background-color: var(--accent-color);
 }
 
-/* Stili per i form */
-.form-control {
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-family: var(--font-family);
+    font-size: var(--font-size-normal);
 }
 
-.form-control:focus {
-    border-color: #3498db;
-    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+.container {
+    width: 100%;
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
 }
 
-/* Stili per i form di autenticazione */
-.auth-container {
-    max-width: 500px;
-    margin: 2rem auto;
-    padding: 2rem;
+/* Layout principale */
+#app-container {
+    flex: 1;
+    padding-top: var(--header-height); /* Spazio per header fisso */
+    padding-bottom: var(--spacing-lg);
+    min-height: calc(100vh - var(--header-height) - var(--footer-height));
+}
+
+/* Utilities */
+.text-center {
+    text-align: center;
+}
+
+.mt-sm { margin-top: var(--spacing-sm); }
+.mt-md { margin-top: var(--spacing-md); }
+.mt-lg { margin-top: var(--spacing-lg); }
+
+.mb-sm { margin-bottom: var(--spacing-sm); }
+.mb-md { margin-bottom: var(--spacing-md); }
+.mb-lg { margin-bottom: var(--spacing-lg); }
+
+.p-sm { padding: var(--spacing-sm); }
+.p-md { padding: var(--spacing-md); }
+.p-lg { padding: var(--spacing-lg); }
+
+.hidden {
+    display: none !important;
+}
+
+/* Card generiche */
+.card {
     background-color: white;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
 }
 
-/* Stili per i tab di autenticazione */
-.nav-tabs .nav-link {
-    color: #495057;
-    border: none;
-    padding: 1rem;
+/* Layout a griglia */
+.grid {
+    display: grid;
+    gap: var(--spacing-md);
 }
 
-.nav-tabs .nav-link.active {
-    color: #007bff;
-    background-color: transparent;
-    border-bottom: 2px solid #007bff;
-} 
+.grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+/* Media queries per responsività */
+@media (max-width: 768px) {
+    .grid-3, .grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .grid-2, .grid-3, .grid-4 {
+        grid-template-columns: 1fr;
+    }
+}

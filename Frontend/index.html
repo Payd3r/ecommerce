@@ -3,36 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Commerce</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
+    <title>ArtigianatoShop - E-commerce di Artigianato</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components/navbar.css">
+    <link rel="stylesheet" href="css/components/footer.css">
+    <link rel="stylesheet" href="css/components/toast.css">
+    <link rel="stylesheet" href="css/components/loader.css">
 </head>
-<body class="d-flex flex-column min-vh-100">
-    <!-- Navbar container -->
-    <div id="navbarContainer"></div>
+<body>
+    <!-- Navbar fissa -->
+    <header id="navbar-container"></header>
 
-    <!-- Contenuto principale -->
-    <main class="flex-grow-1 py-4">
-        <div class="container">
-            <div id="mainContent">
-                <!-- Il contenuto verrà caricato dinamicamente qui -->
-            </div>
-        </div>
-    </main>
+    <!-- Container principale per il contenuto dinamico -->
+    <main id="app-container"></main>
 
-    <!-- Footer -->
-    <footer class="bg-dark text-white py-3 mt-auto">
-        <div class="container">
-            <div class="row">
-                <div class="col-12 text-center">
-                    <p class="mb-0">&copy; 2024 E-Commerce. Tutti i diritti riservati.</p>
-                </div>
-            </div>
-        </div>
-    </footer>
+    <!-- Footer fisso -->
+    <footer id="footer-container"></footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script type="module" src="js/auth.js"></script>
+    <!-- Toast per notifiche -->
+    <div id="toast-container"></div>
+
+    <!-- Loader globale -->
+    <div id="loader-container"></div>
+
+    <!-- Script principali -->
+    <script type="module" src="js/main.js"></script>
 </body>
-</html> 
+</html>

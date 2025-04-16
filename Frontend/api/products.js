@@ -1,4 +1,5 @@
 const API_URL = 'http://localhost:3005';
+import { authService } from '../js/services/authService.js';
 
 // Funzione per ottenere i prodotti con filtri e paginazione
 async function getProducts(params = {}) {
@@ -37,7 +38,11 @@ async function getProduct(id) {
 // Funzione per creare un nuovo prodotto (richiede autenticazione)
 async function createProduct(productData) {
     try {
-        const token = localStorage.getItem('token');
+        const token = authService.getToken();
+        if (!token) {
+            throw new Error('Utente non autenticato');
+        }
+        
         const response = await fetch(`${API_URL}/products`, {
             method: 'POST',
             headers: {
@@ -57,7 +62,11 @@ async function createProduct(productData) {
 // Funzione per aggiornare un prodotto (richiede autenticazione)
 async function updateProduct(id, productData) {
     try {
-        const token = localStorage.getItem('token');
+        const token = authService.getToken();
+        if (!token) {
+            throw new Error('Utente non autenticato');
+        }
+        
         const response = await fetch(`${API_URL}/products/${id}`, {
             method: 'PUT',
             headers: {
@@ -77,7 +86,11 @@ async function updateProduct(id, productData) {
 // Funzione per eliminare un prodotto (richiede autenticazione)
 async function deleteProduct(id) {
     try {
-        const token = localStorage.getItem('token');
+        const token = authService.getToken();
+        if (!token) {
+            throw new Error('Utente non autenticato');
+        }
+        
         const response = await fetch(`${API_URL}/products/${id}`, {
             method: 'DELETE',
             headers: {
@@ -92,36 +105,10 @@ async function deleteProduct(id) {
     }
 }
 
-// Funzione per ottenere tutte le categorie
-async function getCategories() {
-    try {
-        const response = await fetch(`${API_URL}/categories`);
-        if (!response.ok) throw new Error('Errore nel recupero delle categorie');
-        return await response.json();
-    } catch (error) {
-        console.error('Errore:', error);
-        throw error;
-    }
-}
-
-// Funzione per ottenere tutti gli artigiani
-async function getArtisans() {
-    try {
-        const response = await fetch(`${API_URL}/artisans`);
-        if (!response.ok) throw new Error('Errore nel recupero degli artigiani');
-        return await response.json();
-    } catch (error) {
-        console.error('Errore:', error);
-        throw error;
-    }
-}
-
 export {
     getProducts,
     getProduct,
     createProduct,
     updateProduct,
-    deleteProduct,
-    getCategories,
-    getArtisans
+    deleteProduct
 }; 

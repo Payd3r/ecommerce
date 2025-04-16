@@ -86,17 +86,19 @@ router.post('/login', async (req, res) => {
 router.get('/profile', verifyToken, async (req, res) => {
   try {
     // Recupera i dettagli completi dell'utente dal database
-    const [user] = await db.query(
+    const [users] = await db.query(
       'SELECT id, name, email, role, created_at FROM users WHERE id = ?',
-      [req.user.userId]
+      [req.user.id]
     );
 
-    if (!user) {
+    if (users.length === 0) {
       return res.status(404).json({
         success: false,
         message: 'Utente non trovato'
       });
     }
+
+    const user = users[0];
 
     res.status(200).json({
       success: true,

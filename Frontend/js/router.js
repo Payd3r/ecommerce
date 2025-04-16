@@ -1,90 +1,191 @@
-import { NavbarManager } from './navbar.js';
+// Importo le dipendenze
+import { authService } from './services/authService.js';
+import { toast } from './components/Toast.js';
+import { loader } from './components/Loader.js';
 
-export class Router {
+/**
+ * Router dell'applicazione con gestione delle route protette
+ */
+class Router {
     constructor() {
-        this.mainContent = document.getElementById('mainContent');
-        if (!this.mainContent) {
-            console.error('Elemento mainContent non trovato!');
-            throw new Error('Elemento mainContent non trovato!');
-        }
-    }
-
-    init() {
-        window.addEventListener('hashchange', () => this.handleRoute());
-        window.addEventListener('load', () => this.handleRoute());
-    }
-
-    async handleRoute() {
-        const hash = window.location.hash || '#/';
-        const path = hash.slice(1);
-        console.log('Gestione della rotta:', path);
+        // Container principale per il contenuto
+        this.container = document.getElementById('app-container');
         
-        // Controlla se l'utente è autenticato
-        const token = localStorage.getItem('token');
-        const userRole = localStorage.getItem('role');
-        console.log('Stato autenticazione:', { token: !!token, userRole });
-
-        // Se l'utente non è autenticato e non sta cercando di autenticarsi, reindirizza all'auth
-        if (!token && path !== '/auth') {
-            console.log('Utente non autenticato, reindirizzamento a /auth');
-            window.location.hash = '/auth';
-            return;
-        }
-
-        // Se l'utente è autenticato e sta cercando di accedere alla pagina di auth
-        if (token && path === '/auth') {
-            console.log('Utente già autenticato, reindirizzamento alla home del ruolo');
-            switch (userRole) {
-                case 'Client':
-                    window.location.href = '/Frontend/html/Client/index.html';
-                    break;
-                case 'Artisan':
-                    window.location.href = '/Frontend/html/Artisan/index.html';
-                    break;
-                case 'Admin':
-                    window.location.href = '/Frontend/html/Admin/index.html';
-                    break;
-                default:
-                    window.location.hash = '/auth';
-            }
-            return;
-        }
-
-        // Gestisce la route di autenticazione
-        if (path === '/auth') {
-            await this.loadAuth();
-            return;
-        }
-
-        // Se siamo qui, qualcosa è andato storto
-        this.handle404();
+        // Memorizza le rotte registrate
+        this.routes = {};
+        
+        // Rotta corrente
+        this.currentRoute = null;
+        
+        // Gestisce il comportamento di back/forward del browser
+        window.addEventListener('popstate', this.handlePopState.bind(this));
     }
-
-    async loadAuth() {
+    
+    /**
+     * Inizializza il router
+     */
+    init() {
+        // Gestisce la rotta iniziale basata sull'URL
+        this.navigate(window.location.pathname, false);
+        
+        // Intercetta i click sui link per gestirli con il router
+        document.addEventListener('click', this.handleLinkClick.bind(this));
+    }
+    
+    /**
+     * Registra una nuova rotta
+     * @param {string} path - Percorso della rotta
+     * @param {Function} component - Funzione che renderizza il componente
+     * @param {Object} options - Opzioni della rotta
+     */
+    register(path, component, options = {}) {
+        const defaultOptions = {
+            requireAuth: false,
+            roles: [],
+            title: 'ArtigianatoShop'
+        };
+        
+        this.routes[path] = {
+            component,
+            options: { ...defaultOptions, ...options }
+        };
+    }
+    
+    /**
+     * Gestisce la navigazione
+     * @param {string} path - Percorso della nuova rotta
+     * @param {boolean} pushState - Se true, aggiunge la rotta alla history
+     */
+    async navigate(path, pushState = true) {
+        // Normalizza il percorso
+        path = path || '/';
+        if (path !== '/' && path.endsWith('/')) {
+            path = path.slice(0, -1);
+        }
+        
+        // Cerca la rotta registrata
+        const route = this.routes[path] || this.routes['404'];
+        
+        // Se la rotta richiede autenticazione e l'utente non è autenticato, redirige al login
+        if (route.options.requireAuth && !authService.isAuthenticated()) {
+            toast.warning('Devi effettuare l\'accesso per visualizzare questa pagina');
+            this.navigateToLogin(path);
+            return;
+        }
+        
+        // Se la rotta ha restrizioni di ruolo, verifica che l'utente abbia il ruolo necessario
+        if (route.options.roles.length > 0 && !authService.hasRole(route.options.roles)) {
+            toast.error('Non hai i permessi per accedere a questa pagina');
+            this.navigateToHome();
+            return;
+        }
+        
+        // Se una rotta era già attiva, ne chiama il metodo di smontaggio
+        if (this.currentRoute && typeof this.currentRoute.unmount === 'function') {
+            this.currentRoute.unmount();
+        }
+        
         try {
-            console.log('Caricamento pagina di autenticazione...');
-            const response = await fetch('/Frontend/html/components/authenticate.html');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            // Mostra il loader durante il caricamento
+            loader.show();
+            
+            // Istanzia il componente della rotta
+            const component = route.component;
+            this.currentRoute = await component();
+            
+            // Aggiorna il titolo della pagina
+            document.title = route.options.title;
+            
+            // Aggiorna l'URL nel browser
+            if (pushState) {
+                window.history.pushState({ path }, '', path);
             }
-            const html = await response.text();
-            this.mainContent.innerHTML = html;
-
-            // Importa e inizializza i form di autenticazione
-            const { initializeAuthForms } = await import('./auth.js');
-            initializeAuthForms();
-            console.log('Pagina di autenticazione caricata con successo');
+            
+            // Pulisce il container e renderizza il nuovo componente
+            this.container.innerHTML = '';
+            this.container.appendChild(this.currentRoute.render());
+            
+            // Chiama il metodo mount del componente dopo il rendering
+            if (typeof this.currentRoute.mount === 'function') {
+                this.currentRoute.mount();
+            }
+            
+            // Scorre in alto nella pagina
+            window.scrollTo(0, 0);
         } catch (error) {
-            console.error('Errore nel caricamento della pagina di autenticazione:', error);
-            this.mainContent.innerHTML = `
-                <div class="alert alert-danger">
-                    <h4>Errore nel caricamento della pagina di autenticazione</h4>
-                    <p>${error.message}</p>
-                </div>`;
+            console.error('Errore durante la navigazione:', error);
+            toast.error('Si è verificato un errore durante il caricamento della pagina');
+        } finally {
+            // Nasconde il loader
+            loader.hide();
         }
     }
-
-    handle404() {
-        this.mainContent.innerHTML = '<h2>404 - Pagina non trovata</h2>';
+    
+    /**
+     * Gestisce il click su un link
+     * @param {Event} event - Evento click
+     */
+    handleLinkClick(event) {
+        const link = event.target.closest('a');
+        
+        if (link && link.getAttribute('href') && !link.getAttribute('target') && 
+            link.origin === window.location.origin) {
+            event.preventDefault();
+            this.navigate(link.pathname);
+        }
     }
-} 
+    
+    /**
+     * Gestisce lo stato di navigazione del browser (back/forward)
+     * @param {Event} event - Evento popstate
+     */
+    handlePopState(event) {
+        const path = event.state?.path || window.location.pathname;
+        this.navigate(path, false);
+    }
+    
+    /**
+     * Reindirizza alla home page
+     */
+    navigateToHome() {
+        this.navigate('/');
+    }
+    
+    /**
+     * Reindirizza alla pagina di login
+     * @param {string} redirectTo - Pagina a cui redirigere dopo il login
+     */
+    navigateToLogin(redirectTo = '') {
+        const loginPath = '/login' + (redirectTo ? `?redirect=${encodeURIComponent(redirectTo)}` : '');
+        this.navigate(loginPath);
+    }
+    
+    /**
+     * Reindirizza alla dashboard appropriata in base al ruolo dell'utente
+     */
+    navigateToDashboard() {
+        const user = authService.getUser();
+        
+        if (!user) {
+            this.navigateToHome();
+            return;
+        }
+        
+        switch (user.role) {
+            case 'admin':
+                this.navigate('/admin/dashboard');
+                break;
+            case 'artisan':
+                this.navigate('/artisan/dashboard');
+                break;
+            case 'client':
+                this.navigate('/profile');
+                break;
+            default:
+                this.navigateToHome();
+        }
+    }
+}
+
+// Esporto un'istanza singola del router
+export const router = new Router(); 

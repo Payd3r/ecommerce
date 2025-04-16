@@ -58,31 +58,63 @@ router.get('/', verifyToken, checkRole('admin'), async (req, res) => {
     }
 });
 
-// GET /users/:id - Ottieni un utente specifico
-// Un utente può vedere solo il proprio profilo, admin può vedere tutti
-router.get('/:id', verifyToken, async (req, res) => {
-    console.log('req.user', req.user);
+// GET /users/artisans - Ottieni tutti gli artisani
+// Questa route richiede autenticazione ma è accessibile a qualsiasi ruolo
+router.get('/artisans', verifyToken, async (req, res) => {
     try {
-        // Verifica che l'utente stia accedendo al proprio profilo o sia admin
-        if (req.user.role !== 'admin' && req.user.id !== parseInt(req.params.id)) {
-            return res.status(403).json({ 
-                error: 'Non hai i permessi per visualizzare questo profilo' 
-            });
+        // Procedi con la normale logica della route
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const offset = (page - 1) * limit;
+        const searchTerm = req.query.search || '';
+
+        // Costruisci la query di base per ottenere solo gli artisani
+        let query = 'SELECT id, name, created_at FROM users WHERE role = "artisan"';
+        let countQuery = 'SELECT COUNT(*) as total FROM users WHERE role = "artisan"';
+        const queryParams = [];
+        
+        // Aggiungi la condizione di ricerca se presente
+        if (searchTerm) {
+            query += ' AND name LIKE ?';
+            countQuery += ' AND name LIKE ?';
+            queryParams.push(`%${searchTerm}%`);
         }
 
-        const [user] = await db.query(
-            'SELECT id, name, email, role, created_at FROM users WHERE id = ?',
-            [req.params.id]
-        );
+        // Aggiungi ordinamento e paginazione
+        query += ' ORDER BY name ASC LIMIT ? OFFSET ?';
+        queryParams.push(limit, offset);
 
-        if (user.length === 0) {
-            return res.status(404).json({ error: 'Utente non trovato' });
-        }
+        // Esegui le query
+        const [artisans] = await db.query(query, queryParams);
+        const [totalCount] = await db.query(countQuery, searchTerm ? [`%${searchTerm}%`] : []);
 
-        res.json(user[0]);
+        // Calcola la paginazione
+        const total = totalCount[0].total;
+        const totalPages = Math.ceil(total / limit);
+        const hasNextPage = page < totalPages;
+        const hasPrevPage = page > 1;
+
+        res.json({
+            data: artisans,
+            pagination: {
+                total,
+                totalPages,
+                currentPage: page,
+                limit,
+                hasNextPage,
+                hasPrevPage
+            },
+            user: {
+                id: req.user.id,
+                role: req.user.role
+            }
+        });
     } catch (error) {
-        console.error('Errore nel recupero dell\'utente:', error);
-        res.status(500).json({ error: 'Errore nel recupero dell\'utente' });
+        console.error('Errore nel recupero degli artisani:', error);
+        res.status(500).json({ 
+            error: 'Errore nel recupero degli artisani',
+            details: error.message 
+        });
     }
 });
 
@@ -135,6 +167,34 @@ router.post('/', verifyToken, checkRole('admin'), async (req, res) => {
     } catch (error) {
         console.error('Errore nella creazione dell\'utente:', error);
         res.status(500).json({ error: 'Errore nella creazione dell\'utente' });
+    }
+});
+
+// GET /users/:id - Ottieni un utente specifico
+// Un utente può vedere solo il proprio profilo, admin può vedere tutti
+router.get('/:id', verifyToken, async (req, res) => {
+    console.log('req.user', req.user);
+    try {
+        // Verifica che l'utente stia accedendo al proprio profilo o sia admin
+        if (req.user.role !== 'admin' && req.user.id !== parseInt(req.params.id)) {
+            return res.status(403).json({ 
+                error: 'Non hai i permessi per visualizzare questo profilo' 
+            });
+        }
+
+        const [user] = await db.query(
+            'SELECT id, name, email, role, created_at FROM users WHERE id = ?',
+            [req.params.id]
+        );
+
+        if (user.length === 0) {
+            return res.status(404).json({ error: 'Utente non trovato' });
+        }
+
+        res.json(user[0]);
+    } catch (error) {
+        console.error('Errore nel recupero dell\'utente:', error);
+        res.status(500).json({ error: 'Errore nel recupero dell\'utente' });
     }
 });
 

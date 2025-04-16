@@ -27,17 +27,17 @@ const verifyToken = async (req, res, next) => {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             
             // Verifica che l'utente esista ancora nel database
-            const [user] = await db.query(
+            const [users] = await db.query(
                 'SELECT id, name, email, role FROM users WHERE id = ?',
                 [decoded.userId]
             );
 
-            if (user.length === 0) {
+            if (users.length === 0) {
                 return res.status(401).json({ error: 'Utente non trovato' });
             }
 
             // Aggiungi l'utente alla richiesta
-            req.user = user[0];
+            req.user = users[0];
             next();
         } catch (error) {
             if (error.name === 'TokenExpiredError') {
