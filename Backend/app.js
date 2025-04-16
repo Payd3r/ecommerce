@@ -23,6 +23,7 @@ app.get('/', (req, res) => {
 // Modularizzazione (aggiungeremo dopo)
 app.use('/auth', require('./routes/auth'));
 app.use('/products', require('./routes/products'));
+app.use('/users', require('./routes/users'));
 
 app.listen(port, () => {
   console.log(`Server attivo su http://localhost:${port}`);

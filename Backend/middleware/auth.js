@@ -1,64 +1,78 @@
 const jwt = require('jsonwebtoken');
+const db = require('../models/db');
 require('dotenv').config();
 
 /**
  * Middleware per verificare il token JWT
  * Può essere usato su qualsiasi route che richiede autenticazione
  */
-function authMiddleware(req, res, next) {
-  // Controlla l'header Authorization
-  const authHeader = req.headers.authorization;
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({
-      success: false,
-      message: 'Accesso negato. Token non fornito o formato non valido.'
-    });
-  }
-  
-  // Estrai il token
-  const token = authHeader.split(' ')[1];
-  
-  try {
-    // Verifica il token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret');
-    
-    // Aggiungi i dati dell'utente alla richiesta
-    req.user = decoded;
-    
-    next();
-  } catch (error) {
-    console.error('Errore verifica token:', error);
-    return res.status(401).json({
-      success: false,
-      message: 'Token non valido o scaduto'
-    });
-  }
-}
+const verifyToken = async (req, res, next) => {
+    try {
+        // Ottieni il token dall'header
+        const authHeader = req.headers.authorization;
+        if (!authHeader) {
+            return res.status(401).json({ error: 'Token di accesso non fornito' });
+        }
+
+        // Verifica il formato del token (Bearer token)
+        const parts = authHeader.split(' ');
+        if (parts.length !== 2 || parts[0] !== 'Bearer') {
+            return res.status(401).json({ error: 'Formato token non valido' });
+        }
+
+        const token = parts[1];
+
+        try {
+            // Verifica e decodifica il token
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            
+            // Verifica che l'utente esista ancora nel database
+            const [user] = await db.query(
+                'SELECT id, name, email, role FROM users WHERE id = ?',
+                [decoded.userId]
+            );
+
+            if (user.length === 0) {
+                return res.status(401).json({ error: 'Utente non trovato' });
+            }
+
+            // Aggiungi l'utente alla richiesta
+            req.user = user[0];
+            next();
+        } catch (error) {
+            if (error.name === 'TokenExpiredError') {
+                return res.status(401).json({ error: 'Token scaduto' });
+            }
+            if (error.name === 'JsonWebTokenError') {
+                return res.status(401).json({ error: 'Token non valido' });
+            }
+            throw error;
+        }
+    } catch (error) {
+        console.error('Errore nella verifica del token:', error);
+        res.status(500).json({ error: 'Errore interno del server' });
+    }
+};
 
 /**
  * Middleware per verificare i ruoli
  * Può essere usato per limitare l'accesso in base al ruolo
  * @param {string[]} roles - Array di ruoli autorizzati
  */
-function roleMiddleware(roles) {
-  return (req, res, next) => {
-    // Prima verifica se l'utente è autenticato
-    authMiddleware(req, res, () => {
-      // Verifica se il ruolo dell'utente è tra quelli autorizzati
-      if (roles.includes(req.user.role)) {
-        next();
-      } else {
-        res.status(403).json({
-          success: false,
-          message: 'Non hai i permessi necessari per accedere a questa risorsa'
-        });
-      }
-    });
-  };
-}
+const checkRole = (...roles) => {
+    return (req, res, next) => {
+        if (!req.user) {
+            return res.status(401).json({ error: 'Utente non autenticato' });
+        }
 
-module.exports = {
-  authMiddleware,
-  roleMiddleware
-}; 
+        if (!roles.includes(req.user.role)) {
+            return res.status(403).json({ 
+                error: 'Non hai i permessi necessari per questa operazione' 
+            });
+        }
+
+        next();
+    };
+};
+
+module.exports = { verifyToken, checkRole }; 

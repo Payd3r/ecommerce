@@ -2,39 +2,8 @@
 const express = require('express');
 const router = express.Router();
 const { registerUser, loginUser } = require('../services/auth_functions');
-const { authMiddleware, roleMiddleware } = require('../middleware/auth');
+const { verifyToken } = require('../middleware/auth');
 const db = require('../models/db'); // Importo il pool di connessione
-
-// Route di test
-router.get('/test', (req, res) => {
-  res.send('Auth route OK');
-});
-
-/**
- * @route   GET /auth/test-db
- * @desc    Testa la connessione al database
- * @access  Public
- */
-router.get('/test-db', async (req, res) => {
-  try {
-    // Tenta di eseguire una query semplice
-    const [result] = await db.query('SELECT 1 as test');
-    
-    res.status(200).json({
-      success: true,
-      message: 'Connessione al database riuscita!',
-      data: result
-    });
-  } catch (error) {
-    console.error('Errore connessione DB:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Errore nella connessione al database',
-      error: error.message,
-      stack: error.stack
-    });
-  }
-});
 
 /**
  * @route   POST /auth/register
@@ -114,7 +83,7 @@ router.post('/login', async (req, res) => {
  * @desc    Ottieni profilo utente
  * @access  Private (solo utenti autenticati)
  */
-router.get('/profile', authMiddleware, async (req, res) => {
+router.get('/profile', verifyToken, async (req, res) => {
   try {
     // Recupera i dettagli completi dell'utente dal database
     const [user] = await db.query(
@@ -148,21 +117,6 @@ router.get('/profile', authMiddleware, async (req, res) => {
       error: error.message
     });
   }
-});
-
-/**
- * @route   GET /auth/admin
- * @desc    Route protetta solo per admin
- * @access  Private (solo admin)
- */
-router.get('/admin', roleMiddleware(['admin']), (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Area amministrativa',
-    data: {
-      message: 'Hai accesso all\'area amministrativa'
-    }
-  });
 });
 
 module.exports = router;
