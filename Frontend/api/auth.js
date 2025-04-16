@@ -1,6 +1,6 @@
 const API_BASE_URL = 'http://localhost:3005';
 
-class ApiService {
+export class ApiService {
     static async login(email, password) {
         try {
             const response = await fetch(`${API_BASE_URL}/auth/login`, {
@@ -11,7 +11,8 @@ class ApiService {
                 body: JSON.stringify({ email, password })
             });
             const data = await response.json();
-            console.log('data', data);
+            console.log('Risposta server login:', data);
+            console.log('Struttura user:', data.data?.user);
             if (data.success) {
                 return {
                     token: data.data.token,

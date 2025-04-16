@@ -1,147 +1,234 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // Gestione del form di login
+import { Router } from './router.js';
+import { NavbarManager } from './navbar.js';
+import { ApiService } from '../api/auth.js';
+
+const router = new Router();
+const navbarManager = new NavbarManager();
+
+// Funzione per caricare la navbar
+async function loadNavbar() {
+    try {
+        const response = await fetch('/Frontend/html/components/navbar.html');
+        const html = await response.text();
+        document.getElementById('navbarContainer').innerHTML = html;
+        
+        // Aggiungi event listener per il logout dopo che la navbar è stata caricata
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', handleLogout);
+        }
+        
+        // Aggiorna la UI in base allo stato di autenticazione
+        const token = localStorage.getItem('token');
+        if (token) {
+            updateUIForLoggedInUser();
+        } else {
+            updateUIForLoggedOutUser();
+        }
+    } catch (error) {
+        console.error('Errore nel caricamento della navbar:', error);
+    }
+}
+
+// Funzione per inizializzare i form di autenticazione
+export function initializeAuthForms() {
     const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-
-            try {
-                const response = await ApiService.login(email, password);
-                if (response.token) {
-                    localStorage.setItem('token', response.token);
-                    localStorage.setItem('role', response.user.role);
-                    
-                    // Reindirizzamento in base al tipo di utente
-                    if (response.user.role === 'admin') {
-                        window.location.href = 'index.html?page=admin';
-                    } else if (response.user.role === 'client') {
-                        window.location.href = 'index.html?page=products';
-                    } else if (response.user.role === 'artisan') {
-                        window.location.href = 'index.html?page=dashboard';
-                    }
-                } else {
-                    alert('Credenziali non valide');
-                }
-            } catch (error) {
-                alert('Errore durante il login');
-            }
-        });
-    }
-
-    // Gestione del form di registrazione
     const registerForm = document.getElementById('registerForm');
+    
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    }
+
     if (registerForm) {
-        registerForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const name = document.getElementById('registerName').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const role = document.getElementById('registerType').value;
-
-            try {
-                const response = await ApiService.register(name, email, password, role);
-                if (response.token) {
-                    localStorage.setItem('token', response.token);
-                    localStorage.setItem('role', response.user.role);
-                    
-                    // Reindirizzamento in base al tipo di utente
-                    if (response.user.role === 'admin') {
-                        window.location.href = 'index.html?page=admin';
-                    } else if (response.user.role === 'client') {
-                        window.location.href = 'index.html?page=products';
-                    } else if (response.user.role === 'artisan') {
-                        window.location.href = 'index.html?page=dashboard';
-                    }
-                } else {
-                    alert('Errore durante la registrazione');
-                }
-            } catch (error) {
-                alert('Errore durante la registrazione');
-            }
-        });
+        registerForm.addEventListener('submit', handleRegister);
     }
+}
 
-    // Gestione del logout
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            localStorage.removeItem('token');
-            localStorage.removeItem('role');
-            window.location.href = 'autenticate.html';
-        });
+// Funzione per gestire il login
+async function handleLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    
+    try {
+        const response = await ApiService.login(email, password);
+        if (response && response.token) {
+            console.log('Login effettuato con successo:', response);
+            await handleAuthenticationSuccess(response);
+        } else {
+            alert('Credenziali non valide');
+        }
+    } catch (error) {
+        console.error('Errore durante il login:', error);
+        alert(error.message || 'Errore durante il login');
     }
+}
 
-    // Gestione della visualizzazione degli elementi in base all'autenticazione
+// Funzione per gestire la registrazione
+async function handleRegister(e) {
+    e.preventDefault();
+    const name = document.getElementById('registerName').value;
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+    const role = document.getElementById('registerType').value;
+    
+    try {
+        const response = await ApiService.register(name, email, password, role);
+        if (response && response.token) {
+            await handleAuthenticationSuccess(response);
+        } else {
+            alert('Errore durante la registrazione');
+        }
+    } catch (error) {
+        console.error('Errore durante la registrazione:', error);
+        alert(error.message || 'Errore durante la registrazione');
+    }
+}
+
+// Funzione per gestire il logout
+function handleLogout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    localStorage.removeItem('userName');
+    updateUIForLoggedOutUser();
+    window.location.replace('/Frontend/index.html#/auth');
+}
+
+// Funzione per gestire il successo dell'autenticazione
+async function handleAuthenticationSuccess(response) {
+    console.log('Gestione autenticazione:', response);
+    console.log('Ruolo utente:', response.user.role, typeof response.user.role);
+    const role = response.user.role;
+    localStorage.setItem('token', response.token);
+    localStorage.setItem('role', role);
+    localStorage.setItem('userName', response.user.name);
+    
+    // Reindirizza in base al ruolo
+    let redirectPath;
+    switch (role) {
+        case 'client':
+        case 'Client':
+            redirectPath = '/Frontend/html/Client/index.html';
+            break;
+        case 'artisan':
+        case 'Artisan':
+            redirectPath = '/Frontend/html/Artisan/index.html';
+            break;
+        case 'admin':
+        case 'Admin':
+            redirectPath = '/Frontend/html/Admin/index.html';
+            break;
+        default:
+            console.error('Ruolo non riconosciuto:', role);
+            redirectPath = '/Frontend/index.html#/auth';
+    }
+    
+    console.log('Reindirizzamento a:', redirectPath);
+    window.location.replace(redirectPath);
+}
+
+// Funzione per inizializzare l'applicazione
+async function initializeApp() {
     const token = localStorage.getItem('token');
-    const loginNavItem = document.getElementById('loginNavItem');
-    const logoutNavItem = document.getElementById('logoutNavItem');
-    const welcomeMessage = document.getElementById('welcomeMessage');
-
+    const userRole = localStorage.getItem('role');
+    
     if (token) {
         // Utente autenticato
-        if (loginNavItem) loginNavItem.style.display = 'none';
-        if (logoutNavItem) logoutNavItem.style.display = 'block';
-        if (welcomeMessage) {
-            ApiService.getProfile()
-                .then(profile => {
-                    welcomeMessage.textContent = `Benvenuto ${profile.name}!`;
-                })
-                .catch(() => {
-                    welcomeMessage.textContent = 'Benvenuto!';
-                });
+        navbarManager.updateUIForLoggedInUser();
+        
+        // Inizializza il router solo per i clienti
+        if (userRole === 'client') {
+            router.init();
+        }
+        // Reindirizza gli altri ruoli alle loro pagine specifiche
+        else if (window.location.pathname === '/index.html') {
+            window.location.href = `${userRole}.html`;
         }
     } else {
         // Utente non autenticato
-        if (loginNavItem) loginNavItem.style.display = 'block';
-        if (logoutNavItem) logoutNavItem.style.display = 'none';
-        if (welcomeMessage) {
-            welcomeMessage.textContent = 'Per accedere ai servizi, effettua il login o registrati.';
-        }
-    }
-
-    // Caricamento della pagina corretta in base al tipo di utente
-    const userType = localStorage.getItem('role');
-    const mainContent = document.getElementById('mainContent');
-    console.log('userType', userType);
-    if (token && mainContent) {
-        // Carica la pagina corretta in base al tipo di utente
-        if (userType === 'admin') {
-            loadPage('html/Admin/admin.html');
-        } else if (userType === 'client') {
-            loadPage('html/Client/products.html');
-        } else if (userType === 'artisan') {
-            loadPage('html/Artigiano/dashboard.html');
-        }
-    }
-
-    // Funzione per caricare dinamicamente le pagine
-    async function loadPage(pageName) {
-        try {
-            const response = await fetch(pageName);
-            const html = await response.text();
-            mainContent.innerHTML = html;
-        } catch (error) {
-            console.error('Errore nel caricamento della pagina:', error);
-            mainContent.innerHTML = '<div class="alert alert-danger">Errore nel caricamento della pagina</div>';
-        }
-    }
-
-    // Verifica se l'utente è autenticato
-    if (token) {
-        // Se siamo nella pagina di autenticazione e l'utente è già loggato, reindirizziamo alla home
-        if (window.location.pathname.includes('autenticate.html')) {
-            if (userType === 'client') {
-                window.location.href = 'index.html?page=products';
-            } else if (userType === 'artisan') {
-                window.location.href = 'index.html?page=dashboard';
-            }
-        }
-    } else {
-        // Se non siamo nella pagina di autenticazione e l'utente non è loggato, reindirizziamo al login
-        if (!window.location.pathname.includes('autenticate.html') && !window.location.pathname.includes('index.html')) {
+        navbarManager.updateUIForLoggedOutUser();
+        
+        // Reindirizza al login se non è già nella pagina di autenticazione
+        if (!window.location.pathname.includes('autenticate.html')) {
             window.location.href = 'autenticate.html';
         }
     }
+}
+
+// Funzione per aggiornare l'UI per utente loggato
+function updateUIForLoggedInUser() {
+    const userRole = localStorage.getItem('role');
+    const userName = localStorage.getItem('userName') || 'Utente';
+
+    // Gestione elementi comuni
+    const loginNavItem = document.getElementById('loginNavItem');
+    const logoutNavItem = document.getElementById('logoutNavItem');
+    const userInfo = document.getElementById('userInfo');
+    
+    if (loginNavItem) loginNavItem.style.display = 'none';
+    if (logoutNavItem) logoutNavItem.style.display = 'block';
+    if (userInfo) {
+        userInfo.style.display = 'block';
+        document.getElementById('userName').textContent = userName;
+    }
+
+    // Nascondi tutti i menu
+    const allMenus = ['clientMenu', 'artisanMenu', 'adminMenu'];
+    allMenus.forEach(menuId => {
+        const menu = document.getElementById(menuId);
+        if (menu) menu.style.display = 'none';
+    });
+
+    // Mostra il menu appropriato in base al ruolo
+    switch (userRole) {
+        case 'client':
+            const clientMenu = document.getElementById('clientMenu');
+            if (clientMenu) clientMenu.style.display = 'flex';
+            break;
+        case 'artisan':
+            const artisanMenu = document.getElementById('artisanMenu');
+            if (artisanMenu) artisanMenu.style.display = 'flex';
+            break;
+        case 'admin':
+            const adminMenu = document.getElementById('adminMenu');
+            if (adminMenu) adminMenu.style.display = 'flex';
+            break;
+    }
+}
+
+// Funzione per aggiornare l'UI per utente non loggato
+function updateUIForLoggedOutUser() {
+    const loginNavItem = document.getElementById('loginNavItem');
+    const logoutNavItem = document.getElementById('logoutNavItem');
+    const userInfo = document.getElementById('userInfo');
+    
+    // Nascondi tutti i menu
+    const allMenus = ['clientMenu', 'artisanMenu', 'adminMenu'];
+    allMenus.forEach(menuId => {
+        const menu = document.getElementById(menuId);
+        if (menu) menu.style.display = 'none';
+    });
+
+    // Mostra/nascondi elementi di autenticazione
+    if (loginNavItem) {
+        // Nascondi il pulsante login/registrazione se siamo nella pagina di autenticazione
+        loginNavItem.style.display = window.location.pathname.includes('autenticate.html') ? 'none' : 'block';
+    }
+    if (logoutNavItem) logoutNavItem.style.display = 'none';
+    if (userInfo) userInfo.style.display = 'none';
+}
+
+// Funzione per mostrare errori
+function showError(message) {
+    // Implementa la logica per mostrare gli errori (es. usando un alert o un toast)
+    alert(message);
+}
+
+// Inizializzazione al caricamento della pagina
+document.addEventListener('DOMContentLoaded', async () => {
+    // Carica la navbar
+    await navbarManager.loadNavbar();
+    
+    // Inizializza il router
+    router.init();
 });

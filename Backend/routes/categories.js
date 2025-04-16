@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../db');
+const db = require('../models/db');
 
 // Funzione di utilità per costruire l'albero delle categorie
-const buildCategoryTree = async (categories, parentId = null) => {
+const buildCategoryTree = async (categories, parentId = 1) => {
     const tree = [];
     
     for (const category of categories) {
-        if (category.dad_id === parentId) {
+        if (category.dad_id === parentId && category.id !== 1) {
             const children = await buildCategoryTree(categories, category.id);
             if (children.length) {
                 category.children = children;
@@ -22,7 +22,7 @@ const buildCategoryTree = async (categories, parentId = null) => {
 // GET /categories/tree - Ottieni l'albero completo delle categorie
 router.get('/tree', async (req, res) => {
     try {
-        const [categories] = await db.query('SELECT * FROM categories ORDER BY dad_id, name');
+        const [categories] = await db.query('SELECT * FROM categories WHERE id != 1 ORDER BY dad_id, name');
         const tree = await buildCategoryTree(categories);
         res.json(tree);
     } catch (error) {
@@ -68,12 +68,6 @@ router.post('/', async (req, res) => {
     }
     
     try {
-        // Verifica che la categoria padre esista
-        const [parentCategory] = await db.query('SELECT id FROM categories WHERE id = ?', [dad_id]);
-        if (parentCategory.length === 0) {
-            return res.status(400).json({ error: 'Categoria padre non valida' });
-        }
-        
         // Inserisci la nuova categoria
         const [result] = await db.query(
             'INSERT INTO categories (name, description, dad_id) VALUES (?, ?, ?)',
@@ -83,9 +77,6 @@ router.post('/', async (req, res) => {
         const [newCategory] = await db.query('SELECT * FROM categories WHERE id = ?', [result.insertId]);
         res.status(201).json(newCategory[0]);
     } catch (error) {
-        if (error.code === 'ER_DUP_ENTRY') {
-            return res.status(400).json({ error: 'Una categoria con questo nome esiste già' });
-        }
         console.error('Errore nella creazione della categoria:', error);
         res.status(500).json({ error: 'Errore nella creazione della categoria' });
     }
@@ -113,11 +104,6 @@ router.put('/:id', async (req, res) => {
             return res.status(400).json({ error: 'Una categoria non può essere padre di se stessa' });
         }
         
-        const [parentCategory] = await db.query('SELECT id FROM categories WHERE id = ?', [dad_id]);
-        if (parentCategory.length === 0) {
-            return res.status(400).json({ error: 'Categoria padre non valida' });
-        }
-        
         // Aggiorna la categoria
         await db.query(
             'UPDATE categories SET name = ?, description = ?, dad_id = ? WHERE id = ?',
@@ -127,9 +113,6 @@ router.put('/:id', async (req, res) => {
         const [updatedCategory] = await db.query('SELECT * FROM categories WHERE id = ?', [categoryId]);
         res.json(updatedCategory[0]);
     } catch (error) {
-        if (error.code === 'ER_DUP_ENTRY') {
-            return res.status(400).json({ error: 'Una categoria con questo nome esiste già' });
-        }
         console.error('Errore nell\'aggiornamento della categoria:', error);
         res.status(500).json({ error: 'Errore nell\'aggiornamento della categoria' });
     }
