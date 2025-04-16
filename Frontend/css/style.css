@@ -1,0 +1,136 @@
+/* Stili personalizzati non replicabili con Bootstrap */
+
+/* Colori personalizzati */
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+}
+
+/* Stili per la navbar */
+.navbar {
+    background-color: var(--primary-color) !important;
+}
+
+/* Stili per la card di benvenuto */
+.welcome-card {
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Effetti hover personalizzati */
+.btn-primary:hover {
+    transform: translateY(-2px);
+}
+
+.btn-outline-light:hover {
+    transform: translateY(-2px);
+}
+
+/* Transizioni personalizzate */
+.btn-primary,
+.btn-outline-light {
+    transition: all 0.3s ease;
+}
+
+/* Stili per le card dei prodotti (se necessario in futuro) */
+.product-card {
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Stili generali */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+/* Stili per il contenuto principale */
+.main-content {
+    flex: 1;
+    padding: 2rem 0;
+}
+
+.welcome-card h1 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    font-weight: bold;
+}
+
+.welcome-card p {
+    color: #666;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+
+/* Stili per i bottoni */
+.btn-primary {
+    background-color: #3498db;
+    border-color: #3498db;
+    padding: 0.5rem 2rem;
+    font-weight: 500;
+}
+
+.btn-outline-light {
+    border: 2px solid #fff;
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+}
+
+/* Stili per il footer */
+.footer {
+    background-color: #2c3e50;
+    color: white;
+    padding: 1rem 0;
+    margin-top: auto;
+}
+
+/* Stili per i messaggi di errore */
+.alert {
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+/* Stili per i form */
+.form-control {
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+}
+
+.form-control:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+/* Stili per i form di autenticazione */
+.auth-container {
+    max-width: 500px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Stili per i tab di autenticazione */
+.nav-tabs .nav-link {
+    color: #495057;
+    border: none;
+    padding: 1rem;
+}
+
+.nav-tabs .nav-link.active {
+    color: #007bff;
+    background-color: transparent;
+    border-bottom: 2px solid #007bff;
+} 
