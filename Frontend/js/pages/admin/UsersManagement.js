@@ -14,6 +14,10 @@ export async function loadUsersManagementPage() {
     // Ottiene i dati dell'utente
     const user = authService.getUser();
 
+    // Stato per l'ordinamento
+    let sortBy = 'name';
+    let sortOrder = 'asc';
+
     // Modifica il layout del titolo e aggiungi un pulsante per aggiungere utenti sulla destra
     pageElement.innerHTML = `
         <div class="container mt-4">
@@ -65,7 +69,7 @@ export async function loadUsersManagementPage() {
                             <table class="table">
                                 <thead>
                                     <tr>
-                                        <th>Nome</th>
+                                        <th id="sort-name-col" style="cursor:pointer">Nome <span id="sort-name-icon"></span></th>
                                         <th>Email</th>
                                         <th>Ruolo</th>
                                         <th>Data Creazione</th>
@@ -78,6 +82,47 @@ export async function loadUsersManagementPage() {
                             </table>
                             <div id="pagination-container" class="mt-3 d-flex justify-content-center"></div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+
+    // Add modal HTML and event listener for the 'Aggiungi Utente' button
+    pageElement.innerHTML += `
+        <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addUserModalLabel">Aggiungi Nuovo Utente</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="add-user-form">
+                            <div class="mb-3">
+                                <label for="user-name" class="form-label">Nome</label>
+                                <input type="text" class="form-control" id="user-name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="user-email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="user-email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="user-password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="user-password" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="user-role" class="form-label">Ruolo</label>
+                                <select class="form-select" id="user-role" required>
+                                    <option value="admin">Admin</option>
+                                    <option value="artisan">Artigiano</option>
+                                    <option value="client">Utente</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+                        <button type="button" id="save-user-btn" class="btn btn-primary">Salva</button>
                     </div>
                 </div>
             </div>
@@ -136,15 +181,19 @@ export async function loadUsersManagementPage() {
             let email = params.email !== undefined ? params.email : '';
             let role = params.role !== undefined ? params.role : '';
             let page = params.page !== undefined ? params.page : 1;
-            console.log('Caricamento utenti con i seguenti parametri:', name, email, role, page);
+            let limit = params.limit !== undefined ? params.limit : 10;
+            let orderBy = params.orderBy !== undefined ? params.orderBy : sortBy;
+            let orderDir = params.orderDir !== undefined ? params.orderDir : sortOrder;
 
-
-            // Prepara i parametri per la chiamata API
+            // Prepara i parametri per la chiamata API secondo UsersAPI.getUsers
             const apiParams = {
+                page,
+                role,
                 name,
                 email,
-                role,
-                page
+                limit,
+                orderBy,
+                orderDir
             };
 
             const response = await UsersAPI.getUsers(apiParams);
@@ -235,7 +284,6 @@ export async function loadUsersManagementPage() {
                 email: formData.get('filter-email') || '',
                 role: rawrole || '',
             };
-            console.log('Filtri applicati:', params);
             await loadUsersTable(params);
         };
 
@@ -244,6 +292,49 @@ export async function loadUsersManagementPage() {
             document.getElementById('filters-form').reset();
             await loadUsersTable();
         };
+
+        // Add event listener for the 'Aggiungi Utente' button
+        document.getElementById('add-user-btn').addEventListener('click', () => {
+            const addUserModal = new bootstrap.Modal(document.getElementById('addUserModal'));
+            addUserModal.show();
+        });
+
+        // Add event listener for the 'Salva' button in the modal
+        document.getElementById('save-user-btn').addEventListener('click', async () => {
+            const name = document.getElementById('user-name').value;
+            const email = document.getElementById('user-email').value;
+            const password = document.getElementById('user-password').value;
+            const role = document.getElementById('user-role').value;
+
+            if (!name || !email || !password || !role) {
+                toast.error('Tutti i campi sono obbligatori!');
+                return;
+            }
+
+            try {
+                await UsersAPI.createUser({ name, email, password, role });
+                toast.success('Utente aggiunto con successo!');
+                const addUserModal = bootstrap.Modal.getInstance(document.getElementById('addUserModal'));
+                addUserModal.hide();
+                await loadUsersTable();
+            } catch (error) {
+                toast.error('Errore durante l\'aggiunta dell\'utente.');
+                console.error(error);
+            }
+        });
+
+        // Event listener per ordinamento colonna Nome
+        const sortNameCol = document.getElementById('sort-name-col');
+        const sortNameIcon = document.getElementById('sort-name-icon');
+        function updateSortIcon() {
+            sortNameIcon.innerHTML = sortOrder === 'asc' ? '▲' : '▼';
+        }
+        updateSortIcon();
+        sortNameCol.addEventListener('click', async () => {
+            sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+            updateSortIcon();
+            await loadUsersTable();
+        });
     }
 
     /**
