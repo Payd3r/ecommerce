@@ -14,7 +14,7 @@ class Footer {
         
         // Crea il footer principale con Bootstrap
         const footer = document.createElement('footer');
-        footer.className = 'bg-light border-top pt-5 pb-3 mt-5';
+        footer.className = 'bg-light border-top pt-5 pb-3';
         footer.innerHTML = `
             <div class="container">
                 <div class="row gy-4">

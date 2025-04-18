@@ -125,7 +125,7 @@ export async function loadHomePage() {
                 </div>
             </div>
         </section>
-        <section class="cta-section py-5 bg-light">
+        <section class="cta-section py-5 bg-light mb-5">
             <div class="container">
                 <div class="cta-content text-center">
                     <h2>Sei un Artigiano?</h2>
