@@ -40,107 +40,94 @@ export async function loadHomePage() {
     
     // Costruisce il contenuto della pagina
     pageElement.innerHTML = `
-        <section class="hero">
-            <div class="container">
-                <h1>Scopri l'Artigianato Italiano</h1>
-                <p class="hero-description">Prodotti unici realizzati con passione e tradizione</p>
-                <a href="/products" class="btn btn-primary" data-route>Esplora i Prodotti</a>
+        <section class="hero py-5 bg-light">
+            <div class="container text-center">
+                <h1 class="display-4 mb-2">Scopri l'Artigianato Italiano</h1>
+                <p class="lead mb-4">Prodotti unici realizzati con passione e tradizione</p>
+                <a href="/products" class="btn btn-primary btn-lg" data-route>Esplora i Prodotti</a>
             </div>
         </section>
-        
-        <section class="featured">
+        <section class="featured py-4">
             <div class="container">
-                <h2>Categorie in Evidenza</h2>
-                <div class="grid grid-3" id="featured-categories">
-                    <div class="skeleton-card"></div>
-                    <div class="skeleton-card"></div>
-                    <div class="skeleton-card"></div>
+                <h2 class="mb-4">Categorie in Evidenza</h2>
+                <div class="row g-4" id="featured-categories">
+                    <div class="col-12 col-md-4"><div class="skeleton-card card"></div></div>
+                    <div class="col-12 col-md-4"><div class="skeleton-card card"></div></div>
+                    <div class="col-12 col-md-4"><div class="skeleton-card card"></div></div>
                 </div>
             </div>
         </section>
-        
-        <section class="products-section">
+        <section class="products-section py-4">
             <div class="container">
-                <div class="section-header">
-                    <h2>Prodotti Artigianali</h2>
-                    <button id="toggle-filters" class="btn btn-sm">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="mb-0">Prodotti Artigianali</h2>
+                    <button id="toggle-filters" class="btn btn-outline-secondary btn-sm d-md-none">
                         <span>Filtri</span>
                         <span class="icon">▼</span>
                     </button>
                 </div>
-                
-                <div id="filters-container" class="filters-container hidden">
-                    <form id="filters-form" class="filters-form">
-                        <div class="filters-row">
-                            <div class="filter-group">
-                                <label for="search">Ricerca</label>
-                                <input type="text" id="search" name="search" placeholder="Cerca prodotti...">
+                <div class="row">
+                    <aside class="col-12 col-md-4 mb-4 mb-md-0" id="filters-container">
+                        <form id="filters-form" class="filters-form">
+                            <div class="mb-3">
+                                <label for="search" class="form-label">Ricerca</label>
+                                <input type="text" id="search" name="search" class="form-control" placeholder="Cerca prodotti...">
                             </div>
-                            
-                            <div class="filter-group">
-                                <label for="category">Categoria</label>
-                                <select id="category" name="category">
+                            <div class="mb-3">
+                                <label for="category" class="form-label">Categoria</label>
+                                <select id="category" name="category" class="form-select">
                                     <option value="">Tutte le categorie</option>
-                                    <!-- Opzioni caricate dinamicamente -->
                                 </select>
                             </div>
-                            
-                            <div class="filter-group">
-                                <label for="artisan">Artigiano</label>
-                                <select id="artisan" name="artisan">
+                            <div class="mb-3">
+                                <label for="artisan" class="form-label">Artigiano</label>
+                                <select id="artisan" name="artisan" class="form-select">
                                     <option value="">Tutti gli artigiani</option>
-                                    <!-- Opzioni caricate dinamicamente -->
                                 </select>
                             </div>
-                        </div>
-                        
-                        <div class="filters-row">
-                            <div class="filter-group">
-                                <label for="min-price">Prezzo minimo (€)</label>
-                                <input type="number" id="min-price" name="minPrice" min="0" step="1" placeholder="Min">
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label for="min-price" class="form-label">Prezzo minimo (€)</label>
+                                    <input type="number" id="min-price" name="minPrice" min="0" step="1" class="form-control" placeholder="Min">
+                                </div>
+                                <div class="col">
+                                    <label for="max-price" class="form-label">Prezzo massimo (€)</label>
+                                    <input type="number" id="max-price" name="maxPrice" min="0" step="1" class="form-control" placeholder="Max">
+                                </div>
                             </div>
-                            
-                            <div class="filter-group">
-                                <label for="max-price">Prezzo massimo (€)</label>
-                                <input type="number" id="max-price" name="maxPrice" min="0" step="1" placeholder="Max">
-                            </div>
-                            
-                            <div class="filter-buttons">
+                            <div class="d-flex gap-2">
                                 <button type="submit" class="btn btn-primary">Applica filtri</button>
                                 <button type="reset" class="btn btn-secondary" id="reset-filters">Reset</button>
                             </div>
+                        </form>
+                    </aside>
+                    <main class="col-12 col-md-8">
+                        <div id="products-container" class="row g-4">
+                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
+                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
+                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
+                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
+                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
+                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
+                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
+                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
                         </div>
-                    </form>
-                </div>
-                
-                <div id="products-container" class="grid grid-4">
-                    <!-- Skeleton loader -->
-                    <div class="skeleton-card"></div>
-                    <div class="skeleton-card"></div>
-                    <div class="skeleton-card"></div>
-                    <div class="skeleton-card"></div>
-                    <div class="skeleton-card"></div>
-                    <div class="skeleton-card"></div>
-                    <div class="skeleton-card"></div>
-                    <div class="skeleton-card"></div>
-                </div>
-                
-                <div id="pagination" class="pagination">
-                    <button id="prev-page" class="btn btn-sm" disabled>&laquo; Precedente</button>
-                    <div id="page-numbers" class="page-numbers"></div>
-                    <button id="next-page" class="btn btn-sm" disabled>Successiva &raquo;</button>
-                </div>
-                
-                <div id="no-results" class="no-results hidden">
-                    <p>Nessun prodotto trovato con i criteri di ricerca specificati.</p>
-                    <button id="clear-filters" class="btn btn-primary">Cancella filtri</button>
+                        <div id="pagination" class="pagination mt-4">
+                            <button id="prev-page" class="btn btn-outline-secondary btn-sm me-2" disabled>&laquo; Precedente</button>
+                            <div id="page-numbers" class="page-numbers d-inline-block"></div>
+                            <button id="next-page" class="btn btn-outline-secondary btn-sm ms-2" disabled>Successiva &raquo;</button>
+                        </div>
+                        <div id="no-results" class="no-results alert alert-warning mt-4 d-none">
+                            <p class="mb-2">Nessun prodotto trovato con i criteri di ricerca specificati.</p>
+                            <button id="clear-filters" class="btn btn-primary">Cancella filtri</button>
+                        </div>
+                    </main>
                 </div>
             </div>
         </section>
-        
-        <section class="cta-section">
+        <section class="cta-section py-5 bg-light">
             <div class="container">
-                <div class="cta-content">
+                <div class="cta-content text-center">
                     <h2>Sei un Artigiano?</h2>
                     <p>Unisciti alla nostra piattaforma e porta i tuoi prodotti artigianali a un pubblico più ampio.</p>
                     <a href="/register" class="btn btn-secondary" data-route>Inizia a Vendere</a>

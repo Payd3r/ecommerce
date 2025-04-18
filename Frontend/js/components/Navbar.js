@@ -21,95 +21,49 @@ class Navbar {
         const isAuthenticated = authService.isAuthenticated();
         const user = authService.getUser();
         
-        // Crea la struttura base della navbar
-        const navbar = document.createElement('div');
-        navbar.className = 'navbar container';
+        // Crea la struttura base della navbar con Bootstrap
+        const navbar = document.createElement('nav');
+        navbar.className = 'navbar navbar-expand-lg navbar-light bg-white shadow-sm';
         
-        // Logo
-        const logoDiv = document.createElement('div');
-        logoDiv.className = 'navbar-logo';
-        logoDiv.innerHTML = `
-            <a href="/">ArtigianatoShop</a>
-        `;
-        
-        // Menu principale
-        const menu = document.createElement('nav');
-        menu.className = 'navbar-menu';
-        
-        const menuItems = document.createElement('ul');
-        menuItems.id = 'main-menu';
-        
-        // Menu sempre visibile
-        menuItems.innerHTML = `
-            <li><a href="/" data-route>Home</a></li>
-            <li><a href="/products" data-route>Prodotti</a></li>
-            <li><a href="/categories" data-route>Categorie</a></li>
-            <li><a href="/artisans" data-route>Artigiani</a></li>
-        `;
-        
-        // Aggiunge voci di menu specifiche per i diversi ruoli
-        if (isAuthenticated && user) {
-            if (user.role === 'admin') {
-                menuItems.innerHTML += `
-                    <li><a href="/admin/dashboard" data-route>Dashboard</a></li>
-                `;
-            } else if (user.role === 'artisan') {
-                menuItems.innerHTML += `
-                    <li><a href="/artisan/dashboard" data-route>Dashboard</a></li>
-                `;
-            }
-        }
-        
-        menu.appendChild(menuItems);
-        
-        // Menu hamburger per mobile
-        const hamburger = document.createElement('button');
-        hamburger.className = 'hamburger-menu';
-        hamburger.innerHTML = `
-            <span></span>
-            <span></span>
-            <span></span>
-        `;
-        hamburger.addEventListener('click', this.toggleMobileMenu);
-        menu.appendChild(hamburger);
-        
-        // Menu utente (login/register o profilo/logout)
-        const userMenu = document.createElement('div');
-        userMenu.className = 'user-menu';
-        
-        if (isAuthenticated) {
-            // Carrello (solo per i clienti)
-            if (user.role === 'client') {
-                userMenu.innerHTML = `
-                    <a href="/cart" class="cart-icon" data-route>
-                        🛒 <span class="cart-count" id="cart-count">0</span>
-                    </a>
-                `;
-            }
-            
-            // Dropdown menu utente
-            userMenu.innerHTML += `
-                <div class="dropdown">
-                    <button class="btn dropdown-toggle">
-                        ${user.name} <span class="arrow-down">▼</span>
-                    </button>
-                    <div class="dropdown-menu">
-                        <a href="/profile" data-route>Profilo</a>
-                        <a href="#" id="logout-btn">Esci</a>
+        navbar.innerHTML = `
+            <div class="container">
+                <a class="navbar-brand fw-bold" href="/" data-route>ArtigianatoShop</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="mainNavbar">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item"><a class="nav-link" href="/" data-route>Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/products" data-route>Prodotti</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/categories" data-route>Categorie</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/artisans" data-route>Artigiani</a></li>
+                        ${isAuthenticated && user && user.role === 'admin' ? `<li class="nav-item"><a class="nav-link" href="/admin/dashboard" data-route>Dashboard</a></li>` : ''}
+                        ${isAuthenticated && user && user.role === 'artisan' ? `<li class="nav-item"><a class="nav-link" href="/artisan/dashboard" data-route>Dashboard</a></li>` : ''}
+                    </ul>
+                    <div class="d-flex align-items-center gap-2">
+                        ${isAuthenticated && user && user.role === 'client' ? `
+                            <a href="/cart" class="btn btn-outline-secondary position-relative me-2" data-route>
+                                🛒 <span class="cart-count position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cart-count">0</span>
+                            </a>
+                        ` : ''}
+                        ${isAuthenticated ? `
+                            <div class="dropdown">
+                                <button class="btn btn-outline-primary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    ${user.name}
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li><a class="dropdown-item" href="/profile" data-route>Profilo</a></li>
+                                    <li><a class="dropdown-item" href="#" id="logout-btn">Esci</a></li>
+                                </ul>
+                            </div>
+                        ` : `
+                            <a href="/login" class="btn btn-outline-primary" data-route>Accedi</a>
+                            <a href="/register" class="btn btn-primary" data-route>Registrati</a>
+                        `}
                     </div>
                 </div>
-            `;
-        } else {
-            userMenu.innerHTML = `
-                <a href="/login" class="btn" data-route>Accedi</a>
-                <a href="/register" class="btn" data-route>Registrati</a>
-            `;
-        }
-        
-        // Assembla la navbar
-        navbar.appendChild(logoDiv);
-        navbar.appendChild(menu);
-        navbar.appendChild(userMenu);
+            </div>
+        `;
         
         // Pulisce e aggiunge la navbar al container
         this.container.innerHTML = '';
@@ -120,12 +74,6 @@ class Navbar {
             const logoutBtn = document.getElementById('logout-btn');
             if (logoutBtn) {
                 logoutBtn.addEventListener('click', this.handleLogout.bind(this));
-            }
-            
-            // Aggiunge i listener per il menu dropdown
-            const dropdownToggle = document.querySelector('.dropdown-toggle');
-            if (dropdownToggle) {
-                dropdownToggle.addEventListener('click', this.toggleDropdown);
             }
         }
     }
@@ -145,41 +93,6 @@ class Navbar {
         
         // Reindirizza alla home
         router.navigateToHome();
-    }
-    
-    /**
-     * Mostra/nasconde il menu mobile
-     */
-    toggleMobileMenu() {
-        const menu = document.getElementById('main-menu');
-        const hamburger = document.querySelector('.hamburger-menu');
-        
-        menu.classList.toggle('show');
-        hamburger.classList.toggle('active');
-    }
-    
-    /**
-     * Mostra/nasconde il menu dropdown
-     * @param {Event} event - Evento click
-     */
-    toggleDropdown(event) {
-        event.preventDefault();
-        
-        const dropdown = event.currentTarget.nextElementSibling;
-        dropdown.classList.toggle('show');
-        
-        // Chiude il dropdown quando si clicca fuori
-        const closeDropdown = (e) => {
-            if (!e.target.matches('.dropdown-toggle') && 
-                !e.target.closest('.dropdown-menu')) {
-                dropdown.classList.remove('show');
-                document.removeEventListener('click', closeDropdown);
-            }
-        };
-        
-        setTimeout(() => {
-            document.addEventListener('click', closeDropdown);
-        }, 0);
     }
 }
 

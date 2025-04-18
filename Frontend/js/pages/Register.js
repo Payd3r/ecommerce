@@ -34,67 +34,57 @@ export async function loadRegisterPage() {
     
     // Costruisce il contenuto della pagina
     pageElement.innerHTML = `
-        <div class="container">
-            <div class="card auth-card">
-                <h2 class="text-center">Registrati</h2>
-                <p class="text-center mb-md">Crea il tuo account su ArtigianatoShop</p>
-                
-                <form id="register-form">
-                    <div class="form-group">
-                        <label for="name">Nome completo</label>
-                        <input type="text" id="name" name="name" required placeholder="Il tuo nome e cognome">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" required placeholder="esempio@email.com">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" required 
-                            placeholder="Crea una password" minlength="6">
-                        <small class="form-text">La password deve contenere almeno 6 caratteri</small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="password-confirm">Conferma password</label>
-                        <input type="password" id="password-confirm" name="passwordConfirm" required 
-                            placeholder="Ripeti la password" minlength="6">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Tipo di account</label>
-                        <div class="role-selector">
-                            <div class="role-option">
-                                <input type="radio" id="role-client" name="role" value="client" checked>
-                                <label for="role-client">
-                                    <span class="role-icon">👤</span>
-                                    <span class="role-title">Cliente</span>
-                                    <span class="role-desc">Voglio acquistare prodotti artigianali</span>
-                                </label>
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-8 col-lg-6">
+                    <div class="card shadow-sm p-4">
+                        <h2 class="text-center mb-3">Registrati</h2>
+                        <p class="text-center mb-4 text-muted">Crea il tuo account su ArtigianatoShop</p>
+                        <form id="register-form">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Nome completo</label>
+                                <input type="text" id="name" name="name" required placeholder="Il tuo nome e cognome" class="form-control">
                             </div>
-                            
-                            <div class="role-option">
-                                <input type="radio" id="role-artisan" name="role" value="artisan">
-                                <label for="role-artisan">
-                                    <span class="role-icon">🛠️</span>
-                                    <span class="role-title">Artigiano</span>
-                                    <span class="role-desc">Voglio vendere i miei prodotti</span>
-                                </label>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" id="email" name="email" required placeholder="esempio@email.com" class="form-control">
                             </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" id="password" name="password" required placeholder="Crea una password" minlength="6" class="form-control">
+                                <small class="form-text text-muted">La password deve contenere almeno 6 caratteri</small>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password-confirm" class="form-label">Conferma password</label>
+                                <input type="password" id="password-confirm" name="passwordConfirm" required placeholder="Ripeti la password" minlength="6" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Tipo di account</label>
+                                <div class="d-flex gap-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" id="role-client" name="role" value="client" checked>
+                                        <label class="form-check-label" for="role-client">
+                                            <span class="role-icon">👤</span> Cliente
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" id="role-artisan" name="role" value="artisan">
+                                        <label class="form-check-label" for="role-artisan">
+                                            <span class="role-icon">🛠️</span> Artigiano
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-grid mb-3">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <span class="btn-text">Crea account</span>
+                                </button>
+                            </div>
+                        </form>
+                        <div class="auth-links text-center mt-3">
+                            <p>Hai già un account? <a href="/login" data-route>Accedi</a></p>
                         </div>
                     </div>
-                    
-                    <div class="form-group mt-md">
-                        <button type="submit" class="btn btn-primary btn-block">
-                            <span class="btn-text">Crea account</span>
-                        </button>
-                    </div>
-                </form>
-                
-                <div class="auth-links text-center mt-md">
-                    <p>Hai già un account? <a href="/login" data-route>Accedi</a></p>
                 </div>
             </div>
         </div>

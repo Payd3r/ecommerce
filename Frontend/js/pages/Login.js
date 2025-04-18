@@ -38,31 +38,31 @@ export async function loadLoginPage() {
     
     // Costruisce il contenuto della pagina
     pageElement.innerHTML = `
-        <div class="container">
-            <div class="card auth-card">
-                <h2 class="text-center">Accedi</h2>
-                <p class="text-center mb-md">Inserisci le tue credenziali per accedere</p>
-                
-                <form id="login-form">
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" required placeholder="esempio@email.com">
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-6 col-lg-5">
+                    <div class="card shadow-sm p-4">
+                        <h2 class="text-center mb-3">Accedi</h2>
+                        <p class="text-center mb-4 text-muted">Inserisci le tue credenziali per accedere</p>
+                        <form id="login-form">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" id="email" name="email" required placeholder="esempio@email.com" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" id="password" name="password" required placeholder="La tua password" class="form-control">
+                            </div>
+                            <div class="d-grid mb-3">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <span class="btn-text">Accedi</span>
+                                </button>
+                            </div>
+                        </form>
+                        <div class="auth-links text-center mt-3">
+                            <p>Non hai un account? <a href="/register" data-route>Registrati</a></p>
+                        </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" required placeholder="La tua password">
-                    </div>
-                    
-                    <div class="form-group mt-md">
-                        <button type="submit" class="btn btn-primary btn-block">
-                            <span class="btn-text">Accedi</span>
-                        </button>
-                    </div>
-                </form>
-                
-                <div class="auth-links text-center mt-md">
-                    <p>Non hai un account? <a href="/register" data-route>Registrati</a></p>
                 </div>
             </div>
         </div>
