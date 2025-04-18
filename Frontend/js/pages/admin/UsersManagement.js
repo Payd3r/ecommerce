@@ -1,0 +1,224 @@
+import { authService } from '../../services/authService.js';
+import { toast } from '../../components/Toast.js';
+import UsersAPI from '../../../api/users.js';
+
+/**
+ * Carica la dashboard dell'amministratore
+ * @returns {Object} - Oggetto con i metodi del componente
+ */
+export async function loadUsersManagementPage() {
+    // Crea l'elemento principale della pagina
+    const pageElement = document.createElement('div');
+    pageElement.className = 'admin-dashboard-page';
+
+    // Ottiene i dati dell'utente
+    const user = authService.getUser();
+
+    // Modifica il layout del titolo e aggiungi un pulsante per aggiungere utenti sulla destra
+    pageElement.innerHTML = `
+        <div class="container mt-4">
+            <div class="row mb-4">
+                <div class="col d-flex justify-content-between align-items-center">
+                    <h1 class="text-left">Gestione Utenti</h1>
+                    <button id="add-user-btn" class="btn btn-success">Aggiungi Utente</button>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Colonna per i filtri -->
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Filtri</h5>
+                            <form id="filters-form">
+                                <div class="form-group">
+                                    <label for="filter-name">Nome</label>
+                                    <input type="text" id="filter-name" class="form-control" placeholder="Inserisci il nome">
+                                </div>
+                                <div class="form-group">
+                                    <label for="filter-email">Email</label>
+                                    <input type="email" id="filter-email" class="form-control" placeholder="Inserisci l'email">
+                                </div>
+                                <div class="form-group">
+                                    <label for="filter-role">Ruolo</label>
+                                    <select id="filter-role" class="form-control mb-3">
+                                        <option value="">Tutti</option>
+                                        <option value="admin">Admin</option>
+                                        <option value="artigiano">Artigiano</option>
+                                        <option value="user">Utente</option>
+                                    </select>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <button type="submit" class="btn btn-primary">Applica Filtri</button>
+                                    <button type="button" id="reset-filters-btn" class="btn btn-secondary">Reset Filtri</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Colonna per la tabella degli utenti -->
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Utenti Registrati</h5>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Email</th>
+                                        <th>Ruolo</th>
+                                        <th>Data Creazione</th>
+                                        <th>Azioni</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table-body">
+                                   
+                                </tbody>
+                            </table>
+                            <div id="pagination-container" class="mt-3 d-flex justify-content-center"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+
+    // Funzione per generare un badge colorato in base al ruolo
+    function getRoleBadge(role) {
+        let badgeClass = '';
+        switch (role) {
+            case 'admin':
+                badgeClass = 'badge bg-danger';
+                return `<span class="${badgeClass}">Admin</span>`;
+            case 'artisan':
+                badgeClass = 'badge bg-warning';
+                return `<span class="${badgeClass}">Artigiano</span>`;
+            case 'client':
+                badgeClass = 'badge bg-primary';
+                return `<span class="${badgeClass}">Cliente</span>`;
+            default:
+                badgeClass = 'badge bg-primary';
+                return `<span class="${badgeClass}">Cliente</span>`;
+        }
+    }
+
+    // Aggiungi i bottoni per la paginazione sotto la tabella
+    function renderPagination(pagination) {
+        const paginationContainer = document.getElementById('pagination-container');
+        paginationContainer.innerHTML = '';
+
+        if (pagination.totalPages > 1) {
+            const prevButton = document.createElement('button');
+            prevButton.className = 'btn btn-secondary me-2';
+            prevButton.textContent = 'Precedente';
+            prevButton.disabled = !pagination.hasPrevPage;
+            prevButton.addEventListener('click', () => {
+                loadUsersTable({ page: pagination.currentPage - 1 });
+            });
+            paginationContainer.appendChild(prevButton);
+
+            const nextButton = document.createElement('button');
+            nextButton.className = 'btn btn-secondary';
+            nextButton.textContent = 'Successivo';
+            nextButton.disabled = !pagination.hasNextPage;
+            nextButton.addEventListener('click', () => {
+                loadUsersTable({ page: pagination.currentPage + 1 });
+            });
+            paginationContainer.appendChild(nextButton);
+        }
+    }
+
+    // Funzione per caricare e popolare la tabella degli utenti
+    async function loadUsersTable(params = {}) {
+        try {
+            const filtersForm = document.getElementById('filters-form');
+            const formData = new FormData(filtersForm);
+
+            params.search = formData.get('filter-name') || '';
+            params.role = formData.get('filter-role') || '';
+
+            const response = await UsersAPI.getUsers(params);
+
+            const users = response.users || [];
+            const pagination = response.pagination || {};
+
+            const tableBody = document.getElementById('users-table-body');
+            tableBody.innerHTML = '';
+
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>${getRoleBadge(user.role)}</td>
+                    <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-secondary" type="button" id="dropdownMenuButton-${user.id}" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-three-dots"></i>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-${user.id}">
+                                <li><button class="dropdown-item" onclick="editUser(${user.id})">Modifica</button></li>
+                                <li><button class="dropdown-item text-danger" onclick="deleteUser(${user.id})">Elimina</button></li>
+                            </ul>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            renderPagination(pagination);
+        } catch (error) {
+            if (error.message.includes('401')) {
+                console.error('Errore di autenticazione. Reindirizzamento alla pagina di login.');
+                window.location.href = '/login';
+            } else {
+                console.error('Errore durante il caricamento degli utenti:', error);
+            }
+        }
+    }
+
+    // Rendi le funzioni editUser e deleteUser accessibili globalmente
+    window.editUser = function (userId) {
+        console.log(`Modifica utente con ID: ${userId}`);
+        // Implementa la logica per modificare l'utente
+    };
+
+    window.deleteUser = function (userId) {
+        console.log(`Elimina utente con ID: ${userId}`);
+        // Implementa la logica per eliminare l'utente
+    };
+
+    // In un'implementazione reale, qui caricheremmo i dati dal backend
+    async function loadDashboardData() {
+        // Simulazione caricamento dati
+        toast.info('Dashboard amministratore caricata con successo');
+        await loadUsersTable();
+    }
+
+    /**
+     * Inizializza gli event listener
+     */
+    function mount() {
+        loadDashboardData();
+
+        // Aggiungi un event listener per il form dei filtri
+        document.getElementById('filters-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            await loadUsersTable();
+        });
+    }
+
+    /**
+     * Rimuove gli event listener
+     */
+    function unmount() {
+        // Nessun event listener da rimuovere
+    }
+
+    return {
+        render: () => pageElement,
+        mount,
+        unmount
+    };
+}
