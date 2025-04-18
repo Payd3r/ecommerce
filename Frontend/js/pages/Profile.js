@@ -1,6 +1,6 @@
 // Importo le dipendenze
 import { authService } from '../services/authService.js';
-import { toast } from '../components/Toast.js';
+import { showBootstrapToast } from '../components/Toast.js';
 import { loader } from '../components/Loader.js';
 import { router } from '../router.js';
 
@@ -18,72 +18,73 @@ export async function loadProfilePage() {
     
     // Costruisce il contenuto della pagina
     pageElement.innerHTML = `
-        <div class="container">
-            <div class="profile-header">
-                <h1>Il tuo profilo</h1>
-            </div>
-            
-            <div class="grid grid-2">
-                <div class="card">
-                    <h2>Informazioni personali</h2>
-                    <form id="profile-form">
-                        <div class="form-group">
-                            <label for="name">Nome completo</label>
-                            <input type="text" id="name" name="name" value="${user.name}" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" id="email" name="email" value="${user.email}" required readonly>
-                            <small class="form-text">L'indirizzo email non può essere modificato</small>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="role">Tipo di account</label>
-                            <input type="text" id="role" value="${getRoleLabel(user.role)}" readonly>
-                        </div>
-                        
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">
-                                <span class="btn-text">Aggiorna profilo</span>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                
-                <div class="card">
-                    <h2>Cambia password</h2>
-                    <form id="password-form">
-                        <div class="form-group">
-                            <label for="current-password">Password attuale</label>
-                            <input type="password" id="current-password" name="currentPassword" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="new-password">Nuova password</label>
-                            <input type="password" id="new-password" name="newPassword" required minlength="6">
-                            <small class="form-text">La password deve contenere almeno 6 caratteri</small>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="confirm-password">Conferma nuova password</label>
-                            <input type="password" id="confirm-password" name="confirmPassword" required minlength="6">
-                        </div>
-                        
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">
-                                <span class="btn-text">Cambia password</span>
-                            </button>
-                        </div>
-                    </form>
+        <div class="container py-5">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h1 class="mb-3">Il tuo profilo</h1>
                 </div>
             </div>
-            
-            <div class="card mt-md">
-                <h2>Azioni account</h2>
-                <div class="action-buttons">
-                    <button id="logout-btn" class="btn btn-secondary">Esci dall'account</button>
-                    <button id="delete-account-btn" class="btn btn-danger">Elimina account</button>
+            <div class="row g-4">
+                <div class="col-12 col-md-6">
+                    <div class="card shadow-sm border-0 p-4 h-100">
+                        <h2 class="h5 mb-3">Informazioni personali</h2>
+                        <form id="profile-form">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Nome completo</label>
+                                <input type="text" id="name" name="name" class="form-control" value="${user.name}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" id="email" name="email" class="form-control" value="${user.email}" required readonly>
+                                <div class="form-text">L'indirizzo email non può essere modificato</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="role" class="form-label">Tipo di account</label>
+                                <input type="text" id="role" class="form-control" value="${getRoleLabel(user.role)}" readonly>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">
+                                    <span class="btn-text">Aggiorna profilo</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="card shadow-sm border-0 p-4 h-100">
+                        <h2 class="h5 mb-3">Cambia password</h2>
+                        <form id="password-form">
+                            <div class="mb-3">
+                                <label for="current-password" class="form-label">Password attuale</label>
+                                <input type="password" id="current-password" name="currentPassword" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="new-password" class="form-label">Nuova password</label>
+                                <input type="password" id="new-password" name="newPassword" class="form-control" required minlength="6">
+                                <div class="form-text">La password deve contenere almeno 6 caratteri</div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="confirm-password" class="form-label">Conferma nuova password</label>
+                                <input type="password" id="confirm-password" name="confirmPassword" class="form-control" required minlength="6">
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">
+                                    <span class="btn-text">Cambia password</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card shadow-sm border-0 p-4">
+                        <h2 class="h5 mb-3">Azioni account</h2>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button id="logout-btn" class="btn btn-outline-secondary">Esci dall'account</button>
+                            <button id="delete-account-btn" class="btn btn-outline-danger">Elimina account</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -116,7 +117,7 @@ export async function loadProfilePage() {
         
         // Validazione base
         if (!name) {
-            toast.error('Il nome è obbligatorio');
+            showBootstrapToast('Il nome è obbligatorio', 'Errore', 'error');
             return;
         }
         
@@ -142,12 +143,12 @@ export async function loadProfilePage() {
             localStorage.setItem('auth_user', JSON.stringify(updatedUser));
             
             // Mostra messaggio di successo
-            toast.success('Profilo aggiornato con successo');
+            showBootstrapToast('Profilo aggiornato con successo', 'Successo', 'success');
             
             // Invia evento di cambio autenticazione
             document.dispatchEvent(new CustomEvent('auth:change'));
         } catch (error) {
-            toast.error('Errore durante l\'aggiornamento del profilo: ' + error.message);
+            showBootstrapToast('Errore durante l\'aggiornamento del profilo: ' + error.message, 'Errore', 'error');
         } finally {
             // Ripristina il form
             const submitBtn = form.querySelector('button[type="submit"]');
@@ -175,17 +176,17 @@ export async function loadProfilePage() {
         
         // Validazione base
         if (!currentPassword || !newPassword || !confirmPassword) {
-            toast.error('Compila tutti i campi');
+            showBootstrapToast('Compila tutti i campi', 'Errore', 'error');
             return;
         }
         
         if (newPassword !== confirmPassword) {
-            toast.error('Le nuove password non corrispondono');
+            showBootstrapToast('Le nuove password non corrispondono', 'Errore', 'error');
             return;
         }
         
         if (newPassword.length < 6) {
-            toast.error('La nuova password deve contenere almeno 6 caratteri');
+            showBootstrapToast('La nuova password deve contenere almeno 6 caratteri', 'Errore', 'error');
             return;
         }
         
@@ -207,12 +208,12 @@ export async function loadProfilePage() {
             await new Promise(resolve => setTimeout(resolve, 1000));
             
             // Mostra messaggio di successo
-            toast.success('Password aggiornata con successo');
+            showBootstrapToast('Password aggiornata con successo', 'Successo', 'success');
             
             // Resetta il form
             form.reset();
         } catch (error) {
-            toast.error('Errore durante il cambio della password: ' + error.message);
+            showBootstrapToast('Errore durante il cambio della password: ' + error.message, 'Errore', 'error');
         } finally {
             // Ripristina il form
             const submitBtn = form.querySelector('button[type="submit"]');
@@ -230,17 +231,16 @@ export async function loadProfilePage() {
      * Gestisce il logout
      */
     function handleLogout() {
+        console.log("entro");
         // Esegue il logout
         authService.logout();
-        
         // Invia evento di cambio autenticazione
         document.dispatchEvent(new CustomEvent('auth:change'));
-        
-        // Reindirizza alla home
-        router.navigateToHome();
-        
+        // Reindirizza alla login
+        console.log("logout");
+        router.navigate('/');
         // Mostra messaggio di successo
-        toast.success('Logout effettuato con successo');
+        showBootstrapToast('Logout effettuato con successo', 'Successo', 'success');
     }
     
     /**
@@ -262,7 +262,7 @@ export async function loadProfilePage() {
             router.navigateToHome();
             
             // Mostra messaggio di successo
-            toast.success('Account eliminato con successo');
+            showBootstrapToast('Account eliminato con successo', 'Successo', 'success');
         }
     }
     
@@ -309,6 +309,7 @@ export async function loadProfilePage() {
         if (logoutBtn) {
             logoutBtn.removeEventListener('click', handleLogout);
         }
+        
         
         const deleteAccountBtn = document.getElementById('delete-account-btn');
         if (deleteAccountBtn) {

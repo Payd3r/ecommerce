@@ -25,6 +25,7 @@ app.use('/auth', require('./routes/auth'));
 app.use('/products', require('./routes/products'));
 app.use('/users', require('./routes/users'));
 app.use('/categories', require('./routes/categories'));
+app.use('/cart', require('./routes/cart'));
 
 app.listen(port, () => {
   console.log(`Server attivo su http://localhost:${port}`);

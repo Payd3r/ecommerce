@@ -1,6 +1,6 @@
 // Importo le dipendenze
 import { authService } from '../../services/authService.js';
-import { toast } from '../../components/Toast.js';
+import { showBootstrapToast } from '../../components/Toast.js';
 
 /**
  * Carica la dashboard dell'amministratore
@@ -107,7 +107,7 @@ export async function loadAdminDashboardPage() {
     // In un'implementazione reale, qui caricheremmo i dati dal backend
     async function loadDashboardData() {
         // Simulazione caricamento dati
-        toast.info('Dashboard amministratore caricata con successo');
+        showBootstrapToast('Dashboard amministratore caricata con successo', 'Info', 'info');
     }
     
     /**

@@ -1,7 +1,7 @@
 // Importo le dipendenze
 import { authService } from '../services/authService.js';
 import { router } from '../router.js';
-import { toast } from '../components/Toast.js';
+import { showBootstrapToast } from '../components/Toast.js';
 import { loader } from '../components/Loader.js';
 
 /**
@@ -106,17 +106,17 @@ export async function loadRegisterPage() {
         
         // Validazione base
         if (!name || !email || !password) {
-            toast.error('Compila tutti i campi obbligatori');
+            showBootstrapToast('Compila tutti i campi obbligatori', 'Errore', 'error');
             return;
         }
         
         if (password !== passwordConfirm) {
-            toast.error('Le password non corrispondono');
+            showBootstrapToast('Le password non corrispondono', 'Errore', 'error');
             return;
         }
         
         if (password.length < 6) {
-            toast.error('La password deve contenere almeno 6 caratteri');
+            showBootstrapToast('La password deve contenere almeno 6 caratteri', 'Errore', 'error');
             return;
         }
         
@@ -135,7 +135,7 @@ export async function loadRegisterPage() {
             await authService.register(name, email, password, role);
             
             // Mostra messaggio di successo
-            toast.success('Registrazione effettuata con successo');
+            showBootstrapToast('Registrazione effettuata con successo', 'Successo', 'success');
             
             // Invia evento di cambio autenticazione
             document.dispatchEvent(new CustomEvent('auth:change'));
@@ -143,7 +143,7 @@ export async function loadRegisterPage() {
             // Reindirizza alla dashboard appropriata
             router.navigateToDashboard();
         } catch (error) {
-            toast.error('Errore durante la registrazione: ' + error.message);
+            showBootstrapToast('Errore durante la registrazione: ' + error.message, 'Errore', 'error');
             
             // Ripristina il form
             const submitBtn = form.querySelector('button[type="submit"]');

@@ -1,12 +1,12 @@
 // Importo i servizi API
-import { getProducts, getProduct } from '../../api/products.js';
-import CategoriesAPI from '../../api/categories.js';
-import UsersAPI from '../../api/users.js';
+import { getProducts, getProduct } from '../../../api/products.js';
+import CategoriesAPI from '../../../api/categories.js';
+import UsersAPI from '../../../api/users.js';
 
 // Importo i componenti
-import { loader } from '../components/Loader.js';
-import { toast } from '../components/Toast.js';
-import { authService } from '../services/authService.js';
+import { loader } from '../../components/Loader.js';
+import { showBootstrapToast } from '../../components/Toast.js';
+import { authService } from '../../services/authService.js';
 
 /**
  * Carica la pagina Home
@@ -117,7 +117,7 @@ export async function loadHomePage() {
 
         } catch (error) {
             console.error('Errore nel caricamento dei dati:', error);
-            toast.error('Errore nel caricamento dei dati. Riprova più tardi.');
+            showBootstrapToast('Errore nel caricamento dei dati. Riprova più tardi.', 'Errore', 'error');
         } finally {
             state.loading = false;
             toggleProductsLoader(false);
@@ -128,6 +128,7 @@ export async function loadHomePage() {
      * Carica i prodotti con i filtri e la paginazione corrente
      */
     async function loadProducts() {
+        showBootstrapToast('Caricamento prodotti...', 'Informazione', 'info');
         try {
             state.loading = true;
             toggleProductsLoader(true);
@@ -166,7 +167,7 @@ export async function loadHomePage() {
 
         } catch (error) {
             console.error('Errore nel caricamento dei prodotti:', error);
-            toast.error('Errore nel caricamento dei prodotti. Riprova più tardi.');
+            showBootstrapToast('Errore nel caricamento dei prodotti. Riprova più tardi.', 'Errore', 'error');
         } finally {
             state.loading = false;
             toggleProductsLoader(false);
@@ -217,7 +218,7 @@ export async function loadHomePage() {
             uniqueCategories.forEach((category, idx) => {
                 const icon = iconList[idx % iconList.length];
                 html += `
-                    <div class="col-8 col-sm-6 col-md-4 col-lg-3 d-flex flex-shrink-0" style="min-width: 220px; max-width: 260px;">
+                    <div class="col-8 col-sm-6 col-md-4 col-lg-3 d-flex flex-shrink-0" style="min-width: 180px; max-width: 210px;">
                         <div class="category-card card flex-fill mb-0 shadow-sm border-0">
                             <div class="card-body text-center py-4">
                                 <div class="category-image mb-2 d-flex justify-content-center align-items-center" style="background-color: var(--secondary-color); width: 56px; height: 56px; margin: 0 auto; border-radius: 50%;">

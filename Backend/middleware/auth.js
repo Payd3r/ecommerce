@@ -25,7 +25,6 @@ const verifyToken = async (req, res, next) => {
         try {
             // Verifica e decodifica il token
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            
             // Verifica che l'utente esista ancora nel database
             const [users] = await db.query(
                 'SELECT id, name, email, role FROM users WHERE id = ?',
@@ -66,8 +65,8 @@ const checkRole = (...roles) => {
         }
 
         if (!roles.includes(req.user.role)) {
-            return res.status(403).json({ 
-                error: 'Non hai i permessi necessari per questa operazione' 
+            return res.status(403).json({
+                error: 'Non hai i permessi necessari per questa operazione'
             });
         }
 

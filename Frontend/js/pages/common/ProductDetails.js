@@ -1,5 +1,9 @@
 // Importo la funzione getProduct
-import { getProduct } from '../../api/products.js';
+import { getProduct } from '../../../api/products.js';
+import CartAPI from '../../../api/cart.js';
+import { authService } from '../../services/authService.js';
+import { showBootstrapToast } from '../../components/Toast.js';
+import { router } from '../../router.js';
 
 /**
  * Carica la pagina di dettaglio prodotto
@@ -51,9 +55,9 @@ export async function loadProductDetailsPage(params = {}) {
     async function loadProduct() {
         try {
             const product = await getProduct(productId);
-            console.log(product);
             const info = document.getElementById('product-info');
             if (!info) return;
+            const isLogged = authService.isAuthenticated();
             info.innerHTML = `
                 <h2 class="fw-bold mb-2">${product.name}</h2>
                 <p class="text-muted mb-2">Categoria: <span class="fw-semibold">${product.category_name || '-'}</span></p>
@@ -62,8 +66,25 @@ export async function loadProductDetailsPage(params = {}) {
                 <div class="d-flex align-items-center mb-3">
                     <span class="fs-4 fw-bold text-primary">${Number(product.price).toFixed(2)} €</span>
                 </div>
-                <button class="btn btn-primary w-100" disabled>Aggiungi al carrello</button>
+                <button class="btn btn-primary w-100" id="add-to-cart-btn" ${!isLogged ? 'disabled' : ''}>Aggiungi al carrello</button>
+                ${!isLogged ? '<div class="text-danger text-center mt-2 small">Devi essere loggato per aggiungere al carrello</div>' : ''}
             `;
+            if (isLogged) {
+                const addBtn = document.getElementById('add-to-cart-btn');
+                if (addBtn) {
+                    addBtn.addEventListener('click', async () => {
+                        try {
+                            await CartAPI.addItem(product.id, 1);
+                            showBootstrapToast('Prodotto aggiunto al carrello!', 'Successo', 'success');
+                            setTimeout(() => {
+                                router.navigate('/cart');
+                            }, 800);
+                        } catch (error) {
+                            showBootstrapToast(error.message || 'Errore nell\'aggiunta al carrello', 'Errore', 'error');
+                        }
+                    });
+                }
+            }
         } catch (error) {
             const info = document.getElementById('product-info');
             if (info) info.innerHTML = `<div class="alert alert-danger">Errore nel caricamento del prodotto.</div>`;

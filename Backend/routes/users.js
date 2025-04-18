@@ -77,10 +77,18 @@ router.get('/', verifyToken, checkRole('admin'), async (req, res) => {
     }
 });
 
-// GET /users/artisans - Ottieni tutti gli artisani
-// Questa route richiede autenticazione ma è accessibile a qualsiasi ruolo
+// GET /users/artisans - Ottieni tutti gli artisani o uno specifico se viene passato id
 router.get('/artisans', async (req, res) => {
     try {
+        const id = req.query.id ? parseInt(req.query.id) : null;
+        if (id) {
+            // Restituisci solo l'artigiano con quell'id
+            const [artisans] = await db.query('SELECT id, name, created_at FROM users WHERE role = "artisan" AND id = ?', [id]);
+            if (artisans.length === 0) {
+                return res.status(404).json({ error: 'Artigiano non trovato' });
+            }
+            return res.json({ data: artisans[0] });
+        }
         // Procedi con la normale logica della route
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
