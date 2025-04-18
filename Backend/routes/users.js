@@ -3,25 +3,33 @@ const router = express.Router();
 const db = require('../models/db');
 const { verifyToken, checkRole } = require('../middleware/auth');
 
-// GET /users - Ottieni tutti gli utenti con paginazione e ricerca
+// GET /users - Ottieni tutti gli utenti con paginazione, ricerca e filtri
 // Solo admin può vedere tutti gli utenti
 router.get('/', verifyToken, checkRole('admin'), async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const offset = (page - 1) * limit;
-        const searchTerm = req.query.search_term || '';
+        const searchTerm = req.query.search || '';
+        const role = req.query.role || '';
 
         // Costruisci la query di base
-        let query = 'SELECT id, name, email, role, created_at FROM users';
-        let countQuery = 'SELECT COUNT(*) as total FROM users';
+        let query = 'SELECT id, name, email, role, created_at FROM users WHERE 1=1';
+        let countQuery = 'SELECT COUNT(*) as total FROM users WHERE 1=1';
         const queryParams = [];
-        
+
         // Aggiungi la condizione di ricerca se presente
         if (searchTerm) {
-            query += ' WHERE name LIKE ?';
-            countQuery += ' WHERE name LIKE ?';
+            query += ' AND name LIKE ?';
+            countQuery += ' AND name LIKE ?';
             queryParams.push(`%${searchTerm}%`);
+        }
+
+        // Aggiungi il filtro per il ruolo se presente
+        if (role) {
+            query += ' AND role = ?';
+            countQuery += ' AND role = ?';
+            queryParams.push(role);
         }
 
         // Aggiungi ordinamento e paginazione
@@ -30,7 +38,7 @@ router.get('/', verifyToken, checkRole('admin'), async (req, res) => {
 
         // Esegui le query
         const [users] = await db.query(query, queryParams);
-        const [totalCount] = await db.query(countQuery, searchTerm ? [`%${searchTerm}%`] : []);
+        const [totalCount] = await db.query(countQuery, queryParams.slice(0, queryParams.length - 2));
 
         // Calcola la paginazione
         const total = totalCount[0].total;
@@ -288,4 +296,4 @@ router.delete('/:id', verifyToken, checkRole('admin'), async (req, res) => {
     }
 });
 
-module.exports = router; 
+module.exports = router;

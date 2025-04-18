@@ -33,15 +33,15 @@ export async function loadUsersManagementPage() {
                             <form id="filters-form">
                                 <div class="form-group">
                                     <label for="filter-name">Nome</label>
-                                    <input type="text" id="filter-name" class="form-control" placeholder="Inserisci il nome">
+                                    <input type="text" id="filter-name" name="filter-name" class="form-control" placeholder="Inserisci il nome">
                                 </div>
                                 <div class="form-group">
                                     <label for="filter-email">Email</label>
-                                    <input type="email" id="filter-email" class="form-control" placeholder="Inserisci l'email">
+                                    <input type="email" id="filter-email" name="filter-email" class="form-control" placeholder="Inserisci l'email">
                                 </div>
                                 <div class="form-group">
                                     <label for="filter-role">Ruolo</label>
-                                    <select id="filter-role" class="form-control mb-3">
+                                    <select id="filter-role" name="filter-role" class="form-control mb-3">
                                         <option value="">Tutti</option>
                                         <option value="admin">Admin</option>
                                         <option value="artigiano">Artigiano</option>
@@ -49,7 +49,7 @@ export async function loadUsersManagementPage() {
                                     </select>
                                 </div>
                                 <div class="d-flex justify-content-between">
-                                    <button type="submit" class="btn btn-primary">Applica Filtri</button>
+                                    <button type="button" id="apply-filters-btn" class="btn btn-primary">Applica Filtri</button>
                                     <button type="button" id="reset-filters-btn" class="btn btn-secondary">Reset Filtri</button>
                                 </div>
                             </form>
@@ -131,13 +131,23 @@ export async function loadUsersManagementPage() {
     // Funzione per caricare e popolare la tabella degli utenti
     async function loadUsersTable(params = {}) {
         try {
-            const filtersForm = document.getElementById('filters-form');
-            const formData = new FormData(filtersForm);
+            // Se i parametri sono passati (ad esempio da Applica Filtri), usali, altrimenti leggi dal form
+            let name = params.name !== undefined ? params.name : '';
+            let email = params.email !== undefined ? params.email : '';
+            let role = params.role !== undefined ? params.role : '';
+            let page = params.page !== undefined ? params.page : 1;
+            console.log('Caricamento utenti con i seguenti parametri:', name, email, role, page);
 
-            params.search = formData.get('filter-name') || '';
-            params.role = formData.get('filter-role') || '';
 
-            const response = await UsersAPI.getUsers(params);
+            // Prepara i parametri per la chiamata API
+            const apiParams = {
+                name,
+                email,
+                role,
+                page
+            };
+
+            const response = await UsersAPI.getUsers(apiParams);
 
             const users = response.users || [];
             const pagination = response.pagination || {};
@@ -169,7 +179,7 @@ export async function loadUsersManagementPage() {
 
             renderPagination(pagination);
         } catch (error) {
-            if (error.message.includes('401')) {
+            if (error.message && error.message.includes('401')) {
                 console.error('Errore di autenticazione. Reindirizzamento alla pagina di login.');
                 window.location.href = '/login';
             } else {
@@ -202,11 +212,38 @@ export async function loadUsersManagementPage() {
     function mount() {
         loadDashboardData();
 
-        // Aggiungi un event listener per il form dei filtri
-        document.getElementById('filters-form').addEventListener('submit', async (event) => {
-            event.preventDefault();
+        // Modifica per utilizzare onclick invece di submit per il bottone "Applica Filtri"
+        document.getElementById('apply-filters-btn').onclick = async () => {
+            const filtersForm = document.getElementById('filters-form');
+            const formData = new FormData(filtersForm);
+            let rawrole = "";
+            switch (formData.get('filter-role')) {
+                case 'admin':
+                    rawrole = 'admin';
+                    break;
+                case 'artigiano':
+                    rawrole = 'artisan';
+                    break;
+                case 'user':
+                    rawrole = 'client';
+                    break;
+                default:
+                    break;
+            }
+            const params = {
+                name: formData.get('filter-name') || '',
+                email: formData.get('filter-email') || '',
+                role: rawrole || '',
+            };
+            console.log('Filtri applicati:', params);
+            await loadUsersTable(params);
+        };
+
+        // Modifica per utilizzare onclick per il bottone "Reset Filtri"
+        document.getElementById('reset-filters-btn').onclick = async () => {
+            document.getElementById('filters-form').reset();
             await loadUsersTable();
-        });
+        };
     }
 
     /**
