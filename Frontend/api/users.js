@@ -145,12 +145,13 @@ const UsersAPI = {
      */
     getArtisans: async (params = {}) => {
         try {
-                        // Costruisci i parametri di query
+            // Costruisci i parametri di query
             const queryParams = new URLSearchParams();
 
             if (params.page) queryParams.append('page', params.page);
             if (params.limit) queryParams.append('limit', params.limit);
             if (params.search) queryParams.append('search', params.search);
+            if (params.id) queryParams.append('id', params.id);
 
             const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
             const url = `${API_BASE_URL}/users/artisans${queryString}`;

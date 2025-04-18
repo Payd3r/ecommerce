@@ -3,7 +3,8 @@
     position: fixed;
     top: 20px;
     right: 20px;
-    z-index: 9999;
+    left: auto;
+    z-index: 99999;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -13,7 +14,7 @@
     min-width: 280px;
     max-width: 350px;
     background-color: white;
-    color: var(--text-color);
+    color: #222;
     border-radius: 4px;
     padding: 15px;
     margin-bottom: 10px;
@@ -21,9 +22,10 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    animation: slideIn 0.3s, fadeOut 0.5s 2.5s forwards;
     opacity: 0;
     transform: translateX(100%);
+    transition: opacity 0.3s, transform 0.3s;
+    /* animation: slideIn 0.3s, fadeOut 0.5s 2.5s forwards; */
 }
 
 .toast.active {
@@ -98,28 +100,6 @@
     color: #2196f3;
 }
 
-/* Toast animations */
-@keyframes slideIn {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-@keyframes fadeOut {
-    from {
-        opacity: 1;
-    }
-    to {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-}
-
 /* Toast responsive */
 @media (max-width: 576px) {
     #toast-container {
@@ -127,7 +107,7 @@
         right: 10px;
         top: 10px;
     }
-    
+
     .toast {
         min-width: auto;
         width: 100%;

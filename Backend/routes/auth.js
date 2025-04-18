@@ -11,8 +11,6 @@ const db = require('../models/db'); // Importo il pool di connessione
  * @access  Public
  */
 router.post('/register', async (req, res) => {
-  console.log("entro");
-  console.log('req.body', req.body);
   try {
     const userData = {
       email: req.body.email,

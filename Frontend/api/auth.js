@@ -1,3 +1,5 @@
+import { authService } from '../js/services/authService.js';
+
 const API_BASE_URL = 'http://localhost:3005';
 
 export class ApiService {
@@ -56,7 +58,8 @@ export class ApiService {
 
     static async getProfile() {
         try {
-            const token = localStorage.getItem('token');
+
+            const token = authService.getToken();
             const response = await fetch(`${API_BASE_URL}/auth/profile`, {
                 headers: {
                     'Authorization': `Bearer ${token}`

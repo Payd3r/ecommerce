@@ -58,6 +58,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+
 // POST /categories - Crea una nuova categoria
 router.post('/', async (req, res) => {
     const { name, description, dad_id } = req.body;

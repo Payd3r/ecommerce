@@ -211,4 +211,64 @@ router.delete('/:id', verifyToken, checkRole('artisan'), async (req, res) => {
     }
 });
 
+// GET /products/by-artisan/:id - Ottieni tutti i prodotti di un artigiano specifico (pubblico)
+router.get('/by-artisan/:id', async (req, res) => {
+    try {
+        const artisanId = parseInt(req.params.id);
+        if (isNaN(artisanId)) {
+            return res.status(400).json({ error: 'ID artigiano non valido' });
+        }
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const offset = (page - 1) * limit;
+        const search = req.query.search || '';
+        const minPrice = parseFloat(req.query.minPrice) || 0;
+        const maxPrice = parseFloat(req.query.maxPrice) || Number.MAX_SAFE_INTEGER;
+
+        let query = `
+            SELECT p.*, u.name as artisan_name, c.name as category_name 
+            FROM products p
+            LEFT JOIN users u ON p.artisan_id = u.id
+            LEFT JOIN categories c ON p.category_id = c.id
+            WHERE p.artisan_id = ? AND p.price >= ? AND p.price <= ?
+        `;
+        let countQuery = 'SELECT COUNT(*) as total FROM products WHERE artisan_id = ? AND price >= ? AND price <= ?';
+        const queryParams = [artisanId, minPrice, maxPrice];
+        const countParams = [artisanId, minPrice, maxPrice];
+
+        if (search) {
+            query += ' AND p.name LIKE ?';
+            countQuery += ' AND name LIKE ?';
+            queryParams.push(`%${search}%`);
+            countParams.push(`%${search}%`);
+        }
+
+        query += ' ORDER BY p.created_at DESC LIMIT ? OFFSET ?';
+        queryParams.push(limit, offset);
+
+        const [products] = await db.query(query, queryParams);
+        const [totalCount] = await db.query(countQuery, countParams);
+
+        const total = totalCount[0].total;
+        const totalPages = Math.ceil(total / limit);
+        const hasNextPage = page < totalPages;
+        const hasPrevPage = page > 1;
+
+        res.json({
+            products,
+            pagination: {
+                total,
+                totalPages,
+                currentPage: page,
+                limit,
+                hasNextPage,
+                hasPrevPage
+            }
+        });
+    } catch (error) {
+        console.error('Errore nel recupero dei prodotti per artigiano:', error);
+        res.status(500).json({ error: 'Errore nel recupero dei prodotti per artigiano' });
+    }
+});
+
 module.exports = router;

@@ -1,7 +1,7 @@
 // Importo le dipendenze
 import { authService } from '../services/authService.js';
 import { router } from '../router.js';
-import { toast } from '../components/Toast.js';
+import { showBootstrapToast } from '../components/Toast.js';
 import { loader } from '../components/Loader.js';
 
 /**
@@ -81,7 +81,7 @@ export async function loadLoginPage() {
         
         // Validazione base
         if (!email || !password) {
-            toast.error('Inserisci email e password');
+            showBootstrapToast('Inserisci email e password', 'Errore', 'error');
             return;
         }
         
@@ -101,7 +101,7 @@ export async function loadLoginPage() {
             await authService.login(email, password);
             
             // Mostra messaggio di successo
-            toast.success('Login effettuato con successo');
+            showBootstrapToast('Login effettuato con successo', 'Successo', 'success');
             
             // Invia evento di cambio autenticazione
             document.dispatchEvent(new CustomEvent('auth:change'));
@@ -109,7 +109,7 @@ export async function loadLoginPage() {
             // Reindirizza l'utente
             router.navigate(redirectUrl !== '/login' ? redirectUrl : '/');
         } catch (error) {
-            toast.error('Errore durante il login: ' + error.message);
+            showBootstrapToast('Errore durante il login: ' + error.message, 'Errore', 'error');
             
             // Ripristina il form
             const submitBtn = form.querySelector('button[type="submit"]');

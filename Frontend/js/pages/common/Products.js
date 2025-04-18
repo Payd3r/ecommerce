@@ -1,16 +1,16 @@
 // Importo i servizi API
-import { getProducts } from '../../api/products.js';
-import CategoriesAPI from '../../api/categories.js';
-import UsersAPI from '../../api/users.js';
-import { loader } from '../components/Loader.js';
-import { toast } from '../components/Toast.js';
-import { authService } from '../services/authService.js';
+import { getProducts } from '../../../api/products.js';
+import CategoriesAPI from '../../../api/categories.js';
+import UsersAPI from '../../../api/users.js';
+import { loader } from '../../components/Loader.js';
+import { showBootstrapToast } from '../../components/Toast.js';
+import { authService } from '../../services/authService.js';
 
 /**
  * Carica la pagina Prodotti
  * @returns {Object} - Oggetto con i metodi del componente
  */
-export async function loadProductsPage() {
+export async function loadProductsPage(params = {}) {
     // Stato della pagina
     const state = {
         products: [],
@@ -31,6 +31,25 @@ export async function loadProductsPage() {
         },
         loading: false
     };
+
+    // Se il router passa params.category, imposta il filtro categoria
+    if (params.category) {
+        state.filters.category = params.category;
+    }
+
+    // Leggi il parametro category dalla query string (es: #/products?category=5)
+    function getCategoryFromQuery() {
+        const hash = window.location.hash;
+        const query = hash.split('?')[1];
+        if (!query) return '';
+        const params = new URLSearchParams(query);
+        return params.get('category') || '';
+    }
+    // Imposta il filtro categoria se presente nella query string
+    const categoryFromQuery = getCategoryFromQuery();
+    if (categoryFromQuery) {
+        state.filters.category = categoryFromQuery;
+    }
 
     // Crea l'elemento principale della pagina
     const pageElement = document.createElement('div');
@@ -126,7 +145,7 @@ export async function loadProductsPage() {
             // Carica prodotti
             await loadProducts();
         } catch (error) {
-            toast.error('Errore nel caricamento dei dati. Riprova più tardi.');
+            showBootstrapToast('Errore nel caricamento dei dati. Riprova più tardi.', 'Errore', 'error');
         } finally {
             state.loading = false;
             toggleProductsLoader(false);
@@ -166,7 +185,7 @@ export async function loadProductsPage() {
                 noResultsElement.classList.add('hidden');
             }
         } catch (error) {
-            toast.error('Errore nel caricamento dei prodotti. Riprova più tardi.');
+            showBootstrapToast('Errore nel caricamento dei prodotti. Riprova più tardi.', 'Errore', 'error');
         } finally {
             state.loading = false;
             toggleProductsLoader(false);
@@ -193,6 +212,10 @@ export async function loadProductsPage() {
             optionsHtml += `<option value="${category.id}">${category.name}</option>`;
         });
         categorySelect.innerHTML = optionsHtml;
+        // Se il filtro categoria è già impostato, seleziona l'opzione corretta
+        if (state.filters.category) {
+            categorySelect.value = state.filters.category;
+        }
     }
 
     function populateArtisanFilter(artisans) {

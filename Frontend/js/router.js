@@ -1,6 +1,6 @@
 // Importo le dipendenze
 import { authService } from './services/authService.js';
-import { toast } from './components/Toast.js';
+import { showBootstrapToast } from './components/Toast.js';
 import { loader } from './components/Loader.js';
 // Importo la pagina prodotti
 
@@ -63,21 +63,28 @@ class Router {
             path = path.slice(0, -1);
         }
 
+        // Separa path e query string
+        let routePath = path;
+        let queryString = '';
+        if (path.includes('?')) {
+            [routePath, queryString] = path.split('?');
+        }
+
         // Cerca la rotta registrata (anche dinamica)
-        let route = this.routes[path];
+        let route = this.routes[routePath];
         let params = {};
         if (!route) {
             // Cerca una route dinamica che combaci
-            for (const routePath in this.routes) {
-                if (routePath.includes(':')) {
+            for (const routePathPattern in this.routes) {
+                if (routePathPattern.includes(':')) {
                     const paramNames = [];
-                    const regexPath = routePath.replace(/:([^/]+)/g, (_, key) => {
+                    const regexPath = routePathPattern.replace(/:([^/]+)/g, (_, key) => {
                         paramNames.push(key);
                         return '([^/]+)';
                     });
-                    const match = path.match(new RegExp('^' + regexPath + '$'));
+                    const match = routePath.match(new RegExp('^' + regexPath + '$'));
                     if (match) {
-                        route = this.routes[routePath];
+                        route = this.routes[routePathPattern];
                         paramNames.forEach((name, i) => {
                             params[name] = match[i + 1];
                         });
@@ -87,17 +94,25 @@ class Router {
             }
         }
         if (!route) route = this.routes['404'];
-        
+
+        // Aggiungi i parametri della query string a params
+        if (queryString) {
+            const searchParams = new URLSearchParams(queryString);
+            for (const [key, value] of searchParams.entries()) {
+                params[key] = value;
+            }
+        }
+
         // Se la rotta richiede autenticazione e l'utente non è autenticato, redirige al login
         if (route.options.requireAuth && !authService.isAuthenticated()) {
-            toast.warning('Devi effettuare l\'accesso per visualizzare questa pagina');
+            showBootstrapToast('Devi effettuare l\'accesso per visualizzare questa pagina', 'Attenzione', 'warning');
             this.navigateToLogin(path);
             return;
         }
         
         // Se la rotta ha restrizioni di ruolo, verifica che l'utente abbia il ruolo necessario
         if (route.options.roles.length > 0 && !authService.hasRole(route.options.roles)) {
-            toast.error('Non hai i permessi per accedere a questa pagina');
+            showBootstrapToast('Non hai i permessi per accedere a questa pagina', 'Errore', 'error');
             this.navigateToHome();
             return;
         }
@@ -136,7 +151,7 @@ class Router {
             window.scrollTo(0, 0);
         } catch (error) {
             console.error('Errore durante la navigazione:', error);
-            toast.error('Si è verificato un errore durante il caricamento della pagina');
+            showBootstrapToast('Si è verificato un errore durante il caricamento della pagina', 'Errore', 'error');
         } finally {
             // Nasconde il loader
             loader.hide();

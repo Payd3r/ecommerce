@@ -105,10 +105,30 @@ async function deleteProduct(id) {
     }
 }
 
+// Funzione per ottenere tutti i prodotti di un artigiano specifico (pubblica)
+async function getProductsByArtisan(artisanId, params = {}) {
+    const queryParams = new URLSearchParams();
+    if (params.page) queryParams.append('page', params.page);
+    if (params.limit) queryParams.append('limit', params.limit);
+    if (params.search) queryParams.append('search', params.search);
+    if (params.minPrice) queryParams.append('minPrice', params.minPrice);
+    if (params.maxPrice) queryParams.append('maxPrice', params.maxPrice);
+
+    try {
+        const response = await fetch(`${API_URL}/products/by-artisan/${artisanId}?${queryParams}`);
+        if (!response.ok) throw new Error('Errore nel recupero dei prodotti dell\'artigiano');
+        return await response.json();
+    } catch (error) {
+        console.error('Errore:', error);
+        throw error;
+    }
+}
+
 export {
     getProducts,
     getProduct,
     createProduct,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    getProductsByArtisan
 }; 
