@@ -18,13 +18,6 @@ export async function loadHomePage() {
         products: [],
         categories: [],
         artisans: [],
-        filters: {
-            search: '',
-            category: '',
-            artisan: '',
-            minPrice: '',
-            maxPrice: ''
-        },
         pagination: {
             page: 1,
             limit: 8,
@@ -33,11 +26,11 @@ export async function loadHomePage() {
         },
         loading: false
     };
-    
+
     // Crea l'elemento principale della pagina
     const pageElement = document.createElement('div');
     pageElement.className = 'home-page';
-    
+
     // Costruisce il contenuto della pagina
     pageElement.innerHTML = `
         <section class="hero py-5 bg-light">
@@ -50,82 +43,42 @@ export async function loadHomePage() {
         <section class="featured py-4">
             <div class="container">
                 <h2 class="mb-4">Categorie in Evidenza</h2>
-                <div class="row g-4" id="featured-categories">
-                    <div class="col-12 col-md-4"><div class="skeleton-card card"></div></div>
-                    <div class="col-12 col-md-4"><div class="skeleton-card card"></div></div>
-                    <div class="col-12 col-md-4"><div class="skeleton-card card"></div></div>
+                <div class="position-relative px-3"  style="padding-left: 2vw; padding-right: 2vw;">
+                    <button id="cat-carousel-left" class="btn btn-light position-absolute top-50 start-0 translate-middle-y z-1"><i class="bi bi-chevron-left"></i></button>
+                    <div id="featured-categories" class="d-flex flex-nowrap overflow-auto py-2 px-5" style="scroll-behavior: smooth; gap: 1rem; scrollbar-width: none; -ms-overflow-style: none;"></div>
+                    <button id="cat-carousel-right" class="btn btn-light position-absolute top-50 end-0 translate-middle-y z-1"><i class="bi bi-chevron-right"></i></button>
                 </div>
             </div>
         </section>
-        <section class="products-section py-4">
+        <section class="latest-arrivals py-4">
             <div class="container">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h2 class="mb-0">Prodotti Artigianali</h2>
-                    <button id="toggle-filters" class="btn btn-outline-secondary btn-sm d-md-none">
-                        <span>Filtri</span>
-                        <span class="icon">▼</span>
-                    </button>
+                    <h2 class="mb-0">Ultimi Arrivi</h2>
+                    <a href="/products" class="btn btn-link ms-auto" data-route>visualizza altro..</a>
                 </div>
-                <div class="row">
-                    <aside class="col-12 col-md-4 mb-4 mb-md-0" id="filters-container">
-                        <form id="filters-form" class="filters-form">
-                            <div class="mb-3">
-                                <label for="search" class="form-label">Ricerca</label>
-                                <input type="text" id="search" name="search" class="form-control" placeholder="Cerca prodotti...">
-                            </div>
-                            <div class="mb-3">
-                                <label for="category" class="form-label">Categoria</label>
-                                <select id="category" name="category" class="form-select">
-                                    <option value="">Tutte le categorie</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="artisan" class="form-label">Artigiano</label>
-                                <select id="artisan" name="artisan" class="form-select">
-                                    <option value="">Tutti gli artigiani</option>
-                                </select>
-                            </div>
-                            <div class="row mb-3">
-                                <div class="col">
-                                    <label for="min-price" class="form-label">Prezzo minimo (€)</label>
-                                    <input type="number" id="min-price" name="minPrice" min="0" step="1" class="form-control" placeholder="Min">
-                                </div>
-                                <div class="col">
-                                    <label for="max-price" class="form-label">Prezzo massimo (€)</label>
-                                    <input type="number" id="max-price" name="maxPrice" min="0" step="1" class="form-control" placeholder="Max">
-                                </div>
-                            </div>
-                            <div class="d-flex gap-2">
-                                <button type="submit" class="btn btn-primary">Applica filtri</button>
-                                <button type="reset" class="btn btn-secondary" id="reset-filters">Reset</button>
-                            </div>
-                        </form>
-                    </aside>
-                    <main class="col-12 col-md-8">
-                        <div id="products-container" class="row g-4">
-                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
-                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
-                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
-                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
-                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
-                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
-                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
-                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
-                        </div>
-                        <div id="pagination" class="pagination mt-4">
-                            <button id="prev-page" class="btn btn-outline-secondary btn-sm me-2" disabled>&laquo; Precedente</button>
-                            <div id="page-numbers" class="page-numbers d-inline-block"></div>
-                            <button id="next-page" class="btn btn-outline-secondary btn-sm ms-2" disabled>Successiva &raquo;</button>
-                        </div>
-                        <div id="no-results" class="no-results alert alert-warning mt-4 d-none">
-                            <p class="mb-2">Nessun prodotto trovato con i criteri di ricerca specificati.</p>
-                            <button id="clear-filters" class="btn btn-primary">Cancella filtri</button>
-                        </div>
-                    </main>
+                <div id="latest-arrivals-container" class="row g-4"></div>
+            </div>
+        </section>
+        <section class="featured-products py-4">
+            <div class="container">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="mb-0">Prodotti in Evidenza</h2>
+                    <a href="/products" class="btn btn-link ms-auto" data-route>visualizza altro..</a>
+                </div>
+                <div id="featured-products-container" class="row g-4"></div>
+            </div>
+        </section>
+        <section class="artisans-week py-4">
+            <div class="container">
+                <h2 class="mb-4">Artigiani della Settimana</h2>
+                <div class="position-relative px-3" style="padding-left: 2vw; padding-right: 2vw;">
+                    <button id="artisan-carousel-left" class="btn btn-light position-absolute top-50 start-0 translate-middle-y z-1"><i class="bi bi-chevron-left"></i></button>
+                    <div id="artisans-carousel" class="d-flex flex-nowrap overflow-auto py-2 px-5" style="scroll-behavior: smooth; gap: 1rem; scrollbar-width: none; -ms-overflow-style: none;"></div>
+                    <button id="artisan-carousel-right" class="btn btn-light position-absolute top-50 end-0 translate-middle-y z-1"><i class="bi bi-chevron-right"></i></button>
                 </div>
             </div>
         </section>
-        <section class="cta-section py-5 bg-light mb-5">
+        <section class="cta-section py-5 bg-light">
             <div class="container">
                 <div class="cta-content text-center">
                     <h2>Sei un Artigiano?</h2>
@@ -135,55 +88,33 @@ export async function loadHomePage() {
             </div>
         </section>
     `;
-    
+
     /**
      * Carica i dati per la home page
      */
     async function loadHomeData() {
         try {
-            // Mostra il loader
             state.loading = true;
             toggleProductsLoader(true);
-            
+
             // Carica le categorie
             const categoriesRes = await CategoriesAPI.getCategories();
             state.categories = categoriesRes || [];
-            
-            // Popola il filtro delle categorie
-            populateCategoryFilter(state.categories);
-            
-            // Renderizza le categorie in evidenza (mostriamo le prime 3)
-            renderFeaturedCategories(state.categories.slice(0, 3));
-            
-            // Tenta di caricare gli artisani solo se l'utente è autenticato
-            try {
-                if (authService.isAuthenticated()) {
-                    const artisansRes = await UsersAPI.getArtisans();
-                    console.log("artisan", artisansRes);
-                    state.artisans = artisansRes.data || [];
-                    // Popola il filtro degli artisani
-                    populateArtisanFilter(state.artisans);
-                } else {
-                    // Se l'utente non è autenticato, disabilita il filtro artisani
-                    const artisanSelect = document.getElementById('artisan');
-                    if (artisanSelect) {
-                        artisanSelect.innerHTML = '<option value="">Accedi per vedere gli artisani</option>';
-                        artisanSelect.disabled = true;
-                    }
-                }
-            } catch (error) {
-                console.error('Errore nel caricamento degli artisani:', error);
-                // Disabilita il filtro artisani in caso di errore
-                const artisanSelect = document.getElementById('artisan');
-                if (artisanSelect) {
-                    artisanSelect.innerHTML = '<option value="">Impossibile caricare gli artisani</option>';
-                    artisanSelect.disabled = true;
-                }
-            }
-            
+
+            // Renderizza le categorie in evidenza
+            renderFeaturedCategories(state.categories.slice(0, 20));
+
+            // Carica artigiani
+            const artisansRes = await UsersAPI.getArtisans();
+            console.log("artisan", artisansRes);
+            state.artisans = artisansRes.data || [];
+
+
+            renderArtisansCarousel(state.artisans);
+
             // Carica i prodotti
             await loadProducts();
-            
+
         } catch (error) {
             console.error('Errore nel caricamento dei dati:', error);
             toast.error('Errore nel caricamento dei dati. Riprova più tardi.');
@@ -192,7 +123,7 @@ export async function loadHomePage() {
             toggleProductsLoader(false);
         }
     }
-    
+
     /**
      * Carica i prodotti con i filtri e la paginazione corrente
      */
@@ -200,21 +131,20 @@ export async function loadHomePage() {
         try {
             state.loading = true;
             toggleProductsLoader(true);
-            
+
             // Prepara i parametri di query
             const params = {
                 page: state.pagination.page,
                 limit: state.pagination.limit,
-                ...state.filters
             };
-            
+
             // Rimuovi parametri vuoti
             Object.keys(params).forEach(key => {
                 if (params[key] === '' || params[key] === null || params[key] === undefined) {
                     delete params[key];
                 }
             });
-            
+
             const response = await getProducts(params);
             console.log("prodotti", response);
             // Adatto i prodotti alla struttura attesa dal rendering
@@ -228,19 +158,12 @@ export async function loadHomePage() {
             state.pagination.totalPages = response.pagination?.totalPages || 1;
             state.pagination.totalItems = response.pagination?.total || 0;
             state.pagination.page = response.pagination?.currentPage || 1;
-            
-            // Renderizza i prodotti e la paginazione
-            renderProducts(state.products);
-            renderPagination(state.pagination);
-            
-            // Mostra/nascondi il messaggio "nessun risultato"
-            const noResultsElement = document.getElementById('no-results');
-            if (state.products.length === 0) {
-                noResultsElement.classList.remove('hidden');
-            } else {
-                noResultsElement.classList.add('hidden');
-            }
-            
+
+            // Renderizza le due sezioni con prodotti random
+            renderProductSection(state.products, 'latest-arrivals-container');
+            renderProductSection(state.products, 'featured-products-container');
+
+
         } catch (error) {
             console.error('Errore nel caricamento dei prodotti:', error);
             toast.error('Errore nel caricamento dei prodotti. Riprova più tardi.');
@@ -249,7 +172,7 @@ export async function loadHomePage() {
             toggleProductsLoader(false);
         }
     }
-    
+
     /**
      * Mostra/nasconde il loader per i prodotti
      * @param {boolean} show - Se true, mostra il loader, altrimenti lo nasconde
@@ -257,7 +180,7 @@ export async function loadHomePage() {
     function toggleProductsLoader(show) {
         const productsContainer = document.getElementById('products-container');
         if (!productsContainer) return;
-        
+
         if (show) {
             let skeletonHtml = '';
             for (let i = 0; i < state.pagination.limit; i++) {
@@ -266,41 +189,7 @@ export async function loadHomePage() {
             productsContainer.innerHTML = skeletonHtml;
         }
     }
-    
-    /**
-     * Popola il select delle categorie
-     * @param {Array} categories - Lista delle categorie
-     */
-    function populateCategoryFilter(categories) {
-        const categorySelect = document.getElementById('category');
-        if (!categorySelect) return;
-        
-        let optionsHtml = '<option value="">Tutte le categorie</option>';
-        
-        categories.forEach(category => {
-            optionsHtml += `<option value="${category.id}">${category.name}</option>`;
-        });
-        
-        categorySelect.innerHTML = optionsHtml;
-    }
-    
-    /**
-     * Popola il select degli artigiani
-     * @param {Array} artisans - Lista degli artigiani
-     */
-    function populateArtisanFilter(artisans) {
-        const artisanSelect = document.getElementById('artisan');
-        if (!artisanSelect) return;
-        
-        let optionsHtml = '<option value="">Tutti gli artigiani</option>';
-        
-        artisans.forEach(artisan => {
-            optionsHtml += `<option value="${artisan.id}">${artisan.name}</option>`;
-        });
-        
-        artisanSelect.innerHTML = optionsHtml;
-    }
-    
+
     /**
      * Visualizza le categorie in evidenza
      * @param {Array} categories - Lista delle categorie da visualizzare
@@ -308,44 +197,67 @@ export async function loadHomePage() {
     function renderFeaturedCategories(categories) {
         const categoriesContainer = document.getElementById('featured-categories');
         if (!categoriesContainer) return;
-        
+
+        console.log("categories", categories);
         let html = '';
-        
         if (categories.length === 0) {
-            // Se non ci sono categorie, mostra un messaggio
             html = '<div class="empty-state">Nessuna categoria disponibile</div>';
         } else {
-            categories.forEach(category => {
-                // Usa un'icona predefinita in base al nome della categoria o un'icona generica
-                const iconMap = {
-                    'ceramica': '🏺',
-                    'legno': '🪵',
-                    'tessuti': '🧵',
-                    'vetro': '🥃',
-                    'metallo': '⚙️',
-                    'gioielli': '💍'
-                };
-                
-                const icon = iconMap[category.name.toLowerCase()] || '🛠️';
-                
+            // Escludi duplicati per nome categoria
+            const uniqueCategories = [];
+            const seenNames = new Set();
+            categories.forEach(cat => {
+                if (!seenNames.has(cat.name.toLowerCase())) {
+                    uniqueCategories.push(cat);
+                    seenNames.add(cat.name.toLowerCase());
+                }
+            });
+            // Simboli diversi per ogni card (ciclo se più categorie)
+            const iconList = ['🏺', '🪵', '🧵', '🥃', '⚙️', '💍', '🧶', '🪡', '🪚', '🪓', '🪙', '🧲', '🧰', '🪞', '🧴', '🧿', '🪔', '🧺', '🪆', '🧸', '🪁'];
+            uniqueCategories.forEach((category, idx) => {
+                const icon = iconList[idx % iconList.length];
                 html += `
-                    <div class="category-card card">
-                        <div class="category-image" style="background-color: var(--secondary-color);">
-                            <span class="category-icon">${icon}</span>
-                        </div>
-                        <div class="category-content">
-                            <h3>${category.name}</h3>
-                            <p>${category.productCount || 0} prodotti</p>
-                            <a href="/products?category=${category.id}" class="btn-link" data-route>Esplora</a>
+                    <div class="col-8 col-sm-6 col-md-4 col-lg-3 d-flex flex-shrink-0" style="min-width: 220px; max-width: 260px;">
+                        <div class="category-card card flex-fill mb-0 shadow-sm border-0">
+                            <div class="card-body text-center py-4">
+                                <div class="category-image mb-2 d-flex justify-content-center align-items-center" style="background-color: var(--secondary-color); width: 56px; height: 56px; margin: 0 auto; border-radius: 50%;">
+                                    <span class="category-icon fs-2">${icon}</span>
+                                </div>
+                                <h5 class="fw-bold mb-1">${category.name}</h5>
+                                <p class="text-muted mb-2 small">${category.productCount || 0} prodotti</p>
+                                <a href="/products?category=${category.id}" class="btn btn-outline-primary btn-sm mt-2" data-route>Esplora</a>
+                            </div>
                         </div>
                     </div>
                 `;
             });
         }
-        
-        categoriesContainer.innerHTML = html;
+        // Unifica la section: titolo + carosello con padding esterno
+        const section = categoriesContainer.parentElement;
+        section.innerHTML = `
+            <div class="position-relative px-3"  style="padding-left: 2vw; padding-right: 2vw;">
+                <button id="cat-carousel-left" class="btn btn-light position-absolute top-50 start-0 translate-middle-y z-1"><i class="bi bi-chevron-left"></i></button>
+                <div id="featured-categories" class="d-flex flex-nowrap overflow-auto py-2 px-5" style="scroll-behavior: smooth; gap: 1rem; scrollbar-width: none; -ms-overflow-style: none;">
+                    ${html}
+                </div>
+                <button id="cat-carousel-right" class="btn btn-light position-absolute top-50 end-0 translate-middle-y z-1"><i class="bi bi-chevron-right"></i></button>
+            </div>
+            <style>
+                #featured-categories::-webkit-scrollbar { display: none; }
+            </style>
+        `;
+        // JS per lo scroll di una sola card
+        const container = document.getElementById('featured-categories');
+        const leftBtn = document.getElementById('cat-carousel-left');
+        const rightBtn = document.getElementById('cat-carousel-right');
+        if (leftBtn && rightBtn && container) {
+            const card = container.querySelector('.category-card');
+            const scrollAmount = card ? card.offsetWidth + 16 : 240; // 16px gap
+            leftBtn.onclick = () => container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            rightBtn.onclick = () => container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
     }
-    
+
     /**
      * Visualizza i prodotti
      * @param {Array} products - Lista dei prodotti da visualizzare
@@ -353,26 +265,26 @@ export async function loadHomePage() {
     function renderProducts(products) {
         const productsContainer = document.getElementById('products-container');
         if (!productsContainer) return;
-        
+
         let html = '';
-        
+
         if (products.length === 0) {
             // Prodotti vuoti vengono gestiti dal div "no-results"
             productsContainer.innerHTML = '';
             return;
         }
-        
+
         products.forEach(product => {
             // Mostra un quadrato bianco se manca l'immagine
             html += `
                 <div class="product-card card">
                     <div class="product-image" style="background-color: var(--light-bg); display: flex; align-items: center; justify-content: center; height: 120px;">
-                        ${product.imageUrl ? 
-                            `<img src="${product.imageUrl}" alt="${product.name}">` : 
-                            `<div style="width: 80px; height: 80px; background: #fff; border: 1px solid #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                        ${product.imageUrl ?
+                    `<img src="${product.imageUrl}" alt="${product.name}">` :
+                    `<div style="width: 80px; height: 80px; background: #fff; border: 1px solid #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
                                 <span class="placeholder-icon">🖼️</span>
                             </div>`
-                        }
+                }
                     </div>
                     <div class="product-content">
                         <h3>${product.name}</h3>
@@ -385,10 +297,10 @@ export async function loadHomePage() {
                 </div>
             `;
         });
-        
+
         productsContainer.innerHTML = html;
     }
-    
+
     /**
      * Renderizza la paginazione
      * @param {Object} pagination - Stato della paginazione
@@ -398,9 +310,9 @@ export async function loadHomePage() {
         const pageNumbersElement = document.getElementById('page-numbers');
         const prevButton = document.getElementById('prev-page');
         const nextButton = document.getElementById('next-page');
-        
+
         if (!paginationElement || !pageNumbersElement || !prevButton || !nextButton) return;
-        
+
         // Nascondi la paginazione se c'è solo una pagina
         if (pagination.totalPages <= 1) {
             paginationElement.classList.add('hidden');
@@ -408,24 +320,24 @@ export async function loadHomePage() {
         } else {
             paginationElement.classList.remove('hidden');
         }
-        
+
         // Abilita/disabilita i pulsanti prev/next
         prevButton.disabled = pagination.page <= 1;
         nextButton.disabled = pagination.page >= pagination.totalPages;
-        
+
         // Renderizza i numeri di pagina
         let pageNumbersHtml = '';
         const maxPageButtons = 5; // Numero massimo di bottoni da mostrare
-        
+
         // Calcola l'intervallo di pagine da mostrare
         let startPage = Math.max(1, pagination.page - Math.floor(maxPageButtons / 2));
         let endPage = Math.min(pagination.totalPages, startPage + maxPageButtons - 1);
-        
+
         // Aggiusta i limiti se necessario
         if (endPage - startPage + 1 < maxPageButtons && startPage > 1) {
             startPage = Math.max(1, endPage - maxPageButtons + 1);
         }
-        
+
         // Prima pagina se non è già inclusa
         if (startPage > 1) {
             pageNumbersHtml += `<button class="page-number" data-page="1">1</button>`;
@@ -433,13 +345,13 @@ export async function loadHomePage() {
                 pageNumbersHtml += `<span class="page-ellipsis">...</span>`;
             }
         }
-        
+
         // Pagine nell'intervallo
         for (let i = startPage; i <= endPage; i++) {
             const activeClass = i === pagination.page ? 'active' : '';
             pageNumbersHtml += `<button class="page-number ${activeClass}" data-page="${i}">${i}</button>`;
         }
-        
+
         // Ultima pagina se non è già inclusa
         if (endPage < pagination.totalPages) {
             if (endPage < pagination.totalPages - 1) {
@@ -447,10 +359,10 @@ export async function loadHomePage() {
             }
             pageNumbersHtml += `<button class="page-number" data-page="${pagination.totalPages}">${pagination.totalPages}</button>`;
         }
-        
+
         pageNumbersElement.innerHTML = pageNumbersHtml;
     }
-    
+
     /**
      * Gestisce il cambio di pagina
      * @param {number} page - Numero di pagina
@@ -459,41 +371,41 @@ export async function loadHomePage() {
         if (page < 1 || page > state.pagination.totalPages || page === state.pagination.page) {
             return;
         }
-        
+
         state.pagination.page = page;
         loadProducts();
-        
+
         // Scorre verso l'alto alla sezione dei prodotti
         const productsSection = document.querySelector('.products-section');
         if (productsSection) {
             productsSection.scrollIntoView({ behavior: 'smooth' });
         }
     }
-    
+
     /**
      * Gestisce l'invio del form dei filtri
      * @param {Event} event - Evento submit
      */
     function handleFilterSubmit(event) {
         event.preventDefault();
-        
+
         const form = event.target;
         const formData = new FormData(form);
-        
+
         // Aggiorna i filtri
         state.filters.search = formData.get('search') || '';
         state.filters.category = formData.get('category') || '';
         state.filters.artisan = formData.get('artisan') || '';
         state.filters.minPrice = formData.get('minPrice') || '';
         state.filters.maxPrice = formData.get('maxPrice') || '';
-        
+
         // Resetta la pagina
         state.pagination.page = 1;
-        
+
         // Carica i prodotti con i nuovi filtri
         loadProducts();
     }
-    
+
     /**
      * Gestisce il reset dei filtri
      */
@@ -506,80 +418,80 @@ export async function loadHomePage() {
             minPrice: '',
             maxPrice: ''
         };
-        
+
         // Resetta la pagina
         state.pagination.page = 1;
-        
+
         // Aggiorna il form
         const form = document.getElementById('filters-form');
         if (form) {
             form.reset();
         }
-        
+
         // Carica i prodotti senza filtri
         loadProducts();
     }
-    
+
     /**
      * Gestisce il toggle dei filtri
      */
     function handleToggleFilters() {
         const filtersContainer = document.getElementById('filters-container');
         const toggleButton = document.getElementById('toggle-filters');
-        
+
         if (!filtersContainer || !toggleButton) return;
-        
+
         filtersContainer.classList.toggle('hidden');
-        
+
         // Aggiorna l'icona
         const icon = toggleButton.querySelector('.icon');
         if (icon) {
             icon.textContent = filtersContainer.classList.contains('hidden') ? '▼' : '▲';
         }
     }
-    
+
     /**
      * Inizializza gli event listener
      */
     function mount() {
         // Carica i dati iniziali
         loadHomeData();
-        
+
         // Event listener per i filtri
         const filtersForm = document.getElementById('filters-form');
         if (filtersForm) {
             filtersForm.addEventListener('submit', handleFilterSubmit);
         }
-        
+
         // Event listener per il reset dei filtri
         const resetFiltersButton = document.getElementById('reset-filters');
         if (resetFiltersButton) {
             resetFiltersButton.addEventListener('click', handleFilterReset);
         }
-        
+
         // Event listener per il pulsante "Cancella filtri"
         const clearFiltersButton = document.getElementById('clear-filters');
         if (clearFiltersButton) {
             clearFiltersButton.addEventListener('click', handleFilterReset);
         }
-        
+
         // Event listener per il toggle dei filtri
         const toggleFiltersButton = document.getElementById('toggle-filters');
         if (toggleFiltersButton) {
             toggleFiltersButton.addEventListener('click', handleToggleFilters);
         }
-        
+
         // Event listener per la paginazione
         const prevButton = document.getElementById('prev-page');
         if (prevButton) {
             prevButton.addEventListener('click', () => handlePageChange(state.pagination.page - 1));
         }
-        
+
         const nextButton = document.getElementById('next-page');
         if (nextButton) {
             nextButton.addEventListener('click', () => handlePageChange(state.pagination.page + 1));
         }
-        
+
         // Event delegation per i numeri di pagina
         const pageNumbersElement = document.getElementById('page-numbers');
         if (pageNumbersElement) {
@@ -592,7 +504,7 @@ export async function loadHomePage() {
             });
         }
     }
-    
+
     /**
      * Rimuove gli event listener
      */
@@ -602,36 +514,36 @@ export async function loadHomePage() {
         if (filtersForm) {
             filtersForm.removeEventListener('submit', handleFilterSubmit);
         }
-        
+
         // Rimuovi event listener per il reset dei filtri
         const resetFiltersButton = document.getElementById('reset-filters');
         if (resetFiltersButton) {
             resetFiltersButton.removeEventListener('click', handleFilterReset);
         }
-        
+
         // Rimuovi event listener per il pulsante "Cancella filtri"
         const clearFiltersButton = document.getElementById('clear-filters');
         if (clearFiltersButton) {
             clearFiltersButton.removeEventListener('click', handleFilterReset);
         }
-        
+
         // Rimuovi event listener per il toggle dei filtri
         const toggleFiltersButton = document.getElementById('toggle-filters');
         if (toggleFiltersButton) {
             toggleFiltersButton.removeEventListener('click', handleToggleFilters);
         }
-        
+
         // Rimuovi event listener per la paginazione
         const prevButton = document.getElementById('prev-page');
         if (prevButton) {
             prevButton.removeEventListener('click', () => handlePageChange(state.pagination.page - 1));
         }
-        
+
         const nextButton = document.getElementById('next-page');
         if (nextButton) {
             nextButton.removeEventListener('click', () => handlePageChange(state.pagination.page + 1));
         }
-        
+
         // Rimuovi event delegation per i numeri di pagina
         const pageNumbersElement = document.getElementById('page-numbers');
         if (pageNumbersElement) {
@@ -644,7 +556,87 @@ export async function loadHomePage() {
             });
         }
     }
-    
+
+    // Funzione di utilità per mischiare un array
+    function shuffleArray(array) {
+        const arr = array.slice();
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    // Renderizza una sezione prodotti (max 10, 2 righe da 5)
+    function renderProductSection(products, containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        let html = '';
+        const toShow = shuffleArray(products).slice(0, 10);
+        for (let i = 0; i < toShow.length; i++) {
+            if (i % 5 === 0 && i !== 0) html += '<div class="w-100"></div>';
+            const product = toShow[i];
+            html += `
+                <div class="col-12 col-sm-6 col-lg-2 mb-3 d-flex align-items-stretch">
+                    <div class="product-card card flex-fill h-100">
+                        <div class="product-image d-flex align-items-center justify-content-center" style="background-color: var(--light-bg); height: 120px;">
+                            ${product.imageUrl ?
+                    `<img src="${product.imageUrl}" alt="${product.name}">` :
+                    `<div style="width: 80px; height: 80px; background: #fff; border: 1px solid #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                    <span class="placeholder-icon">🖼️</span>
+                                </div>`
+                }
+                        </div>
+                        <div class="product-content p-2">
+                            <h6 class="fw-bold mb-1">${product.name}</h6>
+                            <p class="product-artisan text-muted mb-1 small">di ${product.artisan?.name || 'Artigiano'}</p>
+                            <div class="product-footer d-flex justify-content-between align-items-center">
+                                <span class="product-price fw-bold">${product.price?.toFixed(2) || '0.00'} €</span>
+                                <a href="/products/${product.id}" class="btn btn-outline-primary btn-sm" data-route>Dettagli</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        container.innerHTML = html;
+    }
+
+    // Carosello artigiani della settimana
+    function renderArtisansCarousel(artisans) {
+        const container = document.getElementById('artisans-carousel');
+        if (!container) return;
+        let html = '';
+        // Simboli diversi per ogni artigiano (ciclo)
+        const iconList = ['🧑‍🎨', '👩‍🎨', '🧔', '👨‍🦰', '👩‍🦰', '🧑‍🦱', '👨‍🦳', '👩‍🦳', '🧑‍🦲', '👨‍🦲', '👩‍🦲', '🧑‍🦰', '🧑‍🦳', '🧑‍🦲'];
+        artisans.slice(0, 20).forEach((artisan, idx) => {
+            const icon = iconList[idx % iconList.length];
+            html += `
+                <div class="col-8 col-sm-6 col-md-4 col-lg-3 d-flex flex-shrink-0" style="min-width: 220px; max-width: 260px;">
+                    <div class="category-card card flex-fill mb-0 shadow-sm border-0">
+                        <div class="card-body text-center py-4">
+                            <div class="category-image mb-2 d-flex justify-content-center align-items-center" style="background-color: var(--secondary-color); width: 56px; height: 56px; margin: 0 auto; border-radius: 50%;">
+                                <span class="category-icon fs-2">${icon}</span>
+                            </div>
+                            <h5 class="fw-bold mb-1">${artisan.name}</h5>
+                            <a href="/artisans/${artisan.id}" class="btn btn-outline-primary btn-sm mt-2" data-route>Scopri</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+        // Carosello scroll
+        const leftBtn = document.getElementById('artisan-carousel-left');
+        const rightBtn = document.getElementById('artisan-carousel-right');
+        if (leftBtn && rightBtn && container) {
+            const card = container.querySelector('.category-card');
+            const scrollAmount = card ? card.offsetWidth + 16 : 240;
+            leftBtn.onclick = () => container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+            rightBtn.onclick = () => container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+    }
+
     return {
         render: () => pageElement,
         mount,

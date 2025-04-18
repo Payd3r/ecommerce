@@ -40,68 +40,67 @@ export async function loadProductsPage() {
     pageElement.innerHTML = `
         <section class="products-section">
             <div class="container">
-                <div class="section-header">
+                <div class="section-header mt-3">
                     <h2>Tutti i Prodotti</h2>
                 </div>
-                <div class="products-layout">
-                    <aside class="filters-sidebar">
-                        <form id="filters-form" class="filters-form">
-                            <div class="filters-row">
-                                <div class="filter-group">
-                                    <label for="search">Ricerca</label>
-                                    <input type="text" id="search" name="search" placeholder="Cerca prodotti...">
+                <div class="row pb-5 pt-2">
+                    <aside class="col-12 col-md-4 mb-4 mb-md-0">
+                        <div class="card shadow-sm border-0 p-3">
+                            <h5 class="mb-3">Filtra i risultati</h5>
+                            <form id="filters-form" class="filters-form">
+                                <div class="mb-3">
+                                    <label for="search" class="form-label">Ricerca</label>
+                                    <input type="text" id="search" name="search" class="form-control" placeholder="Cerca prodotti...">
                                 </div>
-                            </div>
-                            <div class="filters-row">
-                                <div class="filter-group">
-                                    <label for="category">Categoria</label>
-                                    <select id="category" name="category">
+                                <div class="mb-3">
+                                    <label for="category" class="form-label">Categoria</label>
+                                    <select id="category" name="category" class="form-select">
                                         <option value="">Tutte le categorie</option>
                                     </select>
                                 </div>
-                            </div>
-                            <div class="filters-row">
-                                <div class="filter-group">
-                                    <label for="artisan">Artigiano</label>
-                                    <select id="artisan" name="artisan">
+                                <div class="mb-3">
+                                    <label for="artisan" class="form-label">Artigiano</label>
+                                    <select id="artisan" name="artisan" class="form-select">
                                         <option value="">Tutti gli artigiani</option>
                                     </select>
                                 </div>
-                            </div>
-                            <div class="filters-row">
-                                <div class="filter-group">
-                                    <label for="min-price">Prezzo minimo (€)</label>
-                                    <input type="number" id="min-price" name="minPrice" min="0" step="1" placeholder="Min">
+                                <div class="row mb-3">
+                                    <div class="col">
+                                        <label for="min-price" class="form-label">Prezzo minimo (€)</label>
+                                        <input type="number" id="min-price" name="minPrice" min="0" step="1" class="form-control" placeholder="Min">
+                                    </div>
+                                    <div class="col">
+                                        <label for="max-price" class="form-label">Prezzo massimo (€)</label>
+                                        <input type="number" id="max-price" name="maxPrice" min="0" step="1" class="form-control" placeholder="Max">
+                                    </div>
                                 </div>
-                                <div class="filter-group">
-                                    <label for="max-price">Prezzo massimo (€)</label>
-                                    <input type="number" id="max-price" name="maxPrice" min="0" step="1" placeholder="Max">
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">Applica filtri</button>
+                                    <button type="reset" class="btn btn-secondary" id="reset-filters">Reset</button>
                                 </div>
-                            </div>
-                            <div class="filter-buttons">
-                                <button type="submit" class="btn btn-primary">Applica filtri</button>
-                                <button type="reset" class="btn btn-secondary" id="reset-filters">Reset</button>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </aside>
-                    <main class="products-main">
-                        <div id="products-container" class="grid grid-4">
-                            <div class="skeleton-card"></div>
-                            <div class="skeleton-card"></div>
-                            <div class="skeleton-card"></div>
-                            <div class="skeleton-card"></div>
-                            <div class="skeleton-card"></div>
-                            <div class="skeleton-card"></div>
-                            <div class="skeleton-card"></div>
-                            <div class="skeleton-card"></div>
+                    <main class="col-12 col-md-8">
+                        <div id="products-container" class="row g-4">
+                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
+                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
+                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
+                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
+                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
+                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
+                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
+                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
                         </div>
-                        <div id="pagination" class="pagination">
-                            <button id="prev-page" class="btn btn-sm" disabled>&laquo; Precedente</button>
-                            <div id="page-numbers" class="page-numbers"></div>
-                            <button id="next-page" class="btn btn-sm" disabled>Successiva &raquo;</button>
-                        </div>
-                        <div id="no-results" class="no-results hidden">
-                            <p>Nessun prodotto trovato con i criteri di ricerca specificati.</p>
+                        <nav aria-label="Paginazione prodotti">
+                            <ul id="pagination" class="pagination justify-content-center mt-4 mb-0">
+                                <li class="page-item"><button id="prev-page" class="page-link" disabled>&laquo; Precedente</button></li>
+                                <span id="page-numbers" class="d-flex align-items-center"></span>
+                                <li class="page-item"><button id="next-page" class="page-link" disabled>Successiva &raquo;</button></li>
+                            </ul>
+                        </nav>
+                        <div id="no-results" class="no-results alert alert-warning mt-4 d-none">
+                            <p class="mb-2">Nessun prodotto trovato con i criteri di ricerca specificati.</p>
                             <button id="clear-filters" class="btn btn-primary">Cancella filtri</button>
                         </div>
                     </main>
@@ -120,25 +119,10 @@ export async function loadProductsPage() {
             state.categories = categoriesRes || [];
             populateCategoryFilter(state.categories);
             // Carica artigiani se autenticato
-            try {
-                if (authService.isAuthenticated()) {
-                    const artisansRes = await UsersAPI.getArtisans();
-                    state.artisans = artisansRes.data || [];
-                    populateArtisanFilter(state.artisans);
-                } else {
-                    const artisanSelect = document.getElementById('artisan');
-                    if (artisanSelect) {
-                        artisanSelect.innerHTML = '<option value="">Accedi per vedere gli artigiani</option>';
-                        artisanSelect.disabled = true;
-                    }
-                }
-            } catch (error) {
-                const artisanSelect = document.getElementById('artisan');
-                if (artisanSelect) {
-                    artisanSelect.innerHTML = '<option value="">Impossibile caricare gli artigiani</option>';
-                    artisanSelect.disabled = true;
-                }
-            }
+            const artisansRes = await UsersAPI.getArtisans();
+            state.artisans = artisansRes.data || [];
+            populateArtisanFilter(state.artisans);
+
             // Carica prodotti
             await loadProducts();
         } catch (error) {
@@ -195,7 +179,7 @@ export async function loadProductsPage() {
         if (show) {
             let skeletonHtml = '';
             for (let i = 0; i < state.pagination.limit; i++) {
-                skeletonHtml += '<div class="skeleton-card"></div>';
+                skeletonHtml += '<div class="skeleton-card card"></div>';
             }
             productsContainer.innerHTML = skeletonHtml;
         }
@@ -231,21 +215,23 @@ export async function loadProductsPage() {
         }
         products.forEach(product => {
             html += `
-                <div class="product-card card">
-                    <div class="product-image" style="background-color: var(--light-bg); display: flex; align-items: center; justify-content: center; height: 120px;">
-                        ${product.imageUrl ? 
-                            `<img src="${product.imageUrl}" alt="${product.name}">` : 
-                            `<div style="width: 80px; height: 80px; background: #fff; border: 1px solid #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                                <span class="placeholder-icon">🖼️</span>
-                            </div>`
-                        }
-                    </div>
-                    <div class="product-content">
-                        <h3>${product.name}</h3>
-                        <p class="product-artisan">di ${product.artisan?.name || 'Artigiano'}</p>
-                        <div class="product-footer">
-                            <span class="product-price">${product.price?.toFixed(2) || '0.00'} €</span>
-                            <a href="/products/${product.id}" class="btn btn-sm" data-route>Dettagli</a>
+                <div class="col-12 col-sm-6 col-lg-4 mb-3 d-flex align-items-stretch">
+                    <div class="product-card card flex-fill h-100">
+                        <div class="product-image d-flex align-items-center justify-content-center" style="background-color: var(--light-bg); height: 120px;">
+                            ${product.imageUrl ?
+                    `<img src="${product.imageUrl}" alt="${product.name}">` :
+                    `<div style="width: 80px; height: 80px; background: #fff; border: 1px solid #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                    <span class="placeholder-icon">🖼️</span>
+                                </div>`
+                }
+                        </div>
+                        <div class="product-content p-2">
+                            <h6 class="fw-bold mb-1">${product.name}</h6>
+                            <p class="product-artisan text-muted mb-1 small">di ${product.artisan?.name || 'Artigiano'}</p>
+                            <div class="product-footer d-flex justify-content-between align-items-center">
+                                <span class="product-price fw-bold">${product.price?.toFixed(2) || '0.00'} €</span>
+                                <a href="/products/${product.id}" class="btn btn-outline-primary btn-sm" data-route>Dettagli</a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -261,10 +247,10 @@ export async function loadProductsPage() {
         const nextButton = document.getElementById('next-page');
         if (!paginationElement || !pageNumbersElement || !prevButton || !nextButton) return;
         if (pagination.totalPages <= 1) {
-            paginationElement.classList.add('hidden');
+            paginationElement.classList.add('d-none');
             return;
         } else {
-            paginationElement.classList.remove('hidden');
+            paginationElement.classList.remove('d-none');
         }
         prevButton.disabled = pagination.page <= 1;
         nextButton.disabled = pagination.page >= pagination.totalPages;
@@ -275,21 +261,24 @@ export async function loadProductsPage() {
         if (endPage - startPage + 1 < maxPageButtons && startPage > 1) {
             startPage = Math.max(1, endPage - maxPageButtons + 1);
         }
+        // Prima pagina
         if (startPage > 1) {
-            pageNumbersHtml += `<button class="page-number" data-page="1">1</button>`;
+            pageNumbersHtml += `<li class="page-item"><button class="page-link" data-page="1">1</button></li>`;
             if (startPage > 2) {
-                pageNumbersHtml += `<span class="page-ellipsis">...</span>`;
+                pageNumbersHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
             }
         }
+        // Pagine centrali
         for (let i = startPage; i <= endPage; i++) {
             const activeClass = i === pagination.page ? 'active' : '';
-            pageNumbersHtml += `<button class="page-number ${activeClass}" data-page="${i}">${i}</button>`;
+            pageNumbersHtml += `<li class="page-item ${activeClass}"><button class="page-link" data-page="${i}">${i}</button></li>`;
         }
+        // Ultima pagina
         if (endPage < pagination.totalPages) {
             if (endPage < pagination.totalPages - 1) {
-                pageNumbersHtml += `<span class="page-ellipsis">...</span>`;
+                pageNumbersHtml += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
             }
-            pageNumbersHtml += `<button class="page-number" data-page="${pagination.totalPages}">${pagination.totalPages}</button>`;
+            pageNumbersHtml += `<li class="page-item"><button class="page-link" data-page="${pagination.totalPages}">${pagination.totalPages}</button></li>`;
         }
         pageNumbersElement.innerHTML = pageNumbersHtml;
     }

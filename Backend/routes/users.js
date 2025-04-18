@@ -60,7 +60,7 @@ router.get('/', verifyToken, checkRole('admin'), async (req, res) => {
 
 // GET /users/artisans - Ottieni tutti gli artisani
 // Questa route richiede autenticazione ma è accessibile a qualsiasi ruolo
-router.get('/artisans', verifyToken, async (req, res) => {
+router.get('/artisans', async (req, res) => {
     try {
         // Procedi con la normale logica della route
         const page = parseInt(req.query.page) || 1;
@@ -103,10 +103,6 @@ router.get('/artisans', verifyToken, async (req, res) => {
                 limit,
                 hasNextPage,
                 hasPrevPage
-            },
-            user: {
-                id: req.user.id,
-                role: req.user.role
             }
         });
     } catch (error) {

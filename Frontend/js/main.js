@@ -19,6 +19,7 @@ import { loadArtisanDashboardPage } from './pages/artisan/Dashboard.js';
 import { loadAdminDashboardPage } from './pages/admin/Dashboard.js';
 
 import { loadProductsPage } from './pages/Products.js';
+import { loadProductDetailsPage } from './pages/ProductDetails.js';
 
 // Classe principale dell'applicazione
 class App {
@@ -80,7 +81,7 @@ class App {
         router.register('/login', loadLoginPage, { title: 'Accedi - ArtigianatoShop' });
         router.register('/register', loadRegisterPage, { title: 'Registrati - ArtigianatoShop' });
         router.register('/products', loadProductsPage, { title: 'Tutti i Prodotti - ArtigianatoShop' });
-
+        router.register('/products/:id', loadProductDetailsPage, { title: 'Dettagli Prodotto - Product' });
         // Route protette per utenti autenticati
         router.register('/profile', loadProfilePage, {
             requireAuth: true,
@@ -103,6 +104,8 @@ class App {
 
         // Route 404 (non trovata)
         router.register('404', loadNotFoundPage, { title: 'Pagina non trovata - ArtigianatoShop' });
+
+        
     }
 }
 

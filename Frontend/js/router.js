@@ -58,14 +58,35 @@ class Router {
      * @param {boolean} pushState - Se true, aggiunge la rotta alla history
      */
     async navigate(path, pushState = true) {
-        // Normalizza il percorso
         path = path || '/';
         if (path !== '/' && path.endsWith('/')) {
             path = path.slice(0, -1);
         }
-        
-        // Cerca la rotta registrata
-        const route = this.routes[path] || this.routes['404'];
+
+        // Cerca la rotta registrata (anche dinamica)
+        let route = this.routes[path];
+        let params = {};
+        if (!route) {
+            // Cerca una route dinamica che combaci
+            for (const routePath in this.routes) {
+                if (routePath.includes(':')) {
+                    const paramNames = [];
+                    const regexPath = routePath.replace(/:([^/]+)/g, (_, key) => {
+                        paramNames.push(key);
+                        return '([^/]+)';
+                    });
+                    const match = path.match(new RegExp('^' + regexPath + '$'));
+                    if (match) {
+                        route = this.routes[routePath];
+                        paramNames.forEach((name, i) => {
+                            params[name] = match[i + 1];
+                        });
+                        break;
+                    }
+                }
+            }
+        }
+        if (!route) route = this.routes['404'];
         
         // Se la rotta richiede autenticazione e l'utente non è autenticato, redirige al login
         if (route.options.requireAuth && !authService.isAuthenticated()) {
@@ -92,7 +113,7 @@ class Router {
             
             // Istanzia il componente della rotta
             const component = route.component;
-            this.currentRoute = await component();
+            this.currentRoute = await component(params);
             
             // Aggiorna il titolo della pagina
             document.title = route.options.title;

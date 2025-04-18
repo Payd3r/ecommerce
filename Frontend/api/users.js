@@ -145,12 +145,7 @@ const UsersAPI = {
      */
     getArtisans: async (params = {}) => {
         try {
-            // Verifica che l'utente sia autenticato
-            const token = authService.getToken();
-            if (!token) {
-                throw new Error('Utente non autenticato');
-            }
-            
+
             // Costruisci i parametri di query
             const queryParams = new URLSearchParams();
             
@@ -163,8 +158,7 @@ const UsersAPI = {
             
             // Prepara gli headers con il token di autenticazione
             const headers = {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Content-Type': 'application/json'
             };
             
             const response = await fetch(url, {
