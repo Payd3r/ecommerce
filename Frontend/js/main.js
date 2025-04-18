@@ -18,35 +18,37 @@ import { loadArtisanDashboardPage } from './pages/artisan/Dashboard.js';
 // Importo le pagine dell'admin
 import { loadAdminDashboardPage } from './pages/admin/Dashboard.js';
 
+import { loadProductsPage } from './pages/Products.js';
+
 // Classe principale dell'applicazione
 class App {
     constructor() {
         // Verifica lo stato di autenticazione all'avvio
         this.checkAuthState();
-        
+
         // Inizializza i componenti fissi
         this.initComponents();
-        
+
         // Configura le route
         this.setupRoutes();
-        
+
         // Inizializza il router
         router.init();
     }
-    
+
     /**
      * Inizializza i componenti fissi (navbar, footer)
      */
     initComponents() {
         navbar.render();
         footer.render();
-        
+
         // Gestisce l'evento di cambio di autenticazione
         document.addEventListener('auth:change', () => {
             navbar.render();
         });
     }
-    
+
     /**
      * Verifica lo stato di autenticazione all'avvio e aggiorna il profilo
      */
@@ -55,7 +57,7 @@ class App {
             try {
                 // Aggiorna i dati del profilo
                 await authService.getProfile();
-                
+
                 // Notifica il cambio di autenticazione
                 document.dispatchEvent(new CustomEvent('auth:change'));
             } catch (error) {
@@ -68,7 +70,7 @@ class App {
             }
         }
     }
-    
+
     /**
      * Configura le route dell'applicazione
      */
@@ -77,27 +79,28 @@ class App {
         router.register('/', loadHomePage, { title: 'ArtigianatoShop - Home' });
         router.register('/login', loadLoginPage, { title: 'Accedi - ArtigianatoShop' });
         router.register('/register', loadRegisterPage, { title: 'Registrati - ArtigianatoShop' });
-        
+        router.register('/products', loadProductsPage, { title: 'Tutti i Prodotti - ArtigianatoShop' });
+
         // Route protette per utenti autenticati
-        router.register('/profile', loadProfilePage, { 
-            requireAuth: true, 
-            title: 'Profilo - ArtigianatoShop' 
+        router.register('/profile', loadProfilePage, {
+            requireAuth: true,
+            title: 'Profilo - ArtigianatoShop'
         });
-        
+
         // Route protette per artigiani
-        router.register('/artisan/dashboard', loadArtisanDashboardPage, { 
-            requireAuth: true, 
-            roles: ['artisan'], 
-            title: 'Dashboard Artigiano - ArtigianatoShop' 
+        router.register('/artisan/dashboard', loadArtisanDashboardPage, {
+            requireAuth: true,
+            roles: ['artisan'],
+            title: 'Dashboard Artigiano - ArtigianatoShop'
         });
-        
+
         // Route protette per admin
-        router.register('/admin/dashboard', loadAdminDashboardPage, { 
-            requireAuth: true, 
-            roles: ['admin'], 
-            title: 'Dashboard Admin - ArtigianatoShop' 
+        router.register('/admin/dashboard', loadAdminDashboardPage, {
+            requireAuth: true,
+            roles: ['admin'],
+            title: 'Dashboard Admin - ArtigianatoShop'
         });
-        
+
         // Route 404 (non trovata)
         router.register('404', loadNotFoundPage, { title: 'Pagina non trovata - ArtigianatoShop' });
     }

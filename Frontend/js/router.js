@@ -2,6 +2,7 @@
 import { authService } from './services/authService.js';
 import { toast } from './components/Toast.js';
 import { loader } from './components/Loader.js';
+// Importo la pagina prodotti
 
 /**
  * Router dell'applicazione con gestione delle route protette
@@ -179,7 +180,7 @@ class Router {
                 this.navigate('/artisan/dashboard');
                 break;
             case 'client':
-                this.navigate('/profile');
+                this.navigate('/');
                 break;
             default:
                 this.navigateToHome();
@@ -188,4 +189,9 @@ class Router {
 }
 
 // Esporto un'istanza singola del router
-export const router = new Router(); 
+export const router = new Router();
+
+// Registro la route per la pagina prodotti
+
+// Dopo la definizione della classe Router, registro la route:
+// (Questo va inserito dopo l'export del router, oppure dove vengono registrate le altre route)
