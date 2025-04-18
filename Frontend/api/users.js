@@ -183,9 +183,9 @@ const UsersAPI = {
 
         if (params.page) queryParams.append('page', params.page);
         if (params.limit) queryParams.append('limit', params.limit);
-        if (params.search) queryParams.append('search', params.search);
+        if (params.name) queryParams.append('name', params.name);
+        if (params.email) queryParams.append('email', params.email);
         if (params.role) queryParams.append('role', params.role);
-
         try {
             const token = authService.getToken();
             if (!token) {
@@ -204,13 +204,46 @@ const UsersAPI = {
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Errore nel recupero degli utenti');
             }
-
             return await response.json();
         } catch (error) {
             console.error('Errore API getUsers:', error);
             throw error;
         }
-    }
+    },
+
+    /**
+     * Crea un nuovo utente
+     * @param {Object} userData - Dati del nuovo utente (name, email, role)
+     * @returns {Promise} Promise con i dati dell'utente creato
+     */
+    createUser: async (userData) => {
+        const token = authService.getToken();
+
+        if (!token) {
+            throw new Error('Utente non autenticato');
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/users`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(userData)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Errore nella creazione dell\'utente');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Errore API createUser:', error);
+            throw error;
+        }
+    },
 };
 
 export default UsersAPI;

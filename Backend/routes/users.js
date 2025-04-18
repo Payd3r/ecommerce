@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../models/db');
+const bcrypt = require('bcrypt');
 const { verifyToken, checkRole } = require('../middleware/auth');
 
 // GET /users - Ottieni tutti gli utenti con paginazione, ricerca e filtri
@@ -10,19 +11,29 @@ router.get('/', verifyToken, checkRole('admin'), async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const offset = (page - 1) * limit;
-        const searchTerm = req.query.search || '';
         const role = req.query.role || '';
+
+        // Leggi i parametri di ordinamento dalla query string
+        const orderBy = req.query.orderBy || 'name';
+        const orderDir = req.query.orderDir === 'desc' ? 'DESC' : 'ASC';
 
         // Costruisci la query di base
         let query = 'SELECT id, name, email, role, created_at FROM users WHERE 1=1';
         let countQuery = 'SELECT COUNT(*) as total FROM users WHERE 1=1';
         const queryParams = [];
 
-        // Aggiungi la condizione di ricerca se presente
-        if (searchTerm) {
+        // Aggiungi la condizione di ricerca per nome se presente
+        if (req.query.name) {
             query += ' AND name LIKE ?';
             countQuery += ' AND name LIKE ?';
-            queryParams.push(`%${searchTerm}%`);
+            queryParams.push(`%${req.query.name}%`);
+        }
+
+        // Aggiungi la condizione di ricerca per email se presente
+        if (req.query.email) {
+            query += ' AND email LIKE ?';
+            countQuery += ' AND email LIKE ?';
+            queryParams.push(`%${req.query.email}%`);
         }
 
         // Aggiungi il filtro per il ruolo se presente
@@ -33,7 +44,7 @@ router.get('/', verifyToken, checkRole('admin'), async (req, res) => {
         }
 
         // Aggiungi ordinamento e paginazione
-        query += ' ORDER BY name ASC LIMIT ? OFFSET ?';
+        query += ` ORDER BY ${orderBy} ${orderDir} LIMIT ? OFFSET ?`;
         queryParams.push(limit, offset);
 
         // Esegui le query
@@ -162,12 +173,12 @@ router.post('/', verifyToken, checkRole('admin'), async (req, res) => {
         }
 
         // Hash della password (da implementare con bcrypt)
-        // const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 10);
 
         // Inserisci il nuovo utente
         const [result] = await db.query(
-            'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
-            [name, email, password, role]
+            'INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)',
+            [name, email, hashedPassword, role]
         );
 
         const [newUser] = await db.query(
