@@ -60,7 +60,7 @@ export async function loadAdminDashboardPage() {
                 <div class="card">
                     <h2>Gestione piattaforma</h2>
                     <div class="action-buttons">
-                        <a href="/admin/users" class="btn" data-route>
+                        <a href="/admin/users-management" class="btn" data-route>
                             Gestisci utenti
                         </a>
                         <a href="/admin/artisans" class="btn" data-route>

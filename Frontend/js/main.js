@@ -17,6 +17,7 @@ import { loadArtisanDashboardPage } from './pages/artisan/Dashboard.js';
 
 // Importo le pagine dell'admin
 import { loadAdminDashboardPage } from './pages/admin/Dashboard.js';
+import { loadUsersManagementPage } from './pages/admin/UsersManagement.js';
 
 import { loadProductsPage } from './pages/Products.js';
 import { loadProductDetailsPage } from './pages/ProductDetails.js';
@@ -93,6 +94,11 @@ class App {
             requireAuth: true,
             roles: ['artisan'],
             title: 'Dashboard Artigiano - ArtigianatoShop'
+        });
+        router.register('/admin/users-management', loadUsersManagementPage, {
+            requireAuth: true,
+            roles: ['admin'],
+            title: 'UsersManagement Admin - ArtigianatoShop'
         });
 
         // Route protette per admin
