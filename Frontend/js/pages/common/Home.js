@@ -83,7 +83,7 @@ export async function loadHomePage() {
                 <div class="cta-content text-center">
                     <h2>Sei un Artigiano?</h2>
                     <p>Unisciti alla nostra piattaforma e porta i tuoi prodotti artigianali a un pubblico più ampio.</p>
-                    <a href="/register" class="btn btn-secondary" data-route>Inizia a Vendere</a>
+                    <a href="/became-artisan" class="btn btn-secondary" data-route>Inizia a Vendere</a>
                 </div>
             </div>
         </section>
@@ -128,7 +128,6 @@ export async function loadHomePage() {
      * Carica i prodotti con i filtri e la paginazione corrente
      */
     async function loadProducts() {
-        showBootstrapToast('Caricamento prodotti...', 'Informazione', 'info');
         try {
             state.loading = true;
             toggleProductsLoader(true);

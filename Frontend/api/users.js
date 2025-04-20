@@ -45,13 +45,17 @@ const UsersAPI = {
      */
     updateUserProfile: async (userData) => {
         const token = authService.getToken();
+        const user = authService.getUser();
 
         if (!token) {
             throw new Error('Utente non autenticato');
         }
+        if (!user || !user.id) {
+            throw new Error('Impossibile determinare l\'utente loggato');
+        }
 
         try {
-            const response = await fetch(`${API_BASE_URL}/users/me`, {
+            const response = await fetch(`${API_BASE_URL}/users/${user.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

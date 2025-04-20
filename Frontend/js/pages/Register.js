@@ -51,29 +51,12 @@ export async function loadRegisterPage() {
                             </div>
                             <div class="mb-3">
                                 <label for="password" class="form-label">Password</label>
-                                <input type="password" id="password" name="password" required placeholder="Crea una password" minlength="6" class="form-control">
-                                <small class="form-text text-muted">La password deve contenere almeno 6 caratteri</small>
+                                <input type="password" id="password" name="password" required placeholder="Crea una password" minlength="4" class="form-control">
+                                <small class="form-text text-muted">La password deve contenere almeno 4 caratteri</small>
                             </div>
                             <div class="mb-3">
                                 <label for="password-confirm" class="form-label">Conferma password</label>
-                                <input type="password" id="password-confirm" name="passwordConfirm" required placeholder="Ripeti la password" minlength="6" class="form-control">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Tipo di account</label>
-                                <div class="d-flex gap-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" id="role-client" name="role" value="client" checked>
-                                        <label class="form-check-label" for="role-client">
-                                            <span class="role-icon">👤</span> Cliente
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" id="role-artisan" name="role" value="artisan">
-                                        <label class="form-check-label" for="role-artisan">
-                                            <span class="role-icon">🛠️</span> Artigiano
-                                        </label>
-                                    </div>
-                                </div>
+                                <input type="password" id="password-confirm" name="passwordConfirm" required placeholder="Ripeti la password" minlength="4" class="form-control">
                             </div>
                             <div class="d-grid mb-3">
                                 <button type="submit" class="btn btn-primary btn-lg">
@@ -102,7 +85,6 @@ export async function loadRegisterPage() {
         const email = form.email.value.trim();
         const password = form.password.value;
         const passwordConfirm = form.passwordConfirm.value;
-        const role = form.querySelector('input[name="role"]:checked').value;
         
         // Validazione base
         if (!name || !email || !password) {
@@ -115,8 +97,8 @@ export async function loadRegisterPage() {
             return;
         }
         
-        if (password.length < 6) {
-            showBootstrapToast('La password deve contenere almeno 6 caratteri', 'Errore', 'error');
+        if (password.length < 4) {
+            showBootstrapToast('La password deve contenere almeno 4 caratteri', 'Errore', 'error');
             return;
         }
         
@@ -132,7 +114,7 @@ export async function loadRegisterPage() {
             loader.show();
             
             // Effettua la registrazione
-            await authService.register(name, email, password, role);
+            await authService.register(name, email, password, 'client');
             
             // Mostra messaggio di successo
             showBootstrapToast('Registrazione effettuata con successo', 'Successo', 'success');
@@ -143,7 +125,12 @@ export async function loadRegisterPage() {
             // Reindirizza alla dashboard appropriata
             router.navigateToDashboard();
         } catch (error) {
-            showBootstrapToast('Errore durante la registrazione: ' + error.message, 'Errore', 'error');
+            console.log('error', error.message);
+            if (error.message && error.message.toLowerCase().includes('email gia registrata')) {
+                showBootstrapToast('Questa email è già registrata. Prova ad accedere o usa un altro indirizzo.', 'Email già registrata', 'warning');
+            } else {
+                showBootstrapToast('Errore durante la registrazione: ' + error.message, 'Errore', 'error');
+            }
             
             // Ripristina il form
             const submitBtn = form.querySelector('button[type="submit"]');

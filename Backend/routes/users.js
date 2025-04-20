@@ -227,37 +227,55 @@ router.put('/:id', verifyToken, async (req, res) => {
     const { name, email, role } = req.body;
     const userId = req.params.id;
 
+    // LOG: info utente autenticato e richiesta
+    console.log('[PUT /users/:id] user.id:', req.user.id, 'user.role:', req.user.role, 'userId param:', userId, 'body:', req.body);
+
     // Verifica che l'utente stia modificando il proprio profilo o sia admin
     if (req.user.role !== 'admin' && req.user.id !== parseInt(userId)) {
+        console.log('[PUT /users/:id] BLOCCATO: non è admin e non modifica il proprio profilo');
         return res.status(403).json({ 
             error: 'Non hai i permessi per modificare questo profilo' 
         });
     }
 
-    // Se non è admin, non può modificare il ruolo
-    if (req.user.role !== 'admin' && role !== req.user.role) {
-        return res.status(403).json({ 
-            error: 'Non hai i permessi per modificare il ruolo' 
-        });
+    // Se non è admin, può cambiare solo da client ad artisan
+    if (req.user.role !== 'admin') {
+        if (role && role !== req.user.role) {
+            // Permetti solo il cambio da client a artisan
+            if (!(req.user.role === 'client' && role === 'artisan')) {
+                console.log('[PUT /users/:id] BLOCCATO: tentativo di cambio ruolo non consentito', 'da', req.user.role, 'a', role);
+                return res.status(403).json({ 
+                    error: 'Non hai i permessi per modificare il ruolo' 
+                });
+            } else {
+                console.log('[PUT /users/:id] CONSENTITO: cambio ruolo da client a artisan');
+            }
+        }
     }
 
-    // Validazione
-    if (!name || !email || !role) {
-        return res.status(400).json({ 
-            error: 'Nome, email e ruolo sono obbligatori' 
-        });
+    // Costruisci dinamicamente la query di update solo con i campi forniti
+    const fields = [];
+    const values = [];
+    if (name !== undefined) {
+        if (!name) return res.status(400).json({ error: 'Il nome non può essere vuoto' });
+        fields.push('name = ?');
+        values.push(name);
     }
-
-    // Validazione email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        return res.status(400).json({ error: 'Email non valida' });
+    if (email !== undefined) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email) return res.status(400).json({ error: 'L\'email non può essere vuota' });
+        if (!emailRegex.test(email)) return res.status(400).json({ error: 'Email non valida' });
+        fields.push('email = ?');
+        values.push(email);
     }
-
-    // Validazione ruolo
-    const validRoles = ['admin', 'client', 'artisan'];
-    if (!validRoles.includes(role)) {
-        return res.status(400).json({ error: 'Ruolo non valido' });
+    if (role !== undefined) {
+        const validRoles = ['admin', 'client', 'artisan'];
+        if (!validRoles.includes(role)) return res.status(400).json({ error: 'Ruolo non valido' });
+        fields.push('role = ?');
+        values.push(role);
+    }
+    if (fields.length === 0) {
+        return res.status(400).json({ error: 'Nessun campo da aggiornare' });
     }
 
     try {
@@ -267,19 +285,21 @@ router.put('/:id', verifyToken, async (req, res) => {
             return res.status(404).json({ error: 'Utente non trovato' });
         }
 
-        // Verifica se l'email è già in uso da un altro utente
-        const [emailUser] = await db.query(
-            'SELECT id FROM users WHERE email = ? AND id != ?',
-            [email, userId]
-        );
-        if (emailUser.length > 0) {
-            return res.status(400).json({ error: 'Email già in uso' });
+        // Se si vuole aggiornare l'email, verifica che non sia già in uso
+        if (email !== undefined) {
+            const [emailUser] = await db.query(
+                'SELECT id FROM users WHERE email = ? AND id != ?',
+                [email, userId]
+            );
+            if (emailUser.length > 0) {
+                return res.status(400).json({ error: 'Email già in uso' });
+            }
         }
 
-        // Aggiorna l'utente
+        // Aggiorna solo i campi forniti
         await db.query(
-            'UPDATE users SET name = ?, email = ?, role = ? WHERE id = ?',
-            [name, email, role, userId]
+            `UPDATE users SET ${fields.join(', ')} WHERE id = ?`,
+            [...values, userId]
         );
 
         const [updatedUser] = await db.query(

@@ -25,6 +25,7 @@ import { loadArtisanPage } from './pages/common/Artisan.js';
 import { loadCategoryPage } from './pages/common/Category.js';
 import { loadCartPage } from './pages/client/cart.js';
 import { loadArtisanShopPage } from './pages/common/ArtisanShop.js';
+import { loadBecameArtisanPage } from './pages/artisan/BecameArtisan.js';
 
 // Classe principale dell'applicazione
 class App {
@@ -98,6 +99,13 @@ class App {
         router.register('/profile', loadProfilePage, {
             requireAuth: true,
             title: 'Profilo - ArtigianatoShop'
+        });
+
+        // Route per diventare artigiano
+        router.register('/became-artisan', loadBecameArtisanPage, {
+            requireAuth: true,
+            roles: ['client'],
+            title: 'Diventa Artigiano - ArtigianatoShop'
         });
 
         // Route protette per artigiani

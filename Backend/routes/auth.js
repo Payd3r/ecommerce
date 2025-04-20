@@ -4,6 +4,7 @@ const router = express.Router();
 const { registerUser, loginUser } = require('../services/auth_functions');
 const { verifyToken } = require('../middleware/auth');
 const db = require('../models/db'); // Importo il pool di connessione
+const jwt = require('jsonwebtoken');
 
 /**
  * @route   POST /auth/register
@@ -21,13 +22,22 @@ router.post('/register', async (req, res) => {
     
     const newUser = await registerUser(userData);
     
+    const token = jwt.sign(
+      { userId: newUser.id, email: newUser.email, role: newUser.role },
+      process.env.JWT_SECRET || 'your_jwt_secret',
+      { expiresIn: '24h' }
+    );
+    
     res.status(201).json({
       success: true,
       message: 'Utente registrato con successo',
-      data: newUser
+      data: {
+        token,
+        user: newUser
+      }
     });
   } catch (error) {
-    if (error.message.includes('Email già registrata')) {
+    if (error.message.includes('Email gia registrata')) {
       return res.status(400).json({
         success: false,
         message: error.message
