@@ -70,8 +70,8 @@ export async function loadUsersManagementPage() {
                                 <thead>
                                     <tr>
                                         <th id="sort-name-col" style="cursor:pointer">Nome <span id="sort-name-icon"></span></th>
-                                        <th id="sort-email-col" style="cursor:pointer">Email <span id="sort-email-icon"></span></th>
-                                        <th id="sort-role-col" style="cursor:pointer">Ruolo <span id="sort-role-icon"></span></th>
+                                        <th id="sort-email-col">Email</th>
+                                        <th id="sort-role-col"> Ruolo </th>
                                         <th id="sort-created-col" style="cursor:pointer">Data creazione <span id="sort-created-icon"></span></th>
                                         <th>Azioni</th>
                                     </tr>
@@ -431,8 +431,6 @@ export async function loadUsersManagementPage() {
 
         // Event listener per ordinamento colonna Nome
         let sortNameOrder = 'asc';
-        let sortEmailOrder = 'asc';
-        let sortRoleOrder = 'asc';
         let sortCreatedOrder = 'asc';
         const sortNameCol = document.getElementById('sort-name-col');
         const sortNameIcon = document.getElementById('sort-name-icon');
@@ -450,38 +448,6 @@ export async function loadUsersManagementPage() {
             await loadUsersTable(params);
         });
 
-        // Event listener per ordinamento colonna email
-        const sortEmailCol = document.getElementById('sort-email-col');
-        const sortEmailIcon = document.getElementById('sort-email-icon');
-        function updateSortEmailIcon() {
-            sortEmailIcon.innerHTML = sortEmailOrder === 'asc' ? '▲' : '▼';
-        }
-        updateSortEmailIcon();
-        sortEmailCol.addEventListener('click', async () => {
-            sortEmailOrder = sortEmailOrder === 'asc' ? 'desc' : 'asc';
-            updateSortEmailIcon();
-            const params = {
-                orderBy: 'email' || '',
-                orderDir: sortEmailOrder,
-            };
-            await loadUsersTable(params);
-        });
-
-        const sortRoleCol = document.getElementById('sort-role-col');
-        const sortRoleIcon = document.getElementById('sort-role-icon');
-        function updateSortRoleIcon() {
-            sortRoleIcon.innerHTML = sortRoleOrder === 'asc' ? '▲' : '▼';
-        }
-        updateSortRoleIcon();
-        sortRoleCol.addEventListener('click', async () => {
-            sortRoleOrder = sortRoleOrder === 'asc' ? 'desc' : 'asc';
-            updateSortRoleIcon();
-            const params = {
-                orderBy: 'role' || '',
-                orderDir: sortRoleOrder,
-            };
-            await loadUsersTable(params);
-        });
         const sortCreatedCol = document.getElementById('sort-created-col');
         const sortCreatedIcon = document.getElementById('sort-created-icon');
         function updateSortCreatedIcon() {

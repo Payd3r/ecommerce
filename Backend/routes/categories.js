@@ -134,7 +134,7 @@ router.delete('/:id', async (req, res) => {
         const [children] = await db.query('SELECT id FROM categories WHERE dad_id = ?', [categoryId]);
         if (children.length > 0) {
             return res.status(400).json({ 
-                error: 'Impossibile eliminare la categoria: contiene sottocategorie' 
+                error: 'Impossibile eliminare la categoria: contiene sottocategorie e/o prodotti associati' 
             });
         }
         
