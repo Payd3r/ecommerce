@@ -190,6 +190,8 @@ const UsersAPI = {
         if (params.name) queryParams.append('name', params.name);
         if (params.email) queryParams.append('email', params.email);
         if (params.role) queryParams.append('role', params.role);
+        if (params.orderBy) queryParams.append('orderBy', params.orderBy);
+        if (params.orderDir) queryParams.append('orderDir', params.orderDir);
         try {
             const token = authService.getToken();
             if (!token) {
@@ -245,6 +247,107 @@ const UsersAPI = {
             return await response.json();
         } catch (error) {
             console.error('Errore API createUser:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Ottiene un utente tramite ID
+     * @param {number|string} userId - ID dell'utente da recuperare
+     * @returns {Promise} Promise con i dati dell'utente
+     */
+    getUser: async (userId) => {
+        const token = authService.getToken();
+        if (!token) {
+            throw new Error('Utente non autenticato');
+        }
+        try {
+            const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Errore nel recupero dell\'utente');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Errore API getUser:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Aggiorna un utente tramite ID
+     * @param {number|string} userId - ID dell'utente da aggiornare
+     * @param {Object} userData - Dati da aggiornare (name, email, role)
+     * @returns {Promise} Promise con i dati aggiornati dell'utente
+     */
+    updateUser: async (userId, userData) => {
+        const token = authService.getToken();
+        if (!token) {
+            throw new Error('Utente non autenticato');
+        }
+        // Costruisci dinamicamente il body solo con i campi forniti (come nel backend)
+        const allowedFields = ['name', 'email', 'role'];
+        const filteredData = {};
+        for (const key of allowedFields) {
+            if (userData[key] !== undefined) {
+                filteredData[key] = userData[key];
+            }
+        }
+        if (Object.keys(filteredData).length === 0) {
+            throw new Error('Nessun campo da aggiornare');
+        }
+        try {
+            const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(filteredData)
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Errore nell\'aggiornamento dell\'utente');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Errore API updateUser:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Elimina un utente tramite ID
+     * @param {number|string} userId - ID dell'utente da eliminare
+     * @returns {Promise} Promise risolta se eliminazione avvenuta con successo
+     */
+    deleteUser: async (userId) => {
+        const token = authService.getToken();
+        if (!token) {
+            throw new Error('Utente non autenticato');
+        }
+        try {
+            const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!response.ok && response.status !== 204) {
+                let errorData = {};
+                try { errorData = await response.json(); } catch {}
+                throw new Error(errorData.error || 'Errore nell\'eliminazione dell\'utente');
+            }
+            return true;
+        } catch (error) {
+            console.error('Errore API deleteUser:', error);
             throw error;
         }
     },
