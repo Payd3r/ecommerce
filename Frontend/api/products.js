@@ -42,7 +42,7 @@ async function createProduct(productData) {
         if (!token) {
             throw new Error('Utente non autenticato');
         }
-        
+        console.log("token", token) ;
         const response = await fetch(`${API_URL}/products`, {
             method: 'POST',
             headers: {

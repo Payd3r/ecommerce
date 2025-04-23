@@ -26,6 +26,8 @@ import { loadCategoryPage } from './pages/common/Category.js';
 import { loadCartPage } from './pages/client/cart.js';
 import { loadArtisanShopPage } from './pages/common/ArtisanShop.js';
 import { loadBecameArtisanPage } from './pages/artisan/BecameArtisan.js';
+import { loadManageOrdersPage } from './pages/artisan/manageOrders.js';
+import { loadManageProductsPage } from './pages/artisan/manageProducts.js';
 
 // Classe principale dell'applicazione
 class App {
@@ -114,6 +116,11 @@ class App {
             roles: ['artisan'],
             title: 'Dashboard Artigiano - ArtigianatoShop'
         });
+        router.register('/artisan/manageOrders', loadManageOrdersPage, {
+            requireAuth: true,
+            roles: ['artisan'],
+            title: 'Gestione Ordini - ArtigianatoShop'
+        });
         router.register('/admin/users-management', loadUsersManagementPage, {
             requireAuth: true,
             roles: ['admin'],
@@ -132,6 +139,13 @@ class App {
 
         // Route 404 (non trovata)
         router.register('404', loadNotFoundPage, { title: 'Pagina non trovata - ArtigianatoShop' });
+
+        // Route protetta per artigiani
+        router.register('/artisan/manageProducts', loadManageProductsPage, {
+            requireAuth: true,
+            roles: ['artisan'],
+            title: 'Gestione Prodotti - ArtigianatoShop'
+        });
     }
 }
 

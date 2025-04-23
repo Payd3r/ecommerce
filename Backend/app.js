@@ -1,16 +1,17 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
+const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 3005;
 
 // Middleware
 app.use(cors({
-    origin: true, // Permette tutte le origini durante lo sviluppo
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true
+  origin: true, // Permette tutte le origini durante lo sviluppo
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -26,7 +27,9 @@ app.use('/products', require('./routes/products'));
 app.use('/users', require('./routes/users'));
 app.use('/categories', require('./routes/categories'));
 app.use('/cart', require('./routes/cart'));
+app.use('/orders', require('./routes/orders'));
 
 app.listen(port, () => {
   console.log(`Server attivo su http://localhost:${port}`);
 });
+

@@ -226,8 +226,3 @@ class Router {
 
 // Esporto un'istanza singola del router
 export const router = new Router();
-
-// Registro la route per la pagina prodotti
-
-// Dopo la definizione della classe Router, registro la route:
-// (Questo va inserito dopo l'export del router, oppure dove vengono registrate le altre route)

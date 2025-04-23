@@ -106,7 +106,6 @@ router.get('/:id', async (req, res) => {
 router.post('/', verifyToken, checkRole('artisan'), async (req, res) => {
     const { name, description, price, stock, category_id } = req.body;
     const artisan_id = req.user.id; // Prendi l'ID dell'artigiano dal token
-
     // Validazione
     if (!name || !price) {
         return res.status(400).json({ error: 'Nome e prezzo sono obbligatori' });
