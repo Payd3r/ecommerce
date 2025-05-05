@@ -351,6 +351,34 @@ const UsersAPI = {
             throw error;
         }
     },
+
+    /**
+     * Ottiene i conteggi utenti per ruolo (client, artisan, admin, totale)
+     * @returns {Promise<Object>} Oggetto con counts: { clients, artisans, admins, total }
+     */
+    getCounts: async () => {
+        const token = authService.getToken();
+        if (!token) {
+            throw new Error('Utente non autenticato');
+        }
+        try {
+            const response = await fetch(`${API_BASE_URL}/users/counts`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Errore nel recupero dei conteggi utenti');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Errore API getCounts:', error);
+            throw error;
+        }
+    },
 };
 
 export default UsersAPI;

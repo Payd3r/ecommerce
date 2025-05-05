@@ -48,3 +48,42 @@
     margin-right: 8px;
     vertical-align: middle;
 }
+
+html, body {
+    height: 100%;
+}
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+#app-container {
+    flex: 1 0 auto;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+}
+#footer-container {
+    flex-shrink: 0;
+    width: 100%;
+}
+@media (max-width: 768px) {
+    #app-container {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+    #footer-container {
+        font-size: 0.95rem;
+        padding: 0.5rem 0;
+    }
+}
+@media (max-width: 576px) {
+    #app-container {
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
+    }
+    #footer-container {
+        font-size: 0.9rem;
+        padding: 0.25rem 0;
+    }
+}

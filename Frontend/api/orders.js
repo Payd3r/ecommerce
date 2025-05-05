@@ -7,6 +7,13 @@ export async function getAllOrders() {
     return await res.json();
 }
 
+// Ottieni tutti gli ordini (solo per admin o test)
+export async function getOrders() {
+    const res = await fetch('/orders');
+    if (!res.ok) throw new Error('Errore nel recupero degli ordini');
+    return await res.json();
+}
+
 // Crea un nuovo ordine
 export async function createOrder(orderData) {
     const res = await fetch(API_URL, {

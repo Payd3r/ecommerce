@@ -15,11 +15,13 @@ export async function loadCategoriesManagementPage() {
             <div class="row mb-4">
                 <div class="col-12 text-center">
                     <h1 class="display-5 fw-bold mb-2">Gestione Categorie</h1>
-                    <p class="text-muted">Aggiungi, modifica, elimina e gestisci la gerarchia delle categorie</p>
                 </div>
             </div>
-            <div class="row mb-3">
-                <div class="col-12 text-end">
+            <div class="row mb-2 align-items-center">
+                <div class="col-6 d-flex align-items-center">
+                    <button class="btn btn-outline-secondary" id="back-btn"><i class="bi bi-arrow-left"></i> Torna indietro</button>
+                </div>
+                <div class="col-6 d-flex justify-content-end">
                     <button class="btn btn-success" id="addRootCategoryBtn"><i class="bi bi-plus-circle"></i> Nuova Categoria</button>
                 </div>
             </div>
@@ -222,6 +224,12 @@ export async function loadCategoriesManagementPage() {
 
     // Mount
     async function mount() {
+        const backBtn = document.getElementById('back-btn');
+        if (backBtn) {
+            backBtn.addEventListener('click', () => {
+                window.history.back();
+            });
+        }
         await loadAndRenderCategories();
         pageElement.addEventListener('click', handleTreeActions);
     }

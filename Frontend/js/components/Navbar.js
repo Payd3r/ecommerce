@@ -8,9 +8,6 @@ import { router } from '../router.js';
 class Navbar {
     constructor() {
         this.container = document.getElementById('navbar-container');
-        
-        // Listener per aggiornare i menu quando lo stato di autenticazione cambia
-        document.addEventListener('auth:change', this.render.bind(this));
     }
     
     /**
@@ -27,7 +24,9 @@ class Navbar {
         
         navbar.innerHTML = `
             <div class="container">
-                <a class="navbar-brand fw-bold" href="/" data-route>ArtigianatoShop</a>
+                <div class="d-flex align-items-center gap-2">
+                    <a class="navbar-brand fw-bold mb-0" href="/" data-route>ArtigianatoShop</a>
+                </div>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -41,15 +40,13 @@ class Navbar {
                         ${isAuthenticated && user && user.role === 'artisan' ? `<li class="nav-item"><a class="nav-link" href="/artisan/dashboard" data-route>Dashboard</a></li>` : ''}
                     </ul>
                     <div class="d-flex align-items-center gap-2">
-                        ${isAuthenticated && user && user.role === 'client' ? `
-                            <a href="/cart" class="btn btn-outline-secondary position-relative me-2" data-route>
-                                🛒 <span class="cart-count position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="cart-count">0</span>
-                            </a>
-                        ` : ''}
+                        <a href="/cart" class="btn position-relative me-2 p-0 d-flex align-items-center justify-content-center" id="navbar-cart-btn" style="width:44px;height:44px; margin-top:8px; background:transparent; box-shadow:none; border:none;" data-route>
+                            <span style="font-size:1.6rem;">🛒</span>
+                        </a>                    
                         ${isAuthenticated ? `
                             <div class="dropdown">
-                                <button class="btn btn-outline-primary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    ${user.name}
+                                <button class="btn btn-outline-primary dropdown-toggle d-flex align-items-center justify-content-center p-0" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="height:44px;margin-top:8px;">
+                                    <span style="font-size:1.1rem;white-space:nowrap;text-align:center;width:100%;padding:0 14px;">${user.name}</span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                     <li><a class="dropdown-item" href="/profile" data-route>Profilo</a></li>
@@ -77,7 +74,7 @@ class Navbar {
             }
         }
     }
-    
+
     /**
      * Gestisce il logout dell'utente
      * @param {Event} event - Evento click
@@ -97,4 +94,4 @@ class Navbar {
 }
 
 // Esporto un'istanza singola del componente Navbar
-export const navbar = new Navbar(); 
+export const navbar = new Navbar();

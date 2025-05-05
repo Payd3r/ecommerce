@@ -21,31 +21,36 @@ export async function loadUsersManagementPage() {
     // Modifica il layout del titolo e aggiungi un pulsante per aggiungere utenti sulla destra
     pageElement.innerHTML = `
         <div class="container mt-4">
-            <div class="row mb-4">
-                <div class="col d-flex justify-content-between align-items-center">
-                    <h1 class="text-left">Gestione Utenti</h1>
+            <div class="row mb-4 align-items-center">
+                <div class="col-12 text-center">
+                    <h1 class="display-5 fw-bold mb-2">Gestione Utenti</h1>
+                </div>
+            </div>
+            <div class="row mb-2 align-items-center">
+                <div class="col-6 d-flex align-items-center">
+                    <button class="btn btn-outline-secondary" id="back-btn"><i class="bi bi-arrow-left"></i> Torna indietro</button>
+                </div>
+                <div class="col-6 d-flex justify-content-end">
                     <button id="add-user-btn" class="btn btn-success">Aggiungi Utente</button>
                 </div>
             </div>
-
-            <div class="row">
-                <!-- Colonna per i filtri -->
+            <div class="row align-items-start">
                 <div class="col-md-4">
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">Filtri</h5>
                             <form id="filters-form">
-                                <div class="form-group">
+                                <div class="form-group mb-3"> 
                                     <label for="filter-name">Nome</label>
                                     <input type="text" id="filter-name" name="filter-name" class="form-control" placeholder="Inserisci il nome">
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group mb-3"> 
                                     <label for="filter-email">Email</label>
                                     <input type="email" id="filter-email" name="filter-email" class="form-control" placeholder="Inserisci l'email">
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group mb-3"> 
                                     <label for="filter-role">Ruolo</label>
-                                    <select id="filter-role" name="filter-role" class="form-control mb-3">
+                                    <select id="filter-role" name="filter-role" class="form-control">
                                         <option value="">Tutti</option>
                                         <option value="admin">Admin</option>
                                         <option value="artigiano">Artigiano</option>
@@ -60,26 +65,26 @@ export async function loadUsersManagementPage() {
                         </div>
                     </div>
                 </div>
-
-                <!-- Colonna per la tabella degli utenti -->
-                <div class="col-md-8">
-                    <div class="card">
-                        <div class="card-body">
+                <div class="col-md-8 mb-5">
+                    <div class="card h-100">
+                        <div class="card-body d-flex flex-column">
                             <h5 class="card-title">Utenti Registrati</h5>
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th id="sort-name-col" style="cursor:pointer">Nome <span id="sort-name-icon"></span></th>
-                                        <th id="sort-email-col">Email</th>
-                                        <th id="sort-role-col"> Ruolo </th>
-                                        <th id="sort-created-col" style="cursor:pointer">Data creazione <span id="sort-created-icon"></span></th>
-                                        <th>Azioni</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="users-table-body">
-                                   
-                                </tbody>
-                            </table>
+                            <div class="table-responsive flex-grow-1">
+                                <table class="table mb-0"> 
+                                    <thead>
+                                        <tr>
+                                            <th id="sort-name-col" style="cursor:pointer">Nome <span id="sort-name-icon"></span></th>
+                                            <th id="sort-email-col">Email</th>
+                                            <th id="sort-role-col"> Ruolo </th>
+                                            <th id="sort-created-col" style="cursor:pointer">Data creazione <span id="sort-created-icon"></span></th>
+                                            <th>Azioni</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="users-table-body">
+                                       
+                                    </tbody>
+                                </table>
+                            </div>
                             <div id="pagination-container" class="mt-3 d-flex justify-content-center"></div>
                         </div>
                     </div>
@@ -330,7 +335,12 @@ export async function loadUsersManagementPage() {
      */
     function mount() {
         loadDashboardData();
-
+        const backBtn = document.getElementById('back-btn');
+        if (backBtn) {
+            backBtn.addEventListener('click', () => {
+                window.history.back();
+            });
+        }
         // Modifica per utilizzare onclick invece di submit per il bottone "Applica Filtri"
         document.getElementById('apply-filters-btn').onclick = async () => {
             const filtersForm = document.getElementById('filters-form');
@@ -428,6 +438,7 @@ export async function loadUsersManagementPage() {
                 showBootstrapToast('Errore durante l\'eliminazione utente.', 'Errore', 'danger');
             }
         });
+
 
         // Event listener per ordinamento colonna Nome
         let sortNameOrder = 'asc';

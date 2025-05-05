@@ -43,7 +43,10 @@ const CartAPI = {
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Errore nell\'aggiunta al carrello');
             }
-            return await response.json();
+            const result = await response.json();
+            // Dispatch evento per aggiornare il counter del carrello
+            document.dispatchEvent(new CustomEvent('cart:change'));
+            return result;
         } catch (error) {
             console.error('Errore API addItem:', error);
             throw error;
@@ -90,7 +93,10 @@ const CartAPI = {
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Errore nell\'aggiornamento della quantità');
             }
-            return await response.json();
+            const result = await response.json();
+            // Dispatch evento per aggiornare il counter del carrello
+            document.dispatchEvent(new CustomEvent('cart:change'));
+            return result;
         } catch (error) {
             console.error('Errore API updateItem:', error);
             throw error;
@@ -113,7 +119,10 @@ const CartAPI = {
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Errore nella rimozione dal carrello');
             }
-            return await response.json();
+            const result = await response.json();
+            // Dispatch evento per aggiornare il counter del carrello
+            document.dispatchEvent(new CustomEvent('cart:change'));
+            return result;
         } catch (error) {
             console.error('Errore API removeItem:', error);
             throw error;
@@ -136,7 +145,10 @@ const CartAPI = {
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Errore nello svuotamento del carrello');
             }
-            return await response.json();
+            const result = await response.json();
+            // Dispatch evento per aggiornare il counter del carrello
+            document.dispatchEvent(new CustomEvent('cart:change'));
+            return result;
         } catch (error) {
             console.error('Errore API clearCart:', error);
             throw error;

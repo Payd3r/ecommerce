@@ -141,6 +141,20 @@ router.get('/artisans', async (req, res) => {
     }
 });
 
+// GET /users/counts - Conta utenti per ruolo
+router.get('/counts', verifyToken, checkRole('admin'), async (req, res) => {
+    try {
+        const [[{ clients }]] = await db.query('SELECT COUNT(*) as clients FROM users WHERE role = "client"');
+        const [[{ artisans }]] = await db.query('SELECT COUNT(*) as artisans FROM users WHERE role = "artisan"');
+        const [[{ admins }]] = await db.query('SELECT COUNT(*) as admins FROM users WHERE role = "admin"');
+        const [[{ total }]] = await db.query('SELECT COUNT(*) as total FROM users');
+        res.json({ clients, artisans, admins, total });
+    } catch (error) {
+        console.error('Errore nel conteggio utenti per ruolo:', error);
+        res.status(500).json({ error: 'Errore nel conteggio utenti per ruolo' });
+    }
+});
+
 // POST /users - Crea un nuovo utente
 // Solo admin può creare nuovi utenti (la registrazione normale va gestita separatamente)
 router.post('/', verifyToken, checkRole('admin'), async (req, res) => {
