@@ -3,16 +3,28 @@ import { authService } from '../js/services/authService.js';
 const API_URL = '/orders';
 const API_BASE_URL = 'http://localhost:3005/orders';
 
-// Ottieni tutti gli ordini (solo per admin o test)
+// Ottieni tutti gli ordini (solo per admin)
 export async function getAllOrders() {
-    const res = await fetch(API_URL);
+    const token = authService.getToken();
+    if (!token) throw new Error('Token di accesso non trovato');
+    const res = await fetch(API_BASE_URL, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
     if (!res.ok) throw new Error('Errore nel recupero degli ordini');
     return await res.json();
 }
 
 // Ottieni tutti gli ordini (solo per admin o test)
 export async function getOrders() {
-    const res = await fetch('/orders');
+    const token = authService.getToken();
+    if (!token) throw new Error('Token di accesso non trovato');
+    const res = await fetch(API_BASE_URL, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
     if (!res.ok) throw new Error('Errore nel recupero degli ordini');
     return await res.json();
 }

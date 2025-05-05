@@ -68,7 +68,7 @@ export async function loadManageOrdersPage() {
                     <td class="text-center">${o.created_at ? o.created_at.split('T')[0] : '-'}</td>
                     <td class="text-center">${o.total_price} €</td>
                     <td class="text-center">${o.status}</td>
-                    <td class="text-center">${o.client_id}</td>
+                    <td class="text-center">${o.client_name || '-'}</td>
                     <td class="text-center">
                         <div class="dropdown">
                             <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">Azioni</button>

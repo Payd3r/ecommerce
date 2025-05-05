@@ -143,7 +143,7 @@ export async function loadAdminDashboardPage() {
                             <a href="/admin/categories-management" class="btn btn-outline-warning btn-lg" data-route>Gestisci categorie</a>
                         </div>
                         <div class="col-md-3 d-grid">
-                            <a href="/admin/orders" class="btn btn-outline-info btn-lg" data-route>Gestisci ordini</a>
+                            <a href="/admin/orders-management" class="btn btn-outline-info btn-lg" data-route>Gestisci ordini</a>
                         </div>
                     </div>
                 </div>

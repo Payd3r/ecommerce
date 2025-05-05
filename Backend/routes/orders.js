@@ -6,7 +6,13 @@ const { verifyToken } = require('../middleware/auth');
 // GET /orders - Ottieni tutti gli ordini (admin o per test)
 router.get('/', async (req, res) => {
     try {
-        const [orders] = await db.query('SELECT * FROM orders ORDER BY created_at DESC');
+        // Modifica: includi il nome del cliente tramite JOIN
+        const [orders] = await db.query(`
+            SELECT o.*, u.name as client_name
+            FROM orders o
+            JOIN users u ON o.client_id = u.id
+            ORDER BY o.created_at DESC
+        `);
         res.json(orders);
     } catch (error) {
         console.error('Errore nel recupero degli ordini:', error);

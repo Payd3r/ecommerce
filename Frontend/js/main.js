@@ -20,6 +20,7 @@ import { loadAdminDashboardPage } from './pages/admin/Dashboard.js';
 import { loadUsersManagementPage } from './pages/admin/UsersManagement.js';
 import { loadCategoriesManagementPage } from './pages/admin/CategoriesManagement.js';
 import { loadProductsManagementPage } from './pages/admin/ProductsManagement.js';
+import { loadOrdersManagementPage } from './pages/admin/OrdersManagement.js';
 
 import { loadProductsPage } from './pages/common/Products.js';
 import { loadProductDetailsPage } from './pages/common/ProductDetails.js';
@@ -122,6 +123,24 @@ class App {
             roles: ['artisan'],
             title: 'Gestione Ordini - ArtigianatoShop'
         });
+        router.register('/artisan/manage-products', loadManageProductsPage, {
+            requireAuth: true,
+            roles: ['artisan'],
+            title: 'Gestione Prodotti - ArtigianatoShop'
+        });
+
+        
+        // Route protette per admin
+        router.register('/admin/products-management', loadProductsManagementPage, {
+            requireAuth: true,
+            roles: ['admin'],
+            title: 'ProductsManagement Admin - ArtigianatoShop'
+        });
+        router.register('/admin/dashboard', loadAdminDashboardPage, {
+            requireAuth: true,
+            roles: ['admin'],
+            title: 'Dashboard Admin - ArtigianatoShop'
+        });
         router.register('/admin/users-management', loadUsersManagementPage, {
             requireAuth: true,
             roles: ['admin'],
@@ -132,22 +151,10 @@ class App {
             roles: ['admin'],
             title: 'CategoriesManagement Admin - ArtigianatoShop'
         });
-        router.register('/admin/products-management', loadProductsManagementPage, {
+        router.register('/admin/orders-management', loadOrdersManagementPage, {
             requireAuth: true,
             roles: ['admin'],
-            title: 'ProductsManagement Admin - ArtigianatoShop'
-        });
-        router.register('/artisan/manage-products', loadManageProductsPage, {
-            requireAuth: true,
-            roles: ['artisan'],
-            title: 'Gestione Prodotti - ArtigianatoShop'
-        });
-        
-        // Route protette per admin
-        router.register('/admin/dashboard', loadAdminDashboardPage, {
-            requireAuth: true,
-            roles: ['admin'],
-            title: 'Dashboard Admin - ArtigianatoShop'
+            title: 'Gestione Ordini - ArtigianatoShop'
         });
 
         router.register('404', loadNotFoundPage, { title: 'Pagina non trovata - ArtigianatoShop' });
