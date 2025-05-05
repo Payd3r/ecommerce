@@ -16,6 +16,9 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve la cartella Media come statica
+app.use('/Media', express.static(path.resolve(__dirname, '../Media')));
+
 // Routes base
 app.get('/', (req, res) => {
   res.send('Benvenuto su Artigianato Online API');
@@ -28,6 +31,7 @@ app.use('/users', require('./routes/users'));
 app.use('/categories', require('./routes/categories'));
 app.use('/cart', require('./routes/cart'));
 app.use('/orders', require('./routes/orders'));
+app.use('/images', require('./routes/images'));
 
 app.listen(port, () => {
   console.log(`Server attivo su http://localhost:${port}`);

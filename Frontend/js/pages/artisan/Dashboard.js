@@ -119,7 +119,7 @@ export async function loadArtisanDashboardPage() {
                 <div class="card h-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <span>Ultimi ordini</span>
-                        <a href="/artisan/manageOrders" class="btn btn-sm btn-outline-info" data-route>Vai a Gestione Ordini</a>
+                        <a href="/artisan/manage-orders" class="btn btn-sm btn-outline-info" data-route>Vai a Gestione Ordini</a>
                     </div>
                     <div class="card-body p-0">
                         <table class="table mb-0">
@@ -153,7 +153,7 @@ export async function loadArtisanDashboardPage() {
                 <div class="card h-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <span>I tuoi prodotti</span>
-                        <a href="/artisan/manageProducts" class="btn btn-sm btn-outline-info" data-route>Vai a Gestione Prodotti</a>
+                        <a href="/artisan/manage-products" class="btn btn-sm btn-outline-info" data-route>Vai a Gestione Prodotti</a>
                     </div>
                     <div class="card-body p-0">
                         <table class="table mb-0">
