@@ -34,7 +34,7 @@ router.get('/tree', async (req, res) => {
 // GET /categories - Ottieni tutte le categorie
 router.get('/', async (req, res) => {
     try {
-        const [categories] = await db.query('SELECT * FROM categories ORDER BY name');
+        const [categories] = await db.query('SELECT * FROM categories WHERE id != 1 ORDER BY name');
         res.json(categories);
     } catch (error) {
         console.error('Errore nel recupero delle categorie:', error);

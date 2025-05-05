@@ -49,3 +49,18 @@ export async function uploadProfileImage(userId, file) {
     if (!res.ok) throw new Error('Errore upload immagine profilo');
     return await res.json();
 }
+
+// Funzione per eliminare immagini di prodotto
+export async function deleteProductImages(productId, imageIds) {
+    const token = authService.getToken();
+    const res = await fetch(`${API_URL}/images/product/${productId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ imageIds })
+    });
+    if (!res.ok) throw new Error('Errore eliminazione immagini prodotto');
+    return await res.json();
+}

@@ -240,10 +240,10 @@ export async function loadProductsPage(params = {}) {
             html += `
                 <div class="col-12 col-sm-6 col-lg-4 mb-3 d-flex align-items-stretch">
                     <div class="product-card card flex-fill h-100">
-                        <div class="product-image d-flex align-items-center justify-content-center" style="background-color: var(--light-bg); height: 120px;">
-                            ${product.imageUrl ?
-                    `<img src="${product.imageUrl}" alt="${product.name}">` :
-                    `<div style="width: 80px; height: 80px; background: #fff; border: 1px solid #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                        <div class="product-image d-flex align-items-center justify-content-center" style="background-color: var(--light-bg); height: 220px;">
+                            ${product.image && product.image.url ?
+                    `<img src="http://localhost:3005${product.image.url}" alt="${product.name}" style="height: 200px; width: 100%; object-fit: cover; border-radius: 8px; padding-inline: 10px;" />` :
+                    `<div style="width: 120px; height: 120px; background: #fff; border: 1px solid #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center; ">
                                     <span class="placeholder-icon">🖼️</span>
                                 </div>`
                 }

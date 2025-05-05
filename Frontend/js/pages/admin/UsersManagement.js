@@ -21,12 +21,12 @@ export async function loadUsersManagementPage() {
     // Modifica il layout del titolo e aggiungi un pulsante per aggiungere utenti sulla destra
     pageElement.innerHTML = `
         <div class="container mt-4">
-            <div class="row mb-4 align-items-center">
+            <div class="row align-items-center">
                 <div class="col-12 text-center">
-                    <h1 class="display-5 fw-bold mb-2">Gestione Utenti</h1>
+                    <h1 class="display-5 fw-bold ">Gestione Utenti</h1>
                 </div>
             </div>
-            <div class="row mb-2 align-items-center">
+            <div class="row mb-4 align-items-center">
                 <div class="col-6 d-flex align-items-center">
                     <button class="btn btn-outline-secondary" id="back-btn"><i class="bi bi-arrow-left"></i> Torna indietro</button>
                 </div>

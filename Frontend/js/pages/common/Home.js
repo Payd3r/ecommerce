@@ -4,9 +4,7 @@ import CategoriesAPI from '../../../api/categories.js';
 import UsersAPI from '../../../api/users.js';
 
 // Importo i componenti
-import { loader } from '../../components/Loader.js';
 import { showBootstrapToast } from '../../components/Toast.js';
-import { authService } from '../../services/authService.js';
 
 /**
  * Carica la pagina Home
@@ -275,12 +273,12 @@ export async function loadHomePage() {
         }
 
         products.forEach(product => {
-            // Mostra un quadrato bianco se manca l'immagine
+            // Mostra immagine se presente, altrimenti icona
             html += `
                 <div class="product-card card">
                     <div class="product-image" style="background-color: var(--light-bg); display: flex; align-items: center; justify-content: center; height: 120px;">
-                        ${product.imageUrl ?
-                    `<img src="${product.imageUrl}" alt="${product.name}">` :
+                        ${product.image && product.image.url ?
+                    `<img src="http://localhost:3005${product.image.url}" alt="${product.name}" style="height: 100px; width: 100%; object-fit: cover; border-radius: 8px;" />` :
                     `<div style="width: 80px; height: 80px; background: #fff; border: 1px solid #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
                                 <span class="placeholder-icon">🖼️</span>
                             </div>`
@@ -572,17 +570,25 @@ export async function loadHomePage() {
         const container = document.getElementById(containerId);
         if (!container) return;
         let html = '';
-        const toShow = shuffleArray(products).slice(0, 10);
+        let toShow = shuffleArray(products);
+        if (containerId === 'latest-arrivals-container') {
+            toShow = toShow.slice(0, 5);
+        } else {
+            toShow = toShow.slice(0, 10);
+        }
+        // Calcola la larghezza delle card in base al numero di prodotti
+        const colClass = (containerId === 'latest-arrivals-container' && toShow.length === 5)
+            ? 'd-flex align-items-stretch custom-col-5'
+            : (toShow.length <= 5 ? 'col-12 col-md-6 col-lg-3 col-xl-2 d-flex align-items-stretch' : 'col-12 col-sm-6 col-lg-2 d-flex align-items-stretch');
         for (let i = 0; i < toShow.length; i++) {
-            if (i % 5 === 0 && i !== 0) html += '<div class="w-100"></div>';
             const product = toShow[i];
             html += `
-                <div class="col-12 col-sm-6 col-lg-2 mb-3 d-flex align-items-stretch">
+                <div class="${colClass} mb-3">
                     <div class="product-card card flex-fill h-100">
-                        <div class="product-image d-flex align-items-center justify-content-center" style="background-color: var(--light-bg); height: 120px;">
-                            ${product.imageUrl ?
-                    `<img src="${product.imageUrl}" alt="${product.name}">` :
-                    `<div style="width: 80px; height: 80px; background: #fff; border: 1px solid #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                        <div class="product-image d-flex align-items-center justify-content-center" style="background-color: var(--light-bg); height: 220px;">
+                            ${product.image && product.image.url ?
+                    `<img src="http://localhost:3005${product.image.url}" alt="${product.name}" style="height: 200px; width: 100%; object-fit: cover; border-radius: 8px; padding-inline: 10px;" />` :
+                    `<div style="width: 120px; height: 120px; background: #fff; border: 1px solid #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
                                     <span class="placeholder-icon">🖼️</span>
                                 </div>`
                 }
@@ -600,6 +606,28 @@ export async function loadHomePage() {
             `;
         }
         container.innerHTML = html;
+        // Applica stile custom per 5 card
+        if (containerId === 'latest-arrivals-container' && toShow.length === 5) {
+            const styleId = 'custom-col-5-style';
+            if (!document.getElementById(styleId)) {
+                const style = document.createElement('style');
+                style.id = styleId;
+                style.innerHTML = `
+                    #${containerId} > .custom-col-5 {
+                        width: 20% !important;
+                        min-width: 220px;
+                        max-width: 1fr;
+                    }
+                    @media (max-width: 991px) {
+                        #${containerId} > .custom-col-5 { width: 50% !important; }
+                    }
+                    @media (max-width: 600px) {
+                        #${containerId} > .custom-col-5 { width: 100% !important; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
     }
 
     // Carosello artigiani della settimana
@@ -610,16 +638,18 @@ export async function loadHomePage() {
         // Simboli diversi per ogni artigiano (ciclo)
         const iconList = ['🧑‍🎨', '👩‍🎨', '🧔', '👨‍🦰', '👩‍🦰', '🧑‍🦱', '👨‍🦳', '👩‍🦳', '🧑‍🦲', '👨‍🦲', '👩‍🦲', '🧑‍🦰', '🧑‍🦳', '🧑‍🦲'];
         artisans.slice(0, 20).forEach((artisan, idx) => {
-            const icon = iconList[idx % iconList.length];
             html += `
                 <div class="col-8 col-sm-6 col-md-4 col-lg-3 d-flex flex-shrink-0" style="min-width: 220px; max-width: 260px;">
                     <div class="category-card card flex-fill mb-0 shadow-sm border-0">
                         <div class="card-body text-center py-4">
-                            <div class="category-image mb-2 d-flex justify-content-center align-items-center" style="background-color: var(--secondary-color); width: 56px; height: 56px; margin: 0 auto; border-radius: 50%;">
-                                <span class="category-icon fs-2">${icon}</span>
+                            <div class="category-image mb-2 d-flex justify-content-center align-items-center" style="background-color: var(--secondary-color); width: 100px; height: 100px; margin: 0 auto; border-radius: 50%; overflow: hidden;">
+                                ${artisan.image ?
+                                    `<img src="http://localhost:3005${artisan.image}" alt="${artisan.name}" style="width:100px; height:100px; object-fit:cover;" />` :
+                                    `<span class="category-icon fs-2">${iconList[idx % iconList.length]}</span>`
+                                }
                             </div>
                             <h5 class="fw-bold mb-1">${artisan.name}</h5>
-                            <a href="/artisans/${artisan.id}" class="btn btn-outline-primary btn-sm mt-2" data-route>Scopri</a>
+                            <a href="/artisan-shop/${artisan.id}" class="btn btn-outline-primary btn-sm mt-2" data-route>Scopri</a>
                         </div>
                     </div>
                 </div>

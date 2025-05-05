@@ -87,7 +87,10 @@ router.get('/artisans', async (req, res) => {
             if (artisans.length === 0) {
                 return res.status(404).json({ error: 'Artigiano non trovato' });
             }
-            return res.json({ data: artisans[0] });
+            // Prendi immagine profilo
+            const [img] = await db.query('SELECT url FROM profile_image WHERE user_id = ? LIMIT 1', [id]);
+            const image = img.length > 0 ? img[0].url : null;
+            return res.json({ data: { ...artisans[0], image } });
         }
         // Procedi con la normale logica della route
         const page = parseInt(req.query.page) || 1;
@@ -115,6 +118,17 @@ router.get('/artisans', async (req, res) => {
         const [artisans] = await db.query(query, queryParams);
         const [totalCount] = await db.query(countQuery, searchTerm ? [`%${searchTerm}%`] : []);
 
+        // Prendi tutte le immagini profilo in un'unica query
+        const artisanIds = artisans.map(a => a.id);
+        let imagesMap = {};
+        if (artisanIds.length > 0) {
+            const [imgs] = await db.query('SELECT user_id, url FROM profile_image WHERE user_id IN (?)', [artisanIds]);
+            imgs.forEach(img => {
+                imagesMap[img.user_id] = img.url;
+            });
+        }
+        const artisansWithImage = artisans.map(a => ({ ...a, image: imagesMap[a.id] || null }));
+
         // Calcola la paginazione
         const total = totalCount[0].total;
         const totalPages = Math.ceil(total / limit);
@@ -122,7 +136,7 @@ router.get('/artisans', async (req, res) => {
         const hasPrevPage = page > 1;
 
         res.json({
-            data: artisans,
+            data: artisansWithImage,
             pagination: {
                 total,
                 totalPages,

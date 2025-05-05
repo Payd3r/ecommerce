@@ -24,7 +24,7 @@ export async function loadArtisanDashboardPage() {
     // Carica dati reali
     try {
         const [productsRes, ordersRes, salesStatsRes, ordersStatsRes] = await Promise.all([
-            getProductsByArtisan(user.id, { limit: 5 }),
+            getProductsByArtisan(user.id, { limit: 8 }),
             getOrdersByArtisan(user.id),
             getMonthlySalesByArtisan(user.id),
             getMonthlyOrdersByArtisan(user.id)

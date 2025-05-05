@@ -59,7 +59,12 @@ export async function loadArtisanPage() {
                 <div class="card h-100 shadow-sm border-0">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <div class="mb-3">
-                            <span class="display-3 text-primary"><i class="bi bi-person-badge"></i></span>
+                            <div class="d-flex justify-content-center align-items-center" style="background-color: var(--secondary-color); width: 100px; height: 100px; border-radius: 50%; overflow: hidden;">
+                                ${artisan.image ?
+                                    `<img src=\"http://localhost:3005${artisan.image}\" alt=\"${artisan.name}\" style=\"width:100px; height:100px; object-fit:cover;\" />` :
+                                    '<span class="display-3 text-primary"><i class="bi bi-person-badge"></i></span>'
+                                }
+                            </div>
                         </div>
                         <h5 class="card-title mb-1">${artisan.name}</h5>
                         <p class="card-text mb-1 small text-muted">ID: ${artisan.id}</p>

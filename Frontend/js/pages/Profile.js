@@ -1,8 +1,9 @@
 // Importo le dipendenze
-import { authService } from '../services/authService.js';
+import { ApiService } from '../../api/auth.js';
 import { showBootstrapToast } from '../components/Toast.js';
 import { loader } from '../components/Loader.js';
 import { router } from '../router.js';
+import { uploadProfileImage } from '../../api/images.js';
 
 /**
  * Carica la pagina profilo dell'utente
@@ -14,7 +15,8 @@ export async function loadProfilePage() {
     pageElement.className = 'profile-page';
     
     // Ottiene i dati dell'utente
-    const user = authService.getUser();
+    const user = await ApiService.getProfile();
+    console.log("utente",user);
     
     // Costruisce il contenuto della pagina
     pageElement.innerHTML = `
@@ -27,6 +29,26 @@ export async function loadProfilePage() {
             <div class="row g-4">
                 <div class="col-12 col-md-6">
                     <div class="card shadow-sm border-0 p-4 h-100">
+                        <div class="d-flex align-items-center mb-3">
+                          <div class="me-3" id="profileImagePreviewWrapper">
+                            ${user.image ? `
+                              <img src="http://localhost:3005${user.image}" id="profileImagePreview" alt="Foto profilo" class="rounded-circle border" style="width: 72px; height: 72px; object-fit: cover;" />
+                            ` : `
+                              <div id="profileImagePreview" class="d-flex align-items-center justify-content-center bg-light rounded-circle border" style="width: 72px; height: 72px;">
+                                <i class="bi bi-person-circle fs-1 text-secondary"></i>
+                              </div>
+                            `}
+                          </div>
+                          <div>
+                            <h2 class="h5 mb-0">${user.name}</h2>
+                            <div class="text-muted small">${user.email}</div>
+                          </div>
+                        </div>
+                        <form id="profile-image-form" class="mb-3">
+                          <label class="form-label">Foto profilo</label>
+                          <input type="file" class="form-control" id="profileImageInput" accept="image/*" />
+                          <button type="submit" class="btn btn-outline-primary btn-sm mt-2">Salva foto profilo</button>
+                        </form>
                         <h2 class="h5 mb-3">Informazioni personali</h2>
                         <form id="profile-form">
                             <div class="mb-3">
@@ -289,6 +311,31 @@ export async function loadProfilePage() {
         if (deleteAccountBtn) {
             deleteAccountBtn.addEventListener('click', handleDeleteAccount);
         }
+        
+        // Gestione upload foto profilo
+        const profileImageForm = document.getElementById('profile-image-form');
+        const profileImageInput = document.getElementById('profileImageInput');
+        const profileImagePreviewWrapper = document.getElementById('profileImagePreviewWrapper');
+        profileImageForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const file = profileImageInput.files[0];
+            if (!file) {
+                showBootstrapToast('Seleziona un file immagine', 'Errore', 'danger');
+                return;
+            }
+            try {
+                const res = await uploadProfileImage(user.id, file);
+                console.log("res",res);
+                // Aggiorna la preview
+                const imgUrl = res.files && res.files[0] ? `http://localhost:3005${res.files[0].url}` : null;
+                if (imgUrl) {
+                    profileImagePreviewWrapper.innerHTML = `<img src="${imgUrl}" id="profileImagePreview" alt="Foto profilo" class="rounded-circle border" style="width: 72px; height: 72px; object-fit: cover;" />`;
+                }
+                showBootstrapToast('Foto profilo aggiornata con successo', 'Successo', 'success');
+            } catch (err) {
+                showBootstrapToast('Errore durante il salvataggio della foto profilo', 'Errore', 'danger');
+            }
+        });
     }
     
     /**

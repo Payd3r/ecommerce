@@ -26,7 +26,7 @@ import { loadProductsPage } from './pages/common/Products.js';
 import { loadProductDetailsPage } from './pages/common/ProductDetails.js';
 import { loadArtisanPage } from './pages/common/Artisan.js';
 import { loadCategoryPage } from './pages/common/Category.js';
-import { loadCartPage } from './pages/client/cart.js';
+import { loadCartPage } from './pages/common/Cart.js';
 import { loadArtisanShopPage } from './pages/common/ArtisanShop.js';
 import { loadBecameArtisanPage } from './pages/artisan/BecameArtisan.js';
 import { loadManageOrdersPage } from './pages/artisan/manageOrders.js';

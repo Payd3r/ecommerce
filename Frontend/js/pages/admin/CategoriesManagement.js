@@ -11,13 +11,13 @@ export async function loadCategoriesManagementPage() {
     pageElement.className = 'categories-management-page';
 
     pageElement.innerHTML = `
-        <div class="container py-5">
-            <div class="row mb-4">
+        <div class="container pb-5 mt-4">
+            <div class="row">
                 <div class="col-12 text-center">
-                    <h1 class="display-5 fw-bold mb-2">Gestione Categorie</h1>
+                    <h1 class="display-5 fw-bold">Gestione Categorie</h1>
                 </div>
             </div>
-            <div class="row mb-2 align-items-center">
+            <div class="row mb-4 align-items-center mx-5">
                 <div class="col-6 d-flex align-items-center">
                     <button class="btn btn-outline-secondary" id="back-btn"><i class="bi bi-arrow-left"></i> Torna indietro</button>
                 </div>
@@ -25,8 +25,8 @@ export async function loadCategoriesManagementPage() {
                     <button class="btn btn-success" id="addRootCategoryBtn"><i class="bi bi-plus-circle"></i> Nuova Categoria</button>
                 </div>
             </div>
-            <div class="row justify-content-center">
-                <div class="col-12 col-md-10">
+            <div class="row justify-content-center mx-5">
+                <div class="col-12">
                     <div id="categoriesTree"></div>
                 </div>
             </div>

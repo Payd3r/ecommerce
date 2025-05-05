@@ -47,10 +47,10 @@ CREATE TABLE `categories` (
 --
 -- --------------------------------------------------------
 --
--- Struttura della tabella `category_images`
+-- Struttura della tabella `category_image`
 --
 
-CREATE TABLE `category_images` (
+CREATE TABLE `category_image` (
   `id` int NOT NULL,
   `category_id` int NOT NULL,
   `url` varchar(255) NOT NULL,
@@ -189,7 +189,7 @@ ALTER TABLE `categories`
 --
 -- Indici per le tabelle `category_images`
 --
-ALTER TABLE `category_images`
+ALTER TABLE `category_image`
   ADD PRIMARY KEY (`id`),
   ADD KEY `a` (`category_id`);
 
@@ -268,7 +268,7 @@ ALTER TABLE `categories`
 --
 -- AUTO_INCREMENT per la tabella `category_images`
 --
-ALTER TABLE `category_images`
+ALTER TABLE `category_image`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
@@ -338,7 +338,7 @@ ALTER TABLE `categories`
 --
 -- Limiti per la tabella `category_images`
 --
-ALTER TABLE `category_images`
+ALTER TABLE `category_image`
   ADD CONSTRAINT `a` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --

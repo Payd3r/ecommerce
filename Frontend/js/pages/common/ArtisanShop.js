@@ -35,7 +35,7 @@ export async function loadArtisanShopPage(params) {
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="card shadow-sm border-0 p-4 d-flex flex-row align-items-center gap-4">
-                        <div class="artisan-img-placeholder d-flex align-items-center justify-content-center bg-light rounded-circle" style="width:80px;height:80px;">
+                        <div id="artisan-img-wrapper" class="artisan-img-placeholder d-flex align-items-center justify-content-center bg-light rounded-circle" style="width:80px;height:80px;overflow:hidden;">
                             <span class="display-4 text-primary"><i class="bi bi-person-badge"></i></span>
                         </div>
                         <div>
@@ -66,12 +66,20 @@ export async function loadArtisanShopPage(params) {
         list.innerHTML = products.map(product => `
             <div class="col-12 col-sm-6 col-lg-4">
                 <div class="card h-100 shadow-sm border-0">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title mb-2">${product.name}</h5>
-                        <div class="mb-2 text-muted small">Categoria: ${product.category_name || '-'}</div>
-                        <div class="mb-2">${product.description ? product.description : ''}</div>
-                        <div class="mt-auto">
-                            <span class="fw-bold">€ ${Number(product.price).toFixed(2)}</span>
+                    <div class="card-body d-flex flex-column p-0">
+                        <div class="w-100" style="height: 260px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; border-top-left-radius: 12px; border-top-right-radius: 12px; overflow: hidden;">
+                            ${product.image && product.image.url ?
+                                `<img src=\"http://localhost:3005${product.image.url}\" alt=\"${product.name}\" style=\"width:100%; height:100%; object-fit:cover; display:block;\" />` :
+                                '<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: #ccc;">🖼️</div>'
+                            }
+                        </div>
+                        <div class="p-3 d-flex flex-column flex-grow-1">
+                            <h5 class="card-title mb-2">${product.name}</h5>
+                            <div class="mb-2 text-muted small">Categoria: ${product.category_name || '-'}</div>
+                            <div class="mb-2">${product.description ? product.description : ''}</div>
+                            <div class="mt-auto">
+                                <span class="fw-bold">€ ${Number(product.price).toFixed(2)}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -104,6 +112,15 @@ export async function loadArtisanShopPage(params) {
                 state.artisan = found;
                 pageElement.querySelector('#artisan-name').textContent = found.name;
                 pageElement.querySelector('#artisan-id').textContent = `ID: ${found.id}`;
+                // Aggiorna la foto profilo se presente
+                const imgWrapper = pageElement.querySelector('#artisan-img-wrapper');
+                if (imgWrapper) {
+                    if (found.image) {
+                        imgWrapper.innerHTML = `<img src=\"http://localhost:3005${found.image}\" alt=\"${found.name}\" style=\"width:80px; height:80px; object-fit:cover; border-radius:50%;\" />`;
+                    } else {
+                        imgWrapper.innerHTML = '<span class="display-4 text-primary"><i class="bi bi-person-badge"></i></span>';
+                    }
+                }
             }
         } catch (error) {
             // Se non trovato, lascia i dati di default

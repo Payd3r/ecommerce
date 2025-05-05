@@ -45,8 +45,12 @@ class Navbar {
                         </a>                    
                         ${isAuthenticated ? `
                             <div class="dropdown">
-                                <button class="btn btn-outline-primary dropdown-toggle d-flex align-items-center justify-content-center p-0" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="height:44px;margin-top:8px;">
-                                    <span style="font-size:1.1rem;white-space:nowrap;text-align:center;width:100%;padding:0 14px;">${user.name}</span>
+                                <button class="btn btn-outline-primary d-flex align-items-center justify-content-center p-0 border-0 bg-transparent shadow-none" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="height:48px;width:48px;margin-top:8px;outline:none;box-shadow:none;">
+                                    ${user.image ? `
+                                        <img src="http://localhost:3005${user.image}" alt="Foto profilo" style="width:48px; height:48px; object-fit:cover; border-radius:12px; border:1.5px solid #e0e0e0;" />
+                                    ` : `
+                                        <span class="d-flex align-items-center justify-content-center bg-light" style="width:48px; height:48px; border-radius:12px; border:1.5px solid #e0e0e0;"><i class="bi bi-person-circle fs-2 text-secondary"></i></span>
+                                    `}
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                     <li><a class="dropdown-item" href="/profile" data-route>Profilo</a></li>

@@ -59,8 +59,8 @@ router.post('/upload/product', upload.array('images', 10), async (req, res) => {
         if (!id) return res.status(400).json({ error: 'id prodotto obbligatorio' });
         if (!req.files || req.files.length === 0) return res.status(400).json({ error: 'Nessuna immagine inviata' });
         const type = 'product';
+        // Salva solo le nuove immagini, non toccare quelle già presenti
         const savedFiles = await handleImageUpload({ files: req.files, type, id });
-        // Salva su DB
         for (const file of savedFiles) {
             await db.query('INSERT INTO product_images (product_id, url, alt_text) VALUES (?, ?, ?)', [id, file.url, file.altText]);
         }
@@ -107,6 +107,32 @@ router.post('/upload/profile', upload.single('image'), async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Errore durante l\'upload dell\'immagine profilo' });
+    }
+});
+
+// Elimina immagini specifiche di un prodotto
+router.delete('/product/:productId', async (req, res) => {
+    try {
+        const { productId } = req.params;
+        const { imageIds } = req.body;
+        if (!Array.isArray(imageIds) || imageIds.length === 0) {
+            return res.status(400).json({ error: 'imageIds obbligatorio' });
+        }
+        // Prendi le immagini dal db
+        const [images] = await db.query('SELECT url FROM product_images WHERE product_id = ? AND id IN (?)', [productId, imageIds]);
+        // Elimina i file dal filesystem
+        for (const img of images) {
+            const filePath = path.resolve(__dirname, '../../', img.url);
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
+        }
+        // Elimina dal db
+        await db.query('DELETE FROM product_images WHERE product_id = ? AND id IN (?)', [productId, imageIds]);
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Errore durante l\'eliminazione delle immagini' });
     }
 });
 

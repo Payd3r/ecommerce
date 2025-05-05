@@ -69,6 +69,18 @@ export async function loadProductsManagementPage() {
         }
     }
 
+    // Funzione di utilità per formattare la data
+    function formatDateIT(dateStr) {
+        if (!dateStr) return '-';
+        const date = new Date(dateStr);
+        if (isNaN(date)) return '-';
+        const mesi = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'];
+        const giorno = String(date.getDate()).padStart(2, '0');
+        const mese = mesi[date.getMonth()];
+        const anno = date.getFullYear();
+        return `${giorno} ${mese} ${anno}`;
+    }
+
     // Funzione per renderizzare la tabella
     function renderTable() {
         console.log('renderTable chiamata, prodotti:', filteredProducts);
@@ -82,12 +94,23 @@ export async function loadProductsManagementPage() {
             `<tr><td colspan="8" class="text-center">Nessun prodotto trovato</td></tr>` :
             filteredProducts.map(p => `
                 <tr data-product-id="${p.id}">
-                    <td class="text-center">${p.id}</td>
+                    <td class="text-center">
+                        ${p.image && p.image.url ?
+                            `<div class=\"product-thumb-wrapper\" style=\"position:relative; display:inline-block;\">
+                                <img src=\"http://localhost:3005${p.image.url}\" alt=\"img\" class=\"product-thumb-img\" style=\"width:40px; height:40px; object-fit:cover; border-radius:6px; cursor:pointer;\" />
+                                <div class=\"product-tooltip-img\" style=\"display:none; position:absolute; left:50%; top:50%; transform:translate(-50%, -50%); z-index:10;\">
+                                    <img src=\"http://localhost:3005${p.image.url}\" alt=\"img\" style=\"width:220px; height:220px; object-fit:cover; border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,0.18); border:2px solid #fff;\" />
+                                </div>
+                            </div>`
+                            :
+                            '<div style="width:40px; height:40px; background:#f3f3f3; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#bbb; font-size:1.2rem;">🖼️</div>'
+                        }
+                    </td>
                     <td class="text-center">${p.name}</td>
                     <td class="text-center">${p.category_name || '-'}</td>
                     <td class="text-center">${p.price} €</td>
                     <td class="text-center">${p.stock > 0 ? 'Disponibile' : 'Non disponibile'}</td>
-                    <td class="text-center">${p.created_at ? p.created_at.split('T')[0] : '-'}</td>
+                    <td class="text-center">${formatDateIT(p.created_at)}</td>
                     <td class="text-center">${p.artisan_name || p.artisan_email || '-'}</td>
                     <td class="text-center">
                         <div class="dropdown">
@@ -117,6 +140,26 @@ export async function loadProductsManagementPage() {
                 });
             });
         });
+
+        // Tooltip immagine prodotto
+        tableBody.querySelectorAll('.product-thumb-wrapper').forEach(wrapper => {
+            const thumb = wrapper.querySelector('.product-thumb-img');
+            const tooltip = wrapper.querySelector('.product-tooltip-img');
+            if (thumb && tooltip) {
+                thumb.addEventListener('mouseenter', () => {
+                    tooltip.style.display = 'block';
+                });
+                thumb.addEventListener('mouseleave', () => {
+                    tooltip.style.display = 'none';
+                });
+                tooltip.addEventListener('mouseenter', () => {
+                    tooltip.style.display = 'block';
+                });
+                tooltip.addEventListener('mouseleave', () => {
+                    tooltip.style.display = 'none';
+                });
+            }
+        });
     }
 
     // Funzione per renderizzare la paginazione
@@ -142,12 +185,12 @@ export async function loadProductsManagementPage() {
 
     // HTML
     pageElement.innerHTML = `
-        <div class="row mb-4 align-items-center">
+        <div class="row align-items-center">
             <div class="col-12 text-center">
-                <h1 class="display-5 fw-bold mb-2">Gestione Prodotti</h1>
+                <h1 class="display-5 fw-bold ">Gestione Prodotti</h1>
             </div>
         </div>
-        <div class="row mb-2 align-items-center">
+        <div class="row mb-4 align-items-center">
             <div class="col-6 d-flex align-items-center">
                 <button class="btn btn-outline-secondary" id="back-btn"><i class="bi bi-arrow-left"></i> Torna indietro</button>
             </div>
@@ -203,7 +246,7 @@ export async function loadProductsManagementPage() {
                         <table class="table table-bordered align-middle mb-0">
                             <thead>
                                 <tr>
-                                    <th class="text-center">ID</th>
+                                    <th class="text-center">Img</th>
                                     <th class="text-center">Nome</th>
                                     <th class="text-center">Categoria</th>
                                     <th class="text-center">Prezzo</th>

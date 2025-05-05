@@ -56,6 +56,23 @@ router.get('/', async (req, res) => {
         const [products] = await db.query(query, queryParams);
         const [totalCount] = await db.query(countQuery, countParams);
 
+        // Recupera la prima immagine per ogni prodotto
+        const productIds = products.map(p => p.id);
+        let imagesMap = {};
+        if (productIds.length > 0) {
+            const [images] = await db.query(
+                'SELECT id, product_id, url, alt_text FROM product_images WHERE product_id IN (?) GROUP BY product_id',
+                [productIds]
+            );
+            images.forEach(img => {
+                imagesMap[img.product_id] = img;
+            });
+        }
+        const productsWithImage = products.map(p => ({
+            ...p,
+            image: imagesMap[p.id] || null
+        }));
+
         // Calcola la paginazione
         const total = totalCount[0].total;
         const totalPages = Math.ceil(total / limit);
@@ -63,7 +80,7 @@ router.get('/', async (req, res) => {
         const hasPrevPage = page > 1;
 
         res.json({
-            products,
+            products: productsWithImage,
             pagination: {
                 total,
                 totalPages,
@@ -95,7 +112,17 @@ router.get('/:id', async (req, res) => {
             return res.status(404).json({ error: 'Prodotto non trovato' });
         }
 
-        res.json(product[0]);
+        // Recupera tutte le immagini collegate al prodotto
+        const [images] = await db.query(
+            'SELECT id, url, alt_text FROM product_images WHERE product_id = ?',
+            [req.params.id]
+        );
+
+        // Restituisci il prodotto con le immagini
+        res.json({
+            ...product[0],
+            images
+        });
     } catch (error) {
         console.error('Errore nel recupero del prodotto:', error);
         res.status(500).json({ error: 'Errore nel recupero del prodotto' });
@@ -248,13 +275,30 @@ router.get('/by-artisan/:id', async (req, res) => {
         const [products] = await db.query(query, queryParams);
         const [totalCount] = await db.query(countQuery, countParams);
 
+        // Recupera la prima immagine per ogni prodotto
+        const productIds = products.map(p => p.id);
+        let imagesMap = {};
+        if (productIds.length > 0) {
+            const [images] = await db.query(
+                'SELECT id, product_id, url, alt_text FROM product_images WHERE product_id IN (?) GROUP BY product_id',
+                [productIds]
+            );
+            images.forEach(img => {
+                imagesMap[img.product_id] = img;
+            });
+        }
+        const productsWithImage = products.map(p => ({
+            ...p,
+            image: imagesMap[p.id] || null
+        }));
+
         const total = totalCount[0].total;
         const totalPages = Math.ceil(total / limit);
         const hasNextPage = page < totalPages;
         const hasPrevPage = page > 1;
 
         res.json({
-            products,
+            products: productsWithImage,
             pagination: {
                 total,
                 totalPages,

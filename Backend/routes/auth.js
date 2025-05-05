@@ -22,6 +22,13 @@ router.post('/register', async (req, res) => {
     
     const newUser = await registerUser(userData);
     
+    // Recupera la foto profilo (se esiste)
+    const [profileImg] = await db.query(
+      'SELECT url FROM profile_image WHERE user_id = ? LIMIT 1',
+      [newUser.id]
+    );
+    const image = profileImg.length > 0 ? profileImg[0].url : null;
+    
     const token = jwt.sign(
       { userId: newUser.id, email: newUser.email, role: newUser.role },
       process.env.JWT_SECRET || 'your_jwt_secret',
@@ -33,7 +40,7 @@ router.post('/register', async (req, res) => {
       message: 'Utente registrato con successo',
       data: {
         token,
-        user: newUser
+        user: { ...newUser, image }
       }
     });
   } catch (error) {
@@ -63,10 +70,19 @@ router.post('/login', async (req, res) => {
     const { email, password } = req.body;
     
     const loginResult = await loginUser(email, password);
+    // Recupera la foto profilo (se esiste)
+    const [profileImg] = await db.query(
+      'SELECT url FROM profile_image WHERE user_id = ? LIMIT 1',
+      [loginResult.user.id]
+    );
+    const image = profileImg.length > 0 ? profileImg[0].url : null;
     res.status(200).json({
       success: true,
       message: 'Login effettuato con successo',
-      data: loginResult
+      data: {
+        token: loginResult.token,
+        user: { ...loginResult.user, image }
+      }
     });
   } catch (error) {
     console.error('Errore login:', error);
@@ -108,6 +124,13 @@ router.get('/profile', verifyToken, async (req, res) => {
 
     const user = users[0];
 
+    // Recupera la foto profilo (se esiste)
+    const [profileImg] = await db.query(
+      'SELECT url FROM profile_image WHERE user_id = ? LIMIT 1',
+      [user.id]
+    );
+    const profile_image_url = profileImg.length > 0 ? profileImg[0].url : null;
+
     res.status(200).json({
       success: true,
       message: 'Profilo utente recuperato con successo',
@@ -116,7 +139,8 @@ router.get('/profile', verifyToken, async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        created_at: user.created_at
+        created_at: user.created_at,
+        image: profile_image_url
       }
     });
   } catch (error) {

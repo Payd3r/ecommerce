@@ -27,17 +27,9 @@ export async function loadProductDetailsPage(params = {}) {
             <div class="row g-5">
                 <div class="col-12 col-lg-7">
                     <div class="d-flex flex-column align-items-center">
-                        <div id="slider-main-image" class="mb-3" style="font-size: 5rem; min-height: 20rem; display: flex; align-items: center; justify-content: center;">
-                            ${icons[0]}
-                        </div>
+                        <div id="slider-main-image" class="mb-3" style="min-height: 20rem; display: flex; align-items: center; justify-content: center;"></div>
                         <div class="d-flex align-items-center gap-3 mb-2">
-                            <button id="slider-prev" class="btn btn-outline-secondary btn-sm"><i class="bi bi-chevron-left"></i></button>
-                            <div id="slider-thumbnails" class="d-flex gap-2">
-                                ${icons.map((icon, i) => `
-                                    <button class="btn btn-light p-2 border rounded thumbnail-btn${i === 0 ? ' active' : ''}" data-index="${i}" style="font-size: 3rem;">${icon}</button>
-                                `).join('')}
-                            </div>
-                            <button id="slider-next" class="btn btn-outline-secondary btn-sm"><i class="bi bi-chevron-right"></i></button>
+                            <div id="slider-thumbnails" class="d-flex gap-2"></div>
                         </div>
                     </div>
                 </div>
@@ -52,9 +44,13 @@ export async function loadProductDetailsPage(params = {}) {
         </div>
     `;
 
+    let images = [];
+
     async function loadProduct() {
         try {
             const product = await getProduct(productId);
+            images = product.images && product.images.length > 0 ? product.images : [];
+            renderSlider(0);
             const info = document.getElementById('product-info');
             if (!info) return;
             const isLogged = authService.isAuthenticated();
@@ -91,17 +87,30 @@ export async function loadProductDetailsPage(params = {}) {
         }
     }
 
-    function updateSlider(newIndex) {
-        currentIndex = newIndex;
+    function renderSlider(idx) {
+        currentIndex = idx;
         const mainImage = document.getElementById('slider-main-image');
-        if (mainImage) mainImage.innerHTML = icons[currentIndex];
-        // Aggiorna le anteprime
-        document.querySelectorAll('.thumbnail-btn').forEach((btn, i) => {
-            if (i === currentIndex) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
+        const thumbs = document.getElementById('slider-thumbnails');
+        if (!mainImage || !thumbs) return;
+        if (images.length > 0) {
+            mainImage.innerHTML = `
+              <div style="width:100%;height:340px;display:flex;align-items:center;justify-content:center; background:#f8f9fa; border-radius:12px;">
+                <img src="http://localhost:3005${images[currentIndex].url}" alt="img" style="max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain; display:block;" />
+              </div>
+            `;
+            thumbs.innerHTML = images.map((img, i) => `
+                <img src="http://localhost:3005${img.url}" data-idx="${i}" class="rounded border thumb-img${i === currentIndex ? ' border-primary border-2' : ''}" style="width:56px; height:56px; object-fit:cover; cursor:pointer;" alt="thumb" />
+            `).join('');
+        } else {
+            mainImage.innerHTML = `<div style="font-size: 5rem; color: #bbb;">🖼️</div>`;
+            thumbs.innerHTML = '';
+        }
+        // Eventi anteprime
+        thumbs.querySelectorAll('.thumb-img').forEach(thumb => {
+            thumb.addEventListener('click', function() {
+                const idx = parseInt(this.getAttribute('data-idx'));
+                renderSlider(idx);
+            });
         });
     }
 
@@ -113,27 +122,6 @@ export async function loadProductDetailsPage(params = {}) {
                 window.history.back();
             });
         }
-        // Slider navigation
-        const prevBtn = document.getElementById('slider-prev');
-        const nextBtn = document.getElementById('slider-next');
-        if (prevBtn) {
-            prevBtn.addEventListener('click', () => {
-                const newIndex = (currentIndex - 1 + icons.length) % icons.length;
-                updateSlider(newIndex);
-            });
-        }
-        if (nextBtn) {
-            nextBtn.addEventListener('click', () => {
-                const newIndex = (currentIndex + 1) % icons.length;
-                updateSlider(newIndex);
-            });
-        }
-        // Anteprime cliccabili
-        document.querySelectorAll('.thumbnail-btn').forEach((btn, i) => {
-            btn.addEventListener('click', () => {
-                updateSlider(i);
-            });
-        });
     }
 
     return {

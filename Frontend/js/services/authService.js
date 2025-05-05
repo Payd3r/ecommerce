@@ -131,8 +131,13 @@ class AuthService {
      * @private
      */
     saveAuthData(token, user) {
+        // Se user.image non è presente ma user.profile_image_url sì, usalo come image
+        const userToSave = { ...user };
+        if (!userToSave.image && userToSave.profile_image_url) {
+            userToSave.image = userToSave.profile_image_url;
+        }
         localStorage.setItem(TOKEN_KEY, token);
-        localStorage.setItem(USER_KEY, JSON.stringify(user));
+        localStorage.setItem(USER_KEY, JSON.stringify(userToSave));
     }
     
     /**
@@ -143,6 +148,10 @@ class AuthService {
     updateUserData(userData) {
         const currentUser = this.getUser();
         const updatedUser = { ...currentUser, ...userData };
+        // Se profile_image_url è presente, aggiorna anche image
+        if (userData.profile_image_url) {
+            updatedUser.image = userData.profile_image_url;
+        }
         localStorage.setItem(USER_KEY, JSON.stringify(updatedUser));
     }
 }

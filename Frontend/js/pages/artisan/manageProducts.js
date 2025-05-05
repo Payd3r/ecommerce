@@ -3,6 +3,7 @@ import { authService } from '../../services/authService.js';
 import CategoriesAPI from '../../../api/categories.js';
 import { showAddProductModal } from './modals/addProduct.js';
 import { showEditProductModal } from './modals/editProduct.js';
+import { showViewProductModal } from './modals/viewProduct.js';
 
 export async function loadManageProductsPage() {
     const pageElement = document.createElement('div');
@@ -71,7 +72,18 @@ export async function loadManageProductsPage() {
             `<tr><td colspan="7" class="text-center">Nessun prodotto trovato</td></tr>` :
             filteredProducts.map(p => `
                 <tr data-product-id="${p.id}">
-                    <td class="text-center">${p.id}</td>
+                    <td class="text-center">
+                        ${p.image && p.image.url ?
+                            `<div class="product-thumb-wrapper" style="position:relative; display:inline-block;">
+                                <img src="http://localhost:3005${p.image.url}" alt="img" class="product-thumb-img" style="width:40px; height:40px; object-fit:cover; border-radius:6px; cursor:pointer;" />
+                                <div class="product-tooltip-img" style="display:none; position:absolute; left:50%; top:50%; transform:translate(-50%, -50%); z-index:10;">
+                                    <img src="http://localhost:3005${p.image.url}" alt="img" style="width:220px; height:220px; object-fit:cover; border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,0.18); border:2px solid #fff;" />
+                                </div>
+                            </div>`
+                            :
+                            '<div style="width:40px; height:40px; background:#f3f3f3; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#bbb; font-size:1.2rem;">🖼️</div>'
+                        }
+                    </td>
                     <td class="text-center">${p.name}</td>
                     <td class="text-center">${p.category_name || '-'}</td>
                     <td class="text-center">${p.price} €</td>
@@ -83,7 +95,7 @@ export async function loadManageProductsPage() {
                                 <i class="bi bi-three-dots"></i>
                             </button>
                             <ul class="dropdown-menu text-center">
-                                <li><a class="dropdown-item d-flex align-items-center justify-content-center gap-2" href="#"><i class="bi bi-eye"></i> Visualizza</a></li>
+                                <li><a class="dropdown-item d-flex align-items-center justify-content-center gap-2 btn-view-product" href="#"><i class="bi bi-eye"></i> Visualizza</a></li>
                                 <li><a class="dropdown-item d-flex align-items-center justify-content-center gap-2 btn-edit-product" href="#"><i class="bi bi-pencil"></i> Modifica</a></li>
                                 <li><a class="dropdown-item text-danger d-flex align-items-center justify-content-center gap-2" href="#"><i class="bi bi-trash"></i> Elimina</a></li>
                             </ul>
@@ -91,6 +103,37 @@ export async function loadManageProductsPage() {
                     </td>
                 </tr>
             `).join('');
+
+        // Tooltip immagine prodotto
+        tableBody.querySelectorAll('.product-thumb-wrapper').forEach(wrapper => {
+            const thumb = wrapper.querySelector('.product-thumb-img');
+            const tooltip = wrapper.querySelector('.product-tooltip-img');
+            if (thumb && tooltip) {
+                thumb.addEventListener('mouseenter', () => {
+                    tooltip.style.display = 'block';
+                });
+                thumb.addEventListener('mouseleave', () => {
+                    tooltip.style.display = 'none';
+                });
+                // Per evitare flicker se si passa dal thumb al tooltip
+                tooltip.addEventListener('mouseenter', () => {
+                    tooltip.style.display = 'block';
+                });
+                tooltip.addEventListener('mouseleave', () => {
+                    tooltip.style.display = 'none';
+                });
+            }
+        });
+
+        // Aggiungi event listener per Visualizza
+        tableBody.querySelectorAll('.btn-view-product').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const tr = btn.closest('tr');
+                const productId = tr.getAttribute('data-product-id');
+                showViewProductModal(productId, categories);
+            });
+        });
 
         // Aggiungi event listener per Modifica
         tableBody.querySelectorAll('.btn-edit-product').forEach(btn => {
@@ -176,7 +219,7 @@ export async function loadManageProductsPage() {
                         <table class="table table-bordered align-middle mb-0">
                             <thead>
                                 <tr>
-                                    <th class="text-center">ID</th>
+                                    <th class="text-center">Img</th>
                                     <th class="text-center">Nome</th>
                                     <th class="text-center">Categoria</th>
                                     <th class="text-center">Prezzo</th>
