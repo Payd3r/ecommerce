@@ -77,7 +77,7 @@ router.post('/checkout', verifyToken, async (req, res) => {
         // Inserisci order_items
         for (const oi of orderItems) {
             await db.query(
-                'INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)',
+                'INSERT INTO order_items (order_id, product_id, quantity, unit_price) VALUES (?, ?, ?, ?)',
                 [orderId, oi.product_id, oi.quantity, oi.price]
             );
         }
