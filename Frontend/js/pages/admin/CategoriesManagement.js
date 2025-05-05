@@ -1,6 +1,7 @@
 import { authService } from '../../services/authService.js';
 import { showBootstrapToast } from '../../components/Toast.js';
 import UsersAPI from '../../../api/categories.js';
+import { uploadCategoryImages } from '../../../api/images.js';
 
 /**
  * Carica la dashboard dell'amministratore
@@ -49,7 +50,8 @@ export async function loadCategoriesManagementPage() {
         return `<ul class="list-group list-group-flush">
             ${nodes.map(cat => `
                 <li class="list-group-item d-flex align-items-center justify-content-between bg-light mb-1 rounded-3" style="padding-left: ${level * 32 + 32}px;">
-                    <div>
+                    <div class="d-flex align-items-center gap-2">
+                        ${cat.image ? `<img src=\"http://localhost:3005${cat.image}\" alt=\"img\" style=\"width:40px; height:40px; object-fit:cover; border-radius:8px; border:1.5px solid #e0e0e0;\" />` : ''}
                         <strong>${cat.name}</strong>
                         <span class="text-muted small ms-2">${cat.description || ''}</span>
                     </div>
@@ -81,6 +83,10 @@ export async function loadCategoriesManagementPage() {
         let name = category.name || '';
         let description = category.description || '';
         let dad_id = parentId || category.dad_id || '';
+        let imageUrl = category.image || '';
+        let imageToDelete = false;
+        let newImageFile = null;
+        console.log(imageUrl);
         if (mode === 'add') { title = 'Nuova Categoria'; submitText = 'Aggiungi'; }
         if (mode === 'edit') { title = 'Modifica Categoria'; submitText = 'Salva'; }
         if (mode === 'move') { title = 'Sposta Categoria'; submitText = 'Sposta'; }
@@ -119,6 +125,18 @@ export async function loadCategoriesManagementPage() {
                             <label class="form-label">Categoria Padre</label>
                             <select class="form-select" name="dad_id" required>${getParentOptions(allCategories, category.id)}</select>
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label">Immagine categoria</label>
+                            <input type="file" class="form-control" id="categoryImageInput" accept="image/*" />
+                            <div id="categoryImagePreviewWrapper" class="mt-2">
+                                ${imageUrl ? `
+                                    <div style=\"position:relative; display:inline-block;\">
+                                        <img src=\"http://localhost:3005${imageUrl}\" alt=\"img\" style=\"width:80px; height:80px; object-fit:cover; border-radius:8px; border:1.5px solid #e0e0e0;\" />
+                                        <button type=\"button\" id=\"deleteCategoryImgBtn\" style=\"position:absolute; top:0; right:0; background:rgba(255,255,255,0.8); border:none; border-radius:50%;\"><i class=\"bi bi-x-lg\"></i></button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" id="closeModalBtn2">Annulla</button>
@@ -129,6 +147,29 @@ export async function loadCategoriesManagementPage() {
         </div>`;
         // Chiudi modale
         modalContainer.querySelectorAll('#closeModalBtn,#closeModalBtn2').forEach(btn => btn.onclick = () => modalContainer.innerHTML = '');
+        // Gestione anteprima/eliminazione immagine
+        const imgInput = modalContainer.querySelector('#categoryImageInput');
+        const imgPreviewWrapper = modalContainer.querySelector('#categoryImagePreviewWrapper');
+        if (imgInput) {
+            imgInput.addEventListener('change', e => {
+                const file = imgInput.files[0];
+                if (file) {
+                    newImageFile = file;
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        imgPreviewWrapper.innerHTML = `<div style=\"position:relative; display:inline-block;\"><img src=\"${ev.target.result}\" alt=\"img\" style=\"width:80px; height:80px; object-fit:cover; border-radius:8px; border:1.5px solid #e0e0e0;\" /></div>`;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+        if (imgPreviewWrapper && imgPreviewWrapper.querySelector('#deleteCategoryImgBtn')) {
+            imgPreviewWrapper.querySelector('#deleteCategoryImgBtn').onclick = () => {
+                imgPreviewWrapper.innerHTML = '';
+                imageToDelete = true;
+                imageUrl = '';
+            };
+        }
         // Submit
         modalContainer.querySelector('#categoryForm').onsubmit = async (e) => {
             e.preventDefault();
@@ -139,9 +180,25 @@ export async function loadCategoriesManagementPage() {
                 dad_id: parseInt(form.dad_id.value)
             };
             try {
-                if (mode === 'add') await UsersAPI.createCategory(data);
-                if (mode === 'edit') await UsersAPI.updateCategory(category.id, data);
-                if (mode === 'move') await UsersAPI.updateCategory(category.id, { ...category, dad_id: data.dad_id });
+                if (mode === 'add') {
+                    const created = await UsersAPI.createCategory(data);
+                    if (imgInput && imgInput.files[0]) {
+                        await uploadCategoryImages(created.id, [imgInput.files[0]]);
+                    }
+                }
+                if (mode === 'edit') {
+                    await UsersAPI.updateCategory(category.id, data);
+                    if (imageToDelete && category.images && category.images.length > 0) {
+                        // Chiamata DELETE per eliminare immagine categoria (da implementare lato API se non esiste)
+                        await fetch(`http://localhost:3005/images/category/${category.id}`, {
+                            method: 'DELETE',
+                            headers: { 'Authorization': `Bearer ${authService.getToken()}` }
+                        });
+                    }
+                    if (imgInput && imgInput.files[0]) {
+                        await uploadCategoryImages(category.id, [imgInput.files[0]]);
+                    }
+                }
                 showBootstrapToast('Operazione completata', 'Successo', 'success');
                 modalContainer.innerHTML = '';
                 await loadAndRenderCategories();

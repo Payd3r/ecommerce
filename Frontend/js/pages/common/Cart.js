@@ -43,13 +43,17 @@ export async function loadCartPage() {
                 </tr></thead><tbody>`;
             let total = 0;
             items.forEach(item => {
-                const icon = ICONS[Math.floor(Math.random() * ICONS.length)];
                 const price = Number(item.price);
                 const subtotal = price * item.quantity;
                 total += subtotal;
                 html += `
                     <tr data-item-id="${item.item_id}">
-                        <td style="font-size:2rem;">${icon}</td>
+                        <td style="width:64px;">
+                            ${item.image ?
+                                `<img src=\"http://localhost:3005${item.image.url || item.image}\" alt=\"img\" style=\"width:56px; height:56px; object-fit:cover; border-radius:8px; border:1.5px solid #e0e0e0;\" />` :
+                                '<span style="font-size:2rem;">🛒</span>'
+                            }
+                        </td>
                         <td>${item.name}</td>
                         <td>${price.toFixed(2)} €</td>
                         <td style="max-width:120px;">
@@ -144,13 +148,13 @@ export async function loadCartPage() {
                 }
                 const result = await OrdersAPI.checkoutOrder(user.id);
                 await renderCart();
-                showBootstrapToast(`Ordine creato! Totale: ${result.total.toFixed(2)} €`, 'Successo', 'success');
             } catch (error) {
                 showBootstrapToast(error.message || 'Errore nel checkout', 'Errore', 'error');
             }
         });
     }
 
+    // Fine della funzione loadCartPage
     return {
         render: () => pageElement,
         mount

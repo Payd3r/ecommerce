@@ -218,8 +218,11 @@ export async function loadHomePage() {
                     <div class="col-8 col-sm-6 col-md-4 col-lg-3 d-flex flex-shrink-0" style="min-width: 180px; max-width: 210px;">
                         <div class="category-card card flex-fill mb-0 shadow-sm border-0">
                             <div class="card-body text-center py-4">
-                                <div class="category-image mb-2 d-flex justify-content-center align-items-center" style="background-color: var(--secondary-color); width: 56px; height: 56px; margin: 0 auto; border-radius: 50%;">
-                                    <span class="category-icon fs-2">${icon}</span>
+                                <div class="category-image mb-2 d-flex justify-content-center align-items-center" style="background-color: var(--secondary-color); width: 100px; height: 100px; margin: 0 auto; border-radius: 50%; overflow: hidden;">
+                                    ${category.image ?
+                                        `<img src=\"http://localhost:3005${category.image}\" alt=\"${category.name}\" style=\"width:100px; height:100px; object-fit:cover; border-radius:50%;\" />` :
+                                        `<span class=\"category-icon fs-2\">${icon}</span>`
+                                    }
                                 </div>
                                 <h5 class="fw-bold mb-1">${category.name}</h5>
                                 <p class="text-muted mb-2 small">${category.productCount || 0} prodotti</p>

@@ -66,7 +66,23 @@ router.get('/', verifyToken, async (req, res) => {
             JOIN products p ON ci.product_id = p.id
             WHERE ci.cart_id = ?
         `, [cartId]);
-        res.json({ items });
+        // Recupera la prima immagine per ogni prodotto
+        const productIds = items.map(i => i.product_id);
+        let imagesMap = {};
+        if (productIds.length > 0) {
+            const [images] = await db.query(
+                'SELECT id, product_id, url FROM product_images WHERE product_id IN (?) GROUP BY product_id',
+                [productIds]
+            );
+            images.forEach(img => {
+                imagesMap[img.product_id] = img.url;
+            });
+        }
+        const itemsWithImage = items.map(i => ({
+            ...i,
+            image: imagesMap[i.product_id] || null
+        }));
+        res.json({ items: itemsWithImage });
     } catch (error) {
         console.error('Errore nel recupero del carrello:', error);
         res.status(500).json({ error: 'Errore nel recupero del carrello', details: error.message });

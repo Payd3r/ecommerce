@@ -78,8 +78,17 @@ router.post('/upload/category', upload.array('images', 10), async (req, res) => 
         if (!id) return res.status(400).json({ error: 'id categoria obbligatorio' });
         if (!req.files || req.files.length === 0) return res.status(400).json({ error: 'Nessuna immagine inviata' });
         const type = 'category';
+        // Elimina eventuale immagine precedente (una sola per categoria)
+        const [oldImages] = await db.query('SELECT url FROM category_images WHERE category_id = ?', [id]);
+        for (const img of oldImages) {
+            const filePath = path.resolve(__dirname, '../../', img.url);
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
+        }
+        await db.query('DELETE FROM category_images WHERE category_id = ?', [id]);
+        // Salva la nuova immagine
         const savedFiles = await handleImageUpload({ files: req.files, type, id });
-        // Salva su DB
         for (const file of savedFiles) {
             await db.query('INSERT INTO category_images (category_id, url, alt_text) VALUES (?, ?, ?)', [id, file.url, file.altText]);
         }

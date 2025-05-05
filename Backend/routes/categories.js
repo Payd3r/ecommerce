@@ -23,7 +23,24 @@ const buildCategoryTree = async (categories, parentId = 1) => {
 router.get('/tree', async (req, res) => {
     try {
         const [categories] = await db.query('SELECT * FROM categories WHERE id != 1 ORDER BY dad_id, name');
-        const tree = await buildCategoryTree(categories);
+        // Recupera immagini per tutte le categorie
+        const categoryIds = categories.map(c => c.id);
+        let imagesMap = {};
+        if (categoryIds.length > 0) {
+            const [images] = await db.query(
+                'SELECT id, category_id, url FROM category_images WHERE category_id IN (?) GROUP BY category_id',
+                [categoryIds]
+            );
+            images.forEach(img => {
+                imagesMap[img.category_id] = img.url;
+            });
+        }
+        // Aggiungi campo image (solo url) a ciascuna categoria
+        const categoriesWithImage = categories.map(c => ({
+            ...c,
+            image: imagesMap[c.id] || null
+        }));
+        const tree = await buildCategoryTree(categoriesWithImage);
         res.json(tree);
     } catch (error) {
         console.error('Errore nel recupero dell\'albero delle categorie:', error);
@@ -35,7 +52,22 @@ router.get('/tree', async (req, res) => {
 router.get('/', async (req, res) => {
     try {
         const [categories] = await db.query('SELECT * FROM categories WHERE id != 1 ORDER BY name');
-        res.json(categories);
+        const categoryIds = categories.map(c => c.id);
+        let imagesMap = {};
+        if (categoryIds.length > 0) {
+            const [images] = await db.query(
+                'SELECT id, category_id, url FROM category_images WHERE category_id IN (?) GROUP BY category_id',
+                [categoryIds]
+            );
+            images.forEach(img => {
+                imagesMap[img.category_id] = img.url;
+            });
+        }
+        const categoriesWithImage = categories.map(c => ({
+            ...c,
+            image: imagesMap[c.id] || null
+        }));
+        res.json(categoriesWithImage);
     } catch (error) {
         console.error('Errore nel recupero delle categorie:', error);
         res.status(500).json({ error: 'Errore nel recupero delle categorie' });
@@ -46,12 +78,12 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         const [category] = await db.query('SELECT * FROM categories WHERE id = ?', [req.params.id]);
-        
         if (category.length === 0) {
             return res.status(404).json({ error: 'Categoria non trovata' });
         }
-        
-        res.json(category[0]);
+        const [images] = await db.query('SELECT url FROM category_images WHERE category_id = ? LIMIT 1', [req.params.id]);
+        const image = images.length > 0 ? images[0].url : null;
+        res.json({ ...category[0], image });
     } catch (error) {
         console.error('Errore nel recupero della categoria:', error);
         res.status(500).json({ error: 'Errore nel recupero della categoria' });

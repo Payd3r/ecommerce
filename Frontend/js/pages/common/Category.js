@@ -11,8 +11,8 @@ export async function loadCategoryPage() {
     pageElement.className = 'category-page';
 
     pageElement.innerHTML = `
-        <div class="container py-5">
-            <div class="row mb-4">
+        <div class="container pb-5 mt-4">
+            <div class="row">
                 <div class="col-12 text-center">
                     <h1 class="display-5 fw-bold mb-2">Categorie</h1>
                     <p class="text-muted">Scopri tutte le categorie e sottocategorie disponibili</p>
@@ -26,36 +26,35 @@ export async function loadCategoryPage() {
         </div>
     `;
 
-    // Funzione per renderizzare l'albero delle categorie
-    function renderCategoryAccordion(categories) {
-        const accordion = pageElement.querySelector('#categoriesAccordion');
+    // Funzione per renderizzare l'albero delle categorie (visualizzazione ad albero con immagini)
+    function renderCategoryTree(categories) {
+        const container = pageElement.querySelector('.col-12.col-md-8');
         if (!categories.length) {
-            accordion.innerHTML = '<div class="text-center text-muted py-5">Nessuna categoria trovata.</div>';
+            container.innerHTML = '<div class="text-center text-muted py-5">Nessuna categoria trovata.</div>';
             return;
         }
-        accordion.innerHTML = categories.map((cat, idx) => `
-            <div class="accordion-item border-0  rounded-3 shadow-sm">
-                <h2 class="accordion-header" id="heading${cat.id}">
-                    <button class="accordion-button fw-semibold bg-white text-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${cat.id}" aria-expanded="${idx === 0 ? 'true' : 'false'}" aria-controls="collapse${cat.id}">
-                        <i class="bi bi-folder me-2"></i> ${cat.name}
-                    </button>
-                </h2>
-                <div id="collapse${cat.id}" class="accordion-collapse collapse${idx === 0 ? ' show' : ''}" aria-labelledby="heading${cat.id}" data-bs-parent="#categoriesAccordion">
-                    <div class="accordion-body bg-light rounded-bottom-3">
-                        <div class="d-flex flex-wrap gap-3">
-                            ${cat.children && cat.children.length ? cat.children.map(child => `
-                                <button class="btn btn-outline-primary rounded-pill px-4 py-2 d-flex align-items-center gap-2 category-leaf-btn" data-id="${child.id}">
-                                    <i class="bi bi-tag"></i> ${child.name}
-                                </button>
-                            `).join('') : '<span class="text-muted">Nessuna sottocategoria</span>'}
+        container.innerHTML = renderCategoryNodes(categories);
+    }
+
+    // Ricorsiva: genera HTML per ogni nodo e figli (accordion per i nodi con figli)
+    function renderCategoryNodes(nodes, level = 0, parentKey = '') {
+        return `<ul class="list-group list-group-flush">
+            ${nodes.map((cat, idx) => {
+                const hasChildren = cat.children && cat.children.length > 0;
+                const nodeKey = parentKey + 'n' + cat.id;
+                return `
+                    <li class="list-group-item bg-light mb-1 rounded-3 p-0" style="padding-left: ${level * 16 + 16}px;">
+                        <div class="d-flex align-items-center gap-2 ${hasChildren ? 'category-accordion-header' : ''}" data-key="${nodeKey}" style="cursor: ${hasChildren ? 'pointer' : 'default'}; padding: 12px 16px;">
+                            ${cat.image ? `<img src=\"http://localhost:3005${cat.image}\" alt=\"img\" style=\"width:40px; height:40px; object-fit:cover; border-radius:8px; border:1.5px solid #e0e0e0;\" />` : ''}
+                            <strong style=\"padding-left:${level * 18}px;\">${cat.name}</strong>
+                            <span class="text-muted small ms-2">${cat.description || ''}</span>
+                            ${hasChildren ? `<span class=\"ms-auto category-accordion-toggle\"><i class=\"bi bi-chevron-down\"></i></span>` : ''}
                         </div>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-        if (categories.length < 20) {
-            pageElement.innerHTML += '<div class="col-12" style="height: 18vh;"></div>';
-        }
+                        ${hasChildren ? `<div class=\"category-accordion-body collapse\" id=\"${nodeKey}\">${renderCategoryNodes(cat.children, level + 1, nodeKey)}</div>` : ''}
+                    </li>
+                `;
+            }).join('')}
+        </ul>`;
     }
 
     
@@ -64,7 +63,7 @@ export async function loadCategoryPage() {
         loader.show();
         try {
             const categories = await CategoriesAPI.getCategoryTree();
-            renderCategoryAccordion(categories);
+            renderCategoryTree(categories);
         } catch (error) {
             showBootstrapToast('Errore nel caricamento delle categorie', 'Errore', 'error');
         } finally {
@@ -75,6 +74,23 @@ export async function loadCategoryPage() {
     // Dopo il caricamento delle categorie
     function mount() {
         pageElement.addEventListener('click', (e) => {
+            // Espandi/chiudi accordion
+            const header = e.target.closest('.category-accordion-header');
+            if (header) {
+                const key = header.getAttribute('data-key');
+                const body = pageElement.querySelector(`#${key}`);
+                if (body) {
+                    body.classList.toggle('collapse');
+                    body.classList.toggle('show');
+                    // Ruota la freccia
+                    const icon = header.querySelector('.category-accordion-toggle i');
+                    if (icon) {
+                        icon.classList.toggle('bi-chevron-down');
+                        icon.classList.toggle('bi-chevron-up');
+                    }
+                }
+            }
+            // Navigazione prodotti (se vuoi mantenere la funzionalità)
             const btn = e.target.closest('.category-leaf-btn');
             if (btn) {
                 const categoryId = btn.getAttribute('data-id');
