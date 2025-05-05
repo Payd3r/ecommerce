@@ -1,4 +1,7 @@
+import { authService } from '../js/services/authService.js';
+
 const API_URL = '/orders';
+const API_BASE_URL = 'http://localhost:3005/orders';
 
 // Ottieni tutti gli ordini (solo per admin o test)
 export async function getAllOrders() {
@@ -22,6 +25,27 @@ export async function createOrder(orderData) {
         body: JSON.stringify(orderData)
     });
     if (!res.ok) throw new Error('Errore nella creazione dell\'ordine');
+    return await res.json();
+}
+
+// Checkout: crea ordine dal carrello dell'utente autenticato
+export async function checkoutOrder(userId) {
+    if (!userId) throw new Error('userId mancante');
+    const token = authService.getToken();
+    if (!token) throw new Error('Token di accesso non trovato');
+    const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ userId })
+    };
+    const res = await fetch(`${API_BASE_URL}/checkout`, options);
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Errore nel checkout');
+    }
     return await res.json();
 }
 

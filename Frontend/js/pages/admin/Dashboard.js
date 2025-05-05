@@ -73,7 +73,7 @@ export async function loadAdminDashboardPage() {
             <div class="col-12">
                 <div class="row g-3">
                     <div class="col-2">
-                        <div class="card bg-success h-100">
+                        <div class="card text-bg-success h-100">
                             <div class="card-body text-center">
                                 <div class="display-4 mb-2">🧑‍🎨</div>
                                 <h6 class="card-title">Artigiani</h6>
@@ -82,7 +82,7 @@ export async function loadAdminDashboardPage() {
                         </div>
                     </div>
                     <div class="col-2">
-                        <div class="card bg-secondary h-100">
+                        <div class="card text-bg-secondary h-100">
                             <div class="card-body text-center">
                                 <div class="display-4 mb-2">🧑‍💼</div>
                                 <h6 class="card-title">Clienti</h6>
@@ -91,7 +91,7 @@ export async function loadAdminDashboardPage() {
                         </div>
                     </div>
                     <div class="col-2">
-                        <div class="card bg-dark h-100">
+                        <div class="card text-bg-dark h-100">
                             <div class="card-body text-center">
                                 <div class="display-4 mb-2">🛡️</div>
                                 <h6 class="card-title">Admin</h6>
@@ -100,7 +100,7 @@ export async function loadAdminDashboardPage() {
                         </div>
                     </div>
                     <div class="col-2">
-                        <div class="card bg-warning h-100">
+                        <div class="card text-bg-warning h-100">
                             <div class="card-body text-center">
                                 <div class="display-4 mb-2">📦</div>
                                 <h6 class="card-title">Prodotti</h6>
@@ -109,7 +109,7 @@ export async function loadAdminDashboardPage() {
                         </div>
                     </div>
                     <div class="col-2">
-                        <div class="card bg-info h-100">
+                        <div class="card text-bg-info h-100">
                             <div class="card-body text-center">
                                 <div class="display-4 mb-2">🛒</div>
                                 <h6 class="card-title">Ordini</h6>
@@ -118,7 +118,7 @@ export async function loadAdminDashboardPage() {
                         </div>
                     </div>
                     <div class="col-2">
-                        <div class="card bg-danger h-100">
+                        <div class="card text-bg-danger h-100">
                             <div class="card-body text-center">
                                 <div class="display-4 mb-2">⏳</div>
                                 <h6 class="card-title">Ordini in lavorazione</h6>

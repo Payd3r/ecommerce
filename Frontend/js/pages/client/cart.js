@@ -1,5 +1,7 @@
 import CartAPI from '../../../api/cart.js';
+import * as OrdersAPI from '../../../api/orders.js';
 import { showBootstrapToast } from '../../components/Toast.js';
+import { authService } from '../../services/authService.js';
 
 const ICONS = ['🛒', '🎁', '🧵', '🎨', '🖼️', '🪡', '🪆', '🧶', '🪵', '🪚'];
 
@@ -132,9 +134,20 @@ export async function loadCartPage() {
                 await updateQuantity(itemId, newQty);
             }
         });
-        // Checkout (da implementare)
-        document.getElementById('checkout-btn').addEventListener('click', () => {
-            showBootstrapToast('Funzionalità checkout da implementare!', 'Info', 'info');
+        // Checkout (implementato)
+        document.getElementById('checkout-btn').addEventListener('click', async () => {
+            try {
+                const user = authService.getUser();
+                if (!user || !user.id) {
+                    showBootstrapToast('Utente non autenticato', 'Errore', 'error');
+                    return;
+                }
+                const result = await OrdersAPI.checkoutOrder(user.id);
+                await renderCart();
+                showBootstrapToast(`Ordine creato! Totale: ${result.total.toFixed(2)} €`, 'Successo', 'success');
+            } catch (error) {
+                showBootstrapToast(error.message || 'Errore nel checkout', 'Errore', 'error');
+            }
         });
     }
 

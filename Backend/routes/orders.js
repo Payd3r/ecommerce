@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../models/db');
+const { verifyToken } = require('../middleware/auth');
 
 // GET /orders - Ottieni tutti gli ordini (admin o per test)
 router.get('/', async (req, res) => {
@@ -29,6 +30,63 @@ router.post('/', async (req, res) => {
     } catch (error) {
         console.error('Errore nella creazione dell\'ordine:', error);
         res.status(500).json({ error: 'Errore nella creazione dell\'ordine' });
+    }
+});
+
+// POST /orders/checkout - Checkout: crea ordine dal carrello dell'utente
+router.post('/checkout', verifyToken, async (req, res) => {
+    try {
+        // Usa userId dal body se presente, altrimenti da req.user
+        const userId = req.body.userId || req.user.id;
+        // Trova il carrello dell'utente
+        const [carts] = await db.query('SELECT id FROM carts WHERE user_id = ?', [userId]);
+        if (carts.length === 0) {
+            return res.status(400).json({ error: 'Carrello vuoto o non trovato' });
+        }
+        const cartId = carts[0].id;
+        // Prendi tutti gli item del carrello con info prodotto e sconto
+        const [items] = await db.query(`
+            SELECT ci.product_id, ci.quantity, p.price, p.discount, p.name
+            FROM cart_items ci
+            JOIN products p ON ci.product_id = p.id
+            WHERE ci.cart_id = ?
+        `, [cartId]);
+        if (items.length === 0) {
+            return res.status(400).json({ error: 'Carrello vuoto' });
+        }
+        // Calcola totale con sconti
+        let total = 0;
+        const orderItems = items.map(item => {
+            let finalPrice = item.price;
+            if (item.discount && item.discount > 0 && item.discount < 100) {
+                finalPrice = finalPrice * (1 - item.discount / 100);
+            }
+            total += finalPrice * item.quantity;
+            return {
+                product_id: item.product_id,
+                quantity: item.quantity,
+                price: finalPrice
+            };
+        });
+        // Crea ordine
+        const [orderRes] = await db.query(
+            'INSERT INTO orders (client_id, total_price, status) VALUES (?, ?, ?)',
+            [userId, total.toFixed(2), 'pending']
+        );
+        const orderId = orderRes.insertId;
+        // Inserisci order_items
+        for (const oi of orderItems) {
+            await db.query(
+                'INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)',
+                [orderId, oi.product_id, oi.quantity, oi.price]
+            );
+        }
+        // Svuota carrello
+        await db.query('DELETE FROM cart_items WHERE cart_id = ?', [cartId]);
+        res.status(201).json({ message: 'Ordine creato', order_id: orderId, total });
+    } catch (error) {
+        console.error('Errore nel checkout:', error);
+        res.status(500).json({ error: 'Errore nel checkout', details: error.message });
     }
 });
 
