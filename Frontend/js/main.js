@@ -94,12 +94,13 @@ class App {
         router.register('/products/:id', loadProductDetailsPage, { title: 'Dettagli Prodotto - Product' });
         router.register('/artisans', loadArtisanPage, { title: 'Artigiani - ArtigianatoShop' });
         router.register('/categories', loadCategoryPage, { title: 'Categorie - ArtigianatoShop' });
+        router.register('/artisan-shop/:id', loadArtisanShopPage, { title: 'Shop Artigiano - ArtigianatoShop' });
+
         // Route protetta: carrello solo per utenti autenticati
         router.register('/cart', loadCartPage, {
             requireAuth: true,
             title: 'Il tuo Carrello - ArtigianatoShop'
         });
-        // Route protette per utenti autenticati
         router.register('/profile', loadProfilePage, {
             requireAuth: true,
             title: 'Profilo - ArtigianatoShop'
@@ -111,14 +112,12 @@ class App {
             roles: ['client'],
             title: 'Diventa Artigiano - ArtigianatoShop'
         });
-
-        // Route protette per artigiani
         router.register('/artisan/dashboard', loadArtisanDashboardPage, {
             requireAuth: true,
             roles: ['artisan'],
             title: 'Dashboard Artigiano - ArtigianatoShop'
         });
-        router.register('/artisan/manageOrders', loadManageOrdersPage, {
+        router.register('/artisan/manage-orders', loadManageOrdersPage, {
             requireAuth: true,
             roles: ['artisan'],
             title: 'Gestione Ordini - ArtigianatoShop'
@@ -138,6 +137,11 @@ class App {
             roles: ['admin'],
             title: 'ProductsManagement Admin - ArtigianatoShop'
         });
+        router.register('/artisan/manage-products', loadManageProductsPage, {
+            requireAuth: true,
+            roles: ['artisan'],
+            title: 'Gestione Prodotti - ArtigianatoShop'
+        });
         
         // Route protette per admin
         router.register('/admin/dashboard', loadAdminDashboardPage, {
@@ -146,18 +150,7 @@ class App {
             title: 'Dashboard Admin - ArtigianatoShop'
         });
 
-        // Route pubblica
-        router.register('/artisan-shop/:id', loadArtisanShopPage, { title: 'Shop Artigiano - ArtigianatoShop' });
-
-        // Route 404 (non trovata)
         router.register('404', loadNotFoundPage, { title: 'Pagina non trovata - ArtigianatoShop' });
-
-        // Route protetta per artigiani
-        router.register('/artisan/manageProducts', loadManageProductsPage, {
-            requireAuth: true,
-            roles: ['artisan'],
-            title: 'Gestione Prodotti - ArtigianatoShop'
-        });
     }
 }
 
