@@ -15,7 +15,6 @@ export async function loadAdminDashboardPage() {
 
     const user = authService.getUser();
     // Statistiche
-    let usersCount = 0;
     let artisansCount = 0;
     let clientsCount = 0;
     let adminsCount = 0;
@@ -28,7 +27,6 @@ export async function loadAdminDashboardPage() {
     // Carica dati reali
     try {
         const counts = await UsersAPI.getCounts();
-        usersCount = counts.total || 0;
         artisansCount = counts.artisans || 0;
         clientsCount = counts.clients || 0;
         adminsCount = counts.admins || 0;
@@ -75,16 +73,7 @@ export async function loadAdminDashboardPage() {
             <div class="col-12">
                 <div class="row g-3">
                     <div class="col-2">
-                        <div class="card text-bg-primary h-100">
-                            <div class="card-body text-center">
-                                <div class="display-4 mb-2">👤</div>
-                                <h6 class="card-title">Utenti</h6>
-                                <p class="card-text fs-4">${usersCount}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-2">
-                        <div class="card text-bg-success h-100">
+                        <div class="card bg-success h-100">
                             <div class="card-body text-center">
                                 <div class="display-4 mb-2">🧑‍🎨</div>
                                 <h6 class="card-title">Artigiani</h6>
@@ -93,7 +82,7 @@ export async function loadAdminDashboardPage() {
                         </div>
                     </div>
                     <div class="col-2">
-                        <div class="card text-bg-secondary h-100">
+                        <div class="card bg-secondary h-100">
                             <div class="card-body text-center">
                                 <div class="display-4 mb-2">🧑‍💼</div>
                                 <h6 class="card-title">Clienti</h6>
@@ -102,7 +91,7 @@ export async function loadAdminDashboardPage() {
                         </div>
                     </div>
                     <div class="col-2">
-                        <div class="card text-bg-dark h-100">
+                        <div class="card bg-dark h-100">
                             <div class="card-body text-center">
                                 <div class="display-4 mb-2">🛡️</div>
                                 <h6 class="card-title">Admin</h6>
@@ -111,7 +100,7 @@ export async function loadAdminDashboardPage() {
                         </div>
                     </div>
                     <div class="col-2">
-                        <div class="card text-bg-warning h-100">
+                        <div class="card bg-warning h-100">
                             <div class="card-body text-center">
                                 <div class="display-4 mb-2">📦</div>
                                 <h6 class="card-title">Prodotti</h6>
@@ -120,7 +109,7 @@ export async function loadAdminDashboardPage() {
                         </div>
                     </div>
                     <div class="col-2">
-                        <div class="card text-bg-info h-100">
+                        <div class="card bg-info h-100">
                             <div class="card-body text-center">
                                 <div class="display-4 mb-2">🛒</div>
                                 <h6 class="card-title">Ordini</h6>
@@ -129,7 +118,7 @@ export async function loadAdminDashboardPage() {
                         </div>
                     </div>
                     <div class="col-2">
-                        <div class="card text-bg-danger h-100">
+                        <div class="card bg-danger h-100">
                             <div class="card-body text-center">
                                 <div class="display-4 mb-2">⏳</div>
                                 <h6 class="card-title">Ordini in lavorazione</h6>
