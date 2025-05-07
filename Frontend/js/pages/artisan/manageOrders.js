@@ -358,6 +358,7 @@ export async function loadManageOrdersPage() {
         const deleteOrderModal = new bootstrap.Modal(pageElement.querySelector('#deleteOrderModal'));
         deleteOrderModal.show();
     }
+    
     function changeOrderStatus(orderId) {
         orderIdToChangeStatus = orderId;
         pageElement.querySelector('#change-status-order-id').value = orderId;

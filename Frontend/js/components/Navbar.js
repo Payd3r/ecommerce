@@ -54,6 +54,7 @@ class Navbar {
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                     <li><a class="dropdown-item" href="/profile" data-route>Profilo</a></li>
+                                    <li><a class="dropdown-item" href="/myorders" data-route>I miei ordini</a></li>
                                     <li><a class="dropdown-item" href="#" id="logout-btn">Esci</a></li>
                                 </ul>
                             </div>

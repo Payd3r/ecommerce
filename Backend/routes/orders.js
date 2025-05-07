@@ -4,9 +4,20 @@ const db = require('../models/db');
 const { verifyToken } = require('../middleware/auth');
 
 // GET /orders - Ottieni tutti gli ordini (admin o per test)
-router.get('/', async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
+    const clientId = req.query.clientId ? parseInt(req.query.clientId) : null;
     try {
-        // Modifica: includi il nome del cliente tramite JOIN
+        if (clientId) {
+            // Solo l'utente stesso o un admin può vedere questi ordini
+            if (req.user.role !== 'admin' && req.user.id !== clientId) {
+                return res.status(403).json({ error: 'Non hai i permessi per visualizzare questi ordini' });
+            }
+            const [orders] = await db.query(
+                `SELECT o.*, u.name as client_name FROM orders o JOIN users u ON o.client_id = u.id WHERE o.client_id = ? ORDER BY o.created_at DESC`,
+                [clientId]
+            );
+            return res.json(orders);
+        }
         const [orders] = await db.query(`
             SELECT o.*, u.name as client_name
             FROM orders o

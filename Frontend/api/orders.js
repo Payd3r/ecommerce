@@ -105,6 +105,19 @@ export async function getFilteredOrdersByArtisan(artisanId, params = {}) {
     return await res.json();
 }
 
+// Ottieni tutti gli ordini di un client
+export async function getOrdersByClient(clientId) {
+    const token = authService.getToken();
+    if (!token) throw new Error('Token di accesso non trovato');
+    const res = await fetch(`${API_BASE_URL}?clientId=${clientId}`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    if (!res.ok) throw new Error('Errore nel recupero degli ordini del cliente');
+    return await res.json();
+}
+
 // Elimina un ordine (admin)
 export async function deleteOrder(orderId) {
     const token = authService.getToken();
