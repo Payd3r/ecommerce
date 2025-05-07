@@ -1,0 +1,59 @@
+{
+  "name": "ecommerce-tests",
+  "version": "1.0.0",
+  "description": "Test suite per il progetto e-commerce",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "test:backend": "jest ./backend",
+    "test:auth": "jest ./backend/auth_functions.test.js",
+    "test:api": "jest ./backend/auth_api.test.js",
+    "test:products": "jest ./backend/products_api.test.js",
+    "test:cart": "jest ./backend/cart_api.test.js",
+    "test:frontend": "jest ./frontend",
+    "test:integration": "jest ./integration"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "supertest": "^7.1.0",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {
+      "^.+\\.js$": "babel-jest"
+    },
+    "moduleFileExtensions": ["js", "json"],
+    "rootDir": ".",
+    "verbose": true,
+    "testPathIgnorePatterns": ["/node_modules/"],
+    "setupFilesAfterEnv": ["./jest.setup.js"],
+    "testEnvironmentOptions": {
+      "url": "http://localhost"
+    },
+    "projects": [
+      {
+        "displayName": "frontend",
+        "testMatch": ["<rootDir>/frontend/**/*.test.js"],
+        "testEnvironment": "jsdom"
+      },
+      {
+        "displayName": "backend",
+        "testMatch": ["<rootDir>/backend/**/*.test.js"],
+        "testEnvironment": "node"
+      },
+      {
+        "displayName": "integration",
+        "testMatch": ["<rootDir>/integration/**/*.test.js"],
+        "testEnvironment": "node"
+      }
+    ]
+  }
+}
