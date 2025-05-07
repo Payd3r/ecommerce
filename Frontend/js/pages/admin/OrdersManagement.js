@@ -10,9 +10,7 @@ export async function loadOrdersManagementPage() {
     const pageElement = document.createElement('div');
     pageElement.className = 'admin-dashboard-page';
 
-    // Stato per l'ordinamento
-    let sortBy = 'created_at';
-    let sortOrder = 'desc';
+    let sortCreatedOrder = 'DESC';
 
     pageElement.innerHTML = `
         <div class="container mt-4">
@@ -136,8 +134,36 @@ export async function loadOrdersManagementPage() {
             </div>
         </div>`;
 
+    // Modal Dettagli Ordine
+    pageElement.innerHTML += `
+        <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="orderDetailsModalLabel">Dettagli Conto</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Quantità</th>
+                                        <th>Prezzo</th>
+                                        <th>Sconto</th>
+                                        <th>Totale</th>
+                                        <th>Articolo</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="order-details-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+
     let orderIdToDelete = null;
-    let orderIdToChangeStatus = null;
 
     function getStatusBadge(status) {
         switch (status) {
@@ -208,7 +234,8 @@ export async function loadOrdersManagementPage() {
 
             const tableBody = document.getElementById('orders-table-body');
             tableBody.innerHTML = '';
-            paginatedOrders.forEach(order => {
+            paginatedOrders.forEach((order, idx) => {
+                const isDropup = idx >= paginatedOrders.length - 2; // ultime 2 righe
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${order.id}</td>
@@ -217,13 +244,12 @@ export async function loadOrdersManagementPage() {
                     <td>${getStatusBadge(order.status)}</td>
                     <td>${order.created_at ? new Date(order.created_at).toLocaleDateString() : '-'}</td>
                     <td class="position-relative">
-                        <div class="dropdown">
+                        <div class="dropdown${isDropup ? ' dropup' : ''}">
                             <button class="btn btn-sm btn-secondary" type="button" id="dropdownMenuButton-${order.id}" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="bi bi-three-dots"></i>
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end position-absolute" style="z-index: 1050;" aria-labelledby="dropdownMenuButton-${order.id}">
+                            <ul class="dropdown-menu dropdown-menu-end position-absolute" style="z-index: 1050;" aria-labelledby="dropdownMenuButton-${order.id}" data-bs-popper="static">
                                 <li><button class="dropdown-item" onclick="viewOrderDetails(${order.id})">Dettagli</button></li>
-                                <li><button class="dropdown-item" onclick="changeOrderStatus(${order.id})">Cambia stato</button></li>
                                 <li><button class="dropdown-item text-danger" onclick="deleteOrder(${order.id})">Elimina</button></li>
                             </ul>
                         </div>
@@ -249,9 +275,33 @@ export async function loadOrdersManagementPage() {
         const changeStatusModal = new bootstrap.Modal(document.getElementById('changeStatusModal'));
         changeStatusModal.show();
     };
-    window.viewOrderDetails = function (orderId) {
-        // Qui puoi implementare la visualizzazione dettagli ordine (es. apri modale o redirect)
-        showBootstrapToast('Funzionalità Dettagli ordine da implementare', 'Info', 'info');
+    window.viewOrderDetails = async function (orderId) {
+        try {
+            const items = await OrdersAPI.getOrderItems(orderId);
+            const tableBody = document.getElementById('order-details-table-body');
+            tableBody.innerHTML = '';
+            if (!items || items.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Nessun prodotto trovato</td></tr>';
+            } else {
+                items.forEach(item => {
+                    const prezzo = item.unit_price ? Number(item.unit_price).toFixed(2) : '-';
+                    const sconto = item.discount ? Number(item.discount).toFixed(2) : '0.00';
+                    const totale = item.unit_price && item.quantity ? (Number(item.unit_price) * Number(item.quantity) - Number(sconto)).toFixed(2) : '-';
+                    const row = `<tr>
+                        <td><b>${item.quantity}</b></td>
+                        <td>${prezzo} €</td>
+                        <td style="color:#ff9800;font-weight:bold;">${sconto}</td>
+                        <td style="color:#4caf50;font-weight:bold;">${totale}</td>
+                        <td>${item.product_name || '-'}</td>
+                    </tr>`;
+                    tableBody.innerHTML += row;
+                });
+            }
+            const modal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
+            modal.show();
+        } catch (error) {
+            showBootstrapToast('Errore nel caricamento dei dettagli ordine', 'Errore', 'danger');
+        }
     };
 
     function mount() {
@@ -274,14 +324,14 @@ export async function loadOrdersManagementPage() {
         document.getElementById('confirm-delete-order-btn').addEventListener('click', async () => {
             if (!orderIdToDelete) return;
             try {
-                // Qui dovresti chiamare OrdersAPI.deleteOrder(orderIdToDelete) se esiste
-                showBootstrapToast('Ordine eliminato (mock)', 'Successo', 'success');
+                await OrdersAPI.deleteOrder(orderIdToDelete);
+                showBootstrapToast('Ordine eliminato', 'Successo', 'success');
                 const deleteOrderModal = bootstrap.Modal.getInstance(document.getElementById('deleteOrderModal'));
                 deleteOrderModal.hide();
                 orderIdToDelete = null;
                 await loadOrdersTable();
             } catch (error) {
-                showBootstrapToast('Errore durante l\'eliminazione ordine.', 'Errore', 'danger');
+                showBootstrapToast(error.message || 'Errore durante l\'eliminazione ordine.', 'Errore', 'danger');
             }
         });
         document.getElementById('save-status-btn').addEventListener('click', async () => {
@@ -299,21 +349,21 @@ export async function loadOrdersManagementPage() {
             }
         });
         // Ordinamento per data
-        let sortCreatedOrder = 'desc';
         const sortCreatedCol = document.getElementById('sort-created-col');
         const sortCreatedIcon = document.getElementById('sort-created-icon');
         function updateSortCreatedIcon() {
-            sortCreatedIcon.innerHTML = sortCreatedOrder === 'asc' ? '▲' : '▼';
+            sortCreatedIcon.innerHTML = sortCreatedOrder === 'ASC' ? '▲' : '▼';
         }
         updateSortCreatedIcon();
         sortCreatedCol.addEventListener('click', async () => {
-            sortCreatedOrder = sortCreatedOrder === 'asc' ? 'desc' : 'asc';
+            sortCreatedOrder = sortCreatedOrder === 'ASC' ? 'DESC' : 'ASC';
             updateSortCreatedIcon();
-            await loadOrdersTable({ orderBy: 'created_at', orderDir: sortCreatedOrder });
+            const params = { orderBy: 'created_at', orderDir: sortCreatedOrder };
+            await loadOrdersTable(params);
         });
     }
 
-    function unmount() {}
+    function unmount() { }
 
     return {
         render: () => pageElement,

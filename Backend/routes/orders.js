@@ -174,7 +174,7 @@ router.get('/:orderId/items', async (req, res) => {
     }
     try {
         const [items] = await db.query(`
-            SELECT oi.*, p.name as product_name, p.price as product_price
+            SELECT oi.*, p.name as product_name, p.price as product_price, p.discount
             FROM order_items oi
             JOIN products p ON oi.product_id = p.id
             WHERE oi.order_id = ?
@@ -246,6 +246,27 @@ router.get('/by-artisan/:artisanId/filtered', async (req, res) => {
     } catch (error) {
         console.error('Errore nel recupero degli ordini filtrati:', error);
         res.status(500).json({ error: 'Errore nel recupero degli ordini filtrati' });
+    }
+});
+
+// DELETE /orders/:orderId - Elimina un ordine e i suoi order_items
+router.delete('/:orderId', async (req, res) => {
+    const orderId = parseInt(req.params.orderId);
+    if (isNaN(orderId)) {
+        return res.status(400).json({ error: 'ID ordine non valido' });
+    }
+    try {
+        // Elimina prima gli order_items
+        await db.query('DELETE FROM order_items WHERE order_id = ?', [orderId]);
+        // Poi elimina l'ordine
+        const [result] = await db.query('DELETE FROM orders WHERE id = ?', [orderId]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Ordine non trovato' });
+        }
+        res.json({ message: 'Ordine eliminato' });
+    } catch (error) {
+        console.error('Errore nell\'eliminazione dell\'ordine:', error);
+        res.status(500).json({ error: 'Errore nell\'eliminazione dell\'ordine' });
     }
 });
 

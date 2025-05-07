@@ -84,7 +84,7 @@ export async function getMonthlyOrdersByArtisan(artisanId) {
 
 // Ottieni gli order items di un ordine specifico
 export async function getOrderItems(orderId) {
-    const res = await fetch(`${API_URL}/${orderId}/items`);
+    const res = await fetch(`${API_BASE_URL}/${orderId}/items`);
     if (!res.ok) throw new Error('Errore nel recupero degli order items');
     return await res.json();
 }
@@ -103,4 +103,22 @@ export async function getFilteredOrdersByArtisan(artisanId, params = {}) {
     const res = await fetch(`${API_URL}/by-artisan/${artisanId}/filtered?${queryParams}`);
     if (!res.ok) throw new Error('Errore nel recupero degli ordini filtrati');
     return await res.json();
+}
+
+// Elimina un ordine (admin)
+export async function deleteOrder(orderId) {
+    const token = authService.getToken();
+    if (!token) throw new Error('Token di accesso non trovato');
+    const res = await fetch(`${API_BASE_URL}/${orderId}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    if (!res.ok) {
+        let err = {};
+        try { err = await res.json(); } catch {}
+        throw new Error(err.error || 'Errore nell\'eliminazione dell\'ordine');
+    }
+    return true;
 }

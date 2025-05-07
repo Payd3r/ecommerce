@@ -11,12 +11,6 @@ export async function loadUsersManagementPage() {
     const pageElement = document.createElement('div');
     pageElement.className = 'admin-dashboard-page';
 
-    // Ottiene i dati dell'utente
-    const user = authService.getUser();
-
-    // Stato per l'ordinamento
-    let sortBy = 'name';
-    let sortOrder = 'asc';
 
     // Modifica il layout del titolo e aggiungi un pulsante per aggiungere utenti sulla destra
     pageElement.innerHTML = `
