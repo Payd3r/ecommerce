@@ -122,26 +122,24 @@ export async function loadArtisanDashboardPage() {
                         <a href="/artisan/manage-orders" class="btn btn-sm btn-outline-info" data-route>Vai a Gestione Ordini</a>
                     </div>
                     <div class="card-body p-0">
-                        <table class="table mb-0">
+                        <table class="table mb-0 align-middle">
                             <thead>
                                 <tr>
                                     <th>Data</th>
                                     <th>Cliente</th>
                                     <th>Totale</th>
                                     <th>Stato</th>
-                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 ${latestOrders.length === 0 ? `
-                                    <tr><td colspan="5" class="text-center">Nessun ordine recente</td></tr>
+                                    <tr><td colspan="4" class="text-center">Nessun ordine recente</td></tr>
                                 ` : latestOrders.map(o => `
                                     <tr>
-                                        <td>${o.created_at ? o.created_at.split('T')[0] : '-'}</td>
+                                        <td>${o.created_at ? new Date(o.created_at).toLocaleDateString() : '-'}</td>
                                         <td>${clientNames[o.client_id] || '-'}</td>
-                                        <td>${o.total_price} €</td>
-                                        <td>${o.status}</td>
-                                        <td><a href="/artisan/orders/${o.id}" class="btn btn-sm btn-outline-info" data-route>Dettagli</a></td>
+                                        <td><b>€ ${Number(o.total_price).toFixed(2)}</b></td>
+                                        <td>${getOrderStatusBadge(o.status)}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
@@ -156,13 +154,12 @@ export async function loadArtisanDashboardPage() {
                         <a href="/artisan/manage-products" class="btn btn-sm btn-outline-info" data-route>Vai a Gestione Prodotti</a>
                     </div>
                     <div class="card-body p-0">
-                        <table class="table mb-0">
+                        <table class="table mb-0 align-middle">
                             <thead>
                                 <tr>
                                     <th>Nome</th>
                                     <th>Prezzo</th>
                                     <th>Stato</th>
-                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -171,11 +168,8 @@ export async function loadArtisanDashboardPage() {
                                 ` : products.map(p => `
                                     <tr>
                                         <td>${p.name}</td>
-                                        <td>${p.price} €</td>
-                                        <td>${p.stock > 0 ? 'Disponibile' : 'Non disponibile'}</td>
-                                        <td>
-                                            <a href="/artisan/products/${p.id}/edit" class="btn btn-sm btn-outline-primary" data-route>Modifica</a>
-                                        </td>
+                                        <td><b>€ ${Number(p.price).toFixed(2)}</b></td>
+                                        <td>${getProductStatusBadge(p.stock)}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
@@ -204,6 +198,23 @@ export async function loadArtisanDashboardPage() {
             </div>
         </div>
     `;
+
+    // Badge stato ordine/prodotto come admin
+    function getOrderStatusBadge(status) {
+        switch (status) {
+            case 'pending': return '<span class="badge bg-warning">In attesa</span>';
+            case 'processing': return '<span class="badge bg-info">In lavorazione</span>';
+            case 'shipped': return '<span class="badge bg-primary">Spedito</span>';
+            case 'completed': return '<span class="badge bg-success">Completato</span>';
+            case 'delivered': return '<span class="badge bg-success">Consegnato</span>';
+            case 'cancelled': return '<span class="badge bg-danger">Annullato</span>';
+            default: return `<span class="badge bg-secondary">${status}</span>`;
+        }
+    }
+    function getProductStatusBadge(stock) {
+        if (stock > 0) return '<span class="badge bg-success">Disponibile</span>';
+        return '<span class="badge bg-danger">Non disponibile</span>';
+    }
 
     // Grafici Chart.js
     setTimeout(() => {
@@ -266,4 +277,4 @@ export async function loadArtisanDashboardPage() {
         mount: () => {},
         unmount: () => {}
     };
-} 
+}

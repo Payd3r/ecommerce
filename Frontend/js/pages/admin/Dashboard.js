@@ -186,7 +186,7 @@ export async function loadAdminDashboardPage() {
                 <div class="card h-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <span>Ultimi ordini</span>
-                        <a href="/admin/orders" class="btn btn-sm btn-outline-info" data-route>Vedi tutti</a>
+                        <a href="/admin/orders-management" class="btn btn-sm btn-outline-info" data-route>Vedi tutti</a>
                     </div>
                     <div class="card-body p-0">
                         <table class="table mb-0">

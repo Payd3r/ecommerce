@@ -41,24 +41,47 @@ router.post('/', async (req, res) => {
 
 // POST /orders/checkout - Checkout: crea ordine dal carrello dell'utente
 router.post('/checkout', verifyToken, async (req, res) => {
+    const connection = await db.getConnection();
     try {
+        await connection.beginTransaction();
         // Usa userId dal body se presente, altrimenti da req.user
         const userId = req.body.userId || req.user.id;
         // Trova il carrello dell'utente
-        const [carts] = await db.query('SELECT id FROM carts WHERE user_id = ?', [userId]);
+        const [carts] = await connection.query('SELECT id FROM carts WHERE user_id = ?', [userId]);
         if (carts.length === 0) {
+            await connection.rollback();
+            connection.release();
             return res.status(400).json({ error: 'Carrello vuoto o non trovato' });
         }
         const cartId = carts[0].id;
         // Prendi tutti gli item del carrello con info prodotto e sconto
-        const [items] = await db.query(`
+        const [items] = await connection.query(`
             SELECT ci.product_id, ci.quantity, p.price, p.discount, p.name
             FROM cart_items ci
             JOIN products p ON ci.product_id = p.id
             WHERE ci.cart_id = ?
         `, [cartId]);
         if (items.length === 0) {
+            await connection.rollback();
+            connection.release();
             return res.status(400).json({ error: 'Carrello vuoto' });
+        }
+        // Controlla e aggiorna stock per ogni prodotto
+        for (const item of items) {
+            // Blocca la riga del prodotto per questa transazione
+            const [prodRows] = await connection.query('SELECT stock FROM products WHERE id = ? FOR UPDATE', [item.product_id]);
+            if (prodRows.length === 0) {
+                await connection.rollback();
+                connection.release();
+                return res.status(400).json({ error: `Prodotto non trovato: ${item.name}` });
+            }
+            if (prodRows[0].stock < item.quantity) {
+                await connection.rollback();
+                connection.release();
+                return res.status(400).json({ error: `Scorte insufficienti per il prodotto: ${item.name}` });
+            }
+            // Aggiorna lo stock
+            await connection.query('UPDATE products SET stock = stock - ? WHERE id = ?', [item.quantity, item.product_id]);
         }
         // Calcola totale con sconti
         let total = 0;
@@ -75,22 +98,28 @@ router.post('/checkout', verifyToken, async (req, res) => {
             };
         });
         // Crea ordine
-        const [orderRes] = await db.query(
+        const [orderRes] = await connection.query(
             'INSERT INTO orders (client_id, total_price, status) VALUES (?, ?, ?)',
             [userId, total.toFixed(2), 'pending']
         );
         const orderId = orderRes.insertId;
         // Inserisci order_items
         for (const oi of orderItems) {
-            await db.query(
+            await connection.query(
                 'INSERT INTO order_items (order_id, product_id, quantity, unit_price) VALUES (?, ?, ?, ?)',
                 [orderId, oi.product_id, oi.quantity, oi.price]
             );
         }
         // Svuota carrello
-        await db.query('DELETE FROM cart_items WHERE cart_id = ?', [cartId]);
+        await connection.query('DELETE FROM cart_items WHERE cart_id = ?', [cartId]);
+        await connection.commit();
+        connection.release();
         res.status(201).json({ message: 'Ordine creato', order_id: orderId, total });
     } catch (error) {
+        if (connection) {
+            await connection.rollback();
+            connection.release();
+        }
         console.error('Errore nel checkout:', error);
         res.status(500).json({ error: 'Errore nel checkout', details: error.message });
     }
@@ -128,7 +157,7 @@ router.get('/stats/sales', async (req, res) => {
     }
     try {
         const [rows] = await db.query(`
-            SELECT DATE_FORMAT(o.created_at, '%Y-%m') as month, SUM(oi.price * oi.quantity) as total_sales
+            SELECT DATE_FORMAT(o.created_at, '%Y-%m') as month, SUM(oi.unit_price * oi.quantity) as total_sales
             FROM orders o
             JOIN order_items oi ON o.id = oi.order_id
             JOIN products p ON oi.product_id = p.id
@@ -174,7 +203,7 @@ router.get('/:orderId/items', async (req, res) => {
     }
     try {
         const [items] = await db.query(`
-            SELECT oi.*, p.name as product_name, p.price as product_price, p.discount
+            SELECT oi.*, p.name as product_name, p.price as product_price, p.discount, p.artisan_id
             FROM order_items oi
             JOIN products p ON oi.product_id = p.id
             WHERE oi.order_id = ?
@@ -250,12 +279,24 @@ router.get('/by-artisan/:artisanId/filtered', async (req, res) => {
 });
 
 // DELETE /orders/:orderId - Elimina un ordine e i suoi order_items
-router.delete('/:orderId', async (req, res) => {
+router.delete('/:orderId', verifyToken, async (req, res) => {
     const orderId = parseInt(req.params.orderId);
     if (isNaN(orderId)) {
         return res.status(400).json({ error: 'ID ordine non valido' });
     }
     try {
+        // Se admin, elimina sempre. Se artisan, elimina solo se almeno un prodotto dell'ordine è suo.
+        if (req.user.role === 'artisan') {
+            // Controlla se l'artigiano ha almeno un prodotto in questo ordine
+            const [items] = await db.query(`
+                SELECT oi.id FROM order_items oi
+                JOIN products p ON oi.product_id = p.id
+                WHERE oi.order_id = ? AND p.artisan_id = ?
+            `, [orderId, req.user.id]);
+            if (!items.length) {
+                return res.status(403).json({ error: 'Non hai i permessi per eliminare questo ordine' });
+            }
+        }
         // Elimina prima gli order_items
         await db.query('DELETE FROM order_items WHERE order_id = ?', [orderId]);
         // Poi elimina l'ordine
@@ -267,6 +308,25 @@ router.delete('/:orderId', async (req, res) => {
     } catch (error) {
         console.error('Errore nell\'eliminazione dell\'ordine:', error);
         res.status(500).json({ error: 'Errore nell\'eliminazione dell\'ordine' });
+    }
+});
+
+// PUT /orders/:orderId - Aggiorna lo stato di un ordine
+router.put('/:orderId', async (req, res) => {
+    const orderId = parseInt(req.params.orderId);
+    const { status } = req.body;
+    if (isNaN(orderId) || !status) {
+        return res.status(400).json({ error: 'ID ordine o stato non valido' });
+    }
+    try {
+        const [result] = await db.query('UPDATE orders SET status = ? WHERE id = ?', [status, orderId]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Ordine non trovato' });
+        }
+        res.json({ message: 'Stato ordine aggiornato' });
+    } catch (error) {
+        console.error('Errore nell\'aggiornamento dello stato ordine:', error);
+        res.status(500).json({ error: 'Errore nell\'aggiornamento dello stato ordine' });
     }
 });
 

@@ -63,21 +63,21 @@ export async function checkoutOrder(userId) {
 
 // Ottieni tutti gli ordini relativi ai prodotti di un artigiano
 export async function getOrdersByArtisan(artisanId) {
-    const res = await fetch(`${API_URL}/by-artisan/${artisanId}`);
+    const res = await fetch(`${API_BASE_URL}/by-artisan/${artisanId}`);
     if (!res.ok) throw new Error('Errore nel recupero degli ordini per artigiano');
     return await res.json();
 }
 
 // Ottieni le vendite mensili per artigiano
 export async function getMonthlySalesByArtisan(artisanId) {
-    const res = await fetch(`/orders/stats/sales?artisanId=${artisanId}`);
+    const res = await fetch(`${API_BASE_URL}/stats/sales?artisanId=${artisanId}`);
     if (!res.ok) throw new Error('Errore nel recupero delle vendite mensili');
     return await res.json();
 }
 
 // Ottieni il numero di ordini mensili per artigiano
 export async function getMonthlyOrdersByArtisan(artisanId) {
-    const res = await fetch(`/orders/stats/orders?artisanId=${artisanId}`);
+    const res = await fetch(`${API_BASE_URL}/stats/orders?artisanId=${artisanId}`);
     if (!res.ok) throw new Error('Errore nel recupero del numero ordini mensili');
     return await res.json();
 }
@@ -121,4 +121,24 @@ export async function deleteOrder(orderId) {
         throw new Error(err.error || 'Errore nell\'eliminazione dell\'ordine');
     }
     return true;
+}
+
+// Aggiorna lo stato di un ordine (admin)
+export async function updateOrderStatus(orderId, status) {
+    const token = authService.getToken();
+    if (!token) throw new Error('Token di accesso non trovato');
+    const res = await fetch(`${API_BASE_URL}/${orderId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ status })
+    });
+    if (!res.ok) {
+        let err = {};
+        try { err = await res.json(); } catch {}
+        throw new Error(err.error || 'Errore nell\'aggiornamento dello stato ordine');
+    }
+    return await res.json();
 }

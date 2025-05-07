@@ -28,7 +28,7 @@ export async function loadOrdersManagementPage() {
                 </div>
             </div>
             <div class="row align-items-start">
-                <div class="col-md-4">
+                <div class="col-md-4 pb-4">
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">Filtri</h5>
@@ -48,6 +48,30 @@ export async function loadOrdersManagementPage() {
                                         <option value="cancelled">Annullato</option>
                                     </select>
                                 </div>
+                                <div class="form-group mb-3">
+                                    <label>Data ordine</label>
+                                    <div class="d-flex gap-2">
+                                        <input type="date" id="filter-date-from" name="filter-date-from" class="form-control" placeholder="Da">
+                                        <input type="date" id="filter-date-to" name="filter-date-to" class="form-control" placeholder="A">
+                                    </div>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label>Totale ordine (€)</label>
+                                    <div class="d-flex gap-2">
+                                        <input type="number" step="0.01" min="0" id="filter-total-min" name="filter-total-min" class="form-control" placeholder="Min">
+                                        <input type="number" step="0.01" min="0" id="filter-total-max" name="filter-total-max" class="form-control" placeholder="Max">
+                                    </div>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="filter-payment">Metodo di pagamento</label>
+                                    <select id="filter-payment" name="filter-payment" class="form-control">
+                                        <option value="">Tutti</option>
+                                        <option value="card">Carta</option>
+                                        <option value="paypal">PayPal</option>
+                                        <option value="bank">Bonifico</option>
+                                        <option value="cod">Contrassegno</option>
+                                    </select>
+                                </div>
                                 <div class="d-flex justify-content-between">
                                     <button type="button" id="apply-filters-btn" class="btn btn-primary">Applica Filtri</button>
                                     <button type="button" id="reset-filters-btn" class="btn btn-secondary">Reset Filtri</button>
@@ -56,7 +80,7 @@ export async function loadOrdersManagementPage() {
                         </div>
                     </div>
                 </div>
-                <div class="col-md-8 mb-5">
+                <div class="col-md-8 mb-5 pb-4">
                     <div class="card h-100">
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title">Ordini</h5>
@@ -144,7 +168,7 @@ export async function loadOrdersManagementPage() {
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="table-responsive">
+                        <div class="table-responsive mb-3">
                             <table class="table table-bordered align-middle mb-0">
                                 <thead>
                                     <tr>
@@ -158,12 +182,17 @@ export async function loadOrdersManagementPage() {
                                 <tbody id="order-details-table-body"></tbody>
                             </table>
                         </div>
+                        <div class="d-flex gap-2 justify-content-end">
+                            <button type="button" class="btn btn-outline-primary" id="order-details-change-status-btn">Cambia stato</button>
+                            <button type="button" class="btn btn-outline-danger" id="order-details-delete-btn">Elimina ordine</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>`;
 
     let orderIdToDelete = null;
+    let orderIdToChangeStatus = null;
 
     function getStatusBadge(status) {
         switch (status) {
@@ -204,6 +233,11 @@ export async function loadOrdersManagementPage() {
             // Parametri di filtro
             let customer = params.customer !== undefined ? params.customer : '';
             let status = params.status !== undefined ? params.status : '';
+            let dateFrom = params.dateFrom !== undefined ? params.dateFrom : '';
+            let dateTo = params.dateTo !== undefined ? params.dateTo : '';
+            let totalMin = params.totalMin !== undefined ? params.totalMin : '';
+            let totalMax = params.totalMax !== undefined ? params.totalMax : '';
+            let payment = params.payment !== undefined ? params.payment : '';
             let page = params.page !== undefined ? params.page : 1;
             let limit = params.limit !== undefined ? params.limit : 10;
             let orderBy = params.orderBy !== undefined ? params.orderBy : 'created_at';
@@ -218,6 +252,21 @@ export async function loadOrdersManagementPage() {
             }
             if (status) {
                 orders = orders.filter(o => o.status === status);
+            }
+            if (dateFrom) {
+                orders = orders.filter(o => o.created_at && new Date(o.created_at) >= new Date(dateFrom));
+            }
+            if (dateTo) {
+                orders = orders.filter(o => o.created_at && new Date(o.created_at) <= new Date(dateTo));
+            }
+            if (totalMin) {
+                orders = orders.filter(o => o.total_price && Number(o.total_price) >= Number(totalMin));
+            }
+            if (totalMax) {
+                orders = orders.filter(o => o.total_price && Number(o.total_price) <= Number(totalMax));
+            }
+            if (payment) {
+                orders = orders.filter(o => o.payment_method && o.payment_method === payment);
             }
             // Ordinamento
             orders = orders.sort((a, b) => {
@@ -235,7 +284,6 @@ export async function loadOrdersManagementPage() {
             const tableBody = document.getElementById('orders-table-body');
             tableBody.innerHTML = '';
             paginatedOrders.forEach((order, idx) => {
-                const isDropup = idx >= paginatedOrders.length - 2; // ultime 2 righe
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${order.id}</td>
@@ -243,16 +291,10 @@ export async function loadOrdersManagementPage() {
                     <td>€ ${order.total_price ? Number(order.total_price).toFixed(2) : '-'}</td>
                     <td>${getStatusBadge(order.status)}</td>
                     <td>${order.created_at ? new Date(order.created_at).toLocaleDateString() : '-'}</td>
-                    <td class="position-relative">
-                        <div class="dropdown${isDropup ? ' dropup' : ''}">
-                            <button class="btn btn-sm btn-secondary" type="button" id="dropdownMenuButton-${order.id}" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-three-dots"></i>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end position-absolute" style="z-index: 1050;" aria-labelledby="dropdownMenuButton-${order.id}" data-bs-popper="static">
-                                <li><button class="dropdown-item" onclick="viewOrderDetails(${order.id})">Dettagli</button></li>
-                                <li><button class="dropdown-item text-danger" onclick="deleteOrder(${order.id})">Elimina</button></li>
-                            </ul>
-                        </div>
+                    <td class="text-center align-middle" style="vertical-align: middle !important;">
+                        <button class="btn btn-link p-0 m-0 d-flex justify-content-center align-items-center" title="Dettagli ordine">
+                            <i class="bi bi-eye fs-5" onclick="viewOrderDetails(${order.id})"></i>
+                        </button>
                     </td>
                 `;
                 tableBody.appendChild(row);
@@ -276,6 +318,7 @@ export async function loadOrdersManagementPage() {
         changeStatusModal.show();
     };
     window.viewOrderDetails = async function (orderId) {
+        window._lastOrderDetailsId = orderId; // salva id per riapertura
         try {
             const items = await OrdersAPI.getOrderItems(orderId);
             const tableBody = document.getElementById('order-details-table-body');
@@ -297,6 +340,22 @@ export async function loadOrdersManagementPage() {
                     tableBody.innerHTML += row;
                 });
             }
+            document.getElementById('order-details-change-status-btn').onclick = function() {
+                // Chiudi modal dettagli e apri cambio stato
+                const modal = bootstrap.Modal.getInstance(document.getElementById('orderDetailsModal'));
+                modal.hide();
+                setTimeout(() => {
+                    window.changeOrderStatus(orderId);
+                }, 300); // attende chiusura animazione
+            };
+            document.getElementById('order-details-delete-btn').onclick = function() {
+                // Chiudi modal dettagli e apri conferma
+                const modal = bootstrap.Modal.getInstance(document.getElementById('orderDetailsModal'));
+                modal.hide();
+                setTimeout(() => {
+                    window.deleteOrder(orderId);
+                }, 300); // attende chiusura animazione
+            };
             const modal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
             modal.show();
         } catch (error) {
@@ -307,13 +366,21 @@ export async function loadOrdersManagementPage() {
     function mount() {
         loadOrdersTable();
         document.getElementById('back-btn').addEventListener('click', () => window.history.back());
-        document.getElementById('refresh-orders-btn').addEventListener('click', () => loadOrdersTable());
+        document.getElementById('refresh-orders-btn').addEventListener('click', () => {
+            document.getElementById('filters-form').reset();
+            loadOrdersTable();
+        });
         document.getElementById('apply-filters-btn').onclick = async () => {
             const filtersForm = document.getElementById('filters-form');
             const formData = new FormData(filtersForm);
             const params = {
                 customer: formData.get('filter-customer') || '',
                 status: formData.get('filter-status') || '',
+                dateFrom: formData.get('filter-date-from') || '',
+                dateTo: formData.get('filter-date-to') || '',
+                totalMin: formData.get('filter-total-min') || '',
+                totalMax: formData.get('filter-total-max') || '',
+                payment: formData.get('filter-payment') || '',
             };
             await loadOrdersTable(params);
         };
@@ -325,6 +392,11 @@ export async function loadOrdersManagementPage() {
             if (!orderIdToDelete) return;
             try {
                 await OrdersAPI.deleteOrder(orderIdToDelete);
+                const orderDetailsModalEl = document.getElementById('orderDetailsModal');
+                if (orderDetailsModalEl && orderDetailsModalEl.classList.contains('show')) {
+                    const orderDetailsModal = bootstrap.Modal.getInstance(orderDetailsModalEl);
+                    orderDetailsModal.hide();
+                }
                 showBootstrapToast('Ordine eliminato', 'Successo', 'success');
                 const deleteOrderModal = bootstrap.Modal.getInstance(document.getElementById('deleteOrderModal'));
                 deleteOrderModal.hide();
@@ -334,18 +406,32 @@ export async function loadOrdersManagementPage() {
                 showBootstrapToast(error.message || 'Errore durante l\'eliminazione ordine.', 'Errore', 'danger');
             }
         });
+        // Riapri il modal dettagli se si annulla la conferma eliminazione
+        document.querySelector('#deleteOrderModal .btn-secondary').addEventListener('click', function() {
+            const lastId = window._lastOrderDetailsId;
+            if (lastId) {
+                setTimeout(() => window.viewOrderDetails(lastId), 300); // attende chiusura animazione
+            }
+        });
+        // Riapri il modal dettagli se si annulla il cambio stato
+        document.querySelector('#changeStatusModal .btn-secondary').addEventListener('click', function() {
+            const lastId = window._lastOrderDetailsId;
+            if (lastId) {
+                setTimeout(() => window.viewOrderDetails(lastId), 300); // attende chiusura animazione
+            }
+        });
         document.getElementById('save-status-btn').addEventListener('click', async () => {
             const orderId = document.getElementById('change-status-order-id').value;
             const newStatus = document.getElementById('new-status').value;
             if (!orderId || !newStatus) return;
             try {
-                // Qui dovresti chiamare OrdersAPI.updateOrderStatus(orderId, newStatus) se esiste
-                showBootstrapToast('Stato ordine aggiornato (mock)', 'Successo', 'success');
+                await OrdersAPI.updateOrderStatus(orderId, newStatus);
+                showBootstrapToast('Stato ordine aggiornato', 'Successo', 'success');
                 const changeStatusModal = bootstrap.Modal.getInstance(document.getElementById('changeStatusModal'));
                 changeStatusModal.hide();
                 await loadOrdersTable();
             } catch (error) {
-                showBootstrapToast('Errore durante il cambio stato.', 'Errore', 'danger');
+                showBootstrapToast(error.message || 'Errore durante il cambio stato.', 'Errore', 'danger');
             }
         });
         // Ordinamento per data

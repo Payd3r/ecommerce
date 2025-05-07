@@ -74,15 +74,15 @@ export async function loadManageProductsPage() {
                 <tr data-product-id="${p.id}">
                     <td class="text-center">
                         ${p.image && p.image.url ?
-                            `<div class="product-thumb-wrapper" style="position:relative; display:inline-block;">
+                    `<div class="product-thumb-wrapper" style="position:relative; display:inline-block;">
                                 <img src="http://localhost:3005${p.image.url}" alt="img" class="product-thumb-img" style="width:40px; height:40px; object-fit:cover; border-radius:6px; cursor:pointer;" />
                                 <div class="product-tooltip-img" style="display:none; position:absolute; left:50%; top:50%; transform:translate(-50%, -50%); z-index:10;">
                                     <img src="http://localhost:3005${p.image.url}" alt="img" style="width:220px; height:220px; object-fit:cover; border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,0.18); border:2px solid #fff;" />
                                 </div>
                             </div>`
-                            :
-                            '<div style="width:40px; height:40px; background:#f3f3f3; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#bbb; font-size:1.2rem;">🖼️</div>'
-                        }
+                    :
+                    '<div style="width:40px; height:40px; background:#f3f3f3; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#bbb; font-size:1.2rem;">🖼️</div>'
+                }
                     </td>
                     <td class="text-center">${p.name}</td>
                     <td class="text-center">${p.category_name || '-'}</td>
@@ -90,15 +90,10 @@ export async function loadManageProductsPage() {
                     <td class="text-center">${p.stock > 0 ? 'Disponibile' : 'Non disponibile'}</td>
                     <td class="text-center">${p.created_at ? p.created_at.split('T')[0] : '-'}</td>
                     <td class="text-center">
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center justify-content-center" type="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-three-dots"></i>
-                            </button>
-                            <ul class="dropdown-menu text-center">
-                                <li><a class="dropdown-item d-flex align-items-center justify-content-center gap-2 btn-view-product" href="#"><i class="bi bi-eye"></i> Visualizza</a></li>
-                                <li><a class="dropdown-item d-flex align-items-center justify-content-center gap-2 btn-edit-product" href="#"><i class="bi bi-pencil"></i> Modifica</a></li>
-                                <li><a class="dropdown-item text-danger d-flex align-items-center justify-content-center gap-2" href="#"><i class="bi bi-trash"></i> Elimina</a></li>
-                            </ul>
+                        <div class="d-flex justify-content-center gap-2">
+                            <button class="btn btn-link btn-view-product p-0" title="Visualizza"><i class="bi bi-eye fs-5"></i></button>
+                            <button class="btn btn-link btn-edit-product p-0" title="Modifica"><i class="bi bi-pencil fs-5 text-primary"></i></button>
+                            <button class="btn btn-link btn-delete-product p-0 text-danger" title="Elimina"><i class="bi bi-trash fs-5"></i></button>
                         </div>
                     </td>
                 </tr>
@@ -127,7 +122,7 @@ export async function loadManageProductsPage() {
 
         // Aggiungi event listener per Visualizza
         tableBody.querySelectorAll('.btn-view-product').forEach(btn => {
-            btn.addEventListener('click', function(e) {
+            btn.addEventListener('click', function (e) {
                 e.preventDefault();
                 const tr = btn.closest('tr');
                 const productId = tr.getAttribute('data-product-id');
@@ -137,7 +132,7 @@ export async function loadManageProductsPage() {
 
         // Aggiungi event listener per Modifica
         tableBody.querySelectorAll('.btn-edit-product').forEach(btn => {
-            btn.addEventListener('click', function(e) {
+            btn.addEventListener('click', function (e) {
                 e.preventDefault();
                 const tr = btn.closest('tr');
                 const productId = tr.getAttribute('data-product-id');
@@ -173,9 +168,18 @@ export async function loadManageProductsPage() {
 
     // HTML
     pageElement.innerHTML = `
-        <div class="mb-4 d-flex align-items-center justify-content-between">
-            <h1 class="h3">Gestione Prodotti</h1>
-            <a href="/artisan/dashboard" class="btn btn-outline-primary" data-route>Torna alla Dashboard</a>
+        <div class="row align-items-center">
+            <div class="col-12 text-center">
+                <h1 class="display-5 fw-bold ">Gestione Prodotti</h1>
+            </div>
+        </div>
+        <div class="row mb-4 align-items-center">
+            <div class="col-6 d-flex align-items-center">
+                <button class="btn btn-outline-secondary" id="back-btn"><i class="bi bi-arrow-left"></i> Torna indietro</button>
+            </div>
+            <div class="col-6 d-flex justify-content-end">
+                <a href="#" id="addProductBtn" class="btn btn-success">Aggiungi prodotto</a>
+            </div>
         </div>
         <div class="row g-4">
             <div class="col-md-4">
@@ -211,10 +215,6 @@ export async function loadManageProductsPage() {
             </div>
             <div class="col-md-8">
                 <div class="card h-100">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <span>Prodotti</span>
-                        <a href="#" id="addProductBtn" class="btn btn-sm btn-success">Aggiungi prodotto</a>
-                    </div>
                     <div class="card-body p-0">
                         <table class="table table-bordered align-middle mb-0">
                             <thead>
@@ -281,7 +281,14 @@ export async function loadManageProductsPage() {
 
     return {
         render: () => pageElement,
-        mount: () => {},
-        unmount: () => {}
+        mount: () => {
+            const backBtn = document.getElementById('back-btn');
+            if (backBtn) {
+                backBtn.addEventListener('click', () => {
+                    window.history.back();
+                });
+            }
+        },
+        unmount: () => { }
     };
 }
