@@ -69,7 +69,7 @@ export async function loadManageProductsPage() {
             return;
         }
         tableBody.innerHTML = filteredProducts.length === 0 ?
-            `<tr><td colspan="7" class="text-center">Nessun prodotto trovato</td></tr>` :
+            `<tr><td colspan="8" class="text-center">Nessun prodotto trovato</td></tr>` :
             filteredProducts.map(p => `
                 <tr data-product-id="${p.id}">
                     <td class="text-center">
@@ -87,6 +87,7 @@ export async function loadManageProductsPage() {
                     <td class="text-center">${p.name}</td>
                     <td class="text-center">${p.category_name || '-'}</td>
                     <td class="text-center">${p.price} €</td>
+                    <td class="text-center">${p.stock}</td>
                     <td class="text-center">${p.stock > 0 ? 'Disponibile' : 'Non disponibile'}</td>
                     <td class="text-center">${p.created_at ? p.created_at.split('T')[0] : '-'}</td>
                     <td class="text-center">
@@ -223,6 +224,7 @@ export async function loadManageProductsPage() {
                                     <th class="text-center">Nome</th>
                                     <th class="text-center">Categoria</th>
                                     <th class="text-center">Prezzo</th>
+                                    <th class="text-center">Stock</th>
                                     <th class="text-center">Stato</th>
                                     <th class="text-center">Creato il</th>
                                     <th class="text-center">Azioni</th>
