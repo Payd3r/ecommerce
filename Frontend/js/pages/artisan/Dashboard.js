@@ -159,6 +159,7 @@ export async function loadArtisanDashboardPage() {
                                 <tr>
                                     <th>Nome</th>
                                     <th>Prezzo</th>
+                                    <th>Stock</th>
                                     <th>Stato</th>
                                 </tr>
                             </thead>
@@ -169,6 +170,7 @@ export async function loadArtisanDashboardPage() {
                                     <tr>
                                         <td>${p.name}</td>
                                         <td><b>€ ${Number(p.price).toFixed(2)}</b></td>
+                                        <td>${p.stock}</td>
                                         <td>${getProductStatusBadge(p.stock)}</td>
                                     </tr>
                                 `).join('')}

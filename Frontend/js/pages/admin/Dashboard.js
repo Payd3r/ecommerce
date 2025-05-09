@@ -4,6 +4,7 @@ import { showBootstrapToast } from '../../components/Toast.js';
 import UsersAPI from '../../../api/users.js';
 import { getProducts } from '../../../api/products.js';
 import { getOrders } from '../../../api/orders.js';
+import { getIssues } from '../../../api/issues.js';
 
 /**
  * Carica la dashboard dell'amministratore
@@ -23,6 +24,9 @@ export async function loadAdminDashboardPage() {
     let ordersProcessingCount = 0;
     let latestUsers = [];
     let latestOrders = [];
+    let productsRes = { products: [] };
+    let ordersRes = { orders: [] };
+    let issues = [];
 
     // Carica dati reali
     try {
@@ -36,10 +40,12 @@ export async function loadAdminDashboardPage() {
         latestUsers = usersRes.users || usersRes.data || [];
 
         // Prodotti e ordini: logica invariata
-        const [productsRes, ordersRes] = await Promise.all([
+        const [prodRes, ordRes] = await Promise.all([
             getProducts({ limit: 1 }),
             getOrders()
         ]);
+        productsRes = prodRes;
+        ordersRes = ordRes;
         // Estrai conteggi prodotti
         if (productsRes.products) {
             productsCount = productsRes.pagination?.total || productsRes.products.length;
@@ -60,8 +66,14 @@ export async function loadAdminDashboardPage() {
         ordersCount = allOrders.length;
         ordersProcessingCount = allOrders.filter(o => o.status === 'pending' || o.status === 'processing').length;
         latestOrders = allOrders.slice(0, 5);
+
+        // Estrai segnalazioni
+        issues = (await getIssues()).issues || [];
     } catch (e) {
         showBootstrapToast('Errore nel caricamento dati dashboard', 'Errore', 'danger');
+        productsRes = { products: [] };
+        ordersRes = { orders: [] };
+        issues = [];
     }
 
     pageElement.innerHTML = `
@@ -213,14 +225,77 @@ export async function loadAdminDashboardPage() {
                 </div>
             </div>
         </div>
-        <style>
-        @media (max-width: 767.98px) {
-            .dashboard-cards .col-4 { flex: 0 0 33.3333%; max-width: 33.3333%; }
-            .dashboard-cards .card { min-width: 0; }
-            .table-responsive { overflow-x: auto; }
-            .table th, .table td { white-space: nowrap; }
-        }
-        </style>
+        <!-- Nuove tabelle: Prodotti e Segnalazioni -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>Ultimi prodotti aggiunti</span>
+                        <a href="/admin/products-management" class="btn btn-sm btn-outline-success" data-route>Vedi tutti</a>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Categoria</th>
+                                    <th>Prezzo</th>
+                                    <th>Stato</th>
+                                    <th>Creato il</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${(productsRes.products && productsRes.products.length > 0 ? productsRes.products.slice(0,5) : []).length === 0 ? `
+                                    <tr><td colspan="5" class="text-center">Nessun prodotto recente</td></tr>
+                                ` : productsRes.products.slice(0,5).map(p => `
+                                    <tr>
+                                        <td>${p.name}</td>
+                                        <td>${p.category_name || p.category || '-'}</td>
+                                        <td>${p.price} €</td>
+                                        <td>${p.status || '-'}</td>
+                                        <td>${p.created_at ? p.created_at.split('T')[0] : '-'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>Segnalazioni</span>
+                        <a href="/admin/issues-management" class="btn btn-sm btn-outline-danger" data-route>Vedi tutte</a>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Titolo</th>
+                                    <th>Cliente</th>
+                                    <th>Stato</th>
+                                    <th>Data</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${(issues.slice(0, 5).length === 0) ? `
+                                    <tr><td colspan="5" class="text-center">Nessuna segnalazione recente</td></tr>
+                                ` : issues.slice(0, 5).map(issue => `
+                                    <tr>
+                                        <td>${issue.id_issue}</td>
+                                        <td>${issue.title}</td>
+                                        <td>${issue.client_name || '-'}</td>
+                                        <td>${issue.status || '-'}</td>
+                                        <td>${issue.created_at ? issue.created_at.split('T')[0] : '-'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     `;
 
     return {

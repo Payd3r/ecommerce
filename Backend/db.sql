@@ -9,9 +9,6 @@ CREATE TABLE `carts` (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Dump dei dati per la tabella `carts`
---
 -- --------------------------------------------------------
 
 --
@@ -26,9 +23,6 @@ CREATE TABLE `cart_items` (
   `added_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Dump dei dati per la tabella `cart_items`
---
 -- --------------------------------------------------------
 
 --
@@ -42,19 +36,31 @@ CREATE TABLE `categories` (
   `dad_id` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Dump dei dati per la tabella `categories`
---
 -- --------------------------------------------------------
 --
--- Struttura della tabella `category_image`
+-- Struttura della tabella `category_images`
 --
 
-CREATE TABLE `category_image` (
+CREATE TABLE `category_images` (
   `id` int NOT NULL,
   `category_id` int NOT NULL,
   `url` varchar(255) NOT NULL,
   `alt_text` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `issues`
+--
+
+CREATE TABLE `issues` (
+  `id_issue` int NOT NULL,
+  `id_client` int NOT NULL,
+  `description` varchar(255) NOT NULL,
+  `status` enum('open','closed','refused','solved') NOT NULL,
+  `title` varchar(32) NOT NULL,
+  `created_at` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -117,9 +123,6 @@ CREATE TABLE `products` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Dump dei dati per la tabella `products`
---
 -- --------------------------------------------------------
 
 --
@@ -162,7 +165,7 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
--- Dump dei dati per la tabella `users`
+-- Indici per le tabelle scaricate
 --
 --
 -- Indici per le tabelle `carts`
@@ -189,9 +192,16 @@ ALTER TABLE `categories`
 --
 -- Indici per le tabelle `category_images`
 --
-ALTER TABLE `category_image`
+ALTER TABLE `category_images`
   ADD PRIMARY KEY (`id`),
   ADD KEY `a` (`category_id`);
+
+--
+-- Indici per le tabelle `issues`
+--
+ALTER TABLE `issues`
+  ADD PRIMARY KEY (`id_issue`),
+  ADD KEY `cid_issue` (`id_client`);
 
 --
 -- Indici per le tabelle `orders`
@@ -251,37 +261,43 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT per la tabella `carts`
 --
 ALTER TABLE `carts`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT per la tabella `cart_items`
 --
 ALTER TABLE `cart_items`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT per la tabella `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT per la tabella `category_images`
 --
-ALTER TABLE `category_image`
+ALTER TABLE `category_images`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT per la tabella `issues`
+--
+ALTER TABLE `issues`
+  MODIFY `id_issue` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT per la tabella `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT per la tabella `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT per la tabella `payments`
@@ -293,7 +309,7 @@ ALTER TABLE `payments`
 -- AUTO_INCREMENT per la tabella `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT per la tabella `product_images`
@@ -311,7 +327,7 @@ ALTER TABLE `profile_image`
 -- AUTO_INCREMENT per la tabella `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- Limiti per le tabelle scaricate
@@ -338,8 +354,14 @@ ALTER TABLE `categories`
 --
 -- Limiti per la tabella `category_images`
 --
-ALTER TABLE `category_image`
+ALTER TABLE `category_images`
   ADD CONSTRAINT `a` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Limiti per la tabella `issues`
+--
+ALTER TABLE `issues`
+  ADD CONSTRAINT `cid_issue` FOREIGN KEY (`id_client`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 --
 -- Limiti per la tabella `orders`

@@ -67,53 +67,37 @@ export async function loadManageProductsPage() {
             console.error('Non trovo #products-table-body nel DOM!');
             return;
         }
-        if (window.innerWidth < 768) {
-            tableBody.innerHTML = filteredProducts.length === 0 ?
-                `<tr><td colspan="2" class="text-center">Nessun prodotto trovato</td></tr>` :
-                filteredProducts.map(p => `
-                    <tr data-product-id="${p.id}">
-                        <td class="text-center">${p.name}</td>
-                        <td class="text-center">
-                            <div class="d-flex justify-content-center gap-2">
-                                <button class="btn btn-link btn-view-product p-0" title="Visualizza"><i class="bi bi-eye fs-5"></i></button>
-                                <button class="btn btn-link btn-edit-product p-0" title="Modifica"><i class="bi bi-pencil fs-5 text-primary"></i></button>
-                                <button class="btn btn-link btn-delete-product p-0 text-danger" title="Elimina"><i class="bi bi-trash fs-5"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                `).join('');
-        } else {
-            tableBody.innerHTML = filteredProducts.length === 0 ?
-                `<tr><td colspan="7" class="text-center">Nessun prodotto trovato</td></tr>` :
-                filteredProducts.map(p => `
-                    <tr data-product-id="${p.id}">
-                        <td class="text-center">
-                            ${p.image && p.image.url ?
-                        `<div class="product-thumb-wrapper" style="position:relative; display:inline-block;">
-                                    <img src="http://localhost:3005${p.image.url}" alt="img" class="product-thumb-img" style="width:40px; height:40px; object-fit:cover; border-radius:6px; cursor:pointer;" />
-                                    <div class="product-tooltip-img" style="display:none; position:absolute; left:50%; top:50%; transform:translate(-50%, -50%); z-index:10;">
-                                        <img src="http://localhost:3005${p.image.url}" alt="img" style="width:220px; height:220px; object-fit:cover; border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,0.18); border:2px solid #fff;" />
-                                    </div>
-                                </div>`
-                        :
-                        '<div style="width:40px; height:40px; background:#f3f3f3; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#bbb; font-size:1.2rem;">🖼️</div>'
-                    }
-                        </td>
-                        <td class="text-center">${p.name}</td>
-                        <td class="text-center">${p.category_name || '-'}</td>
-                        <td class="text-center">${p.price} €</td>
-                        <td class="text-center">${p.stock > 0 ? 'Disponibile' : 'Non disponibile'}</td>
-                        <td class="text-center">${p.created_at ? p.created_at.split('T')[0] : '-'}</td>
-                        <td class="text-center">
-                            <div class="d-flex justify-content-center gap-2">
-                                <button class="btn btn-link btn-view-product p-0" title="Visualizza"><i class="bi bi-eye fs-5"></i></button>
-                                <button class="btn btn-link btn-edit-product p-0" title="Modifica"><i class="bi bi-pencil fs-5 text-primary"></i></button>
-                                <button class="btn btn-link btn-delete-product p-0 text-danger" title="Elimina"><i class="bi bi-trash fs-5"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                `).join('');
-        }
+        tableBody.innerHTML = filteredProducts.length === 0 ?
+            `<tr><td colspan="8" class="text-center">Nessun prodotto trovato</td></tr>` :
+            filteredProducts.map(p => `
+                <tr data-product-id="${p.id}">
+                    <td class="text-center">
+                        ${p.image && p.image.url ?
+                    `<div class="product-thumb-wrapper" style="position:relative; display:inline-block;">
+                                <img src="http://localhost:3005${p.image.url}" alt="img" class="product-thumb-img" style="width:40px; height:40px; object-fit:cover; border-radius:6px; cursor:pointer;" />
+                                <div class="product-tooltip-img" style="display:none; position:absolute; left:50%; top:50%; transform:translate(-50%, -50%); z-index:10;">
+                                    <img src="http://localhost:3005${p.image.url}" alt="img" style="width:220px; height:220px; object-fit:cover; border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,0.18); border:2px solid #fff;" />
+                                </div>
+                            </div>`
+                    :
+                    '<div style="width:40px; height:40px; background:#f3f3f3; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#bbb; font-size:1.2rem;">🖼️</div>'
+                }
+                    </td>
+                    <td class="text-center">${p.name}</td>
+                    <td class="text-center">${p.category_name || '-'}</td>
+                    <td class="text-center">${p.price} €</td>
+                    <td class="text-center">${p.stock}</td>
+                    <td class="text-center">${p.stock > 0 ? 'Disponibile' : 'Non disponibile'}</td>
+                    <td class="text-center">${p.created_at ? p.created_at.split('T')[0] : '-'}</td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-2">
+                            <button class="btn btn-link btn-view-product p-0" title="Visualizza"><i class="bi bi-eye fs-5"></i></button>
+                            <button class="btn btn-link btn-edit-product p-0" title="Modifica"><i class="bi bi-pencil fs-5 text-primary"></i></button>
+                            <button class="btn btn-link btn-delete-product p-0 text-danger" title="Elimina"><i class="bi bi-trash fs-5"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
 
         // Tooltip immagine prodotto
         tableBody.querySelectorAll('.product-thumb-wrapper').forEach(wrapper => {
@@ -243,10 +227,11 @@ export async function loadManageProductsPage() {
                             <thead>
                                 <tr>
                                     <th class="text-center">Nome</th>
-                                    <th class="text-center d-none d-md-table-cell">Categoria</th>
-                                    <th class="text-center d-none d-md-table-cell">Prezzo</th>
-                                    <th class="text-center d-none d-md-table-cell">Stato</th>
-                                    <th class="text-center d-none d-md-table-cell">Creato il</th>
+                                    <th class="text-center">Categoria</th>
+                                    <th class="text-center">Prezzo</th>
+                                    <th class="text-center">Stock</th>
+                                    <th class="text-center">Stato</th>
+                                    <th class="text-center">Creato il</th>
                                     <th class="text-center">Azioni</th>
                                 </tr>
                             </thead>

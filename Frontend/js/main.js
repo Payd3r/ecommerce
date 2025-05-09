@@ -21,6 +21,7 @@ import { loadUsersManagementPage } from './pages/admin/UsersManagement.js';
 import { loadCategoriesManagementPage } from './pages/admin/CategoriesManagement.js';
 import { loadProductsManagementPage } from './pages/admin/ProductsManagement.js';
 import { loadOrdersManagementPage } from './pages/admin/OrdersManagement.js';
+import { loadIssuesManagementPage } from './pages/admin/IssuesManagement.js';
 
 import { loadProductsPage } from './pages/common/Products.js';
 import { loadProductDetailsPage } from './pages/common/ProductDetails.js';
@@ -157,6 +158,11 @@ class App {
             roles: ['admin'],
             title: 'Gestione Ordini - ArtigianatoShop'
         });
+        router.register('/admin/issues-management', loadIssuesManagementPage, {
+            requireAuth: true,
+            roles: ['admin'],
+            title: 'Gestione Segnalazioni - ArtigianatoShop'
+        });
 
         router.register('404', loadNotFoundPage, { title: 'Pagina non trovata - ArtigianatoShop' });
     }
@@ -165,4 +171,4 @@ class App {
 // Avvia l'applicazione quando il DOM è completamente caricato
 document.addEventListener('DOMContentLoaded', () => {
     const app = new App();
-}); 
+});
