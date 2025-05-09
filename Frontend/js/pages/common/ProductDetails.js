@@ -98,9 +98,22 @@ export async function loadProductDetailsPage(params = {}) {
                 <img src="http://localhost:3005${images[currentIndex].url}" alt="img" style="max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain; display:block;" />
               </div>
             `;
-            thumbs.innerHTML = images.map((img, i) => `
-                <img src="http://localhost:3005${img.url}" data-idx="${i}" class="rounded border thumb-img${i === currentIndex ? ' border-primary border-2' : ''}" style="width:56px; height:56px; object-fit:cover; cursor:pointer;" alt="thumb" />
-            `).join('');
+            // Wrapping delle anteprime ogni 5 su mobile
+            let thumbsHtml = '';
+            if (window.innerWidth < 768) {
+                for (let i = 0; i < images.length; i += 5) {
+                    thumbsHtml += '<div class="d-flex mb-1">' +
+                        images.slice(i, i + 5).map((img, j) => `
+                            <img src="http://localhost:3005${img.url}" data-idx="${i + j}" class="rounded border thumb-img${i + j === currentIndex ? ' border-primary border-2' : ''}" style="width:44px; height:44px; object-fit:cover; cursor:pointer; margin-right:4px;" alt="thumb" />
+                        `).join('') +
+                        '</div>';
+                }
+            } else {
+                thumbsHtml = images.map((img, i) => `
+                    <img src="http://localhost:3005${img.url}" data-idx="${i}" class="rounded border thumb-img${i === currentIndex ? ' border-primary border-2' : ''}" style="width:56px; height:56px; object-fit:cover; cursor:pointer; margin-right:8px;" alt="thumb" />
+                `).join('');
+            }
+            thumbs.innerHTML = thumbsHtml;
         } else {
             mainImage.innerHTML = `<div style="font-size: 5rem; color: #bbb;">🖼️</div>`;
             thumbs.innerHTML = '';

@@ -1,3 +1,4 @@
+import { fetchWithAuth } from '../js/services/fetchWithAuth.js';
 const API_URL = 'http://localhost:3005';
 import { authService } from '../js/services/authService.js';
 
@@ -43,7 +44,7 @@ async function createProduct(productData) {
             throw new Error('Utente non autenticato');
         }
         console.log("token", token) ;
-        const response = await fetch(`${API_URL}/products`, {
+        const response = await fetchWithAuth(`${API_URL}/products`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -67,7 +68,7 @@ async function updateProduct(id, productData) {
             throw new Error('Utente non autenticato');
         }
         
-        const response = await fetch(`${API_URL}/products/${id}`, {
+        const response = await fetchWithAuth(`${API_URL}/products/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -91,7 +92,7 @@ async function deleteProduct(id) {
             throw new Error('Utente non autenticato');
         }
         
-        const response = await fetch(`${API_URL}/products/${id}`, {
+        const response = await fetchWithAuth(`${API_URL}/products/${id}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${token}`

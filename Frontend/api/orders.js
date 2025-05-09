@@ -1,4 +1,5 @@
 import { authService } from '../js/services/authService.js';
+import { fetchWithAuth } from '../js/services/fetchWithAuth.js';
 
 const API_URL = '/orders';
 const API_BASE_URL = 'http://localhost:3005/orders';
@@ -7,7 +8,7 @@ const API_BASE_URL = 'http://localhost:3005/orders';
 export async function getAllOrders() {
     const token = authService.getToken();
     if (!token) throw new Error('Token di accesso non trovato');
-    const res = await fetch(API_BASE_URL, {
+    const res = await fetchWithAuth(API_BASE_URL, {
         headers: {
             'Authorization': `Bearer ${token}`
         }
@@ -20,7 +21,7 @@ export async function getAllOrders() {
 export async function getOrders() {
     const token = authService.getToken();
     if (!token) throw new Error('Token di accesso non trovato');
-    const res = await fetch(API_BASE_URL, {
+    const res = await fetchWithAuth(API_BASE_URL, {
         headers: {
             'Authorization': `Bearer ${token}`
         }
@@ -53,7 +54,7 @@ export async function checkoutOrder(userId) {
         },
         body: JSON.stringify({ userId })
     };
-    const res = await fetch(`${API_BASE_URL}/checkout`, options);
+    const res = await fetchWithAuth(`${API_BASE_URL}/checkout`, options);
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.error || 'Errore nel checkout');
@@ -109,7 +110,7 @@ export async function getFilteredOrdersByArtisan(artisanId, params = {}) {
 export async function getOrdersByClient(clientId) {
     const token = authService.getToken();
     if (!token) throw new Error('Token di accesso non trovato');
-    const res = await fetch(`${API_BASE_URL}?clientId=${clientId}`, {
+    const res = await fetchWithAuth(`${API_BASE_URL}?clientId=${clientId}`, {
         headers: {
             'Authorization': `Bearer ${token}`
         }
@@ -122,7 +123,7 @@ export async function getOrdersByClient(clientId) {
 export async function deleteOrder(orderId) {
     const token = authService.getToken();
     if (!token) throw new Error('Token di accesso non trovato');
-    const res = await fetch(`${API_BASE_URL}/${orderId}`, {
+    const res = await fetch(API_BASE_URL, {
         method: 'DELETE',
         headers: {
             'Authorization': `Bearer ${token}`
@@ -140,7 +141,7 @@ export async function deleteOrder(orderId) {
 export async function updateOrderStatus(orderId, status) {
     const token = authService.getToken();
     if (!token) throw new Error('Token di accesso non trovato');
-    const res = await fetch(`${API_BASE_URL}/${orderId}`, {
+    const res = await fetch(API_BASE_URL, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',

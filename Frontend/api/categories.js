@@ -1,3 +1,4 @@
+import { fetchWithAuth } from '../js/services/fetchWithAuth.js';
 // Utilizziamo l'URL di base delle API dell'applicazione
 const API_URL = 'http://localhost:3005';
 import { authService } from '../js/services/authService.js';
@@ -12,7 +13,7 @@ const CategoriesAPI = {
      */
     getCategories: async () => {
         try {
-            const response = await fetch(`${API_URL}/categories`, {
+            const response = await fetchWithAuth(`${API_URL}/categories`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -37,7 +38,7 @@ const CategoriesAPI = {
      */
     getCategoryTree: async () => {
         try {
-            const response = await fetch(`${API_URL}/categories/tree`, {
+            const response = await fetchWithAuth(`${API_URL}/categories/tree`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -63,7 +64,7 @@ const CategoriesAPI = {
      */
     getCategory: async (id) => {
         try {
-            const response = await fetch(`${API_URL}/categories/${id}`, {
+            const response = await fetchWithAuth(`${API_URL}/categories/${id}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -95,7 +96,7 @@ const CategoriesAPI = {
         }
         
         try {
-            const response = await fetch(`${API_URL}/categories`, {
+            const response = await fetchWithAuth(`${API_URL}/categories`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -130,7 +131,7 @@ const CategoriesAPI = {
         }
         
         try {
-            const response = await fetch(`${API_URL}/categories/${id}`, {
+            const response = await fetchWithAuth(`${API_URL}/categories/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -164,7 +165,7 @@ const CategoriesAPI = {
         }
         
         try {
-            const response = await fetch(`${API_URL}/categories/${id}`, {
+            const response = await fetchWithAuth(`${API_URL}/categories/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',

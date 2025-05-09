@@ -1,11 +1,12 @@
 import { authService } from '../js/services/authService.js';
+import { fetchWithAuth } from '../js/services/fetchWithAuth.js';
 
 const API_BASE_URL = 'http://localhost:3005';
 
 export class ApiService {
     static async login(email, password) {
         try {
-            const response = await fetch(`${API_BASE_URL}/auth/login`, {
+            const response = await fetchWithAuth(`${API_BASE_URL}/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -30,7 +31,7 @@ export class ApiService {
 
     static async register(name, email, password, role) {
         try {
-            const response = await fetch(`${API_BASE_URL}/auth/register`, {
+            const response = await fetchWithAuth(`${API_BASE_URL}/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -61,7 +62,7 @@ export class ApiService {
             console.log("entro");
 
             const token = authService.getToken();
-            const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+            const response = await fetchWithAuth(`${API_BASE_URL}/auth/profile`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

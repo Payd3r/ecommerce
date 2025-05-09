@@ -18,7 +18,7 @@ export async function loadCategoriesManagementPage() {
                     <h1 class="display-5 fw-bold">Gestione Categorie</h1>
                 </div>
             </div>
-            <div class="row mb-4 align-items-center mx-5">
+            <div class="row mb-4 align-items-center mx-5 d-none d-md-flex">
                 <div class="col-6 d-flex align-items-center">
                     <button class="btn btn-outline-secondary" id="back-btn"><i class="bi bi-arrow-left"></i> Torna indietro</button>
                 </div>
@@ -26,13 +26,38 @@ export async function loadCategoriesManagementPage() {
                     <button class="btn btn-success" id="addRootCategoryBtn"><i class="bi bi-plus-circle"></i> Nuova Categoria</button>
                 </div>
             </div>
+            <div class="row mb-3 d-flex d-md-none">
+                <div class="col-12 d-flex flex-column gap-2">
+                    <button class="btn btn-outline-secondary w-100" id="back-btn-mobile"><i class="bi bi-arrow-left"></i> Torna indietro</button>
+                    <button class="btn btn-success w-100" id="addRootCategoryBtnMobile"><i class="bi bi-plus-circle"></i> Nuova Categoria</button>
+                </div>
+            </div>
             <div class="row justify-content-center mx-5">
-                <div class="col-12">
+                <div class="col-12 mb-2 d-md-none"></div>
+                <div class="col-12" id="categories-tree-wrapper" style="display:block;">
                     <div id="categoriesTree"></div>
                 </div>
             </div>
         </div>
         <div id="categoryModalContainer"></div>
+        <style>
+        @media (max-width: 767.98px) {
+            #categories-tree-wrapper { margin-top: 1.5rem !important; }
+            .categories-management-page .container,
+            .categories-management-page .row,
+            .categories-management-page .col-12 {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+            #categories-tree-wrapper {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+            #categoriesTree .category-description { display: none !important; }
+        }
+        </style>
     `;
 
     // Funzione per renderizzare l'albero delle categorie con controlli admin
@@ -285,6 +310,20 @@ export async function loadCategoriesManagementPage() {
         if (backBtn) {
             backBtn.addEventListener('click', () => {
                 window.history.back();
+            });
+        }
+        // Bottoni mobile
+        const backBtnMobile = document.getElementById('back-btn-mobile');
+        if (backBtnMobile) {
+            backBtnMobile.addEventListener('click', () => {
+                window.history.back();
+            });
+        }
+        const addRootCategoryBtnMobile = document.getElementById('addRootCategoryBtnMobile');
+        if (addRootCategoryBtnMobile) {
+            addRootCategoryBtnMobile.addEventListener('click', () => {
+                const allCategories = [];
+                showCategoryModal({ mode: 'add', parentId: 1, allCategories });
             });
         }
         await loadAndRenderCategories();

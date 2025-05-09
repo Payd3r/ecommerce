@@ -1,3 +1,4 @@
+import { fetchWithAuth } from '../js/services/fetchWithAuth.js';
 // Utilizziamo l'URL di base delle API dell'applicazione
 const API_BASE_URL = 'http://localhost:3005';
 import { authService } from '../js/services/authService.js';
@@ -18,7 +19,7 @@ const UsersAPI = {
         }
 
         try {
-            const response = await fetch(`${API_BASE_URL}/users/me`, {
+            const response = await fetchWithAuth(`${API_BASE_URL}/users/me`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -55,7 +56,7 @@ const UsersAPI = {
         }
 
         try {
-            const response = await fetch(`${API_BASE_URL}/users/${user.id}`, {
+            const response = await fetchWithAuth(`${API_BASE_URL}/users/${user.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -89,7 +90,7 @@ const UsersAPI = {
         }
 
         try {
-            const response = await fetch(`${API_BASE_URL}/users/password`, {
+            const response = await fetchWithAuth(`${API_BASE_URL}/users/password`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -122,7 +123,7 @@ const UsersAPI = {
         }
 
         try {
-            const response = await fetch(`${API_BASE_URL}/users/me`, {
+            const response = await fetchWithAuth(`${API_BASE_URL}/users/me`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -165,7 +166,7 @@ const UsersAPI = {
                 'Content-Type': 'application/json'
             };
 
-            const response = await fetch(url, {
+            const response = await fetchWithAuth(url, {
                 method: 'GET',
                 headers
             });
@@ -198,7 +199,7 @@ const UsersAPI = {
                 throw new Error('Utente non autenticato');
             }
 
-            const response = await fetch(`${API_BASE_URL}/users?${queryParams}`, {
+            const response = await fetchWithAuth(`${API_BASE_URL}/users?${queryParams}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -230,7 +231,7 @@ const UsersAPI = {
         }
 
         try {
-            const response = await fetch(`${API_BASE_URL}/users`, {
+            const response = await fetchWithAuth(`${API_BASE_URL}/users`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -262,7 +263,7 @@ const UsersAPI = {
             throw new Error('Utente non autenticato');
         }
         try {
-            const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+            const response = await fetchWithAuth(`${API_BASE_URL}/users/${userId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -303,7 +304,7 @@ const UsersAPI = {
             throw new Error('Nessun campo da aggiornare');
         }
         try {
-            const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+            const response = await fetchWithAuth(`${API_BASE_URL}/users/${userId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -333,7 +334,7 @@ const UsersAPI = {
             throw new Error('Utente non autenticato');
         }
         try {
-            const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+            const response = await fetchWithAuth(`${API_BASE_URL}/users/${userId}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -362,7 +363,7 @@ const UsersAPI = {
             throw new Error('Utente non autenticato');
         }
         try {
-            const response = await fetch(`${API_BASE_URL}/users/counts`, {
+            const response = await fetchWithAuth(`${API_BASE_URL}/users/counts`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

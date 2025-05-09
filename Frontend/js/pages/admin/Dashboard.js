@@ -72,7 +72,7 @@ export async function loadAdminDashboardPage() {
         <div class="row g-4 mb-4 align-items-stretch">
             <div class="col-12">
                 <div class="row g-3">
-                    <div class="col-2">
+                    <div class="col-4 col-md-2">
                         <div class="card bg-success text-dark h-100 bg-opacity-10">
                             <div class="card-body text-center">
                                 <div class="display-4 mb-2">🧑‍🎨</div>
@@ -81,7 +81,7 @@ export async function loadAdminDashboardPage() {
                             </div>
                         </div>
                     </div>
-                    <div class="col-2">
+                    <div class="col-4 col-md-2">
                         <div class="card bg-secondary text-dark h-100 bg-opacity-10">
                             <div class="card-body text-center">
                                 <div class="display-4 mb-2">🧑‍💼</div>
@@ -90,7 +90,7 @@ export async function loadAdminDashboardPage() {
                             </div>
                         </div>
                     </div>
-                    <div class="col-2">
+                    <div class="col-4 col-md-2">
                         <div class="card bg-dark text-dark h-100 bg-opacity-10">
                             <div class="card-body text-center">
                                 <div class="display-4 mb-2">🛡️</div>
@@ -99,7 +99,7 @@ export async function loadAdminDashboardPage() {
                             </div>
                         </div>
                     </div>
-                    <div class="col-2">
+                    <div class="col-4 col-md-2">
                         <div class="card bg-warning text-dark h-100 bg-opacity-10">
                             <div class="card-body text-center">
                                 <div class="display-4 mb-2">📦</div>
@@ -108,7 +108,7 @@ export async function loadAdminDashboardPage() {
                             </div>
                         </div>
                     </div>
-                    <div class="col-2">
+                    <div class="col-4 col-md-2">
                         <div class="card bg-info text-dark h-100 bg-opacity-10">
                             <div class="card-body text-center">
                                 <div class="display-4 mb-2">🛒</div>
@@ -117,7 +117,7 @@ export async function loadAdminDashboardPage() {
                             </div>
                         </div>
                     </div>
-                    <div class="col-2">
+                    <div class="col-4 col-md-2">
                         <div class="card bg-danger text-dark h-100 bg-opacity-10">
                             <div class="card-body text-center">
                                 <div class="display-4 mb-2">⏳</div>
@@ -156,25 +156,23 @@ export async function loadAdminDashboardPage() {
                         <span>Ultimi utenti registrati</span>
                         <a href="/admin/users-management" class="btn btn-sm btn-outline-primary" data-route>Vedi tutti</a>
                     </div>
-                    <div class="card-body p-0">
+                    <div class="card-body p-0 table-responsive">
                         <table class="table mb-0">
                             <thead>
                                 <tr>
                                     <th>Nome</th>
-                                    <th>Email</th>
                                     <th>Ruolo</th>
-                                    <th>Registrato il</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 ${latestUsers.length === 0 ? `
-                                    <tr><td colspan="4" class="text-center">Nessun utente recente</td></tr>
+                                    <tr><td colspan="3" class="text-center">Nessun utente recente</td></tr>
                                 ` : latestUsers.map(u => `
                                     <tr>
                                         <td>${u.name}</td>
-                                        <td>${u.email}</td>
                                         <td>${u.role}</td>
-                                        <td>${u.created_at ? u.created_at.split('T')[0] : '-'}</td>
+                                        <td><a href="/admin/users-management?search=${encodeURIComponent(u.name)}" class="btn btn-sm btn-outline-primary" data-route>Dettagli</a></td>
                                     </tr>
                                 `).join('')}
                             </tbody>
@@ -188,11 +186,10 @@ export async function loadAdminDashboardPage() {
                         <span>Ultimi ordini</span>
                         <a href="/admin/orders-management" class="btn btn-sm btn-outline-info" data-route>Vedi tutti</a>
                     </div>
-                    <div class="card-body p-0">
+                    <div class="card-body p-0 table-responsive">
                         <table class="table mb-0">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
                                     <th>Cliente</th>
                                     <th>Totale</th>
                                     <th>Stato</th>
@@ -201,10 +198,9 @@ export async function loadAdminDashboardPage() {
                             </thead>
                             <tbody>
                                 ${latestOrders.length === 0 ? `
-                                    <tr><td colspan="5" class="text-center">Nessun ordine recente</td></tr>
+                                    <tr><td colspan="4" class="text-center">Nessun ordine recente</td></tr>
                                 ` : latestOrders.map(o => `
                                     <tr>
-                                        <td>${o.id}</td>
                                         <td>${o.client_name || o.client_id || '-'}</td>
                                         <td>${o.total_price} €</td>
                                         <td>${o.status}</td>
@@ -217,6 +213,14 @@ export async function loadAdminDashboardPage() {
                 </div>
             </div>
         </div>
+        <style>
+        @media (max-width: 767.98px) {
+            .dashboard-cards .col-4 { flex: 0 0 33.3333%; max-width: 33.3333%; }
+            .dashboard-cards .card { min-width: 0; }
+            .table-responsive { overflow-x: auto; }
+            .table th, .table td { white-space: nowrap; }
+        }
+        </style>
     `;
 
     return {

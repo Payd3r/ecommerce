@@ -94,24 +94,12 @@ export async function loadProductsManagementPage() {
             `<tr><td colspan="8" class="text-center">Nessun prodotto trovato</td></tr>` :
             filteredProducts.map(p => `
                 <tr data-product-id="${p.id}">
-                    <td class="text-center">
-                        ${p.image && p.image.url ?
-                            `<div class=\"product-thumb-wrapper\" style=\"position:relative; display:inline-block;\">
-                                <img src=\"http://localhost:3005${p.image.url}\" alt=\"img\" class=\"product-thumb-img\" style=\"width:40px; height:40px; object-fit:cover; border-radius:6px; cursor:pointer;\" />
-                                <div class=\"product-tooltip-img\" style=\"display:none; position:absolute; left:50%; top:50%; transform:translate(-50%, -50%); z-index:10;\">
-                                    <img src=\"http://localhost:3005${p.image.url}\" alt=\"img\" style=\"width:220px; height:220px; object-fit:cover; border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,0.18); border:2px solid #fff;\" />
-                                </div>
-                            </div>`
-                            :
-                            '<div style="width:40px; height:40px; background:#f3f3f3; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#bbb; font-size:1.2rem;">🖼️</div>'
-                        }
-                    </td>
                     <td class="text-center">${p.name}</td>
-                    <td class="text-center">${p.category_name || '-'}</td>
-                    <td class="text-center">${p.price} €</td>
-                    <td class="text-center">${p.stock > 0 ? 'Disponibile' : 'Non disponibile'}</td>
-                    <td class="text-center">${formatDateIT(p.created_at)}</td>
-                    <td class="text-center">${p.artisan_name || p.artisan_email || '-'}</td>
+                    <td class="text-center d-none d-md-table-cell">${p.category_name || '-'}</td>
+                    <td class="text-center d-none d-md-table-cell">${p.price} €</td>
+                    <td class="text-center d-none d-md-table-cell">${p.stock > 0 ? 'Disponibile' : 'Non disponibile'}</td>
+                    <td class="text-center d-none d-md-table-cell">${formatDateIT(p.created_at)}</td>
+                    <td class="text-center d-none d-md-table-cell">${p.artisan_name || p.artisan_email || '-'}</td>
                     <td class="text-center">
                         <div class="dropdown">
                             <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center justify-content-center" type="button" data-bs-toggle="dropdown">
@@ -190,7 +178,7 @@ export async function loadProductsManagementPage() {
                 <h1 class="display-5 fw-bold ">Gestione Prodotti</h1>
             </div>
         </div>
-        <div class="row mb-4 align-items-center">
+        <div class="row mb-4 align-items-center d-none d-md-flex">
             <div class="col-6 d-flex align-items-center">
                 <button class="btn btn-outline-secondary" id="back-btn"><i class="bi bi-arrow-left"></i> Torna indietro</button>
             </div>
@@ -198,9 +186,18 @@ export async function loadProductsManagementPage() {
                 <a href="#" id="addProductBtn" class="btn btn-success">Aggiungi prodotto</a>
             </div>
         </div>
+        <div class="row mb-3 d-flex d-md-none">
+            <div class="col-12 d-flex flex-column gap-2">
+                <button class="btn btn-outline-secondary w-100" id="back-btn-mobile"><i class="bi bi-arrow-left"></i> Torna indietro</button>
+                <a href="#" id="addProductBtnMobile" class="btn btn-success w-100">Aggiungi prodotto</a>
+            </div>
+        </div>
         <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card">
+            <div class="col-md-4 mb-3 mb-md-0">
+                <div class="d-md-none mb-2">
+                    <button id="toggle-filters" class="btn btn-outline-secondary w-100">Filtri <i class="bi bi-funnel"></i></button>
+                </div>
+                <div class="card" id="filters-card" style="${window.innerWidth < 768 ? 'display:none;' : ''}">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <span>Filtri</span>
                         <button type="button" id="resetFiltersBtn" class="btn btn-sm btn-outline-secondary">Azzera filtri</button>
@@ -237,22 +234,21 @@ export async function loadProductsManagementPage() {
                     </div>
                 </div>
             </div>
-            <div class="col-md-8">
+            <div class="col-md-8 mt-3 mt-md-0">
                 <div class="card h-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <span>Prodotti</span>
                     </div>
-                    <div class="card-body p-0">
+                    <div class="card-body p-0" id="products-table-wrapper">
                         <table class="table table-bordered align-middle mb-0">
                             <thead>
                                 <tr>
-                                    <th class="text-center">Img</th>
                                     <th class="text-center">Nome</th>
-                                    <th class="text-center">Categoria</th>
-                                    <th class="text-center">Prezzo</th>
-                                    <th class="text-center">Stato</th>
-                                    <th class="text-center">Creato il</th>
-                                    <th class="text-center">Artigiano</th>
+                                    <th class="text-center d-none d-md-table-cell">Categoria</th>
+                                    <th class="text-center d-none d-md-table-cell">Prezzo</th>
+                                    <th class="text-center d-none d-md-table-cell">Stato</th>
+                                    <th class="text-center d-none d-md-table-cell">Creato il</th>
+                                    <th class="text-center d-none d-md-table-cell">Artigiano</th>
                                     <th class="text-center">Azioni</th>
                                 </tr>
                             </thead>
@@ -267,6 +263,13 @@ export async function loadProductsManagementPage() {
                 </div>
             </div>
         </div>
+        <style>
+        @media (max-width: 767.98px) {
+            #filters-card { margin-bottom: 1.5rem !important; }
+            #products-table-wrapper { overflow-x: auto; }
+            .table th, .table td { white-space: nowrap; }
+        }
+        </style>
     `;
 
     // Eventi filtri
@@ -280,12 +283,53 @@ export async function loadProductsManagementPage() {
         filter.artisan = form.artisan.value;
         currentPage = 1;
         fetchProducts();
+        // Nascondi i filtri su mobile
+        const filtersCard = document.getElementById('filters-card');
+        if (window.innerWidth < 768 && filtersCard) {
+            filtersCard.style.display = 'none';
+        }
     });
 
     // Bottone azzera filtri
     pageElement.querySelector('#resetFiltersBtn').addEventListener('click', () => {
         resetFiltersAndRefresh();
+        // Nascondi i filtri su mobile
+        const filtersCard = document.getElementById('filters-card');
+        if (window.innerWidth < 768 && filtersCard) {
+            filtersCard.style.display = 'none';
+        }
     });
+
+    // Bottone toggle filtri mobile
+    const toggleFiltersBtn = pageElement.querySelector('#toggle-filters');
+    if (toggleFiltersBtn) {
+        toggleFiltersBtn.addEventListener('click', () => {
+            const filtersCard = document.getElementById('filters-card');
+            if (filtersCard) {
+                if (filtersCard.style.display === 'none' || filtersCard.style.display === '') {
+                    filtersCard.style.display = 'block';
+                } else {
+                    filtersCard.style.display = 'none';
+                }
+            }
+        });
+    }
+    // Bottoni mobile
+    const backBtnMobile = pageElement.querySelector('#back-btn-mobile');
+    if (backBtnMobile) {
+        backBtnMobile.addEventListener('click', () => {
+            window.history.back();
+        });
+    }
+    const addProductBtnMobile = pageElement.querySelector('#addProductBtnMobile');
+    if (addProductBtnMobile) {
+        addProductBtnMobile.addEventListener('click', e => {
+            e.preventDefault();
+            showAddProductModal(categories, () => {
+                resetFiltersAndRefresh();
+            });
+        });
+    }
 
     // Eventi paginazione
     pageElement.querySelector('#products-pagination').addEventListener('click', e => {
@@ -294,15 +338,6 @@ export async function loadProductsManagementPage() {
             currentPage = parseInt(e.target.dataset.page);
             fetchProducts();
         }
-    });
-
-    // Bottone aggiungi prodotto
-    pageElement.querySelector('#addProductBtn').addEventListener('click', e => {
-        e.preventDefault();
-        showAddProductModal(categories, () => {
-            console.log('Callback dopo addProduct');
-            resetFiltersAndRefresh();
-        });
     });
 
     // Prima renderizzazione

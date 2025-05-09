@@ -7,6 +7,54 @@ import UsersAPI from '../../../api/users.js';
  * @returns {Object} - Oggetto con i metodi del componente
  */
 export async function loadUsersManagementPage() {
+    // CSS mobile responsive
+    if (!document.getElementById('users-management-mobile-style')) {
+        const style = document.createElement('style');
+        style.id = 'users-management-mobile-style';
+        style.innerHTML = `
+        @media (max-width: 767.98px) {
+          .admin-dashboard-page .container,
+          .admin-dashboard-page .row,
+          .admin-dashboard-page .col-12 {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+          }
+          .admin-dashboard-page .mobile-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+          }
+          .admin-dashboard-page .mobile-btns button {
+            width: 100%;
+          }
+          .admin-dashboard-page #filters-card { display: none; }
+          .admin-dashboard-page #filters-card.mobile-visible { display: block; margin-bottom: 1rem; }
+          .admin-dashboard-page .table thead, .admin-dashboard-page .table th:not(:first-child):not(:last-child), .admin-dashboard-page .table td:not(:first-child):not(:last-child) {
+            display: none;
+          }
+          .admin-dashboard-page .table td:first-child, .admin-dashboard-page .table th:first-child, .admin-dashboard-page .table td:last-child, .admin-dashboard-page .table th:last-child {
+            display: table-cell;
+          }
+          .admin-dashboard-page .table td, .admin-dashboard-page .table th {
+            padding: 0.75rem 0.5rem;
+          }
+          .admin-dashboard-page #pagination-container {
+            justify-content: center !important;
+            margin-top: 1rem;
+          }
+          .admin-dashboard-page #pagination-container button {
+            width: 48%;
+            margin: 0 1%;
+            font-size: 1.1rem;
+          }
+        }
+        `;
+        document.head.appendChild(style);
+    }
+
     // Crea l'elemento principale della pagina
     const pageElement = document.createElement('div');
     pageElement.className = 'admin-dashboard-page';
@@ -20,7 +68,7 @@ export async function loadUsersManagementPage() {
                     <h1 class="display-5 fw-bold ">Gestione Utenti</h1>
                 </div>
             </div>
-            <div class="row mb-4 align-items-center">
+            <div class="row mb-4 align-items-center d-none d-md-flex">
                 <div class="col-6 d-flex align-items-center">
                     <button class="btn btn-outline-secondary" id="back-btn"><i class="bi bi-arrow-left"></i> Torna indietro</button>
                 </div>
@@ -28,8 +76,15 @@ export async function loadUsersManagementPage() {
                     <button id="add-user-btn" class="btn btn-success">Aggiungi Utente</button>
                 </div>
             </div>
+            <div class="row d-flex d-md-none">
+                <div class="col-12 mobile-btns">
+                    <button class="btn btn-outline-secondary" id="back-btn-mobile"><i class="bi bi-arrow-left"></i> Torna indietro</button>
+                    <button class="btn btn-success" id="add-user-btn-mobile">Aggiungi Utente</button>
+                    <button class="btn btn-primary" id="toggle-filters-mobile">Filtri</button>
+                </div>
+            </div>
             <div class="row align-items-start">
-                <div class="col-md-4">
+                <div class="col-md-4" id="filters-card">
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">Filtri</h5>
@@ -265,23 +320,40 @@ export async function loadUsersManagementPage() {
 
             users.forEach(user => {
                 const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${user.name}</td>
-                    <td>${user.email}</td>
-                    <td>${getRoleBadge(user.role)}</td>
-                    <td>${new Date(user.created_at).toLocaleDateString()}</td>
-                    <td>
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-secondary" type="button" id="dropdownMenuButton-${user.id}" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-three-dots"></i>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-${user.id}">
-                                <li><button class="dropdown-item" onclick="editUser(${user.id})">Modifica</button></li>
-                                <li><button class="dropdown-item text-danger" onclick="deleteUser(${user.id})">Elimina</button></li>
-                            </ul>
-                        </div>
-                    </td>
-                `;
+                if (window.innerWidth < 768) {
+                    row.innerHTML = `
+                        <td>${user.name}</td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-secondary" type="button" id="dropdownMenuButton-${user.id}" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots"></i>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-${user.id}">
+                                    <li><button class="dropdown-item" onclick="editUser(${user.id})">Modifica</button></li>
+                                    <li><button class="dropdown-item text-danger" onclick="deleteUser(${user.id})">Elimina</button></li>
+                                </ul>
+                            </div>
+                        </td>
+                    `;
+                } else {
+                    row.innerHTML = `
+                        <td>${user.name}</td>
+                        <td>${user.email}</td>
+                        <td>${getRoleBadge(user.role)}</td>
+                        <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-secondary" type="button" id="dropdownMenuButton-${user.id}" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots"></i>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-${user.id}">
+                                    <li><button class="dropdown-item" onclick="editUser(${user.id})">Modifica</button></li>
+                                    <li><button class="dropdown-item text-danger" onclick="deleteUser(${user.id})">Elimina</button></li>
+                                </ul>
+                            </div>
+                        </td>
+                    `;
+                }
                 tableBody.appendChild(row);
             });
 
@@ -468,6 +540,25 @@ export async function loadUsersManagementPage() {
             };
             await loadUsersTable(params);
         });
+
+        const backBtnMobile = document.getElementById('back-btn-mobile');
+        if (backBtnMobile) {
+            backBtnMobile.addEventListener('click', () => window.history.back());
+        }
+        const addUserBtnMobile = document.getElementById('add-user-btn-mobile');
+        if (addUserBtnMobile) {
+            addUserBtnMobile.addEventListener('click', () => {
+                const addUserModal = new bootstrap.Modal(document.getElementById('addUserModal'));
+                addUserModal.show();
+            });
+        }
+        const toggleFiltersMobile = document.getElementById('toggle-filters-mobile');
+        if (toggleFiltersMobile) {
+            toggleFiltersMobile.addEventListener('click', () => {
+                const filtersCard = document.getElementById('filters-card');
+                filtersCard.classList.toggle('mobile-visible');
+            });
+        }
     }
 
     /**

@@ -23,8 +23,14 @@ export async function loadArtisanPage() {
     pageElement.innerHTML = `
         <div class="container py-4">
             <div class="row">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h1 class="h4 mb-0">Artigiani</h1>
+                    <button id="toggle-filters" class="btn btn-outline-secondary d-md-none ms-2" type="button">
+                        <i class="bi bi-funnel"></i> Filtri
+                    </button>
+                </div>
                 <!-- Sidebar -->
-                <aside class="col-12 col-md-3 mb-4 mb-md-0">
+                <aside class="col-12 col-md-3 mb-4 mb-md-0" id="filters-container" style="${window.innerWidth < 768 ? 'display:none;' : ''}">
                     <div class="card shadow-sm border-0 p-3">
                         <h2 class="h5 mb-3">Filtra Artigiani</h2>
                         <form id="artisan-filter-form">
@@ -38,7 +44,7 @@ export async function loadArtisanPage() {
                 </aside>
                 <!-- Lista Artigiani -->
                 <section class="col-12 col-md-9">
-                    <div id="artisans-list" class="row g-4"></div>
+                    <div id="artisans-list" class="row g-3"></div>
                     <nav class="mt-4 d-flex justify-content-center">
                         <ul class="pagination" id="artisans-pagination"></ul>
                     </nav>
@@ -55,7 +61,7 @@ export async function loadArtisanPage() {
             return;
         }
         list.innerHTML = artisans.map(artisan => `
-            <div class="col-12 col-sm-6 col-lg-4">
+            <div class="col-6 col-md-4">
                 <div class="card h-100 shadow-sm border-0">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <div class="mb-3">
@@ -132,6 +138,25 @@ export async function loadArtisanPage() {
                 state.search = searchInput.value.trim();
                 state.page = 1;
                 loadArtisans();
+                // Nascondi i filtri su mobile
+                const filtersContainer = document.getElementById('filters-container');
+                if (window.innerWidth < 768 && filtersContainer) {
+                    filtersContainer.style.display = 'none';
+                }
+            });
+        }
+        // Toggle filtri mobile
+        const toggleFiltersButton = pageElement.querySelector('#toggle-filters');
+        const filtersContainer = document.getElementById('filters-container');
+        if (toggleFiltersButton && filtersContainer) {
+            toggleFiltersButton.addEventListener('click', () => {
+                if (window.innerWidth < 768) {
+                    if (filtersContainer.style.display === 'none' || filtersContainer.style.display === '') {
+                        filtersContainer.style.display = 'block';
+                    } else {
+                        filtersContainer.style.display = 'none';
+                    }
+                }
             });
         }
         // Paginazione

@@ -27,7 +27,7 @@ class Footer {
                             <a href="#" aria-label="Twitter" class="text-secondary fs-5"><i class="bi bi-twitter"></i></a>
                         </div>
                     </div>
-                    <div class="col-12 col-md-4">
+                    <div class="col-6 col-md-4">
                         <h5 class="mb-3">Link utili</h5>
                         <ul class="list-unstyled">
                             <li><a href="/products" data-route class="text-decoration-none text-secondary">Prodotti</a></li>
@@ -37,7 +37,7 @@ class Footer {
                             <li><a href="/contact" data-route class="text-decoration-none text-secondary">Contatti</a></li>
                         </ul>
                     </div>
-                    <div class="col-12 col-md-3">
+                    <div class="col-6 col-md-3">
                         <h5 class="mb-3">Contatti</h5>
                         <p class="mb-1">Via dell'Artigianato, 123<br>00100 Roma, Italia</p>
                         <p class="mb-1">Email: <a href="mailto:info@artigianatoshop.it" class="text-decoration-none">info@artigianatoshop.it</a></p>

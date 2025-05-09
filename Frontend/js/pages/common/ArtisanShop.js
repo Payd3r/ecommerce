@@ -64,27 +64,35 @@ export async function loadArtisanShopPage(params) {
             return;
         }
         list.innerHTML = products.map(product => `
-            <div class="col-12 col-sm-6 col-lg-4">
+            <div class="col-6 col-md-4">
                 <div class="card h-100 shadow-sm border-0">
                     <div class="card-body d-flex flex-column p-0">
-                        <div class="w-100" style="height: 260px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; border-top-left-radius: 12px; border-top-right-radius: 12px; overflow: hidden;">
+                        <div class="w-100 product-img-wrapper" style="height: 140px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; border-top-left-radius: 12px; border-top-right-radius: 12px; overflow: hidden;">
                             ${product.image && product.image.url ?
                                 `<img src=\"http://localhost:3005${product.image.url}\" alt=\"${product.name}\" style=\"width:100%; height:100%; object-fit:cover; display:block;\" />` :
                                 '<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: #ccc;">🖼️</div>'
                             }
                         </div>
-                        <div class="p-3 d-flex flex-column flex-grow-1">
+                        <div class="p-2 d-flex flex-column flex-grow-1">
                             <h5 class="card-title mb-2">${product.name}</h5>
                             <div class="mb-2 text-muted small">Categoria: ${product.category_name || '-'}</div>
-                            <div class="mb-2">${product.description ? product.description : ''}</div>
-                            <div class="mt-auto">
+                            <div class="mb-2 d-none d-md-block">${product.description ? product.description : ''}</div>
+                            <div class="mt-auto d-flex justify-content-between align-items-center">
                                 <span class="fw-bold">€ ${Number(product.price).toFixed(2)}</span>
+                                <a href="/products/${product.id}" class="btn btn-outline-primary btn-sm ms-2" data-route>Dettagli</a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        `).join('');
+        `).join('') + `
+        <style>
+        @media (max-width: 767.98px) {
+            .artisan-shop-page .product-img-wrapper { height: 90px !important; }
+            .artisan-shop-page .card-body .p-2 { padding: 0.5rem !important; }
+            .artisan-shop-page .card-title { font-size: 1rem; }
+        }
+        </style>`;
     }
 
     // Renderizza la paginazione

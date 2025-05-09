@@ -59,11 +59,14 @@ export async function loadProductsPage(params = {}) {
     pageElement.innerHTML = `
         <section class="products-section">
             <div class="container">
-                <div class="section-header mt-3">
-                    <h2>Tutti i Prodotti</h2>
+                <div class="section-header mt-3 d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0">Tutti i Prodotti</h2>
+                    <button id="toggle-filters" class="btn btn-outline-secondary d-md-none ms-2" type="button">
+                        <i class="bi bi-funnel"></i> Filtri
+                    </button>
                 </div>
                 <div class="row pb-5 pt-2">
-                    <aside class="col-12 col-md-4 mb-4 mb-md-0">
+                    <aside class="col-12 col-md-4 mb-4 mb-md-0" id="filters-container" style="${window.innerWidth < 768 ? 'display:none;' : ''}">
                         <div class="card shadow-sm border-0 p-3">
                             <h5 class="mb-3">Filtra i risultati</h5>
                             <form id="filters-form" class="filters-form">
@@ -238,21 +241,21 @@ export async function loadProductsPage(params = {}) {
         }
         products.forEach(product => {
             html += `
-                <div class="col-12 col-sm-6 col-lg-4 mb-3 d-flex align-items-stretch">
-                    <div class="product-card card flex-fill h-100">
-                        <div class="product-image d-flex align-items-center justify-content-center" style="background-color: var(--light-bg); height: 220px;">
+                <div class="col-6 col-md-4 col-lg-3 mb-0 d-flex align-items-stretch" style="padding-left:4px; padding-right:4px;">
+                    <div class="product-card card flex-fill h-100 p-2" style="min-width:0;">
+                        <div class="product-image d-flex align-items-center justify-content-center" style="background-color: var(--light-bg); height: 110px;">
                             ${product.image && product.image.url ?
-                    `<img src="http://localhost:3005${product.image.url}" alt="${product.name}" style="height: 200px; width: 100%; object-fit: cover; border-radius: 8px; padding-inline: 10px;" />` :
-                    `<div style="width: 120px; height: 120px; background: #fff; border: 1px solid #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center; ">
-                                    <span class="placeholder-icon">🖼️</span>
+                    `<img src=\"http://localhost:3005${product.image.url}\" alt=\"${product.name}\" style=\"height: 110px; width: 100%; object-fit: cover; border-radius: 8px;\" />` :
+                    `<div style=\"width: 100%; height: 110px; background: #fff; border: 1px solid #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center;\">
+                                    <span class=\"placeholder-icon\">🖼️</span>
                                 </div>`
                 }
                         </div>
-                        <div class="product-content p-2">
-                            <h6 class="fw-bold mb-1">${product.name}</h6>
+                        <div class="product-content p-1">
+                            <h6 class="fw-bold mb-1 small">${product.name}</h6>
                             <p class="product-artisan text-muted mb-1 small">di ${product.artisan?.name || 'Artigiano'}</p>
                             <div class="product-footer d-flex justify-content-between align-items-center">
-                                <span class="product-price fw-bold">${product.price?.toFixed(2) || '0.00'} €</span>
+                                <span class="product-price fw-bold small">${product.price?.toFixed(2) || '0.00'} €</span>
                                 <a href="/products/${product.id}" class="btn btn-outline-primary btn-sm" data-route>Dettagli</a>
                             </div>
                         </div>
@@ -329,6 +332,11 @@ export async function loadProductsPage(params = {}) {
         state.filters.maxPrice = formData.get('maxPrice') || '';
         state.pagination.page = 1;
         loadProducts();
+        // Nascondi i filtri su mobile
+        const filtersContainer = document.getElementById('filters-container');
+        if (window.innerWidth < 768 && filtersContainer) {
+            filtersContainer.style.display = 'none';
+        }
     }
 
     function handleFilterReset() {
@@ -345,6 +353,11 @@ export async function loadProductsPage(params = {}) {
             form.reset();
         }
         loadProducts();
+        // Nascondi i filtri su mobile
+        const filtersContainer = document.getElementById('filters-container');
+        if (window.innerWidth < 768 && filtersContainer) {
+            filtersContainer.style.display = 'none';
+        }
     }
 
     function mount() {
@@ -379,6 +392,20 @@ export async function loadProductsPage(params = {}) {
                 }
             });
         }
+        // Gestione toggle filtri mobile
+        const toggleFiltersButton = document.getElementById('toggle-filters');
+        const filtersContainer = document.getElementById('filters-container');
+        if (toggleFiltersButton && filtersContainer) {
+            toggleFiltersButton.addEventListener('click', () => {
+                if (window.innerWidth < 768) {
+                    if (filtersContainer.style.display === 'none' || filtersContainer.style.display === '') {
+                        filtersContainer.style.display = 'block';
+                    } else {
+                        filtersContainer.style.display = 'none';
+                    }
+                }
+            });
+        }
     }
 
     function unmount() {
@@ -409,6 +436,20 @@ export async function loadProductsPage(params = {}) {
                 if (pageButton) {
                     const page = parseInt(pageButton.dataset.page, 10);
                     handlePageChange(page);
+                }
+            });
+        }
+        // Gestione toggle filtri mobile
+        const toggleFiltersButton = document.getElementById('toggle-filters');
+        const filtersContainer = document.getElementById('filters-container');
+        if (toggleFiltersButton && filtersContainer) {
+            toggleFiltersButton.removeEventListener('click', () => {
+                if (window.innerWidth < 768) {
+                    if (filtersContainer.style.display === 'none' || filtersContainer.style.display === '') {
+                        filtersContainer.style.display = 'block';
+                    } else {
+                        filtersContainer.style.display = 'none';
+                    }
                 }
             });
         }

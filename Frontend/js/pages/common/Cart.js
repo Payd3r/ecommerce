@@ -16,8 +16,8 @@ export async function loadCartPage() {
                     <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Caricamento...</span></div>
                 </div>
             </div>
-            <div class="d-flex justify-content-end mt-4">
-                <button id="checkout-btn" class="btn btn-success btn-lg" disabled>Procedi col checkout</button>
+            <div class="d-flex justify-content-center mt-4">
+                <button id="checkout-btn" class="btn btn-success btn-lg w-100 w-sm-auto" disabled style="max-width:340px;">Procedi col checkout</button>
             </div>
         </div>
     `;
@@ -32,13 +32,13 @@ export async function loadCartPage() {
                 document.getElementById('checkout-btn').disabled = true;
                 return;
             }
-            let html = `<div class="table-responsive"><table class="table align-middle">
+            let html = `<div class="table-responsive"><table class="table align-middle mb-0 cart-table-custom">
                 <thead><tr>
-                    <th></th>
+                    <th class="d-none d-sm-table-cell"></th>
                     <th>Prodotto</th>
-                    <th>Prezzo</th>
-                    <th>Quantità</th>
-                    <th>Totale</th>
+                    <th class="text-nowrap d-none d-sm-table-cell">Prezzo</th>
+                    <th class="text-nowrap">Quantità</th>
+                    <th class="text-nowrap">Totale</th>
                     <th></th>
                 </tr></thead><tbody>`;
             let total = 0;
@@ -48,31 +48,40 @@ export async function loadCartPage() {
                 total += subtotal;
                 html += `
                     <tr data-item-id="${item.item_id}">
-                        <td style="width:64px;">
+                        <td class="d-none d-sm-table-cell" style="width:48px;">
                             ${item.image ?
-                                `<img src=\"http://localhost:3005${item.image.url || item.image}\" alt=\"img\" style=\"width:56px; height:56px; object-fit:cover; border-radius:8px; border:1.5px solid #e0e0e0;\" />` :
-                                '<span style="font-size:2rem;">🛒</span>'
+                                `<img src=\"http://localhost:3005${item.image.url || item.image}\" alt=\"img\" style=\"width:40px; height:40px; object-fit:cover; border-radius:8px; border:1.5px solid #e0e0e0;\" />` :
+                                '<span style="font-size:1.5rem;">🛒</span>'
                             }
                         </td>
-                        <td>${item.name}</td>
-                        <td>${price.toFixed(2)} €</td>
-                        <td style="max-width:120px;">
-                            <div class="input-group input-group-sm">
-                                <button class="btn btn-outline-secondary btn-qty-minus" type="button">-</button>
-                                <input type="number" class="form-control text-center cart-qty-input" value="${item.quantity}" min="1" style="width:50px;">
-                                <button class="btn btn-outline-secondary btn-qty-plus" type="button">+</button>
+                        <td style="min-width:110px; font-size:0.98rem;">
+                            ${item.name}
+                        </td>
+                        <td class="d-none d-sm-table-cell" style="width:60px; font-size:0.98rem;">${price.toFixed(2)} €</td>
+                        <td style="max-width:80px;">
+                            <div class="input-group input-group-sm flex-nowrap">
+                                <button class="btn btn-outline-secondary btn-qty-minus px-2" type="button">-</button>
+                                <input type="number" class="form-control text-center cart-qty-input px-1" value="${item.quantity}" min="1" style="width:36px;">
+                                <button class="btn btn-outline-secondary btn-qty-plus px-2" type="button">+</button>
                             </div>
                         </td>
-                        <td><span class="fw-bold">${subtotal.toFixed(2)} €</span></td>
+                        <td style="width:70px;"><span class="fw-bold">${subtotal.toFixed(2)} €</span></td>
                         <td><button class="btn btn-danger btn-sm btn-remove-item"><i class="bi bi-trash"></i></button></td>
                     </tr>
                 `;
             });
             html += `</tbody></table></div>`;
-            html += `<div class="d-flex justify-content-end align-items-center gap-3 mt-3">
+            html += `<div class="cart-total-row d-flex flex-column flex-sm-row justify-content-sm-end align-items-center gap-2 mt-3 text-center">
                         <span class="fs-5">Totale: <span class="fw-bold text-primary">${total.toFixed(2)} €</span></span>
                     </div>`;
-            cartContent.innerHTML = html;
+            cartContent.innerHTML = html + `
+            <style>
+            @media (max-width: 576px) {
+                .cart-table-custom th, .cart-table-custom td { padding: 0.35rem 0.3rem; font-size: 0.97rem; }
+                .cart-table-custom input[type=number] { font-size: 0.97rem; }
+                .cart-total-row { justify-content: center !important; text-align: center; }
+            }
+            </style>`;
             document.getElementById('checkout-btn').disabled = false;
             // Se pochi prodotti, aggiungi spazio per il footer
             if (items.length < 4) {

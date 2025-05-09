@@ -62,42 +62,58 @@ export async function loadManageProductsPage() {
     // Funzione per renderizzare la tabella
     function renderTable() {
         console.log('renderTable chiamata, prodotti:', filteredProducts);
-        // Prendi SEMPRE il riferimento attuale dal DOM
         const tableBody = document.querySelector('#products-table-body');
         if (!tableBody) {
             console.error('Non trovo #products-table-body nel DOM!');
             return;
         }
-        tableBody.innerHTML = filteredProducts.length === 0 ?
-            `<tr><td colspan="7" class="text-center">Nessun prodotto trovato</td></tr>` :
-            filteredProducts.map(p => `
-                <tr data-product-id="${p.id}">
-                    <td class="text-center">
-                        ${p.image && p.image.url ?
-                    `<div class="product-thumb-wrapper" style="position:relative; display:inline-block;">
-                                <img src="http://localhost:3005${p.image.url}" alt="img" class="product-thumb-img" style="width:40px; height:40px; object-fit:cover; border-radius:6px; cursor:pointer;" />
-                                <div class="product-tooltip-img" style="display:none; position:absolute; left:50%; top:50%; transform:translate(-50%, -50%); z-index:10;">
-                                    <img src="http://localhost:3005${p.image.url}" alt="img" style="width:220px; height:220px; object-fit:cover; border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,0.18); border:2px solid #fff;" />
-                                </div>
-                            </div>`
-                    :
-                    '<div style="width:40px; height:40px; background:#f3f3f3; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#bbb; font-size:1.2rem;">🖼️</div>'
-                }
-                    </td>
-                    <td class="text-center">${p.name}</td>
-                    <td class="text-center">${p.category_name || '-'}</td>
-                    <td class="text-center">${p.price} €</td>
-                    <td class="text-center">${p.stock > 0 ? 'Disponibile' : 'Non disponibile'}</td>
-                    <td class="text-center">${p.created_at ? p.created_at.split('T')[0] : '-'}</td>
-                    <td class="text-center">
-                        <div class="d-flex justify-content-center gap-2">
-                            <button class="btn btn-link btn-view-product p-0" title="Visualizza"><i class="bi bi-eye fs-5"></i></button>
-                            <button class="btn btn-link btn-edit-product p-0" title="Modifica"><i class="bi bi-pencil fs-5 text-primary"></i></button>
-                            <button class="btn btn-link btn-delete-product p-0 text-danger" title="Elimina"><i class="bi bi-trash fs-5"></i></button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
+        if (window.innerWidth < 768) {
+            tableBody.innerHTML = filteredProducts.length === 0 ?
+                `<tr><td colspan="2" class="text-center">Nessun prodotto trovato</td></tr>` :
+                filteredProducts.map(p => `
+                    <tr data-product-id="${p.id}">
+                        <td class="text-center">${p.name}</td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center gap-2">
+                                <button class="btn btn-link btn-view-product p-0" title="Visualizza"><i class="bi bi-eye fs-5"></i></button>
+                                <button class="btn btn-link btn-edit-product p-0" title="Modifica"><i class="bi bi-pencil fs-5 text-primary"></i></button>
+                                <button class="btn btn-link btn-delete-product p-0 text-danger" title="Elimina"><i class="bi bi-trash fs-5"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+        } else {
+            tableBody.innerHTML = filteredProducts.length === 0 ?
+                `<tr><td colspan="7" class="text-center">Nessun prodotto trovato</td></tr>` :
+                filteredProducts.map(p => `
+                    <tr data-product-id="${p.id}">
+                        <td class="text-center">
+                            ${p.image && p.image.url ?
+                        `<div class="product-thumb-wrapper" style="position:relative; display:inline-block;">
+                                    <img src="http://localhost:3005${p.image.url}" alt="img" class="product-thumb-img" style="width:40px; height:40px; object-fit:cover; border-radius:6px; cursor:pointer;" />
+                                    <div class="product-tooltip-img" style="display:none; position:absolute; left:50%; top:50%; transform:translate(-50%, -50%); z-index:10;">
+                                        <img src="http://localhost:3005${p.image.url}" alt="img" style="width:220px; height:220px; object-fit:cover; border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,0.18); border:2px solid #fff;" />
+                                    </div>
+                                </div>`
+                        :
+                        '<div style="width:40px; height:40px; background:#f3f3f3; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#bbb; font-size:1.2rem;">🖼️</div>'
+                    }
+                        </td>
+                        <td class="text-center">${p.name}</td>
+                        <td class="text-center">${p.category_name || '-'}</td>
+                        <td class="text-center">${p.price} €</td>
+                        <td class="text-center">${p.stock > 0 ? 'Disponibile' : 'Non disponibile'}</td>
+                        <td class="text-center">${p.created_at ? p.created_at.split('T')[0] : '-'}</td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center gap-2">
+                                <button class="btn btn-link btn-view-product p-0" title="Visualizza"><i class="bi bi-eye fs-5"></i></button>
+                                <button class="btn btn-link btn-edit-product p-0" title="Modifica"><i class="bi bi-pencil fs-5 text-primary"></i></button>
+                                <button class="btn btn-link btn-delete-product p-0 text-danger" title="Elimina"><i class="bi bi-trash fs-5"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+        }
 
         // Tooltip immagine prodotto
         tableBody.querySelectorAll('.product-thumb-wrapper').forEach(wrapper => {
@@ -173,7 +189,7 @@ export async function loadManageProductsPage() {
                 <h1 class="display-5 fw-bold ">Gestione Prodotti</h1>
             </div>
         </div>
-        <div class="row mb-4 align-items-center">
+        <div class="row mb-4 align-items-center d-none d-md-flex">
             <div class="col-6 d-flex align-items-center">
                 <button class="btn btn-outline-secondary" id="back-btn"><i class="bi bi-arrow-left"></i> Torna indietro</button>
             </div>
@@ -181,8 +197,15 @@ export async function loadManageProductsPage() {
                 <a href="#" id="addProductBtn" class="btn btn-success">Aggiungi prodotto</a>
             </div>
         </div>
+        <div class="row d-flex d-md-none">
+            <div class="col-12 mobile-btns">
+                <button class="btn btn-outline-secondary w-100" id="back-btn-mobile"><i class="bi bi-arrow-left"></i> Torna indietro</button>
+                <a href="#" id="addProductBtnMobile" class="btn btn-success w-100">Aggiungi prodotto</a>
+                <button class="btn btn-primary w-100" id="toggle-filters-mobile">Filtri</button>
+            </div>
+        </div>
         <div class="row g-4">
-            <div class="col-md-4">
+            <div class="col-md-4" id="filters-card">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <span>Filtri</span>
@@ -219,12 +242,11 @@ export async function loadManageProductsPage() {
                         <table class="table table-bordered align-middle mb-0">
                             <thead>
                                 <tr>
-                                    <th class="text-center">Img</th>
                                     <th class="text-center">Nome</th>
-                                    <th class="text-center">Categoria</th>
-                                    <th class="text-center">Prezzo</th>
-                                    <th class="text-center">Stato</th>
-                                    <th class="text-center">Creato il</th>
+                                    <th class="text-center d-none d-md-table-cell">Categoria</th>
+                                    <th class="text-center d-none d-md-table-cell">Prezzo</th>
+                                    <th class="text-center d-none d-md-table-cell">Stato</th>
+                                    <th class="text-center d-none d-md-table-cell">Creato il</th>
                                     <th class="text-center">Azioni</th>
                                 </tr>
                             </thead>
@@ -278,6 +300,70 @@ export async function loadManageProductsPage() {
 
     // Prima renderizzazione
     fetchProducts();
+
+    // CSS responsive mobile
+    if (!document.getElementById('artisan-products-mobile-style')) {
+        const style = document.createElement('style');
+        style.id = 'artisan-products-mobile-style';
+        style.innerHTML = `
+        @media (max-width: 767.98px) {
+          .container,
+          .row,
+          .col-12 {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+          }
+          .mobile-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+          }
+          .mobile-btns button, .mobile-btns a {
+            width: 100%;
+          }
+          #filters-card { display: none; }
+          #filters-card.mobile-visible { display: block; margin-bottom: 1rem; }
+          .table thead, .table th:not(:first-child):not(:last-child), .table td:not(:first-child):not(:last-child) {
+            display: none;
+          }
+          .table td:first-child, .table th:first-child, .table td:last-child, .table th:last-child {
+            display: table-cell;
+          }
+          .table td, .table th {
+            padding: 0.75rem 0.5rem;
+          }
+          #products-pagination {
+            justify-content: center !important;
+            margin-top: 1rem;
+          }
+          #products-pagination li {
+            width: 48%;
+            margin: 0 1%;
+            font-size: 1.1rem;
+          }
+        }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // Gestione bottoni mobile nel mount
+    const backBtnMobile = pageElement.querySelector('#back-btn-mobile');
+    if (backBtnMobile) backBtnMobile.onclick = () => window.history.back();
+    const addProductBtnMobile = pageElement.querySelector('#addProductBtnMobile');
+    if (addProductBtnMobile) addProductBtnMobile.onclick = e => {
+        e.preventDefault();
+        showAddProductModal(categories, () => {
+            resetFiltersAndRefresh();
+        });
+    };
+    const toggleFiltersMobile = pageElement.querySelector('#toggle-filters-mobile');
+    if (toggleFiltersMobile) toggleFiltersMobile.onclick = () => {
+        const filtersCard = pageElement.querySelector('#filters-card');
+        filtersCard.classList.toggle('mobile-visible');
+    };
 
     return {
         render: () => pageElement,

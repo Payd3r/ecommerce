@@ -41,7 +41,7 @@ export async function loadManageOrdersPage() {
                     <h1 class="display-5 fw-bold mb-2">Gestione Ordini</h1>
                 </div>
             </div>
-            <div class="row mb-2 align-items-center">
+            <div class="row mb-4 align-items-center d-none d-md-flex">
                 <div class="col-6 d-flex align-items-center">
                     <button class="btn btn-outline-secondary" id="back-btn"><i class="bi bi-arrow-left"></i> Torna indietro</button>
                 </div>
@@ -49,8 +49,15 @@ export async function loadManageOrdersPage() {
                     <button id="refresh-orders-btn" class="btn btn-primary">Aggiorna Lista</button>
                 </div>
             </div>
+            <div class="row d-flex d-md-none">
+                <div class="col-12 mobile-btns">
+                    <button class="btn btn-outline-secondary w-100" id="back-btn-mobile"><i class="bi bi-arrow-left"></i> Torna indietro</button>
+                    <button class="btn btn-primary w-100" id="refresh-orders-btn-mobile">Aggiorna Lista</button>
+                    <button class="btn btn-success w-100" id="toggle-filters-mobile">Filtri</button>
+                </div>
+            </div>
             <div class="row align-items-start">
-                <div class="col-md-4 pb-4">
+                <div class="col-md-4 pb-4" id="filters-card">
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">Filtri</h5>
@@ -289,20 +296,32 @@ export async function loadManageOrdersPage() {
         } else {
             pageOrders.forEach(order => {
                 const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${order.id}</td>
-                    <td>${order.client_name || '-'}</td>
-                    <td>€ ${order.total_price ? Number(order.total_price).toFixed(2) : '-'}</td>
-                    <td>${getStatusBadge(order.status)}</td>
-                    <td>${order.created_at ? new Date(order.created_at).toLocaleDateString() : '-'}</td>
-                    <td class="text-center align-middle" style="vertical-align: middle !important;">
-                        <button class="btn btn-link p-0 m-0 d-flex justify-content-center align-items-center" title="Dettagli ordine">
-                            <i class="bi bi-eye fs-5"></i>
-                        </button>
-                    </td>
-                `;
-                // Azione visualizza dettagli
-                row.querySelector('button').addEventListener('click', () => viewOrderDetails(order.id));
+                if (window.innerWidth < 768) {
+                    row.innerHTML = `
+                        <td>${order.client_name || '-'}</td>
+                        <td>${getStatusBadge(order.status)}</td>
+                        <td class="text-center align-middle" style="vertical-align: middle !important;">
+                            <button class="btn btn-link p-0 m-0 d-flex justify-content-center align-items-center" title="Dettagli ordine">
+                                <i class="bi bi-eye fs-5"></i>
+                            </button>
+                        </td>
+                    `;
+                    row.querySelector('button').addEventListener('click', () => viewOrderDetails(order.id));
+                } else {
+                    row.innerHTML = `
+                        <td>${order.id}</td>
+                        <td>${order.client_name || '-'}</td>
+                        <td>€ ${order.total_price ? Number(order.total_price).toFixed(2) : '-'}</td>
+                        <td>${getStatusBadge(order.status)}</td>
+                        <td>${order.created_at ? new Date(order.created_at).toLocaleDateString() : '-'}</td>
+                        <td class="text-center align-middle" style="vertical-align: middle !important;">
+                            <button class="btn btn-link p-0 m-0 d-flex justify-content-center align-items-center" title="Dettagli ordine">
+                                <i class="bi bi-eye fs-5"></i>
+                            </button>
+                        </td>
+                    `;
+                    row.querySelector('button').addEventListener('click', () => viewOrderDetails(order.id));
+                }
                 tableBody.appendChild(row);
             });
         }
@@ -449,6 +468,69 @@ export async function loadManageOrdersPage() {
 
     // Prima renderizzazione
     applyFilters();
+
+    // CSS responsive mobile
+    if (!document.getElementById('artisan-orders-mobile-style')) {
+        const style = document.createElement('style');
+        style.id = 'artisan-orders-mobile-style';
+        style.innerHTML = `
+        @media (max-width: 767.98px) {
+          .admin-dashboard-page .container,
+          .admin-dashboard-page .row,
+          .admin-dashboard-page .col-12 {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+          }
+          .admin-dashboard-page .mobile-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+          }
+          .admin-dashboard-page .mobile-btns button {
+            width: 100%;
+          }
+          .admin-dashboard-page #filters-card { display: none; }
+          .admin-dashboard-page #filters-card.mobile-visible { display: block; margin-bottom: 1rem; }
+          .admin-dashboard-page .table thead, .admin-dashboard-page .table th:not(:nth-child(2)):not(:nth-child(4)):not(:last-child), .admin-dashboard-page .table td:not(:nth-child(2)):not(:nth-child(4)):not(:last-child) {
+            display: none;
+          }
+          .admin-dashboard-page .table td:nth-child(2), .admin-dashboard-page .table th:nth-child(2), .admin-dashboard-page .table td:nth-child(4), .admin-dashboard-page .table th:nth-child(4), .admin-dashboard-page .table td:last-child, .admin-dashboard-page .table th:last-child {
+            display: table-cell;
+          }
+          .admin-dashboard-page .table td, .admin-dashboard-page .table th {
+            padding: 0.75rem 0.5rem;
+          }
+          .admin-dashboard-page #pagination-container {
+            justify-content: center !important;
+            margin-top: 1rem;
+          }
+          .admin-dashboard-page #pagination-container button {
+            width: 48%;
+            margin: 0 1%;
+            font-size: 1.1rem;
+          }
+        }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // Gestione bottoni mobile nel mount
+    const backBtnMobile = pageElement.querySelector('#back-btn-mobile');
+    if (backBtnMobile) backBtnMobile.onclick = () => window.history.back();
+    const refreshOrdersBtnMobile = pageElement.querySelector('#refresh-orders-btn-mobile');
+    if (refreshOrdersBtnMobile) refreshOrdersBtnMobile.onclick = () => {
+        form.reset();
+        filter = { minPrice: '', maxPrice: '', startDate: '', endDate: '', status: '', sort: 'desc', customer: '' };
+        applyFilters();
+    };
+    const toggleFiltersMobile = pageElement.querySelector('#toggle-filters-mobile');
+    if (toggleFiltersMobile) toggleFiltersMobile.onclick = () => {
+        const filtersCard = pageElement.querySelector('#filters-card');
+        filtersCard.classList.toggle('mobile-visible');
+    };
 
     return {
         render: () => pageElement,
