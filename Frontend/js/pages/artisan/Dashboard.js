@@ -78,7 +78,7 @@ export async function loadArtisanDashboardPage() {
         <div class="row g-4 mb-4 align-items-stretch">
             <div class="col-lg-12">
                 <div class="row g-3">
-                    <div class="col-3">
+                    <div class="col-6 col-md-3">
                         <div class="card text-bg-primary h-100">
                             <div class="card-body">
                                 <h5 class="card-title">Prodotti</h5>
@@ -86,7 +86,7 @@ export async function loadArtisanDashboardPage() {
                             </div>
                         </div>
                     </div>
-                    <div class="col-3">
+                    <div class="col-6 col-md-3">
                         <div class="card text-bg-success h-100">
                             <div class="card-body">
                                 <h5 class="card-title">Ordini</h5>
@@ -94,7 +94,7 @@ export async function loadArtisanDashboardPage() {
                             </div>
                         </div>
                     </div>
-                    <div class="col-3">
+                    <div class="col-6 col-md-3">
                         <div class="card text-bg-warning h-100">
                             <div class="card-body">
                                 <h5 class="card-title">Vendite totali</h5>
@@ -102,7 +102,7 @@ export async function loadArtisanDashboardPage() {
                             </div>
                         </div>
                     </div>
-                    <div class="col-3">
+                    <div class="col-6 col-md-3">
                         <div class="card text-bg-info h-100">
                             <div class="card-body">
                                 <h5 class="card-title">Vendite mensili</h5>
@@ -168,10 +168,10 @@ export async function loadArtisanDashboardPage() {
                                     <tr><td colspan="4" class="text-center">Nessun prodotto</td></tr>
                                 ` : products.map(p => `
                                     <tr>
-                                        <td>${p.name}</td>
+                                        <td class="text-truncate" style="max-width: 120px;" title="${p.name}">${truncateName(p.name, 15)}</td>
                                         <td><b>€ ${Number(p.price).toFixed(2)}</b></td>
                                         <td>${p.stock}</td>
-                                        <td>${getProductStatusBadge(p.stock)}</td>
+                                        <td>${getProductStatusDot(p.stock)}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
@@ -216,6 +216,17 @@ export async function loadArtisanDashboardPage() {
     function getProductStatusBadge(stock) {
         if (stock > 0) return '<span class="badge bg-success">Disponibile</span>';
         return '<span class="badge bg-danger">Non disponibile</span>';
+    }
+
+    // Nuova funzione: restituisce un pallino colorato usando solo classi Bootstrap
+    function getProductStatusDot(stock) {
+        const color = stock > 0 ? 'bg-success' : 'bg-danger';
+        const title = stock > 0 ? 'Disponibile' : 'Non disponibile';
+        return `<span class="d-inline-block rounded-circle ${color}" style="width: 14px; height: 14px;" title="${title}"></span>`;
+    }
+    // Nuova funzione: tronca il nome a maxLength caratteri
+    function truncateName(name, maxLength) {
+        return name.length > maxLength ? name.slice(0, maxLength) + '…' : name;
     }
 
     // Grafici Chart.js

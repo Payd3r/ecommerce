@@ -156,9 +156,63 @@ export async function loadProductsManagementPage() {
         const current = pagination.currentPage || 1;
         const paginationEl = pageElement.querySelector('#products-pagination');
         paginationEl.innerHTML = '';
-        for (let i = 1; i <= totalPages; i++) {
-            paginationEl.innerHTML += `<li class="page-item${i === current ? ' active' : ''}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
+        
+        if (totalPages <= 1) return;
+        
+        // Container per i bottoni
+        const btnGroup = document.createElement('div');
+        btnGroup.className = 'btn-group';
+        
+        // Bottone Precedente
+        if (current > 1) {
+            const prevBtn = document.createElement('button');
+            prevBtn.type = 'button';
+            prevBtn.className = 'btn btn-sm btn-outline-primary';
+            prevBtn.textContent = 'Precedente';
+            prevBtn.onclick = function() {
+                currentPage = current - 1;
+                fetchProducts();
+            };
+            btnGroup.appendChild(prevBtn);
         }
+        
+        // Bottoni pagina (massimo 5)
+        const maxButtons = 5;
+        const startPage = Math.max(1, current - Math.floor(maxButtons / 2));
+        const endPage = Math.min(totalPages, startPage + maxButtons - 1);
+        
+        for (let i = startPage; i <= endPage; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.type = 'button';
+            pageBtn.className = `btn btn-sm ${i === current ? 'btn-primary' : 'btn-outline-primary'}`;
+            pageBtn.textContent = i;
+            
+            // Solo per le pagine diverse da quella corrente
+            if (i !== current) {
+                pageBtn.onclick = function() {
+                    currentPage = i;
+                    fetchProducts();
+                };
+            }
+            
+            btnGroup.appendChild(pageBtn);
+        }
+        
+        // Bottone Successivo
+        if (current < totalPages) {
+            const nextBtn = document.createElement('button');
+            nextBtn.type = 'button';
+            nextBtn.className = 'btn btn-sm btn-outline-primary';
+            nextBtn.textContent = 'Successivo';
+            nextBtn.onclick = function() {
+                currentPage = current + 1;
+                fetchProducts();
+            };
+            btnGroup.appendChild(nextBtn);
+        }
+        
+        // Aggiungiamo i bottoni al container
+        paginationEl.appendChild(btnGroup);
     }
 
     // Funzione per azzerare i filtri e refreshare la tabella

@@ -215,24 +215,63 @@ export async function loadOrdersManagementPage() {
     function renderPagination(pagination) {
         const paginationContainer = document.getElementById('pagination-container');
         paginationContainer.innerHTML = '';
-        if (pagination && pagination.totalPages > 1) {
-            const prevButton = document.createElement('button');
-            prevButton.className = 'btn btn-secondary me-2';
-            prevButton.textContent = 'Precedente';
-            prevButton.disabled = !pagination.hasPrevPage;
-            prevButton.addEventListener('click', () => {
-                loadOrdersTable({ page: pagination.currentPage - 1 });
-            });
-            paginationContainer.appendChild(prevButton);
-            const nextButton = document.createElement('button');
-            nextButton.className = 'btn btn-secondary';
-            nextButton.textContent = 'Successivo';
-            nextButton.disabled = !pagination.hasNextPage;
-            nextButton.addEventListener('click', () => {
-                loadOrdersTable({ page: pagination.currentPage + 1 });
-            });
-            paginationContainer.appendChild(nextButton);
+        
+        if (!pagination || pagination.totalPages <= 1) return;
+        
+        const totalPages = pagination.totalPages;
+        const currentPage = pagination.currentPage;
+        
+        // Container per i bottoni
+        const btnGroup = document.createElement('div');
+        btnGroup.className = 'btn-group';
+        
+        // Bottone Precedente
+        if (pagination.hasPrevPage) {
+            const prevBtn = document.createElement('button');
+            prevBtn.type = 'button';
+            prevBtn.className = 'btn btn-sm btn-outline-primary';
+            prevBtn.textContent = 'Precedente';
+            prevBtn.onclick = function() {
+                loadOrdersTable({ page: currentPage - 1 });
+            };
+            btnGroup.appendChild(prevBtn);
         }
+        
+        // Bottoni pagina (massimo 5)
+        const maxButtons = 5;
+        const startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+        const endPage = Math.min(totalPages, startPage + maxButtons - 1);
+        
+        for (let i = startPage; i <= endPage; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.type = 'button';
+            pageBtn.className = `btn btn-sm ${i === currentPage ? 'btn-primary' : 'btn-outline-primary'}`;
+            pageBtn.textContent = i;
+            
+            // Solo per le pagine diverse da quella corrente
+            if (i !== currentPage) {
+                pageBtn.onclick = function() {
+                    loadOrdersTable({ page: i });
+                };
+            }
+            
+            btnGroup.appendChild(pageBtn);
+        }
+        
+        // Bottone Successivo
+        if (pagination.hasNextPage) {
+            const nextBtn = document.createElement('button');
+            nextBtn.type = 'button';
+            nextBtn.className = 'btn btn-sm btn-outline-primary';
+            nextBtn.textContent = 'Successivo';
+            nextBtn.onclick = function() {
+                loadOrdersTable({ page: currentPage + 1 });
+            };
+            btnGroup.appendChild(nextBtn);
+        }
+        
+        // Aggiungiamo i bottoni al container
+        paginationContainer.appendChild(btnGroup);
     }
 
     async function loadOrdersTable(params = {}) {

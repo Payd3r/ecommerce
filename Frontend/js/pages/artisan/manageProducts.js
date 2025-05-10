@@ -50,7 +50,7 @@ export async function loadManageProductsPage() {
             products = res.products || [];
             filteredProducts = products;
             renderTable();
-            renderPagination(res.pagination);
+            renderPagination();
         } catch (e) {
             console.error('Errore fetchProducts:', e);
             filteredProducts = [];
@@ -83,17 +83,22 @@ export async function loadManageProductsPage() {
                     '<div style="width:40px; height:40px; background:#f3f3f3; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#bbb; font-size:1.2rem;">🖼️</div>'
                 }
                     </td>
-                    <td class="text-center">${p.name}</td>
-                    <td class="text-center">${p.category_name || '-'}</td>
+                    <td class="text-center d-none d-md-table-cell">${p.name}</td>
+                    <td class="text-center d-none d-md-table-cell">${p.category_name || '-'}</td>
                     <td class="text-center">${p.price} €</td>
                     <td class="text-center">${p.stock}</td>
-                    <td class="text-center">${p.stock > 0 ? 'Disponibile' : 'Non disponibile'}</td>
-                    <td class="text-center">${p.created_at ? p.created_at.split('T')[0] : '-'}</td>
+                    <td class="text-center d-none d-md-table-cell">${p.stock > 0 ? 'Disponibile' : 'Non disponibile'}</td>
+                    <td class="text-center d-none d-md-table-cell">${p.created_at ? p.created_at.split('T')[0] : '-'}</td>
                     <td class="text-center">
-                        <div class="d-flex justify-content-center gap-2">
-                            <button class="btn btn-link btn-view-product p-0" title="Visualizza"><i class="bi bi-eye fs-5"></i></button>
-                            <button class="btn btn-link btn-edit-product p-0" title="Modifica"><i class="bi bi-pencil fs-5 text-primary"></i></button>
-                            <button class="btn btn-link btn-delete-product p-0 text-danger" title="Elimina"><i class="bi bi-trash fs-5"></i></button>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Azioni
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item btn-view-product" href="#">Visualizza</a></li>
+                                <li><a class="dropdown-item btn-edit-product text-primary" href="#">Modifica</a></li>
+                                <li><a class="dropdown-item btn-delete-product text-danger" href="#">Elimina</a></li>
+                            </ul>
                         </div>
                     </td>
                 </tr>
@@ -143,17 +148,85 @@ export async function loadManageProductsPage() {
                 });
             });
         });
+
+        // Aggiungi event listener per Elimina
+        tableBody.querySelectorAll('.btn-delete-product').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                const tr = btn.closest('tr');
+                const productId = tr.getAttribute('data-product-id');
+                // Qui puoi aggiungere la logica di eliminazione
+            });
+        });
     }
 
     // Funzione per renderizzare la paginazione
-    function renderPagination(pagination) {
-        const totalPages = pagination.totalPages || 1;
-        const current = pagination.currentPage || 1;
+    function renderPagination() {
+        const totalPages = Math.ceil(filteredProducts.length / pageSize) || 1;
         const paginationEl = pageElement.querySelector('#products-pagination');
+        if (!paginationEl) return;
+        
         paginationEl.innerHTML = '';
-        for (let i = 1; i <= totalPages; i++) {
-            paginationEl.innerHTML += `<li class="page-item${i === current ? ' active' : ''}"><a class="page-link" href="#" data-page="${i}">${i}</a></li>`;
+        
+        if (totalPages <= 1) return;
+        
+        // Container per i bottoni
+        const btnGroup = document.createElement('div');
+        btnGroup.className = 'btn-group';
+        
+        // Bottone Precedente
+        if (currentPage > 1) {
+            const prevBtn = document.createElement('button');
+            prevBtn.type = 'button';
+            prevBtn.className = 'btn btn-sm btn-outline-primary';
+            prevBtn.textContent = 'Precedente';
+            prevBtn.onclick = function() {
+                currentPage--;
+                renderTable();
+                renderPagination();
+            };
+            btnGroup.appendChild(prevBtn);
         }
+        
+        // Bottoni pagina (massimo 5)
+        const maxButtons = 5;
+        const startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+        const endPage = Math.min(totalPages, startPage + maxButtons - 1);
+        
+        for (let i = startPage; i <= endPage; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.type = 'button';
+            pageBtn.className = `btn btn-sm ${i === currentPage ? 'btn-primary' : 'btn-outline-primary'}`;
+            pageBtn.textContent = i;
+            
+            // Solo per le pagine diverse da quella corrente
+            if (i !== currentPage) {
+                pageBtn.onclick = function() {
+                    currentPage = i;
+                    renderTable();
+                    renderPagination();
+                };
+            }
+            
+            btnGroup.appendChild(pageBtn);
+        }
+        
+        // Bottone Successivo
+        if (currentPage < totalPages) {
+            const nextBtn = document.createElement('button');
+            nextBtn.type = 'button';
+            nextBtn.className = 'btn btn-sm btn-outline-primary';
+            nextBtn.textContent = 'Successivo';
+            nextBtn.onclick = function() {
+                currentPage++;
+                renderTable();
+                renderPagination();
+            };
+            btnGroup.appendChild(nextBtn);
+        }
+        
+        // Aggiungiamo i bottoni al container
+        paginationEl.appendChild(btnGroup);
     }
 
     // Funzione per azzerare i filtri e refreshare la tabella
@@ -226,12 +299,13 @@ export async function loadManageProductsPage() {
                         <table class="table table-bordered align-middle mb-0">
                             <thead>
                                 <tr>
-                                    <th class="text-center">Nome</th>
-                                    <th class="text-center">Categoria</th>
+                                    <th class="text-center">Logo</th>
+                                    <th class="text-center d-none d-md-table-cell">Nome</th>
+                                    <th class="text-center d-none d-md-table-cell">Categoria</th>
                                     <th class="text-center">Prezzo</th>
                                     <th class="text-center">Stock</th>
-                                    <th class="text-center">Stato</th>
-                                    <th class="text-center">Creato il</th>
+                                    <th class="text-center d-none d-md-table-cell">Stato</th>
+                                    <th class="text-center d-none d-md-table-cell">Creato il</th>
                                     <th class="text-center">Azioni</th>
                                 </tr>
                             </thead>
@@ -292,14 +366,6 @@ export async function loadManageProductsPage() {
         style.id = 'artisan-products-mobile-style';
         style.innerHTML = `
         @media (max-width: 767.98px) {
-          .container,
-          .row,
-          .col-12 {
-            padding-left: 0 !important;
-            padding-right: 0 !important;
-            margin-left: 0 !important;
-            margin-right: 0 !important;
-          }
           .mobile-btns {
             display: flex;
             flex-direction: column;
@@ -308,16 +374,15 @@ export async function loadManageProductsPage() {
           }
           .mobile-btns button, .mobile-btns a {
             width: 100%;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
           }
           #filters-card { display: none; }
           #filters-card.mobile-visible { display: block; margin-bottom: 1rem; }
-          .table thead, .table th:not(:first-child):not(:last-child), .table td:not(:first-child):not(:last-child) {
-            display: none;
+          .table th.d-none, .table td.d-none {
+            display: none !important;
           }
-          .table td:first-child, .table th:first-child, .table td:last-child, .table th:last-child {
-            display: table-cell;
-          }
-          .table td, .table th {
+          .table th, .table td {
             padding: 0.75rem 0.5rem;
           }
           #products-pagination {

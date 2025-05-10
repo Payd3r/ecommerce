@@ -234,33 +234,71 @@ export async function loadManageOrdersPage() {
         }
     }
 
-    function renderPagination(totalPages) {
+    function renderPagination(pagination) {
         const paginationContainer = pageElement.querySelector('#pagination-container');
+        if (!paginationContainer) return;
+        
         paginationContainer.innerHTML = '';
-        if (totalPages > 1) {
-            const prevButton = document.createElement('button');
-            prevButton.className = 'btn btn-secondary me-2';
-            prevButton.textContent = 'Precedente';
-            prevButton.disabled = currentPage === 1;
-            prevButton.addEventListener('click', () => {
-                if (currentPage > 1) {
-                    currentPage--;
-                    renderTable();
-                }
-            });
-            paginationContainer.appendChild(prevButton);
-            const nextButton = document.createElement('button');
-            nextButton.className = 'btn btn-secondary';
-            nextButton.textContent = 'Successivo';
-            nextButton.disabled = currentPage === totalPages;
-            nextButton.addEventListener('click', () => {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderTable();
-                }
-            });
-            paginationContainer.appendChild(nextButton);
+        
+        if (!pagination || pagination.totalPages <= 1) return;
+        
+        const totalPages = pagination.totalPages;
+        const currentPage = pagination.currentPage;
+        
+        // Container per i bottoni
+        const btnGroup = document.createElement('div');
+        btnGroup.className = 'btn-group';
+        
+        // Bottone Precedente
+        if (currentPage > 1) {
+            const prevBtn = document.createElement('button');
+            prevBtn.type = 'button';
+            prevBtn.className = 'btn btn-sm btn-outline-primary';
+            prevBtn.textContent = 'Precedente';
+            prevBtn.onclick = function() {
+                filter.page = currentPage - 1;
+                applyFilters();
+            };
+            btnGroup.appendChild(prevBtn);
         }
+        
+        // Bottoni pagina (massimo 5)
+        const maxButtons = 5;
+        const startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+        const endPage = Math.min(totalPages, startPage + maxButtons - 1);
+        
+        for (let i = startPage; i <= endPage; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.type = 'button';
+            pageBtn.className = `btn btn-sm ${i === currentPage ? 'btn-primary' : 'btn-outline-primary'}`;
+            pageBtn.textContent = i;
+            
+            // Solo per le pagine diverse da quella corrente
+            if (i !== currentPage) {
+                pageBtn.onclick = function() {
+                    filter.page = i;
+                    applyFilters();
+                };
+            }
+            
+            btnGroup.appendChild(pageBtn);
+        }
+        
+        // Bottone Successivo
+        if (currentPage < totalPages) {
+            const nextBtn = document.createElement('button');
+            nextBtn.type = 'button';
+            nextBtn.className = 'btn btn-sm btn-outline-primary';
+            nextBtn.textContent = 'Successivo';
+            nextBtn.onclick = function() {
+                filter.page = currentPage + 1;
+                applyFilters();
+            };
+            btnGroup.appendChild(nextBtn);
+        }
+        
+        // Aggiungiamo i bottoni al container
+        paginationContainer.appendChild(btnGroup);
     }
 
     function applyFilters() {
@@ -325,7 +363,7 @@ export async function loadManageOrdersPage() {
                 tableBody.appendChild(row);
             });
         }
-        renderPagination(totalPages);
+        renderPagination({ totalPages, currentPage });
     }
 
     // Visualizza dettagli ordine (mostra solo prodotti dell'artigiano loggato)
@@ -475,14 +513,6 @@ export async function loadManageOrdersPage() {
         style.id = 'artisan-orders-mobile-style';
         style.innerHTML = `
         @media (max-width: 767.98px) {
-          .admin-dashboard-page .container,
-          .admin-dashboard-page .row,
-          .admin-dashboard-page .col-12 {
-            padding-left: 0 !important;
-            padding-right: 0 !important;
-            margin-left: 0 !important;
-            margin-right: 0 !important;
-          }
           .admin-dashboard-page .mobile-btns {
             display: flex;
             flex-direction: column;
@@ -491,6 +521,8 @@ export async function loadManageOrdersPage() {
           }
           .admin-dashboard-page .mobile-btns button {
             width: 100%;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
           }
           .admin-dashboard-page #filters-card { display: none; }
           .admin-dashboard-page #filters-card.mobile-visible { display: block; margin-bottom: 1rem; }

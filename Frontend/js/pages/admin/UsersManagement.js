@@ -1,4 +1,3 @@
-import { authService } from '../../services/authService.js';
 import { showBootstrapToast } from '../../components/Toast.js';
 import UsersAPI from '../../../api/users.js';
 
@@ -13,14 +12,6 @@ export async function loadUsersManagementPage() {
         style.id = 'users-management-mobile-style';
         style.innerHTML = `
         @media (max-width: 767.98px) {
-          .admin-dashboard-page .container,
-          .admin-dashboard-page .row,
-          .admin-dashboard-page .col-12 {
-            padding-left: 0 !important;
-            padding-right: 0 !important;
-            margin-left: 0 !important;
-            margin-right: 0 !important;
-          }
           .admin-dashboard-page .mobile-btns {
             display: flex;
             flex-direction: column;
@@ -29,14 +20,22 @@ export async function loadUsersManagementPage() {
           }
           .admin-dashboard-page .mobile-btns button {
             width: 100%;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+          }
+          .admin-dashboard-page .card-title.d-mobile-hide {
+            display: none !important;
           }
           .admin-dashboard-page #filters-card { display: none; }
           .admin-dashboard-page #filters-card.mobile-visible { display: block; margin-bottom: 1rem; }
-          .admin-dashboard-page .table thead, .admin-dashboard-page .table th:not(:first-child):not(:last-child), .admin-dashboard-page .table td:not(:first-child):not(:last-child) {
-            display: none;
+          .admin-dashboard-page .table thead {
+            display: table-header-group;
           }
-          .admin-dashboard-page .table td:first-child, .admin-dashboard-page .table th:first-child, .admin-dashboard-page .table td:last-child, .admin-dashboard-page .table th:last-child {
+          .admin-dashboard-page .table th, .admin-dashboard-page .table td {
             display: table-cell;
+          }
+          .admin-dashboard-page .table th.d-mobile-none, .admin-dashboard-page .table td.d-mobile-none {
+            display: none !important;
           }
           .admin-dashboard-page .table td, .admin-dashboard-page .table th {
             padding: 0.75rem 0.5rem;
@@ -45,7 +44,11 @@ export async function loadUsersManagementPage() {
             justify-content: center !important;
             margin-top: 1rem;
           }
-          .admin-dashboard-page #pagination-container button {
+          .admin-dashboard-page #pagination-container ul.pagination {
+            justify-content: center !important;
+            margin-top: 1rem;
+          }
+          .admin-dashboard-page #pagination-container li.page-item {
             width: 48%;
             margin: 0 1%;
             font-size: 1.1rem;
@@ -117,15 +120,15 @@ export async function loadUsersManagementPage() {
                 <div class="col-md-8 mb-5">
                     <div class="card h-100">
                         <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">Utenti Registrati</h5>
+                            <h5 class="card-title d-mobile-hide">Utenti Registrati</h5>
                             <div class="table-responsive flex-grow-1">
                                 <table class="table mb-0"> 
                                     <thead>
                                         <tr>
                                             <th id="sort-name-col" style="cursor:pointer">Nome <span id="sort-name-icon"></span></th>
-                                            <th id="sort-email-col">Email</th>
+                                            <th id="sort-email-col" class="d-mobile-none">Email</th>
                                             <th id="sort-role-col"> Ruolo </th>
-                                            <th id="sort-created-col" style="cursor:pointer">Data creazione <span id="sort-created-icon"></span></th>
+                                            <th id="sort-created-col" class="d-mobile-none" style="cursor:pointer">Data creazione <span id="sort-created-icon"></span></th>
                                             <th>Azioni</th>
                                         </tr>
                                     </thead>
@@ -243,6 +246,17 @@ export async function loadUsersManagementPage() {
     // Variabile per tenere traccia dell'utente da eliminare
     let userIdToDelete = null;
 
+    // Aggiungi una variabile per tenere traccia dei filtri correnti
+    let currentFilters = {
+        name: '',
+        email: '',
+        role: '',
+        page: 1,
+        limit: 10,
+        orderBy: 'created_at',
+        orderDir: 'ASC'
+    };
+
     // Funzione per generare un badge colorato in base al ruolo
     function getRoleBadge(role) {
         let badgeClass = '';
@@ -262,110 +276,237 @@ export async function loadUsersManagementPage() {
         }
     }
 
-    // Aggiungi i bottoni per la paginazione sotto la tabella
-    function renderPagination(pagination) {
-        const paginationContainer = document.getElementById('pagination-container');
-        paginationContainer.innerHTML = '';
-
-        if (pagination.totalPages > 1) {
-            const prevButton = document.createElement('button');
-            prevButton.className = 'btn btn-secondary me-2';
-            prevButton.textContent = 'Precedente';
-            prevButton.disabled = !pagination.hasPrevPage;
-            prevButton.addEventListener('click', () => {
-                loadUsersTable({ page: pagination.currentPage - 1 });
-            });
-            paginationContainer.appendChild(prevButton);
-
-            const nextButton = document.createElement('button');
-            nextButton.className = 'btn btn-secondary';
-            nextButton.textContent = 'Successivo';
-            nextButton.disabled = !pagination.hasNextPage;
-            nextButton.addEventListener('click', () => {
-                loadUsersTable({ page: pagination.currentPage + 1 });
-            });
-            paginationContainer.appendChild(nextButton);
-        }
-    }
-
     // Funzione per caricare e popolare la tabella degli utenti
     async function loadUsersTable(params = {}) {
+        // Aggiungi un timestamp e un tracciamento dello stack per identificare da dove viene chiamata
+        console.log("CHIAMATA A loadUsersTable", new Date().toISOString());
+        console.log("CALLER STACK:", new Error().stack);
+        
         try {
-            // Se i parametri sono passati (ad esempio da Applica Filtri), usali, altrimenti leggi dal form
-            let name = params.name !== undefined ? params.name : '';
-            let email = params.email !== undefined ? params.email : '';
-            let role = params.role !== undefined ? params.role : '';
-            let page = params.page !== undefined ? params.page : 1;
-            let limit = params.limit !== undefined ? params.limit : 10;
-            let orderBy = params.orderBy !== undefined ? params.orderBy : 'created_at';
-            let orderDir = params.orderDir !== undefined ? params.orderDir : 'ASC';
-            // Prepara i parametri per la chiamata API secondo UsersAPI.getUsers
+            // IMPORTANTE: log dei parametri prima di qualsiasi manipolazione
+            console.log("PARAMETRI ORIGINALI:", JSON.stringify(params));
+            
+            // Per sicurezza, estrai esplicitamente i parametri che ci interessano
+            const page = parseInt(params.page) || 1;
+            const name = params.name || '';
+            const email = params.email || '';
+            const role = params.role || '';
+            const limit = params.limit || 10;
+            const orderBy = params.orderBy || 'created_at';
+            const orderDir = params.orderDir || 'ASC';
+            
+            // Crea un oggetto parametri pulito
             const apiParams = {
-                page,
-                role,
+                page: page,
+                pageNumber: page,
+                currentPage: page,
+                pageNum: page,
                 name,
                 email,
+                role,
                 limit,
                 orderBy,
                 orderDir
             };
+            
+            console.log("API CALL CON PARAMETRI:", JSON.stringify(apiParams));
+            console.log("PAGINA RICHIESTA:", page);
 
+            // Chiamata API diretta senza usare state complicati
             const response = await UsersAPI.getUsers(apiParams);
+            
+            console.log("RISPOSTA PAGINA:", response.pagination?.currentPage);
+            console.log("RISPOSTA COMPLETA:", JSON.stringify(response));
+            console.log("UTENTI RICEVUTI:", response.users?.length);
 
+            // Ottieni gli utenti dalla risposta
             const users = response.users || [];
+            console.log("UTENTI DA RENDERIZZARE:", users);
             const pagination = response.pagination || {};
 
+            // IMPORTANTE: trova il table body
             const tableBody = document.getElementById('users-table-body');
+            if (!tableBody) {
+                console.error('Table body non trovato');
+                return;
+            }
+            
+            // IMPORTANTE: Svuota completamente la tabella prima di riempirla
             tableBody.innerHTML = '';
-
-            users.forEach(user => {
+            
+            // Messaggio se non ci sono utenti
+            if (!users || users.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Nessun utente trovato</td></tr>';
+                return;
+            }
+            
+            // Debug extra
+            console.log("RENDERING DELLA TABELLA CON UTENTI:", users.map(u => u.name).join(', '));
+            
+            // Renderizza ogni utente ricevuto
+            users.forEach((user, index) => {
+                console.log(`Renderizzazione utente #${index+1}:`, user.name);
+                
+                // Crea una nuova riga per questo utente
                 const row = document.createElement('tr');
-                if (window.innerWidth < 768) {
+                
+                // Variante mobile o desktop
+                const isMobile = window.innerWidth < 768;
+                
+                if (isMobile) {
+                    // Versione mobile: solo nome, ruolo e azioni
                     row.innerHTML = `
-                        <td>${user.name}</td>
+                        <td>${user.name || 'N/D'}</td>
+                        <td>${getRoleBadge(user.role)}</td>
                         <td>
                             <div class="dropdown">
-                                <button class="btn btn-sm btn-secondary" type="button" id="dropdownMenuButton-${user.id}" data-bs-toggle="dropdown" aria-expanded="false">
+                                <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="bi bi-three-dots"></i>
                                 </button>
-                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-${user.id}">
-                                    <li><button class="dropdown-item" onclick="editUser(${user.id})">Modifica</button></li>
-                                    <li><button class="dropdown-item text-danger" onclick="deleteUser(${user.id})">Elimina</button></li>
+                                <ul class="dropdown-menu">
+                                    <li><button class="dropdown-item edit-user-btn" data-user-id="${user.id}">Modifica</button></li>
+                                    <li><button class="dropdown-item text-danger delete-user-btn" data-user-id="${user.id}">Elimina</button></li>
                                 </ul>
                             </div>
                         </td>
                     `;
                 } else {
+                    // Versione desktop: tutti i campi
                     row.innerHTML = `
-                        <td>${user.name}</td>
-                        <td>${user.email}</td>
+                        <td>${user.name || 'N/D'}</td>
+                        <td class="d-mobile-none">${user.email || 'N/D'}</td>
                         <td>${getRoleBadge(user.role)}</td>
-                        <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                        <td class="d-mobile-none">${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/D'}</td>
                         <td>
                             <div class="dropdown">
-                                <button class="btn btn-sm btn-secondary" type="button" id="dropdownMenuButton-${user.id}" data-bs-toggle="dropdown" aria-expanded="false">
+                                <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="bi bi-three-dots"></i>
                                 </button>
-                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-${user.id}">
-                                    <li><button class="dropdown-item" onclick="editUser(${user.id})">Modifica</button></li>
-                                    <li><button class="dropdown-item text-danger" onclick="deleteUser(${user.id})">Elimina</button></li>
+                                <ul class="dropdown-menu">
+                                    <li><button class="dropdown-item edit-user-btn" data-user-id="${user.id}">Modifica</button></li>
+                                    <li><button class="dropdown-item text-danger delete-user-btn" data-user-id="${user.id}">Elimina</button></li>
                                 </ul>
                             </div>
                         </td>
                     `;
                 }
+                
+                // IMPORTANTE: Aggiungi la riga alla tabella
                 tableBody.appendChild(row);
             });
-
-            renderPagination(pagination);
+            
+            // Aggiungi event listener alle azioni
+            document.querySelectorAll('.edit-user-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const userId = this.getAttribute('data-user-id');
+                    editUser(userId);
+                });
+            });
+            
+            document.querySelectorAll('.delete-user-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const userId = this.getAttribute('data-user-id');
+                    deleteUser(userId);
+                });
+            });
+            
+            // Renderizza la paginazione
+            createPagination(pagination);
+            
         } catch (error) {
+            console.error('Errore completo:', error);
+            
             if (error.message && error.message.includes('401')) {
                 console.error('Errore di autenticazione. Reindirizzamento alla pagina di login.');
-                window.location.href = '/login';
+                window.history.back();
             } else {
                 console.error('Errore durante il caricamento degli utenti:', error);
+                
+                // Notifica utente
+                showBootstrapToast('Errore nel caricamento degli utenti', 'Errore', 'danger');
+                
+                // Pulisci tabella con messaggio di errore
+                const tableBody = document.getElementById('users-table-body');
+                if (tableBody) {
+                    tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Errore nel caricamento degli utenti</td></tr>';
+                }
             }
         }
+    }
+
+    // Semplifica drasticamente la paginazione rendendola più diretta
+    function createPagination(pagination) {
+        const paginationContainer = document.getElementById('pagination-container');
+        if (!paginationContainer) return;
+        
+        paginationContainer.innerHTML = '';
+        
+        const totalPages = pagination.totalPages || pagination.total_pages || 1;
+        const currentPage = parseInt(pagination.currentPage || pagination.current_page || 1);
+        
+        if (totalPages <= 1) return;
+        
+        console.log("RENDER PAGINAZIONE:", { currentPage, totalPages });
+        
+        // APPROCCIO ULTRASEMPLIFICATO SENZA ELEMENTI HTML COMPLESSI
+        // Creiamo semplici bottoni senza alcun collegamento al router
+        
+        // Container per i bottoni
+        const btnGroup = document.createElement('div');
+        btnGroup.className = 'btn-group';
+        
+        // Bottone Precedente
+        if (currentPage > 1) {
+            const prevBtn = document.createElement('button');
+            prevBtn.type = 'button';
+            prevBtn.className = 'btn btn-outline-primary';
+            prevBtn.textContent = 'Precedente';
+            prevBtn.onclick = function() {
+                console.log("CLICK PRECEDENTE");
+                loadUsersTable({ page: currentPage - 1 });
+            };
+            btnGroup.appendChild(prevBtn);
+        }
+        
+        // Bottoni pagina (massimo 5)
+        const maxButtons = 5;
+        const startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+        const endPage = Math.min(totalPages, startPage + maxButtons - 1);
+        
+        for (let i = startPage; i <= endPage; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.type = 'button';
+            pageBtn.className = `btn ${i === currentPage ? 'btn-primary' : 'btn-outline-primary'}`;
+            pageBtn.textContent = i;
+            
+            // Solo per le pagine diverse da quella corrente
+            if (i !== currentPage) {
+                pageBtn.onclick = function() {
+                    console.log(`CLICK PAGINA ${i}`);
+                    loadUsersTable({ page: i });
+                };
+            }
+            
+            btnGroup.appendChild(pageBtn);
+        }
+        
+        // Bottone Successivo
+        if (currentPage < totalPages) {
+            const nextBtn = document.createElement('button');
+            nextBtn.type = 'button';
+            nextBtn.className = 'btn btn-outline-primary';
+            nextBtn.textContent = 'Successivo';
+            nextBtn.onclick = function() {
+                console.log("CLICK SUCCESSIVO");
+                loadUsersTable({ page: currentPage + 1 });
+            };
+            btnGroup.appendChild(nextBtn);
+        }
+        
+        // Aggiungiamo i bottoni al container
+        paginationContainer.appendChild(btnGroup);
+        
+        console.log('PAGINAZIONE CREATA CON SEMPLICI BOTTONI');
     }
 
     // Rendi le funzioni editUser e deleteUser accessibili globalmente
@@ -393,19 +534,31 @@ export async function loadUsersManagementPage() {
     async function loadDashboardData() {
         // Simulazione caricamento dati
         showBootstrapToast('Dashboard amministratore caricata con successo', 'Info', 'info');
-        await loadUsersTable();
+        
+        console.log("LOAD DASHBOARD DATA - NESSUNA CHIAMATA AUTOMATICA");
     }
 
     /**
      * Inizializza gli event listener
      */
     function mount() {
-        loadDashboardData();
+        // Rimuovo la chiamata a loadDashboardData() dal mount perché causa una doppia chiamata
+        // loadDashboardData(); 
+        
+        // Invece carico direttamente la tabella una sola volta all'avvio
+        loadUsersTable({ page: 1 });
+        
+        console.log("MOUNT COMPLETATO - INIZIALIZZAZIONE SOLO UNA VOLTA");
+
         const backBtn = document.getElementById('back-btn');
         if (backBtn) {
             backBtn.addEventListener('click', () => {
                 window.history.back();
             });
+        }
+        const backBtnMobile = document.getElementById('back-btn-mobile');
+        if (backBtnMobile) {
+            backBtnMobile.addEventListener('click', () => window.history.back());
         }
         // Modifica per utilizzare onclick invece di submit per il bottone "Applica Filtri"
         document.getElementById('apply-filters-btn').onclick = async () => {
@@ -429,14 +582,17 @@ export async function loadUsersManagementPage() {
                 name: formData.get('filter-name') || '',
                 email: formData.get('filter-email') || '',
                 role: rawrole || '',
+                page: 1 // Esplicitamente reset alla pagina 1
             };
+            console.log("APPLICAZIONE FILTRI:", params);
             await loadUsersTable(params);
         };
 
         // Modifica per utilizzare onclick per il bottone "Reset Filtri"
         document.getElementById('reset-filters-btn').onclick = async () => {
             document.getElementById('filters-form').reset();
-            await loadUsersTable();
+            console.log("RESET FILTRI -> pagina 1");
+            await loadUsersTable({ page: 1 });
         };
 
         // Add event listener for the 'Aggiungi Utente' button
@@ -541,10 +697,6 @@ export async function loadUsersManagementPage() {
             await loadUsersTable(params);
         });
 
-        const backBtnMobile = document.getElementById('back-btn-mobile');
-        if (backBtnMobile) {
-            backBtnMobile.addEventListener('click', () => window.history.back());
-        }
         const addUserBtnMobile = document.getElementById('add-user-btn-mobile');
         if (addUserBtnMobile) {
             addUserBtnMobile.addEventListener('click', () => {

@@ -11,6 +11,12 @@ export async function loadCategoriesManagementPage() {
     const pageElement = document.createElement('div');
     pageElement.className = 'categories-management-page';
 
+    // Stato locale per la paginazione
+    let allCategories = [];
+    let currentPage = 1;
+    const pageSize = 10;
+    let totalPages = 1;
+
     pageElement.innerHTML = `
         <div class="container pb-5 mt-4">
             <div class="row">
@@ -36,6 +42,7 @@ export async function loadCategoriesManagementPage() {
                 <div class="col-12 mb-2 d-md-none"></div>
                 <div class="col-12" id="categories-tree-wrapper" style="display:block;">
                     <div id="categoriesTree"></div>
+                    <div id="categories-pagination" class="mt-3 d-flex justify-content-center"></div>
                 </div>
             </div>
         </div>
@@ -90,14 +97,95 @@ export async function loadCategoriesManagementPage() {
         </ul>`;
     }
 
-    // Carica e mostra l'albero categorie
+    // Funzione per creare la paginazione
+    function renderPagination() {
+        const paginationEl = pageElement.querySelector('#categories-pagination');
+        paginationEl.innerHTML = '';
+        
+        if (totalPages <= 1) return;
+        
+        // Container per i bottoni
+        const btnGroup = document.createElement('div');
+        btnGroup.className = 'btn-group';
+        
+        // Bottone Precedente
+        if (currentPage > 1) {
+            const prevBtn = document.createElement('button');
+            prevBtn.type = 'button';
+            prevBtn.className = 'btn btn-sm btn-outline-primary';
+            prevBtn.textContent = 'Precedente';
+            prevBtn.onclick = function() {
+                currentPage--;
+                loadAndRenderPaginatedCategories();
+            };
+            btnGroup.appendChild(prevBtn);
+        }
+        
+        // Bottoni pagina (massimo 5)
+        const maxButtons = 5;
+        const startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+        const endPage = Math.min(totalPages, startPage + maxButtons - 1);
+        
+        for (let i = startPage; i <= endPage; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.type = 'button';
+            pageBtn.className = `btn btn-sm ${i === currentPage ? 'btn-primary' : 'btn-outline-primary'}`;
+            pageBtn.textContent = i;
+            
+            // Solo per le pagine diverse da quella corrente
+            if (i !== currentPage) {
+                pageBtn.onclick = function() {
+                    currentPage = i;
+                    loadAndRenderPaginatedCategories();
+                };
+            }
+            
+            btnGroup.appendChild(pageBtn);
+        }
+        
+        // Bottone Successivo
+        if (currentPage < totalPages) {
+            const nextBtn = document.createElement('button');
+            nextBtn.type = 'button';
+            nextBtn.className = 'btn btn-sm btn-outline-primary';
+            nextBtn.textContent = 'Successivo';
+            nextBtn.onclick = function() {
+                currentPage++;
+                loadAndRenderPaginatedCategories();
+            };
+            btnGroup.appendChild(nextBtn);
+        }
+        
+        // Aggiungiamo i bottoni al container
+        paginationEl.appendChild(btnGroup);
+    }
+
+    // Funzione per paginare le categorie
+    function paginateCategories(categories, page, size) {
+        const startIndex = (page - 1) * size;
+        const endIndex = startIndex + size;
+        return {
+            categories: categories.slice(startIndex, endIndex),
+            totalPages: Math.ceil(categories.length / size)
+        };
+    }
+
+    // Carica e mostra l'albero categorie con paginazione
     async function loadAndRenderCategories() {
         try {
-            const categories = await UsersAPI.getCategoryTree();
-            renderCategoriesTree(categories);
+            allCategories = await UsersAPI.getCategoryTree();
+            loadAndRenderPaginatedCategories();
         } catch (error) {
             showBootstrapToast('Errore nel caricamento delle categorie', 'Errore', 'error');
         }
+    }
+
+    // Renderizza le categorie paginate
+    function loadAndRenderPaginatedCategories() {
+        const paginatedData = paginateCategories(allCategories, currentPage, pageSize);
+        totalPages = paginatedData.totalPages;
+        renderCategoriesTree(paginatedData.categories);
+        renderPagination();
     }
 
     // Mostra modale per aggiunta/modifica/spostamento categoria

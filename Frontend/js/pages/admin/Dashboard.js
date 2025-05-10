@@ -83,7 +83,7 @@ export async function loadAdminDashboardPage() {
         </div>
         <div class="row g-4 mb-4 align-items-stretch">
             <div class="col-12">
-                <div class="row g-3">
+                <div class="row g-2 g-md-3">
                     <div class="col-4 col-md-2">
                         <div class="card bg-success text-dark h-100 bg-opacity-10">
                             <div class="card-body text-center">
@@ -133,7 +133,7 @@ export async function loadAdminDashboardPage() {
                         <div class="card bg-danger text-dark h-100 bg-opacity-10">
                             <div class="card-body text-center">
                                 <div class="display-4 mb-2">⏳</div>
-                                <h6 class="card-title">Ordini in lavorazione</h6>
+                                <h6 class="card-title text-nowrap">Lavorazione</h6>
                                 <p class="card-text fs-4">${ordersProcessingCount}</p>
                             </div>
                         </div>
@@ -216,7 +216,7 @@ export async function loadAdminDashboardPage() {
                                         <td>${o.client_name || o.client_id || '-'}</td>
                                         <td>${o.total_price} €</td>
                                         <td>${o.status}</td>
-                                        <td>${o.created_at ? o.created_at.split('T')[0] : '-'}</td>
+                                        <td>${formatDateIT(o.created_at)}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
@@ -238,22 +238,18 @@ export async function loadAdminDashboardPage() {
                             <thead>
                                 <tr>
                                     <th>Nome</th>
-                                    <th>Categoria</th>
-                                    <th>Prezzo</th>
-                                    <th>Stato</th>
-                                    <th>Creato il</th>
+                                    <th class="w-50 w-md-auto">Prezzo</th>
+                                    <th><span class="d-none d-md-inline">Creato il</span><span class="d-inline d-md-none">Creato</span></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 ${(productsRes.products && productsRes.products.length > 0 ? productsRes.products.slice(0,5) : []).length === 0 ? `
-                                    <tr><td colspan="5" class="text-center">Nessun prodotto recente</td></tr>
+                                    <tr><td colspan="3" class="text-center">Nessun prodotto recente</td></tr>
                                 ` : productsRes.products.slice(0,5).map(p => `
                                     <tr>
                                         <td>${p.name}</td>
-                                        <td>${p.category_name || p.category || '-'}</td>
                                         <td>${p.price} €</td>
-                                        <td>${p.status || '-'}</td>
-                                        <td>${p.created_at ? p.created_at.split('T')[0] : '-'}</td>
+                                        <td>${formatDateIT(p.created_at)}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
@@ -271,7 +267,7 @@ export async function loadAdminDashboardPage() {
                         <table class="table mb-0">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
+                                    <th class="d-none d-md-table-cell">ID</th>
                                     <th>Titolo</th>
                                     <th>Cliente</th>
                                     <th>Stato</th>
@@ -283,11 +279,11 @@ export async function loadAdminDashboardPage() {
                                     <tr><td colspan="5" class="text-center">Nessuna segnalazione recente</td></tr>
                                 ` : issues.slice(0, 5).map(issue => `
                                     <tr>
-                                        <td>${issue.id_issue}</td>
+                                        <td class="d-none d-md-table-cell">${issue.id_issue}</td>
                                         <td>${issue.title}</td>
                                         <td>${issue.client_name || '-'}</td>
                                         <td>${issue.status || '-'}</td>
-                                        <td>${issue.created_at ? issue.created_at.split('T')[0] : '-'}</td>
+                                        <td>${formatDateIT(issue.created_at)}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
@@ -298,9 +294,40 @@ export async function loadAdminDashboardPage() {
         </div>
     `;
 
+    // Aggiungi CSS responsive per ridurre lo spazio tra le card su mobile
+    if (!document.getElementById('admin-dashboard-mobile-style')) {
+        const style = document.createElement('style');
+        style.id = 'admin-dashboard-mobile-style';
+        style.innerHTML = `
+        @media (max-width: 767.98px) {
+          .admin-dashboard-page .row.g-2 {
+            --bs-gutter-x: 0.5rem;
+            --bs-gutter-y: 0.5rem;
+          }
+          .admin-dashboard-page .card-title.text-nowrap {
+            font-size: 1rem;
+          }
+        }
+        `;
+        document.head.appendChild(style);
+    }
+
     return {
         render: () => pageElement,
         mount: () => {},
         unmount: () => {}
     };
+}
+
+// Funzione per formattare la data in '25 feb 2025' su desktop e '25 feb' su mobile
+function formatDateIT(dateStr) {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    if (isNaN(date)) return '-';
+    const mesi = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'];
+    const giorno = date.getDate();
+    const mese = mesi[date.getMonth()];
+    const anno = date.getFullYear();
+    // Mostra solo giorno e mese su mobile, giorno mese anno su desktop
+    return `<span class="d-none d-md-inline">${giorno} ${mese} ${anno}</span><span class="d-inline d-md-none">${giorno} ${mese}</span>`;
 }
