@@ -58,6 +58,7 @@ class Navbar {
                         <li class="nav-item"><a class="nav-link" href="/products" data-route>Prodotti</a></li>
                         <li class="nav-item"><a class="nav-link" href="/categories" data-route>Categorie</a></li>
                         <li class="nav-item"><a class="nav-link" href="/artisans" data-route>Artigiani</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/issue/new" data-route>Aiuto</a></li>
                         ${isAuthenticated && user && user.role === 'admin' ? `<li class="nav-item"><a class="nav-link" href="/admin/dashboard" data-route>Dashboard</a></li>` : ''}
                         ${isAuthenticated && user && user.role === 'artisan' ? `<li class="nav-item"><a class="nav-link" href="/artisan/dashboard" data-route>Dashboard</a></li>` : ''}
                     </ul>

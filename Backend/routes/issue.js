@@ -28,4 +28,40 @@ router.get('/', async (req, res) => {
   }
 });
 
+// POST /api/issues - crea una nuova segnalazione
+router.post('/', async (req, res) => {
+  try {
+    const { title, description, status, created_at, id_client } = req.body;
+    console.log('POST /issues body:', req.body);
+    if (!id_client) {
+      return res.status(400).json({ error: "id_client obbligatorio per la creazione della segnalazione" });
+    }
+    console.log('Insert values:', [title, description, status, created_at, id_client]);
+    await db.query(
+      `INSERT INTO issues (title, description, status, created_at, id_client) VALUES (?, ?, ?, ?, ?)`,
+      [title, description, status, created_at, id_client]
+    );
+    res.status(201).json({ success: true });
+  } catch (err) {
+    console.error('Errore nella creazione della segnalazione:', err);
+    res.status(500).json({ error: "Errore nella creazione della segnalazione" });
+  }
+});
+
+// PUT /api/issues/:id - aggiorna una segnalazione
+router.put('/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { title, description, status, created_at } = req.body;
+    // Aggiorna solo i campi consentiti
+    await db.query(
+      `UPDATE issues SET title=?, description=?, status=?, created_at=? WHERE id_issue=?`,
+      [title, description, status, created_at, id]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: "Errore nell'aggiornamento della segnalazione" });
+  }
+});
+
 module.exports = router;

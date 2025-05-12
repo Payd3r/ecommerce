@@ -3,6 +3,7 @@ import { authService } from './services/authService.js';
 import { showBootstrapToast } from './components/Toast.js';
 import { loader } from './components/Loader.js';
 // Importo la pagina prodotti
+// Import dinamico per la pagina di aiuto/nuova issue
 
 /**
  * Router dell'applicazione con gestione delle route protette
@@ -224,5 +225,15 @@ class Router {
     }
 }
 
-// Esporto un'istanza singola del router
-export const router = new Router();
+// Registra la pagina di creazione issue/aiuto
+import { loadHelpIssuePage } from './pages/common/HelpIssuePage.js';
+
+const routerInstance = new Router();
+// ...altre route...
+routerInstance.register('/issue/new', async () => ({
+    render: loadHelpIssuePage,
+    mount: () => {},
+    unmount: () => {}
+}), { title: 'Nuova Segnalazione' });
+
+export const router = routerInstance;
