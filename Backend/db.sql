@@ -60,7 +60,8 @@ CREATE TABLE `issues` (
   `description` varchar(255) NOT NULL,
   `status` enum('open','closed','refused','solved') NOT NULL,
   `title` varchar(32) NOT NULL,
-  `created_at` date NOT NULL
+  `created_at` date NOT NULL,
+  `admin_note` varchar(255) DEFAULT NULL,
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------

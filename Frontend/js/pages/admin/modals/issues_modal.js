@@ -46,6 +46,10 @@ export function showIssueModal(issue, onSave) {
         <label class="form-label">Descrizione</label>
         <textarea class="form-control" name="description" rows="3" readonly>${issue.description || ''}</textarea>
     </div>
+    <div class="mb-3">
+        <label class="form-label">Nota admin</label>
+        <textarea class="form-control" name="admin_note" rows="2" placeholder="Aggiungi una nota amministrativa...">${issue.admin_note || ''}</textarea>
+    </div>
 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
@@ -63,6 +67,7 @@ export function showIssueModal(issue, onSave) {
         modal.querySelector('select[name="status"]').value = issue.status || '';
         modal.querySelector('input[name="created_at"]').value = issue.created_at ? issue.created_at.split('T')[0] : '';
         modal.querySelector('textarea[name="description"]').value = issue.description || '';
+        modal.querySelector('textarea[name="admin_note"]').value = issue.admin_note || '';
     }
 
     // Gestione submit
@@ -71,7 +76,11 @@ export function showIssueModal(issue, onSave) {
         const formData = new FormData(e.target);
         const updated = {
             id_issue: formData.get('id_issue'),
-            status: formData.get('status')
+            title: formData.get('title'),
+            description: formData.get('description'),
+            status: formData.get('status'),
+            created_at: formData.get('created_at'),
+            admin_note: formData.get('admin_note')
         };
 
         try {

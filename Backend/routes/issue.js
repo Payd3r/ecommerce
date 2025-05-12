@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
     const total = countRows[0].total;
     // Query per la pagina
     const [rows] = await db.query(
-      `SELECT i.id_issue, i.title, u.name as client_name, i.description, i.status, i.created_at
+      `SELECT i.id_issue, i.title, u.name as client_name, i.description, i.status, i.created_at, i.admin_note
        FROM issues i
        LEFT JOIN users u ON i.id_client = u.id
        ORDER BY i.created_at DESC, i.id_issue DESC
@@ -31,15 +31,15 @@ router.get('/', async (req, res) => {
 // POST /api/issues - crea una nuova segnalazione
 router.post('/', async (req, res) => {
   try {
-    const { title, description, status, created_at, id_client } = req.body;
+    const { title, description, status, created_at, id_client, admin_note } = req.body;
     console.log('POST /issues body:', req.body);
     if (!id_client) {
       return res.status(400).json({ error: "id_client obbligatorio per la creazione della segnalazione" });
     }
-    console.log('Insert values:', [title, description, status, created_at, id_client]);
+    console.log('Insert values:', [title, description, status, created_at, id_client, admin_note]);
     await db.query(
-      `INSERT INTO issues (title, description, status, created_at, id_client) VALUES (?, ?, ?, ?, ?)`,
-      [title, description, status, created_at, id_client]
+      `INSERT INTO issues (title, description, status, created_at, id_client, admin_note) VALUES (?, ?, ?, ?, ?, ?)` ,
+      [title, description, status, created_at, id_client, admin_note || null]
     );
     res.status(201).json({ success: true });
   } catch (err) {
@@ -52,11 +52,11 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const id = req.params.id;
-    const { title, description, status, created_at } = req.body;
+    const { title, description, status, created_at, admin_note } = req.body;
     // Aggiorna solo i campi consentiti
     await db.query(
-      `UPDATE issues SET title=?, description=?, status=?, created_at=? WHERE id_issue=?`,
-      [title, description, status, created_at, id]
+      `UPDATE issues SET title=?, description=?, status=?, created_at=?, admin_note=? WHERE id_issue=?`,
+      [title, description, status, created_at, admin_note, id]
     );
     res.json({ success: true });
   } catch (err) {

@@ -5,7 +5,7 @@ const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 3005;
-
+app.use(express.static(path.join(__dirname, '../Frontend')));
 // Middleware
 app.use(cors({
   origin: true, // Permette tutte le origini durante lo sviluppo

@@ -58,15 +58,16 @@ export async function loadIssuesManagementPage() {
                                     <thead>
                                         <tr>
                                             <th>ID</th>
-<th id="sort-title" style="cursor:pointer">Titolo <span id="sort-title-icon"></span></th>
-<th id="sort-client" style="cursor:pointer">Cliente <span id="sort-client-icon"></span></th>
-<th id="sort-status" style="cursor:pointer">Stato <span id="sort-status-icon"></span></th>
-<th id="sort-date" style="cursor:pointer">Data <span id="sort-date-icon"></span></th>
-<th>Azioni</th>
+                                            <th id="sort-title" style="cursor:pointer">Titolo <span id="sort-title-icon"></span></th>
+                                            <th id="sort-client" style="cursor:pointer">Cliente <span id="sort-client-icon"></span></th>
+                                            <th id="sort-status" style="cursor:pointer">Stato <span id="sort-status-icon"></span></th>
+                                            <th id="sort-date" style="cursor:pointer">Data <span id="sort-date-icon"></span></th>
+                                            <th>Nota admin</th>
+                                            <th>Azioni</th>
                                         </tr>
                                     </thead>
                                     <tbody id="issues-table-body">
-                                        <tr><td colspan="6" class="text-center text-muted py-5">Nessuna segnalazione trovata.</td></tr>
+                                        <tr><td colspan="7" class="text-center text-muted py-5">Nessuna segnalazione trovata.</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -89,6 +90,7 @@ export async function loadIssuesManagementPage() {
 
     // Carica segnalazioni dal server
     async function fetchIssues(page = 1) {
+        currentPage = page;
         try {
             const res = await import('../../../api/issues.js');
             const data = await res.getIssues(page, pageSize);
@@ -96,7 +98,7 @@ export async function loadIssuesManagementPage() {
             filteredIssues = [...issues];
             totalIssues = data.total || 0;
             renderTable();
-            renderPagination(Math.ceil(filteredIssues.length / pageSize) || 1);
+            renderPagination(Math.ceil(totalIssues / pageSize) || 1);
         } catch (e) {
             issues = [];
             filteredIssues = [];
@@ -161,11 +163,10 @@ export async function loadIssuesManagementPage() {
             if (v1 > v2) return sortDir === 'ASC' ? 1 : -1;
             return 0;
         });
-        const start = (currentPage - 1) * pageSize;
-        const end = start + pageSize;
-        const pageIssues = filteredIssues.slice(start, end);
+        // Mostra direttamente tutti i risultati ricevuti dal backend (già paginati)
+        const pageIssues = filteredIssues;
         if (pageIssues.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-5">Nessuna segnalazione trovata.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-5">Nessuna segnalazione trovata.</td></tr>`;
         } else {
             pageIssues.forEach(issue => {
                 tableBody.innerHTML += `
@@ -175,6 +176,7 @@ export async function loadIssuesManagementPage() {
                         <td>${issue.client_name || '-'}</td>
                         <td>${renderStatusBadge(issue.status)}</td>
                         <td>${issue.created_at ? issue.created_at.split('T')[0] : '-'}</td>
+                        <td>${issue.admin_note ? issue.admin_note : '-'}</td>
                         <td class="text-center align-middle" style="vertical-align: middle !important;">
                         <button class="btn btn-link p-0 m-0 d-flex justify-content-center align-items-center" title="Dettagli segnalazione" onclick="viewIssueDetails(${issue.id_issue})">
                             <i class="bi bi-eye fs-5"></i>
@@ -197,11 +199,11 @@ export async function loadIssuesManagementPage() {
     // Renderizza la paginazione
     function renderPagination(totalPages) {
         const paginationContainer = document.getElementById('pagination-container');
+        if (!paginationContainer) return;
         paginationContainer.innerHTML = '';
 
         if (totalPages <= 1) return;
 
-        // Container per i bottoni
         const btnGroup = document.createElement('div');
         btnGroup.className = 'btn-group';
 
@@ -209,12 +211,10 @@ export async function loadIssuesManagementPage() {
         if (currentPage > 1) {
             const prevBtn = document.createElement('button');
             prevBtn.type = 'button';
-            prevBtn.className = 'btn btn-sm btn-outline-primary';
+            prevBtn.className = 'btn btn-outline-primary btn-sm';
             prevBtn.textContent = 'Precedente';
-            prevBtn.onclick = function () {
-                currentPage--;
-                renderTable();
-                renderPagination(totalPages);
+            prevBtn.onclick = function() {
+                fetchIssues(currentPage - 1);
             };
             btnGroup.appendChild(prevBtn);
         }
@@ -229,16 +229,11 @@ export async function loadIssuesManagementPage() {
             pageBtn.type = 'button';
             pageBtn.className = `btn btn-sm ${i === currentPage ? 'btn-primary' : 'btn-outline-primary'}`;
             pageBtn.textContent = i;
-
-            // Solo per le pagine diverse da quella corrente
             if (i !== currentPage) {
-                pageBtn.onclick = function () {
-                    currentPage = i;
-                    renderTable();
-                    renderPagination(totalPages);
+                pageBtn.onclick = function() {
+                    fetchIssues(i);
                 };
             }
-
             btnGroup.appendChild(pageBtn);
         }
 
@@ -246,17 +241,14 @@ export async function loadIssuesManagementPage() {
         if (currentPage < totalPages) {
             const nextBtn = document.createElement('button');
             nextBtn.type = 'button';
-            nextBtn.className = 'btn btn-sm btn-outline-primary';
+            nextBtn.className = 'btn btn-outline-primary btn-sm';
             nextBtn.textContent = 'Successivo';
-            nextBtn.onclick = function () {
-                currentPage++;
-                renderTable();
-                renderPagination(totalPages);
+            nextBtn.onclick = function() {
+                fetchIssues(currentPage + 1);
             };
             btnGroup.appendChild(nextBtn);
         }
 
-        // Aggiungiamo i bottoni al container
         paginationContainer.appendChild(btnGroup);
     }
 
