@@ -308,6 +308,20 @@ router.delete('/:orderId', verifyToken, async (req, res) => {
                 return res.status(403).json({ error: 'Non hai i permessi per eliminare questo ordine' });
             }
         }
+        // --- INIZIO LOGICA RESTITUZIONE SCORTE ---
+        // Recupera tutti gli order_items dell'ordine
+        const [orderItems] = await db.query(
+            'SELECT product_id, quantity FROM order_items WHERE order_id = ?',
+            [orderId]
+        );
+        // Per ogni prodotto, restituisci la quantità alle scorte
+        for (const item of orderItems) {
+            await db.query(
+                'UPDATE products SET stock = stock + ? WHERE id = ?',
+                [item.quantity, item.product_id]
+            );
+        }
+        // --- FINE LOGICA RESTITUZIONE SCORTE ---
         // Elimina prima gli order_items
         await db.query('DELETE FROM order_items WHERE order_id = ?', [orderId]);
         // Poi elimina l'ordine
@@ -323,13 +337,78 @@ router.delete('/:orderId', verifyToken, async (req, res) => {
 });
 
 // PUT /orders/:orderId - Aggiorna lo stato di un ordine
-router.put('/:orderId', async (req, res) => {
+router.put('/:orderId', verifyToken, async (req, res) => {
     const orderId = parseInt(req.params.orderId);
     const { status } = req.body;
     if (isNaN(orderId) || !status) {
         return res.status(400).json({ error: 'ID ordine o stato non valido' });
     }
     try {
+        // Recupera lo stato attuale e il client/artisan associato
+        const [[order]] = await db.query('SELECT status, client_id FROM orders WHERE id = ?', [orderId]);
+        if (!order) {
+            return res.status(404).json({ error: 'Ordine non trovato' });
+        }
+        const currentStatus = order.status;
+        // Definisci le transizioni valide
+        const validTransitions = {
+            pending: ['accepted', 'refused'],
+            accepted: ['shipped'],
+            shipped: ['delivered']
+        };
+        // Controlla se la transizione è valida
+        if (!validTransitions[currentStatus] || !validTransitions[currentStatus].includes(status)) {
+            return res.status(400).json({ error: `Transizione di stato non valida da '${currentStatus}' a '${status}'` });
+        }
+        // Se admin, può cambiare stato liberamente
+        if (req.user.role === 'admin') {
+            // Se da pending a refused, restituisci scorte
+            if (currentStatus === 'pending' && status === 'refused') {
+                const [orderItems] = await db.query(
+                    'SELECT product_id, quantity FROM order_items WHERE order_id = ?',
+                    [orderId]
+                );
+                for (const item of orderItems) {
+                    await db.query(
+                        'UPDATE products SET stock = stock + ? WHERE id = ?',
+                        [item.quantity, item.product_id]
+                    );
+                }
+            }
+            const [result] = await db.query('UPDATE orders SET status = ? WHERE id = ?', [status, orderId]);
+            if (result.affectedRows === 0) {
+                return res.status(404).json({ error: 'Ordine non trovato' });
+            }
+            return res.json({ message: 'Stato ordine aggiornato (admin)' });
+        }
+        // Controlla permessi
+        if (currentStatus === 'pending' && (status === 'accepted' || status === 'refused')) {
+            if (req.user.role !== 'artisan') {
+                return res.status(403).json({ error: 'Solo l\'artigiano può accettare o rifiutare l\'ordine' });
+            }
+        } else if (currentStatus === 'accepted' && status === 'shipped') {
+            if (req.user.role !== 'artisan') {
+                return res.status(403).json({ error: 'Solo l\'artigiano può spedire l\'ordine' });
+            }
+        } else if (currentStatus === 'shipped' && status === 'delivered') {
+            if (req.user.role !== 'client' && req.user.role !== 'user' && req.user.id !== order.client_id) {
+                return res.status(403).json({ error: 'Solo il cliente può segnare l\'ordine come ricevuto' });
+            }
+        }
+        // Se rifiutato, restituisci le scorte
+        if (currentStatus === 'pending' && status === 'refused') {
+            const [orderItems] = await db.query(
+                'SELECT product_id, quantity FROM order_items WHERE order_id = ?',
+                [orderId]
+            );
+            for (const item of orderItems) {
+                await db.query(
+                    'UPDATE products SET stock = stock + ? WHERE id = ?',
+                    [item.quantity, item.product_id]
+                );
+            }
+        }
+        // Aggiorna lo stato
         const [result] = await db.query('UPDATE orders SET status = ? WHERE id = ?', [status, orderId]);
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Ordine non trovato' });

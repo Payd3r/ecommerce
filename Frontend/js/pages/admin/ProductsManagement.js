@@ -4,6 +4,7 @@ import CategoriesAPI from '../../../api/categories.js';
 import UsersAPI from '../../../api/users.js';
 import { showAddProductModal } from '../artisan/modals/addProduct.js';
 import { showEditProductModal } from '../artisan/modals/editProduct.js';
+import { router } from '../../router.js';
 
 export async function loadProductsManagementPage() {
     const pageElement = document.createElement('div');
@@ -106,7 +107,6 @@ export async function loadProductsManagementPage() {
                                 <i class="bi bi-three-dots"></i>
                             </button>
                             <ul class="dropdown-menu text-center">
-                                <li><a class="dropdown-item d-flex align-items-center justify-content-center gap-2" href="#"><i class="bi bi-eye"></i> Visualizza</a></li>
                                 <li><a class="dropdown-item d-flex align-items-center justify-content-center gap-2 btn-edit-product" href="#"><i class="bi bi-pencil"></i> Modifica</a></li>
                                 <li><a class="dropdown-item text-danger d-flex align-items-center justify-content-center gap-2" href="#"><i class="bi bi-trash"></i> Elimina</a></li>
                             </ul>
@@ -370,11 +370,9 @@ export async function loadProductsManagementPage() {
     }
     // Bottoni mobile
     const backBtnMobile = pageElement.querySelector('#back-btn-mobile');
-    if (backBtnMobile) {
-        backBtnMobile.addEventListener('click', () => {
-            window.history.back();
-        });
-    }
+    if (backBtnMobile) backBtnMobile.addEventListener('click', () => {
+        router.navigate('/admin/dashboard');
+    });
     const addProductBtnMobile = pageElement.querySelector('#addProductBtnMobile');
     if (addProductBtnMobile) {
         addProductBtnMobile.addEventListener('click', e => {
@@ -401,11 +399,9 @@ export async function loadProductsManagementPage() {
         render: () => pageElement,
         mount: () => { 
             const backBtn = document.getElementById('back-btn');
-            if (backBtn) {
-                backBtn.addEventListener('click', () => {
-                    window.history.back();
-                });
-            }
+            if (backBtn) backBtn.addEventListener('click', () => {
+                router.navigate('/admin/dashboard');
+            });
         },
         unmount: () => { }
     };

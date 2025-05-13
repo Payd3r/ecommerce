@@ -123,7 +123,7 @@ export async function getOrdersByClient(clientId) {
 export async function deleteOrder(orderId) {
     const token = authService.getToken();
     if (!token) throw new Error('Token di accesso non trovato');
-    const res = await fetch(API_BASE_URL, {
+    const res = await fetch(`${API_BASE_URL}/${orderId}`, {
         method: 'DELETE',
         headers: {
             'Authorization': `Bearer ${token}`
@@ -141,7 +141,7 @@ export async function deleteOrder(orderId) {
 export async function updateOrderStatus(orderId, status) {
     const token = authService.getToken();
     if (!token) throw new Error('Token di accesso non trovato');
-    const res = await fetch(API_BASE_URL, {
+    const res = await fetch(`${API_BASE_URL}/${orderId}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',

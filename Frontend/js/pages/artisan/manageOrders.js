@@ -196,8 +196,8 @@ export async function loadManageOrdersPage() {
                                 <tbody id="order-details-table-body"></tbody>
                             </table>
                         </div>
+                        <div id="order-details-actions"></div>
                         <div class="d-flex gap-2 justify-content-end">
-                            <button type="button" class="btn btn-outline-primary" id="order-details-change-status-btn">Cambia stato</button>
                             <button type="button" class="btn btn-outline-danger" id="order-details-delete-btn">Elimina ordine</button>
                         </div>
                     </div>
@@ -225,11 +225,11 @@ export async function loadManageOrdersPage() {
 
     function getStatusBadge(status) {
         switch (status) {
-            case 'pending': return '<span class="badge bg-warning">In attesa</span>';
-            case 'processing': return '<span class="badge bg-info">In lavorazione</span>';
-            case 'shipped': return '<span class="badge bg-primary">Spedito</span>';
-            case 'completed': return '<span class="badge bg-success">Completato</span>';
-            case 'cancelled': return '<span class="badge bg-danger">Annullato</span>';
+            case 'pending': return '<span class="badge bg-secondary">In attesa</span>';
+            case 'accepted': return '<span class="badge bg-warning">Accettato</span>';
+            case 'refused': return '<span class="badge bg-danger">Rifiutato</span>';
+            case 'shipped': return '<span class="badge bg-info">Spedito</span>';
+            case 'delivered': return '<span class="badge bg-success">Consegnato</span>';
             default: return `<span class="badge bg-secondary">${status}</span>`;
         }
     }
@@ -371,6 +371,7 @@ export async function loadManageOrdersPage() {
         window._lastOrderDetailsId = orderId;
         const tableBody = pageElement.querySelector('#order-details-table-body');
         tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Caricamento...</td></tr>';
+        let order = orders.find(o => o.id === orderId);
         try {
             const items = await getOrderItems(orderId);
             const user = authService.getUser();
@@ -398,16 +399,46 @@ export async function loadManageOrdersPage() {
         }
         // Mostra modal
         const modal = new bootstrap.Modal(pageElement.querySelector('#orderDetailsModal'));
-        modal.show();
-        // Bottoni cambio stato/elimina
-        pageElement.querySelector('#order-details-change-status-btn').onclick = function() {
-            modal.hide();
-            setTimeout(() => changeOrderStatus(orderId), 300);
-        };
-        pageElement.querySelector('#order-details-delete-btn').onclick = function() {
+        // Bottoni azione dinamici
+        const actionsContainer = pageElement.querySelector('#order-details-actions');
+        actionsContainer.innerHTML = '';
+        if (order.status === 'pending') {
+            const acceptBtn = document.createElement('button');
+            acceptBtn.className = 'btn btn-success me-2';
+            acceptBtn.textContent = 'Accetta';
+            acceptBtn.onclick = async () => {
+                await updateOrderStatus(orderId, 'accepted');
+                modal.hide();
+                await reloadOrders();
+            };
+            const refuseBtn = document.createElement('button');
+            refuseBtn.className = 'btn btn-danger me-2';
+            refuseBtn.textContent = 'Rifiuta';
+            refuseBtn.onclick = async () => {
+                await updateOrderStatus(orderId, 'refused');
+                modal.hide();
+                await reloadOrders();
+            };
+            actionsContainer.appendChild(acceptBtn);
+            actionsContainer.appendChild(refuseBtn);
+        } else if (order.status === 'accepted') {
+            const shipBtn = document.createElement('button');
+            shipBtn.className = 'btn btn-primary me-2';
+            shipBtn.textContent = 'Spedisci';
+            shipBtn.onclick = async () => {
+                await updateOrderStatus(orderId, 'shipped');
+                modal.hide();
+                await reloadOrders();
+            };
+            actionsContainer.appendChild(shipBtn);
+        }
+        // Bottone elimina sempre visibile
+        const deleteBtn = pageElement.querySelector('#order-details-delete-btn');
+        deleteBtn.onclick = function() {
             modal.hide();
             setTimeout(() => showDeleteOrderModal(orderId), 300);
         };
+        modal.show();
     }
 
     function showDeleteOrderModal(orderId) {

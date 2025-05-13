@@ -1,7 +1,7 @@
 import { authService } from '../../services/authService.js';
 import { showBootstrapToast } from '../../components/Toast.js';
 import * as OrdersAPI from '../../../api/orders.js';
-
+import { router } from '../../router.js';
 /**
  * Pagina "I miei ordini" per utenti client
  */
@@ -10,8 +10,8 @@ export async function loadClientOrdersPage() {
     pageElement.className = 'container py-4';
 
     const user = authService.getUser();
-    if (!user || user.role !== 'client') {
-        pageElement.innerHTML = `<div class="alert alert-danger mt-4">Solo i clienti possono visualizzare i propri ordini.</div>`;
+    if (!user) {
+        pageElement.innerHTML = `<div class="alert alert-danger mt-4">Devi essere autenticato per visualizzare i tuoi ordini.</div>`;
         return { render: () => pageElement, mount: () => { }, unmount: () => { } };
     }
 
@@ -75,6 +75,7 @@ export async function loadClientOrdersPage() {
                                 <tbody id="order-details-table-body"></tbody>
                             </table>
                         </div>
+                        <div id="order-details-actions"></div>
                     </div>
                 </div>
             </div>
@@ -117,11 +118,11 @@ export async function loadClientOrdersPage() {
 
     function getStatusBadge(status) {
         switch (status) {
-            case 'pending': return '<span class="badge bg-warning">In attesa</span>';
-            case 'processing': return '<span class="badge bg-info">In lavorazione</span>';
-            case 'shipped': return '<span class="badge bg-primary">Spedito</span>';
-            case 'completed': return '<span class="badge bg-success">Completato</span>';
-            case 'cancelled': return '<span class="badge bg-danger">Annullato</span>';
+            case 'pending': return '<span class="badge bg-secondary">In attesa</span>';
+            case 'accepted': return '<span class="badge bg-warning">Accettato</span>';
+            case 'refused': return '<span class="badge bg-danger">Rifiutato</span>';
+            case 'shipped': return '<span class="badge bg-info">Spedito</span>';
+            case 'delivered': return '<span class="badge bg-success">Consegnato</span>';
             default: return `<span class="badge bg-secondary">${status}</span>`;
         }
     }
@@ -129,7 +130,10 @@ export async function loadClientOrdersPage() {
     async function viewOrderDetails(orderId) {
         const tableBody = pageElement.querySelector('#order-details-table-body');
         tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Caricamento...</td></tr>';
+        let order = null;
         try {
+            const orders = await OrdersAPI.getOrdersByClient(user.id);
+            order = orders.find(o => o.id === orderId);
             const items = await OrdersAPI.getOrderItems(orderId);
             if (!items || items.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Nessun prodotto trovato</td></tr>';
@@ -153,12 +157,30 @@ export async function loadClientOrdersPage() {
             tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Errore nel caricamento dei dettagli ordine</td></tr>';
         }
         const modal = new bootstrap.Modal(pageElement.querySelector('#orderDetailsModal'));
+        // Bottone "Segna come ricevuto" se stato shipped
+        let actionsContainer = pageElement.querySelector('#order-details-actions');
+        if (!actionsContainer) {
+            actionsContainer = document.createElement('div');
+            actionsContainer.id = 'order-details-actions';
+            pageElement.querySelector('#orderDetailsModal .modal-body').appendChild(actionsContainer);
+        }
+        actionsContainer.innerHTML = '';
+        if (order && order.status === 'shipped') {
+            const receivedBtn = document.createElement('button');
+            receivedBtn.className = 'btn btn-success';
+            receivedBtn.textContent = 'Segna come ricevuto';
+            receivedBtn.onclick = async () => {
+                await OrdersAPI.updateOrderStatus(orderId, 'delivered');
+                modal.hide();
+                await loadOrders();
+            };
+            actionsContainer.appendChild(receivedBtn);
+        }
         modal.show();
     }
 
     // Eventi
     pageElement.querySelector('#refresh-orders-btn').onclick = loadOrders;
-    pageElement.querySelector('#back-btn').onclick = () => window.history.back();
 
     // Prima renderizzazione
     await loadOrders();
@@ -167,11 +189,9 @@ export async function loadClientOrdersPage() {
         render: () => pageElement,
         mount: () => {
             const backBtn = document.getElementById('back-btn');
-            if (backBtn) {
-                backBtn.addEventListener('click', () => {
-                    window.history.back();
-                });
-            }
+            if (backBtn) backBtn.addEventListener('click', () => {
+                router.navigate('/');
+            });
         },
         unmount: () => { }
     };

@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
     const total = countRows[0].total;
     // Query per la pagina
     const [rows] = await db.query(
-      `SELECT i.id_issue, i.title, u.name as client_name, i.description, i.status, i.created_at, i.admin_note
+      `SELECT i.id_issue, i.title, u.name as client_name, i.description, i.status, i.created_at, i.admin_note, i.id_client
        FROM issues i
        LEFT JOIN users u ON i.id_client = u.id
        ORDER BY i.created_at DESC, i.id_issue DESC

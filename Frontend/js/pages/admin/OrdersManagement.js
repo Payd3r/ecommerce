@@ -1,6 +1,7 @@
 import { authService } from '../../services/authService.js';
 import { showBootstrapToast } from '../../components/Toast.js';
 import * as OrdersAPI from '../../../api/orders.js';
+import { router } from '../../router.js';
 
 /**
  * Carica la pagina di gestione ordini per l'amministratore
@@ -203,11 +204,11 @@ export async function loadOrdersManagementPage() {
 
     function getStatusBadge(status) {
         switch (status) {
-            case 'pending': return '<span class="badge bg-warning">In attesa</span>';
-            case 'processing': return '<span class="badge bg-info">In lavorazione</span>';
-            case 'shipped': return '<span class="badge bg-primary">Spedito</span>';
+            case 'pending': return '<span class="badge bg-secondary">In attesa</span>';
+            case 'accepted': return '<span class="badge bg-warning">Accettato</span>';
+            case 'refused': return '<span class="badge bg-danger">Rifiutato</span>';
+            case 'shipped': return '<span class="badge bg-info">Spedito</span>';
             case 'delivered': return '<span class="badge bg-success">Consegnato</span>';
-            case 'cancelled': return '<span class="badge bg-danger">Annullato</span>';
             default: return `<span class="badge bg-secondary">${status}</span>`;
         }
     }
@@ -423,8 +424,14 @@ export async function loadOrdersManagementPage() {
 
     function mount() {
         loadOrdersTable();
+        const backBtn = document.getElementById('back-btn');
+        if (backBtn) backBtn.addEventListener('click', () => {
+            router.navigate('/admin/dashboard');
+        });
         const backBtnMobile = document.getElementById('back-btn-mobile');
-        if (backBtnMobile) backBtnMobile.addEventListener('click', () => window.history.back());
+        if (backBtnMobile) backBtnMobile.addEventListener('click', () => {
+            router.navigate('/admin/dashboard');
+        });
         const refreshOrdersBtnMobile = document.getElementById('refresh-orders-btn-mobile');
         if (refreshOrdersBtnMobile) refreshOrdersBtnMobile.addEventListener('click', () => {
             document.getElementById('filters-form').reset();

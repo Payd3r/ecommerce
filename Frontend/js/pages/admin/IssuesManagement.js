@@ -1,6 +1,7 @@
 // Scheletro base per la pagina Gestione Segnalazioni (Issues)
 import { showIssueModal } from './modals/issues_modal.js';
 import { updateIssue } from '../../../api/issues.js';
+import { router } from '../../router.js';
 export async function loadIssuesManagementPage() {
     const pageElement = document.createElement('div');
     pageElement.className = 'issues-management-page';
@@ -255,6 +256,9 @@ export async function loadIssuesManagementPage() {
     // Eventi
     function mount() {
         const backBtn = document.getElementById('back-btn');
+        if (backBtn) backBtn.addEventListener('click', () => {
+            router.navigate('/admin/dashboard');
+        });
         // Ordinamento colonne
         function updateSortIcons() {
             document.getElementById('sort-title-icon').textContent = sortBy === 'title' ? (sortDir === 'ASC' ? '▲' : '▼') : '';
@@ -283,11 +287,7 @@ export async function loadIssuesManagementPage() {
             renderTable();
         };
         updateSortIcons();
-        if (backBtn) {
-            backBtn.addEventListener('click', () => {
-                window.history.back();
-            });
-        }
+
         const refreshBtn = document.getElementById('refresh-issues-btn');
         if (refreshBtn) {
             refreshBtn.addEventListener('click', async (e) => {
