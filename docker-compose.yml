@@ -1,0 +1,47 @@
+services:
+  db:
+    image: mariadb:11
+    container_name: mariadb-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: usf6FFdMfLXgAGqORnmR8
+      MYSQL_DATABASE: bhhcfb8lkdjzm7yexzpq
+      MYSQL_USER: ukiui5tx8fkytjk
+      MYSQL_PASSWORD: usf6FFdMfLXgAGqORnmR8
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadbdata:/var/lib/mysql      
+      - ./Backend/db.sql:/docker-entrypoint-initdb.d/db.sql
+  backend:
+    build: ./Backend
+    container_name: node-backend
+    restart: always
+    ports:
+      - "3005:3005"
+    depends_on:
+      - db
+    environment:
+      PORT: 3005
+      DB_HOST: db
+      DB_USER: ukiui5tx8fkytjk
+      DB_PASSWORD: usf6FFdMfLXgAGqORnmR8
+      DB_NAME: bhhcfb8lkdjzm7yexzpq
+      DB_PORT: 3306
+      JWT_SECRET: ecommerce_artisan_platform_secret_key
+    volumes:
+      - ./Media:/usr/src/app/Media
+
+  frontend:
+    build: ./Frontend
+    container_name: node-frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    volumes:
+      - ./Media:/usr/share/nginx/html/Media
+
+volumes:
+  mariadbdata: 
