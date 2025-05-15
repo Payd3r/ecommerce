@@ -407,9 +407,13 @@ export async function loadManageOrdersPage() {
             acceptBtn.className = 'btn btn-success me-2';
             acceptBtn.textContent = 'Accetta';
             acceptBtn.onclick = async () => {
-                await updateOrderStatus(orderId, 'accepted');
-                modal.hide();
-                await reloadOrders();
+                try {
+                    await updateOrderStatus(orderId, 'accepted');
+                    modal.hide();
+                    await reloadOrders();
+                } catch (e) {
+                    showBootstrapToast(e.message || 'Errore durante l\'accettazione dell\'ordine', 'Errore', 'danger');
+                }
             };
             const refuseBtn = document.createElement('button');
             refuseBtn.className = 'btn btn-danger me-2';
@@ -594,6 +598,39 @@ export async function loadManageOrdersPage() {
         const filtersCard = pageElement.querySelector('#filters-card');
         filtersCard.classList.toggle('mobile-visible');
     };
+
+    // Funzione toast Bootstrap (se non già presente)
+    function showBootstrapToast(message, title = '', type = 'info') {
+        let toastContainer = document.getElementById('toast-container');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.id = 'toast-container';
+            toastContainer.style.position = 'fixed';
+            toastContainer.style.top = '1rem';
+            toastContainer.style.right = '1rem';
+            toastContainer.style.zIndex = '9999';
+            document.body.appendChild(toastContainer);
+        }
+        const toast = document.createElement('div');
+        toast.className = `toast align-items-center text-bg-${type} border-0 show`;
+        toast.role = 'alert';
+        toast.ariaLive = 'assertive';
+        toast.ariaAtomic = 'true';
+        toast.style.minWidth = '250px';
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    <strong>${title ? title + ': ' : ''}</strong>${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+        toastContainer.appendChild(toast);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 500);
+        }, 4000);
+    }
 
     return {
         render: () => pageElement,

@@ -77,23 +77,6 @@ router.post('/checkout', verifyToken, async (req, res) => {
             connection.release();
             return res.status(400).json({ error: 'Carrello vuoto' });
         }
-        // Controlla e aggiorna stock per ogni prodotto
-        for (const item of items) {
-            // Blocca la riga del prodotto per questa transazione
-            const [prodRows] = await connection.query('SELECT stock FROM products WHERE id = ? FOR UPDATE', [item.product_id]);
-            if (prodRows.length === 0) {
-                await connection.rollback();
-                connection.release();
-                return res.status(400).json({ error: `Prodotto non trovato: ${item.name}` });
-            }
-            if (prodRows[0].stock < item.quantity) {
-                await connection.rollback();
-                connection.release();
-                return res.status(400).json({ error: `Scorte insufficienti per il prodotto: ${item.name}` });
-            }
-            // Aggiorna lo stock
-            await connection.query('UPDATE products SET stock = stock - ? WHERE id = ?', [item.quantity, item.product_id]);
-        }
         // Calcola totale con sconti
         let total = 0;
         const orderItems = items.map(item => {
@@ -397,15 +380,25 @@ router.put('/:orderId', verifyToken, async (req, res) => {
         }
         // Se rifiutato, restituisci le scorte
         if (currentStatus === 'pending' && status === 'refused') {
+            // NIENTE: le scorte non sono mai state scalate
+        }
+        // Se accettato, controlla e scala le scorte
+        if (currentStatus === 'pending' && status === 'accepted') {
+            // Recupera tutti gli order_items dell'ordine
             const [orderItems] = await db.query(
                 'SELECT product_id, quantity FROM order_items WHERE order_id = ?',
                 [orderId]
             );
+            // Controlla e scala le scorte
             for (const item of orderItems) {
-                await db.query(
-                    'UPDATE products SET stock = stock + ? WHERE id = ?',
-                    [item.quantity, item.product_id]
-                );
+                const [[prod]] = await db.query('SELECT stock FROM products WHERE id = ? FOR UPDATE', [item.product_id]);
+                if (!prod || prod.stock < item.quantity) {
+                    return res.status(400).json({ error: `Scorte insufficienti per il prodotto ID: ${item.product_id}` });
+                }
+            }
+            // Se tutte le scorte sono sufficienti, scala
+            for (const item of orderItems) {
+                await db.query('UPDATE products SET stock = stock - ? WHERE id = ?', [item.quantity, item.product_id]);
             }
         }
         // Aggiorna lo stato
