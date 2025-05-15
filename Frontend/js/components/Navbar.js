@@ -1,6 +1,7 @@
 // Importo le dipendenze
 import { authService } from '../services/authService.js';
 import { router } from '../router.js';
+import { searchProducts } from '../../api/products.js'; // Importa la nuova funzione
 
 /**
  * Componente Navbar che gestisce la barra di navigazione
@@ -8,36 +9,86 @@ import { router } from '../router.js';
 class Navbar {
     constructor() {
         this.container = document.getElementById('navbar-container');
+        this.searchTimeout = null; // Per il debounce della ricerca
+        this.currentSearchTerm = ''; // Per tenere traccia del termine di ricerca attuale
     }
-    
+
     /**
      * Renderizza la navbar nell'elemento container
      */
     render() {
-        // Verifica se l'utente è autenticato
         const isAuthenticated = authService.isAuthenticated();
         const user = authService.getUser();
-        
-        // Crea la struttura base della navbar con Bootstrap
-        const navbar = document.createElement('nav');
-        navbar.className = 'navbar navbar-expand-lg navbar-light bg-white shadow-sm';
-        
-        navbar.innerHTML = `
-            <div class="container position-relative">
-                <div class="d-flex justify-content-between align-items-center gap-2 w-100">
+
+        // Elemento NAV per la barra di navigazione effettiva
+        const navbarEl = document.createElement('nav');
+        navbarEl.className = 'navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3';
+        navbarEl.innerHTML = `
+            <div class="container">
+                <!-- Riga Superiore Principale -->
+                <div class="d-flex align-items-center w-100">
+                    <!-- Brand (Titolo) -->
                     <a class="navbar-brand fw-bold mb-0" href="/" data-route>ArtigianatoShop</a>
-                    <div class="d-flex align-items-center gap-2">
-                        <!-- Carrello solo su mobile (d-lg-none) -->
-                        <a href="/cart" class="btn position-relative p-0 d-flex align-items-center justify-content-center d-lg-none" id="navbar-cart-btn-mobile" style="width:44px;height:44px; background:transparent; box-shadow:none; border:none;" data-route>
+
+                    <!-- Link Pagine (solo Desktop, allineati a sinistra dopo il brand) -->
+                    <ul class="navbar-nav d-none d-lg-flex flex-row me-auto ms-lg-4">
+                        <li class="nav-item"><a class="nav-link px-2" href="/" data-route>Home</a></li>
+                        <li class="nav-item"><a class="nav-link px-2" href="/products" data-route>Prodotti</a></li>
+                        <li class="nav-item"><a class="nav-link px-2" href="/categories" data-route>Categorie</a></li>
+                        <li class="nav-item"><a class="nav-link px-2" href="/artisans" data-route>Artigiani</a></li>
+                        <li class="nav-item"><a class="nav-link px-2" href="/issue/new" data-route>Aiuto</a></li>
+                        ${isAuthenticated && user && user.role === 'admin' ? `<li class="nav-item"><a class="nav-link px-2" href="/admin/dashboard" data-route>Dashboard</a></li>` : ''}
+                        ${isAuthenticated && user && user.role === 'artisan' ? `<li class="nav-item"><a class="nav-link px-2" href="/artisan/dashboard" data-route>Dashboard</a></li>` : ''}
+                    </ul>
+
+                    <!-- Azioni a Destra (Lente, Carrello Desktop, Profilo/Login Desktop, Azioni Mobile, Toggler) -->
+                    <div class="d-flex align-items-center gap-2 ms-auto">
+                        <!-- Icona di ricerca -->
+                        <button class="btn p-0 d-flex align-items-center justify-content-center" id="navbar-search-icon" style="width:40px;height:40px; border-radius:8px;">
+                            <span style="font-size:1.2rem;">🔍</span>
+                        </button>
+
+                        <!-- Carrello (solo Desktop) -->
+                        <a href="/cart" class="btn position-relative p-0 d-none d-lg-flex align-items-center justify-content-center" id="navbar-cart-btn-desktop" style="width:40px;height:40px;" data-route>
                             <span style="font-size:1.6rem;">🛒</span>
                         </a>
+
+                        <!-- Profilo/Login (solo Desktop) -->
+                        <div class="d-none d-lg-flex align-items-center" id="navbar-desktop-auth-actions">
+                            ${isAuthenticated ? `
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-primary d-flex align-items-center justify-content-center p-0 border-0 bg-transparent shadow-none" type="button" id="userDropdownDesktop" data-bs-toggle="dropdown" aria-expanded="false" style="height:44px;width:44px;outline:none;box-shadow:none;">
+                                        ${user.image ? `
+                                            <img src="http://localhost:3005${user.image}" alt="Foto profilo" style="width:44px; height:44px; object-fit:cover; border-radius:12px; border:1.5px solid #e0e0e0;" />
+                                        ` : `
+                                            <span class="d-flex align-items-center justify-content-center bg-light" style="width:44px; height:44px; border-radius:12px; border:1.5px solid #e0e0e0;"><i class="bi bi-person-circle fs-2 text-secondary"></i></span>
+                                        `}
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdownDesktop">
+                                        <li><a class="dropdown-item" href="/profile" data-route>Profilo</a></li>
+                                        <li><a class="dropdown-item" href="/myorders" data-route>I miei ordini</a></li>
+                                        <li><a class="dropdown-item" href="#" id="logout-btn-desktop">Esci</a></li>
+                                    </ul>
+                                </div>
+                            ` : `
+                                <a href="/login" class="btn btn-outline-primary me-2" data-route>Accedi</a>
+                                <a href="/register" class="btn btn-primary" data-route>Registrati</a>
+                            `}
+                        </div>
+
+                        <!-- Carrello (solo Mobile) -->
+                        <a href="/cart" class="btn position-relative p-0 d-flex align-items-center justify-content-center d-lg-none" id="navbar-cart-btn-mobile" style="width:40px;height:40px;" data-route>
+                            <span style="font-size:1.6rem;">🛒</span>
+                        </a>
+
+                        <!-- Profilo (solo Mobile, se autenticato) -->
                         ${isAuthenticated ? `
-                        <div class="dropdown d-lg-none">
-                            <button class="btn btn-outline-primary d-flex align-items-center justify-content-center p-0 border-0 bg-transparent shadow-none" type="button" id="userDropdownMobile" data-bs-toggle="dropdown" aria-expanded="false" style="height:44px;width:44px;outline:none;box-shadow:none;">
+                        <div class="dropdown d-lg-none" id="navbar-mobile-auth-actions">
+                            <button class="btn btn-outline-primary d-flex align-items-center justify-content-center p-0 border-0 bg-transparent shadow-none" type="button" id="userDropdownMobile" data-bs-toggle="dropdown" aria-expanded="false" style="height:40px;width:40px;outline:none;box-shadow:none;">
                                 ${user.image ? `
-                                    <img src="http://localhost:3005${user.image}" alt="Foto profilo" style="width:44px; height:44px; object-fit:cover; border-radius:12px; border:1.5px solid #e0e0e0;" />
+                                    <img src="http://localhost:3005${user.image}" alt="Foto profilo" style="width:40px; height:40px; object-fit:cover; border-radius:10px; border:1.5px solid #e0e0e0;" />
                                 ` : `
-                                    <span class="d-flex align-items-center justify-content-center bg-light" style="width:44px; height:44px; border-radius:12px; border:1.5px solid #e0e0e0;"><i class="bi bi-person-circle fs-2 text-secondary"></i></span>
+                                    <span class="d-flex align-items-center justify-content-center bg-light" style="width:40px; height:40px; border-radius:10px; border:1.5px solid #e0e0e0;"><i class="bi bi-person-circle fs-2 text-secondary"></i></span>
                                 `}
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdownMobile">
@@ -47,13 +98,17 @@ class Navbar {
                             </ul>
                         </div>
                         ` : ''}
-                        <button class="navbar-toggler ms-1" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                        
+                        <!-- Navbar Toggler (per Mobile) -->
+                        <button class="navbar-toggler ms-1" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbarMobileCollapse" aria-controls="mainNavbarMobileCollapse" aria-expanded="false" aria-label="Toggle navigation">
                             <span class="navbar-toggler-icon"></span>
                         </button>
                     </div>
                 </div>
-                <div class="collapse navbar-collapse" id="mainNavbar">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 justify-content-center text-center w-100">
+
+                <!-- Contenuto Collassabile Mobile (Link pagine e Login/Register se non autenticato) -->
+                <div class="collapse navbar-collapse d-lg-none" id="mainNavbarMobileCollapse">
+                    <ul class="navbar-nav mt-3 mb-lg-0 d-lg-none">
                         <li class="nav-item"><a class="nav-link" href="/" data-route>Home</a></li>
                         <li class="nav-item"><a class="nav-link" href="/products" data-route>Prodotti</a></li>
                         <li class="nav-item"><a class="nav-link" href="/categories" data-route>Categorie</a></li>
@@ -62,68 +117,102 @@ class Navbar {
                         ${isAuthenticated && user && user.role === 'admin' ? `<li class="nav-item"><a class="nav-link" href="/admin/dashboard" data-route>Dashboard</a></li>` : ''}
                         ${isAuthenticated && user && user.role === 'artisan' ? `<li class="nav-item"><a class="nav-link" href="/artisan/dashboard" data-route>Dashboard</a></li>` : ''}
                     </ul>
-                    <div class="d-lg-flex flex-lg-row flex-column align-items-lg-center align-items-stretch gap-2 w-100 w-lg-auto mt-3 mt-lg-0">
-                        <!-- Carrello solo desktop (d-none d-lg-flex) -->
-                        <a href="/cart" class="btn position-relative me-lg-2 mb-2 mb-lg-0 p-0 d-none d-lg-flex align-items-center justify-content-center" id="navbar-cart-btn" style="width:44px;height:44px; background:transparent; box-shadow:none; border:none;" data-route>
-                            <span style="font-size:1.6rem;">🛒</span>
-                        </a>
-                        ${isAuthenticated ? `
-                            <div class="dropdown d-none d-lg-block">
-                                <button class="btn btn-outline-primary d-flex align-items-center justify-content-center p-0 border-0 bg-transparent shadow-none" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="height:48px;width:48px;outline:none;box-shadow:none;">
-                                    ${user.image ? `
-                                        <img src="http://localhost:3005${user.image}" alt="Foto profilo" style="width:48px; height:48px; object-fit:cover; border-radius:12px; border:1.5px solid #e0e0e0;" />
-                                    ` : `
-                                        <span class="d-flex align-items-center justify-content-center bg-light" style="width:48px; height:48px; border-radius:12px; border:1.5px solid #e0e0e0;"><i class="bi bi-person-circle fs-2 text-secondary"></i></span>
-                                    `}
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li><a class="dropdown-item" href="/profile" data-route>Profilo</a></li>
-                                    <li><a class="dropdown-item" href="/myorders" data-route>I miei ordini</a></li>
-                                    <li><a class="dropdown-item" href="#" id="logout-btn">Esci</a></li>
-                                </ul>
-                            </div>
-                        ` : `
-                            <a href="/login" class="btn btn-outline-primary w-100 mb-2" data-route>Accedi</a>
-                            <a href="/register" class="btn btn-primary w-100" data-route>Registrati</a>
-                        `}
+                    <!-- Login/Register buttons for mobile if not authenticated -->
+                    ${!isAuthenticated ? `
+                    <div class="mt-3 d-grid gap-2 d-lg-none">
+                        <a href="/login" class="btn btn-outline-primary" data-route>Accedi</a>
+                        <a href="/register" class="btn btn-primary" data-route>Registrati</a>
                     </div>
+                    ` : ''}
                 </div>
             </div>
         `;
-        
-        // Pulisce e aggiunge la navbar al container
-        this.container.innerHTML = '';
-        this.container.appendChild(navbar);
-        
-        // Aggiunge i listener per il logout
-        if (isAuthenticated) {
-            const logoutBtn = document.getElementById('logout-btn');
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', this.handleLogout.bind(this));
-            }
-        }
 
-        // Listener per logout mobile
+        // Area di ricerca separata, sotto la navbar
+        const searchAreaEl = document.createElement('div');
+        searchAreaEl.id = 'search-area-below-navbar';
+        searchAreaEl.className = 'container py-3'; // Container per centrare e dare padding
+        searchAreaEl.style.display = 'none'; // Nascosta inizialmente
+        searchAreaEl.innerHTML = `
+            <div id="search-input-container" class="w-100 w-lg-75 mx-auto position-relative"> <!-- w-100 per mobile, w-lg-75 per desktop+, mx-auto per centrare -->
+                <input type="text" class="form-control form-control-lg" id="navbar-search-input" placeholder="Cerca prodotti..."> <!-- form-control-lg per input più grande -->
+                <div class="dropdown-menu w-100" id="search-results-dropdown" style="display:none; max-height: 250px; overflow-y: auto; position:absolute; top:100%; left:0; z-index:1055; border-top-left-radius: 0; border-top-right-radius: 0;"> <!-- Aumentato z-index a 1055 -->
+                    <!-- I risultati verranno inseriti qui -->
+                </div>
+            </div>
+        `;
+
+        this.container.innerHTML = ''; // Pulisce il contenitore principale
+        this.container.appendChild(navbarEl); // Aggiunge la navbar
+        this.container.appendChild(searchAreaEl); // Aggiunge l'area di ricerca sotto la navbar
+
+        // Ottieni riferimenti agli elementi DOPO che sono stati aggiunti al DOM
+        const searchIcon = document.getElementById('navbar-search-icon'); // Nell'navbarEl
+        const searchAreaContainer = document.getElementById('search-area-below-navbar'); // L'elemento che mostriamo/nascondiamo
+        const searchInput = document.getElementById('navbar-search-input'); // Nell'searchAreaEl
+        const searchResultsDropdown = document.getElementById('search-results-dropdown'); // Nell'searchAreaEl
+        const mainNavbarMobileCollapse = document.getElementById('mainNavbarMobileCollapse'); // Nell'navbarEl
+
+        const closeSearch = () => {
+            if (searchAreaContainer) searchAreaContainer.style.display = 'none';
+            if (searchInput) searchInput.value = '';
+            if (searchResultsDropdown) {
+                searchResultsDropdown.style.display = 'none';
+                searchResultsDropdown.innerHTML = '';
+            }
+        };
+
+        if (searchIcon && searchAreaContainer && searchInput && searchResultsDropdown) {
+            searchIcon.addEventListener('click', () => {
+                const isSearchVisible = searchAreaContainer.style.display === 'block';
+                if (isSearchVisible) {
+                    closeSearch();
+                } else {
+                    searchAreaContainer.style.display = 'block';
+                    searchInput.focus();
+                    if (mainNavbarMobileCollapse && mainNavbarMobileCollapse.classList.contains('show')) {
+                        const collapse = window.bootstrap.Collapse.getOrCreateInstance(mainNavbarMobileCollapse);
+                        if (collapse) collapse.hide();
+                    }
+                }
+            });
+
+            searchInput.addEventListener('input', (event) => {
+                const searchTerm = event.target.value.trim();
+                clearTimeout(this.searchTimeout);
+                if (searchTerm.length === 0) {
+                    searchResultsDropdown.style.display = 'none';
+                    searchResultsDropdown.innerHTML = '';
+                    this.currentSearchTerm = '';
+                    return;
+                }
+                if (searchTerm !== this.currentSearchTerm) {
+                    this.searchTimeout = setTimeout(async () => {
+                        this.currentSearchTerm = searchTerm;
+                        await this.fetchAndShowSearchResults(searchTerm, closeSearch);
+                    }, 1000);
+                }
+            });
+        }
+        
         if (isAuthenticated) {
+            const logoutBtnDesktop = document.getElementById('logout-btn-desktop');
+            if (logoutBtnDesktop) {
+                logoutBtnDesktop.addEventListener('click', (e) => this.handleLogout(e, closeSearch));
+            }
             const logoutBtnMobile = document.getElementById('logout-btn-mobile');
             if (logoutBtnMobile) {
-                logoutBtnMobile.addEventListener('click', this.handleLogout.bind(this));
+                logoutBtnMobile.addEventListener('click', (e) => this.handleLogout(e, closeSearch));
             }
         }
 
-        // Chiudi il menu mobile quando viene cliccato un item
-        const navLinks = navbar.querySelectorAll('.nav-link[data-route], .dropdown-item[data-route]');
-        navLinks.forEach(link => {
+        const allNavLinks = navbarEl.querySelectorAll('.nav-link[data-route], .dropdown-item[data-route]');
+        allNavLinks.forEach(link => {
             link.addEventListener('click', () => {
-                const navbarCollapse = document.getElementById('mainNavbar');
-                if (navbarCollapse && navbarCollapse.classList.contains('show')) {
-                    // Usa Bootstrap collapse se disponibile
-                    if (window.bootstrap && window.bootstrap.Collapse) {
-                        const collapse = window.bootstrap.Collapse.getOrCreateInstance(navbarCollapse);
-                        collapse.hide();
-                    } else {
-                        navbarCollapse.classList.remove('show');
-                    }
+                closeSearch(); 
+                if (mainNavbarMobileCollapse && mainNavbarMobileCollapse.classList.contains('show')) {
+                    const collapse = window.bootstrap.Collapse.getOrCreateInstance(mainNavbarMobileCollapse);
+                    if (collapse) collapse.hide();
                 }
             });
         });
@@ -132,18 +221,62 @@ class Navbar {
     /**
      * Gestisce il logout dell'utente
      * @param {Event} event - Evento click
+     * @param {Function} closeSearchCallback - Callback per chiudere la ricerca
      */
-    handleLogout(event) {
+    handleLogout(event, closeSearchCallback) {
         event.preventDefault();
-        
-        // Esegue il logout
+        if (closeSearchCallback) closeSearchCallback();
         authService.logout();
-        
-        // Dispatch evento di cambio autenticazione
         document.dispatchEvent(new CustomEvent('auth:change'));
-        
-        // Reindirizza alla home
         router.navigateToHome();
+    }
+
+    /**
+     * Recupera i risultati della ricerca e li mostra nel dropdown
+     * @param {string} searchTerm - Il termine da cercare
+     * @param {Function} closeSearchCallback - Callback da chiamare quando un item viene cliccato
+     */
+    async fetchAndShowSearchResults(searchTerm, closeSearchCallback) {
+        const searchResultsDropdown = document.getElementById('search-results-dropdown');
+        if (!searchResultsDropdown) return;
+        searchResultsDropdown.innerHTML = '<a class="dropdown-item text-muted" href="#">Caricamento...</a>';
+        searchResultsDropdown.style.display = 'block';
+        try {
+            const { products } = await searchProducts(searchTerm, 5);
+            if (products && products.length > 0) {
+                searchResultsDropdown.innerHTML = '';
+                products.forEach(product => {
+                    const item = document.createElement('a');
+                    item.className = 'dropdown-item d-flex align-items-center gap-2 p-2';
+                    item.href = `/products/${product.id}`;
+                    item.dataset.route = '';
+                    const img = document.createElement('img');
+                    img.src = product.image && product.image.url ? `http://localhost:3005${product.image.url}` : 'https://via.placeholder.com/40';
+                    img.alt = product.name;
+                    img.style.width = '40px';
+                    img.style.height = '40px';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '4px';
+                    const text = document.createElement('span');
+                    text.textContent = product.name;
+                    text.style.whiteSpace = 'normal';
+                    item.appendChild(img);
+                    item.appendChild(text);
+                    item.addEventListener('click', (e) => {
+                        if (closeSearchCallback) {
+                            closeSearchCallback();
+                        }
+                    });
+                    searchResultsDropdown.appendChild(item);
+                });
+            } else {
+                searchResultsDropdown.innerHTML = '<a class="dropdown-item text-muted" href="#">Nessun prodotto trovato.</a>';
+            }
+        } catch (error) {
+            console.error('Errore durante la ricerca dei prodotti:', error);
+            searchResultsDropdown.innerHTML = '<a class="dropdown-item text-danger" href="#">Errore nella ricerca.</a>';
+            searchResultsDropdown.style.display = 'block';
+        }
     }
 }
 

@@ -220,12 +220,12 @@ export async function loadHomePage() {
                             <div class="card-body text-center py-3 px-2">
                                 <div class="category-image mb-2 d-flex justify-content-center align-items-center mx-auto" style="background-color: var(--secondary-color); width: 70px; height: 70px; border-radius: 50%; overflow: hidden;">
                                     ${category.image ?
-                                        `<img src=\"http://localhost:3005${category.image}\" alt=\"${category.name}\" style=\"width:70px; height:70px; object-fit:cover; border-radius:50%;\" />` :
-                                        `<span class=\"category-icon fs-4\">${icon}</span>`
+                                        `<img src="http://localhost:3005${category.image}" alt="${category.name}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />` :
+                                        `<span class="category-icon fs-4">${icon}</span>`
                                     }
                                 </div>
-                                <h6 class="fw-bold mb-1 small">${category.name}</h6>
-                                <p class="text-muted mb-2 small">${category.productCount || 0} prodotti</p>
+                                <h6 class="fw-bold mb-1 small category-card-title">${category.name}</h6>
+                                <p class="text-muted mb-2 small category-card-text">${category.productCount || 0} prodotti</p>
                                 <a href="/products?category=${category.id}" class="btn btn-outline-primary btn-sm mt-1" data-route>Esplora</a>
                             </div>
                         </div>
@@ -238,16 +238,56 @@ export async function loadHomePage() {
         section.innerHTML = `
             <div class="position-relative px-2">
                 <button id="cat-carousel-left" class="btn btn-light position-absolute top-50 start-0 translate-middle-y z-1"><i class="bi bi-chevron-left"></i></button>
-                <div id="featured-categories" class="d-flex flex-nowrap overflow-auto py-2 px-2" style="scroll-behavior: smooth; gap: 0.5rem; scrollbar-width: none; -ms-overflow-style: none;">
+                <div id="featured-categories" class="d-flex flex-nowrap overflow-auto py-2 px-2" style="scroll-behavior: smooth; gap: 0.75rem; scrollbar-width: none; -ms-overflow-style: none;">
                     ${html}
                 </div>
                 <button id="cat-carousel-right" class="btn btn-light position-absolute top-50 end-0 translate-middle-y z-1"><i class="bi bi-chevron-right"></i></button>
             </div>
             <style>
                 #featured-categories::-webkit-scrollbar { display: none; }
-                .category-carousel-card { min-width: 110px; max-width: 130px; }
+                .category-carousel-card { 
+                    min-width: 110px;
+                    max-width: 130px;
+                }
+                .category-carousel-card .category-image {
+                    width: 60px; height: 60px;
+                }
+                .category-carousel-card .category-card-title { font-size: 0.8rem; }
+                .category-carousel-card .category-card-text { font-size: 0.7rem; }
+
+                /* Effetto Hover per tutte le .category-card nei caroselli */
+                .category-card {
+                    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+                }
+                .category-card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+                }
+
                 @media (max-width: 600px) {
                   .category-carousel-card { min-width: 100px; max-width: 120px; }
+                }
+                @media (min-width: 768px) {
+                    .category-carousel-card { 
+                        min-width: 140px; 
+                        max-width: 160px; 
+                    }
+                    .category-carousel-card .category-image {
+                        width: 70px; height: 70px;
+                    }
+                     .category-carousel-card .category-card-title { font-size: 0.9rem; }
+                     .category-carousel-card .category-card-text { font-size: 0.75rem; }
+                }
+                @media (min-width: 992px) {
+                    .category-carousel-card { 
+                        min-width: 160px; 
+                        max-width: 180px; 
+                    }
+                    .category-carousel-card .category-image {
+                        width: 80px; height: 80px;
+                    }
+                    .category-carousel-card .category-card-title { font-size: 1rem; }
+                    .category-carousel-card .category-card-text { font-size: 0.8rem; }
                 }
             </style>
         `;
@@ -576,32 +616,39 @@ export async function loadHomePage() {
     function renderProductSection(products, containerId) {
         const container = document.getElementById(containerId);
         if (!container) return;
+
+        // Applica le classi per le colonne direttamente al container
+        container.className = 'row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3'; // 2 mobile, 3 tablet, 4 lg-desktop, 5 xl-desktop
+
         let html = '';
         let toShow = shuffleArray(products);
+        
+        // Limita i prodotti mostrati se necessario (es. solo 5 per ultimi arrivi)
         if (containerId === 'latest-arrivals-container') {
-            toShow = toShow.slice(0, 5);
-        } else {
-            toShow = toShow.slice(0, 10);
+            toShow = toShow.slice(0, 5); // Mostra sempre 5 per "Ultimi Arrivi" indipendentemente dalle colonne
+        } else if (containerId === 'featured-products-container') {
+             toShow = toShow.slice(0, 10); // Mostra 10 per "Prodotti in Evidenza"
         }
-        // Due colonne su mobile, card più compatte
-        const colClass = 'col-6 col-md-4 col-lg-3 d-flex align-items-stretch';
+
+
         for (let i = 0; i < toShow.length; i++) {
             const product = toShow[i];
+            // La classe col viene gestita da row-cols-* sul parent
             html += `
-                <div class="${colClass} mb-0" style="padding-left:4px; padding-right:4px;">
+                <div class="col d-flex align-items-stretch">
                     <div class="product-card card flex-fill h-100 p-2" style="min-width:0;">
-                        <div class="product-image d-flex align-items-center justify-content-center" style="background-color: var(--light-bg); height: 120px;">
+                        <div class="product-image-wrapper d-flex align-items-center justify-content-center">
                             ${product.image && product.image.url ?
-                    `<img src=\"http://localhost:3005${product.image.url}\" alt=\"${product.name}\" style=\"height: 110px; width: 100%; object-fit: cover; border-radius: 8px;\" />` :
-                    `<div style=\"width: 100%; height: 110px; background: #fff; border: 1px solid #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center;\">
-                                <span class=\"placeholder-icon\">🖼️</span>
+                    `<img src="http://localhost:3005${product.image.url}" alt="${product.name}" class="product-img-actual" />` :
+                    `<div class="product-img-placeholder">
+                                <span class="placeholder-icon">🖼️</span>
                             </div>`
                 }
                         </div>
-                        <div class="product-content p-1">
-                            <h6 class="fw-bold mb-1 small">${product.name}</h6>
+                        <div class="product-content p-1 mt-2">
+                            <h6 class="fw-bold mb-1 product-name-text">${product.name}</h6>
                             <p class="product-artisan text-muted mb-1 small">di ${product.artisan?.name || 'Artigiano'}</p>
-                            <div class="product-footer d-flex justify-content-between align-items-center">
+                            <div class="product-footer d-flex justify-content-between align-items-center mt-2">
                                 <span class="product-price fw-bold small">${product.price?.toFixed(2) || '0.00'} €</span>
                                 <a href="/products/${product.id}" class="btn btn-outline-primary btn-sm" data-route>Dettagli</a>
                             </div>
@@ -611,6 +658,74 @@ export async function loadHomePage() {
             `;
         }
         container.innerHTML = html;
+
+        // Stile per altezza e immagini prodotti (può essere messo in un file CSS separato)
+        const styleElement = document.getElementById('product-card-styles') || document.createElement('style');
+        styleElement.id = 'product-card-styles';
+        styleElement.textContent = `
+            .product-card {
+                transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            }
+            .product-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            }
+            .product-image-wrapper {
+                background-color: var(--light-bg);
+                height: 150px; /* Altezza base per mobile */
+                border-radius: 8px; /* Arrotondamento per il wrapper */
+                overflow: hidden; /* Per contenere l'immagine arrotondata */
+            }
+            .product-img-actual {
+                height: 100%; 
+                width: 100%; 
+                object-fit: cover;
+            }
+            .product-img-placeholder {
+                width: 100%; 
+                height: 100%; 
+                background: #fff; 
+                border: 1px solid #eee; 
+                display: flex; 
+                align-items: center; 
+                justify-content: center;
+                border-radius: 8px; /* Deve combaciare con wrapper se non c'è immagine */
+            }
+            .product-name-text {
+                 font-size: 0.9rem; /* Base mobile */
+                 display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                min-height: 2.4em; /* Altezza per due righe approx */
+            }
+
+            @media (min-width: 768px) { /* Tablet */
+                .product-image-wrapper {
+                    height: 180px; 
+                }
+                .product-name-text {
+                     font-size: 0.95rem;
+                }
+            }
+            @media (min-width: 992px) { /* Desktop LG - 4 colonne */
+                .product-image-wrapper {
+                    height: 200px; /* Più alte per desktop */
+                }
+                 .product-name-text {
+                     font-size: 1rem;
+                }
+            }
+             @media (min-width: 1200px) { /* Desktop XL - 5 colonne */
+                .product-image-wrapper {
+                    height: 180px; /* Leggermente meno per 5 colonne per bilanciare la larghezza ridotta */
+                }
+            }
+        `;
+        if (!document.getElementById('product-card-styles')) {
+            document.head.appendChild(styleElement);
+        }
     }
 
     // Carosello artigiani della settimana
@@ -627,11 +742,11 @@ export async function loadHomePage() {
                         <div class="card-body text-center py-3 px-2">
                             <div class="category-image mb-2 d-flex justify-content-center align-items-center mx-auto" style="background-color: var(--secondary-color); width: 70px; height: 70px; border-radius: 50%; overflow: hidden;">
                                 ${artisan.image ?
-                                    `<img src=\"http://localhost:3005${artisan.image}\" alt=\"${artisan.name}\" style=\"width:70px; height:70px; object-fit:cover;\" />` :
-                                    `<span class=\"category-icon fs-4\">${iconList[idx % iconList.length]}</span>`
+                                    `<img src="http://localhost:3005${artisan.image}" alt="${artisan.name}" style="width:100%; height:100%; object-fit:cover;" />` :
+                                    `<span class="category-icon fs-4">${iconList[idx % iconList.length]}</span>`
                                 }
                             </div>
-                            <h6 class="fw-bold mb-1 small">${artisan.name}</h6>
+                            <h6 class="fw-bold mb-1 small category-card-title">${artisan.name}</h6>
                             <a href="/artisan-shop/${artisan.id}" class="btn btn-outline-primary btn-sm mt-1" data-route>Scopri</a>
                         </div>
                     </div>
@@ -648,6 +763,43 @@ export async function loadHomePage() {
             leftBtn.onclick = () => container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
             rightBtn.onclick = () => container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
         }
+
+        // Stili specifici per ingrandire le card artigiani su PC, aggiunti all'head
+        const artisanCardStyleId = 'artisan-card-styles-override';
+        let styleElement = document.getElementById(artisanCardStyleId);
+        if (!styleElement) {
+            styleElement = document.createElement('style');
+            styleElement.id = artisanCardStyleId;
+            document.head.appendChild(styleElement);
+        }
+        styleElement.textContent = `
+            @media (min-width: 992px) { /* Tablet L e Desktop S */
+                #artisans-carousel .category-carousel-card {
+                    min-width: 190px; 
+                    max-width: 220px; 
+                }
+                #artisans-carousel .category-carousel-card .category-image {
+                    width: 90px; 
+                    height: 90px;
+                }
+                #artisans-carousel .category-carousel-card .category-card-title {
+                    font-size: 1.05rem; 
+                }
+            }
+            @media (min-width: 1200px) { /* Desktop M+ */
+                 #artisans-carousel .category-carousel-card {
+                    min-width: 200px; 
+                    max-width: 230px; 
+                }
+                #artisans-carousel .category-carousel-card .category-image {
+                    width: 100px; 
+                    height: 100px;
+                }
+                 #artisans-carousel .category-carousel-card .category-card-title {
+                    font-size: 1.1rem; 
+                }
+            }
+        `;
     }
 
     return {

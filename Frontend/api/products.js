@@ -125,11 +125,17 @@ async function getProductsByArtisan(artisanId, params = {}) {
     }
 }
 
+// Funzione per cercare prodotti per nome (per i suggerimenti della navbar)
+async function searchProducts(searchTerm, limit = 5) {
+    return getProducts({ search: searchTerm, limit: limit, page: 1 });
+}
+
 export {
     getProducts,
     getProduct,
     createProduct,
     updateProduct,
     deleteProduct,
-    getProductsByArtisan
+    getProductsByArtisan,
+    searchProducts
 }; 
