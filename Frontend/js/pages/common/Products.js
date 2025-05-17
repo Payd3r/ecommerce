@@ -2,9 +2,7 @@
 import { getProducts } from '../../../api/products.js';
 import CategoriesAPI from '../../../api/categories.js';
 import UsersAPI from '../../../api/users.js';
-import { loader } from '../../components/Loader.js';
 import { showBootstrapToast } from '../../components/Toast.js';
-import { authService } from '../../services/authService.js';
 
 /**
  * Carica la pagina Prodotti
@@ -67,7 +65,8 @@ export async function loadProductsPage(params = {}) {
                 </div>
                 <div class="row pb-5 pt-2">
                     <aside class="col-12 col-md-4 mb-4 mb-md-0" id="filters-container" style="${window.innerWidth < 768 ? 'display:none;' : ''}">
-                        <div class="card shadow-sm border-0 p-3">
+                        <div class="card shadow-sm border-0 p-3 position-relative">
+                            <button type="reset" class="btn btn-link text-secondary position-absolute top-0 end-0 mt-4 me-2 p-0" id="reset-filters" style="font-size:1rem;">Reset</button>
                             <h5 class="mb-3">Filtra i risultati</h5>
                             <form id="filters-form" class="filters-form">
                                 <div class="mb-3">
@@ -75,14 +74,12 @@ export async function loadProductsPage(params = {}) {
                                     <input type="text" id="search" name="search" class="form-control" placeholder="Cerca prodotti...">
                                 </div>
                                 <div class="mb-3">
-                                    <label for="category" class="form-label">Categoria</label>
-                                    <select id="category" name="category" class="form-select">
-                                        <option value="">Tutte le categorie</option>
-                                    </select>
+                                    <label class="form-label">Categoria</label>
+                                    <div id="category-tree"></div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="artisan" class="form-label">Artigiano</label>
-                                    <select id="artisan" name="artisan" class="form-select">
+                                    <select id="artisan" name="artisan" class="form-select rounded-3">
                                         <option value="">Tutti gli artigiani</option>
                                     </select>
                                 </div>
@@ -96,10 +93,7 @@ export async function loadProductsPage(params = {}) {
                                         <input type="number" id="max-price" name="maxPrice" min="0" step="1" class="form-control" placeholder="Max">
                                     </div>
                                 </div>
-                                <div class="d-flex gap-2">
-                                    <button type="submit" class="btn btn-primary">Applica filtri</button>
-                                    <button type="reset" class="btn btn-secondary" id="reset-filters">Reset</button>
-                                </div>
+                                <button type="submit" class="btn btn-primary w-100 mt-2">Applica filtri</button>
                             </form>
                         </div>
                     </aside>
@@ -137,9 +131,10 @@ export async function loadProductsPage(params = {}) {
             state.loading = true;
             toggleProductsLoader(true);
             // Carica categorie
-            const categoriesRes = await CategoriesAPI.getCategories();
+            const categoriesRes = await CategoriesAPI.getCategoryTree();
+            console.log(categoriesRes);
             state.categories = categoriesRes || [];
-            populateCategoryFilter(state.categories);
+            populateCategoryTree(state.categories);
             // Carica artigiani se autenticato
             const artisansRes = await UsersAPI.getArtisans();
             state.artisans = artisansRes.data || [];
@@ -207,17 +202,143 @@ export async function loadProductsPage(params = {}) {
         }
     }
 
-    function populateCategoryFilter(categories) {
-        const categorySelect = document.getElementById('category');
-        if (!categorySelect) return;
-        let optionsHtml = '<option value="">Tutte le categorie</option>';
-        categories.forEach(category => {
-            optionsHtml += `<option value="${category.id}">${category.name}</option>`;
+    // Funzione per generare il tree delle categorie con struttura annidata (children)
+    function renderCategoryTree(categories, level = 1) {
+        const ul = document.createElement('ul');
+        ul.className = 'list-unstyled mb-0' + (level === 1 ? ' show' : '');
+        categories.forEach(cat => {
+            const hasChildren = Array.isArray(cat.children) && cat.children.length > 0;
+            const collapseId = `collapse-cat-${cat.id}`;
+            const li = document.createElement('li');
+            li.className = 'category-li position-relative';
+            li.innerHTML = `
+                <div class="form-check d-flex align-items-center gap-1" style="margin-bottom: 0.2rem; min-height: 1.8rem;">
+                    ${hasChildren
+                        ? `<button type=\"button\" class=\"btn btn-sm btn-link p-0 me-1 ms-0 category-collapse-btn d-flex align-items-center\" data-target=\"${collapseId}\" aria-expanded=\"false\" aria-controls=\"${collapseId}\"><i class=\"bi bi-caret-right-fill\"></i></button>`
+                        : '<span class=\"category-empty-icon me-1\" style=\"display:inline-block;width:1.5rem;\"></span>'}
+                    <input class="form-check-input ms-0" type="checkbox" id="cat-${cat.id}" value="${cat.id}" name="category[]">
+                    <label class="form-check-label ms-1" for="cat-${cat.id}">${cat.name}</label>
+                </div>
+            `;
+            if (hasChildren) {
+                const childUl = renderCategoryTree(cat.children, level + 1);
+                childUl.classList.add('ms-0');
+                childUl.id = collapseId;
+                li.appendChild(childUl);
+            }
+            ul.appendChild(li);
         });
-        categorySelect.innerHTML = optionsHtml;
-        // Se il filtro categoria è già impostato, seleziona l'opzione corretta
-        if (state.filters.category) {
-            categorySelect.value = state.filters.category;
+        return ul;
+    }
+
+    // Popola il filtro categorie con il tree (con collapse e selezione ricorsiva)
+    function populateCategoryTree(categories) {
+        const treeContainer = document.getElementById('category-tree');
+        if (!treeContainer) return;
+        treeContainer.innerHTML = '';
+        if (!categories || !Array.isArray(categories) || categories.length === 0) {
+            treeContainer.innerHTML = '<div class="text-muted">Nessuna categoria disponibile</div>';
+            return;
+        }
+        const tree = renderCategoryTree(categories);
+        treeContainer.appendChild(tree);
+        // Stile per il bordo sinistro delle sottocategorie, linea sotto la checkbox, caret visibile e padding corretto
+        const style = document.createElement('style');
+        style.textContent = `
+            #category-tree .form-check {
+                padding-left: 0rem !important;
+                margin-bottom: 0.2rem;
+                min-height: 1.8rem;
+            }
+            #category-tree ul {
+                margin-bottom: 0.2rem;
+            }
+            #category-tree ul ul {
+                margin-left: 1.3rem;
+                padding-left: 1.1rem;
+                border-left: none !important;
+            }
+            #category-tree ul {
+                border-left: none !important;
+            }
+            #category-tree li.category-li {
+                position: relative;
+                margin-bottom: 0.1rem;
+            }
+            #category-tree li.category-li::before {
+                display: none !important;
+            }
+            #category-tree ul:not(.show) {
+                display: none;
+            }
+            #category-tree ul.show {
+                display: block;
+            }
+            .category-collapse-btn,
+            .category-empty-icon {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 1.5rem;
+                width: 1.5rem;
+                height: 1.5rem;
+                margin-right: 0.1rem;
+            }
+            .category-collapse-btn i {
+                font-size: 1.1rem;
+                vertical-align: middle;
+                transition: transform 0.2s;
+            }
+        `;
+        treeContainer.appendChild(style);
+
+        // Gestione collapse/expand icona caret SOLO JS custom
+        treeContainer.querySelectorAll('.category-collapse-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = btn.getAttribute('data-target');
+                const target = document.getElementById(targetId);
+                if (!target) return;
+                const isOpen = target.classList.contains('show');
+                if (isOpen) {
+                    target.classList.remove('show');
+                    btn.querySelector('i').className = 'bi bi-caret-right-fill';
+                } else {
+                    target.classList.add('show');
+                    btn.querySelector('i').className = 'bi bi-caret-down-fill';
+                }
+                btn.setAttribute('aria-expanded', String(!isOpen));
+            });
+        });
+
+        // Selezione/deselezione ricorsiva figli e selezione padre se tutti i figli sono selezionati
+        treeContainer.querySelectorAll('input[type="checkbox"][name="category[]"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                // Seleziona/deseleziona tutti i figli
+                const li = checkbox.closest('li');
+                if (!li) return;
+                const childCheckboxes = li.querySelectorAll('ul input[type="checkbox"][name="category[]"]');
+                childCheckboxes.forEach(cb => { cb.checked = checkbox.checked; });
+                // Aggiorna i padri
+                updateParentCheckbox(li);
+            });
+        });
+
+        // Funzione per aggiornare la selezione dei padri
+        function updateParentCheckbox(li) {
+            const parentUl = li.parentElement.closest('ul');
+            if (!parentUl) return;
+            const parentLi = parentUl.parentElement.closest('li');
+            if (!parentLi) return;
+            const parentCheckbox = parentLi.querySelector('> .form-check input[type="checkbox"][name="category[]"]');
+            if (!parentCheckbox) return;
+            const siblingCheckboxes = parentUl.querySelectorAll('> li > .form-check input[type="checkbox"][name="category[]"]');
+            const allChecked = Array.from(siblingCheckboxes).every(cb => cb.checked);
+            const someChecked = Array.from(siblingCheckboxes).some(cb => cb.checked);
+            parentCheckbox.checked = allChecked;
+            parentCheckbox.indeterminate = !allChecked && someChecked;
+            // Ricorsivo verso l'alto
+            updateParentCheckbox(parentLi);
         }
     }
 
@@ -326,7 +447,9 @@ export async function loadProductsPage(params = {}) {
         const form = event.target;
         const formData = new FormData(form);
         state.filters.search = formData.get('search') || '';
-        state.filters.category = formData.get('category') || '';
+        // Raccogli tutte le categorie selezionate (array)
+        const selectedCategories = Array.from(form.querySelectorAll('input[name="category[]"]:checked')).map(cb => cb.value);
+        state.filters.category = selectedCategories;
         state.filters.artisan = formData.get('artisan') || '';
         state.filters.minPrice = formData.get('minPrice') || '';
         state.filters.maxPrice = formData.get('maxPrice') || '';

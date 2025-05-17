@@ -68,7 +68,7 @@ export async function loadHomePage() {
         </section>
         <section class="artisans-week pt-4">
             <div class="container">
-                <h2 class="mb-4">Artigiani della Settimana</h2>
+                <h2 class="mb-0">Artigiani della Settimana</h2>
                 <div class="position-relative px-3" style="padding-left: 2vw; padding-right: 2vw;">
                     <button id="artisan-carousel-left" class="btn btn-light position-absolute top-50 start-0 translate-middle-y z-1"><i class="bi bi-chevron-left"></i></button>
                     <div id="artisans-carousel" class="d-flex flex-nowrap overflow-auto py-2 px-5" style="scroll-behavior: smooth; gap: 1rem; scrollbar-width: none; -ms-overflow-style: none;"></div>
@@ -280,8 +280,8 @@ export async function loadHomePage() {
                 }
                 @media (min-width: 992px) {
                     .category-carousel-card { 
-                        min-width: 160px; 
-                        max-width: 180px; 
+                        min-width: 180px; 
+                        max-width: 200px; 
                     }
                     .category-carousel-card .category-image {
                         width: 80px; height: 80px;
@@ -749,7 +749,7 @@ export async function loadHomePage() {
                         ${artisan.url_banner ?
                             `<div class='artisan-banner position-absolute top-0 start-0 w-100 h-100' style="background: url('http://localhost:3005${artisan.url_banner}') center/cover no-repeat; opacity: 0.25; z-index:1;"></div>`
                             : ''}
-                        <div class="card-body text-center py-4 px-2 position-relative" style="z-index:2;">
+                        <div class="card-body text-center py-3 px-2 position-relative" style="z-index:2;">
                             <div class="artisan-profile-img mx-auto mb-2 position-relative d-flex justify-content-center align-items-center" style="width: 90px; height: 90px; border-radius: 50%; overflow: hidden; border: 4px solid #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.15); background: #f8f9fa;">
                                 ${artisan.image ?
                                     `<img src="http://localhost:3005${artisan.image}" alt="${artisan.name}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />` :
@@ -757,8 +757,7 @@ export async function loadHomePage() {
                                 }
                             </div>
                             <h6 class="fw-bold mb-1 category-card-title">${artisan.name}</h6>
-                            <div class="text-muted small mb-2">${membroDa}</div>
-                            ${artisan.bio ? `<div class="artisan-bio small mb-2 text-secondary fst-italic">${artisan.bio}</div>` : ''}
+                            <div class="text-muted small mb-2 artisan-member-date">${membroDa}</div>
                             <a href="/artisan-shop/${artisan.id}" class="btn btn-outline-primary btn-sm mt-1 px-4 rounded-pill shadow-sm" data-route>Scopri</a>
                         </div>
                     </div>
@@ -786,16 +785,35 @@ export async function loadHomePage() {
         }
         styleElement.textContent = `
             #artisans-carousel {
+                display: flex;
+                flex-wrap: nowrap;
+                overflow-x: hidden;
+                gap: 1rem;
+                padding-bottom: 24px !important;
+                padding-top: 20px !important;
                 overflow-y: visible !important;
-                padding-bottom: 48px !important;
+                scrollbar-width: thin;
+                width: 100%;
+                min-width: 0;
+            }
+            #artisans-carousel .category-carousel-card {
+                flex: 0 0 auto;
+                width: 210px;
+                margin: 0;
             }
             #artisans-carousel .artisan-card {
-                min-width: 220px;
-                max-width: 260px;
+                width: 100%;
+                min-width: 0;
+                max-width: 100%;
+                min-height: 160px;
                 background: #fff;
                 border-radius: 1.2rem;
                 box-shadow: 0 2px 10px rgba(0,0,0,0.10);
                 transition: transform 0.2s, box-shadow 0.2s;
+                padding: 0.7rem 0.3rem 1rem 0.3rem;
+                position: relative;
+                z-index: 1;
+                margin: 0;
             }
             #artisans-carousel .artisan-card:hover {
                 transform: translateY(-7px) scale(1.03);
@@ -804,40 +822,84 @@ export async function loadHomePage() {
             #artisans-carousel .artisan-banner {
                 border-radius: 1.2rem;
                 pointer-events: none;
+                position: absolute;
+                top: 0; left: 0; width: 100%; height: 100%;
+                z-index: 0;
             }
             #artisans-carousel .artisan-profile-img {
                 box-shadow: 0 2px 10px rgba(0,0,0,0.18);
                 background: #fff;
+                position: relative;
+                z-index: 2;
             }
             #artisans-carousel .category-card-title {
                 font-size: 1.1rem;
             }
-            #artisans-carousel .artisan-bio {
-                min-height: 1.5em;
-                max-height: 3em;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                display: -webkit-box;
-                -webkit-line-clamp: 2;
-                -webkit-box-orient: vertical;
-            }
-            @media (min-width: 992px) {
-                #artisans-carousel .artisan-card {
-                    min-width: 250px;
-                    max-width: 300px;
+            @media (max-width: 767px) {
+                #artisans-carousel .category-carousel-card {
+                    width: 33.333vw;
+                    min-width: 33.333vw;
+                    max-width: 33.333vw;
                 }
-                #artisans-carousel .artisan-profile-img {
-                    width: 110px !important;
-                    height: 110px !important;
+                #artisans-carousel .artisan-card {
+                    min-height: 120px;
+                    padding: 0.5rem 0.2rem 0.7rem 0.2rem;
+                }
+                #artisans-carousel .artisan-member-date {
+                    display: none !important;
+                }
+            }
+            @media (min-width: 768px) {
+                #artisans-carousel .category-carousel-card {
+                    width: 19vw;
+                    min-width: 19vw;
+                    max-width: 19vw;
                 }
             }
             @media (min-width: 1200px) {
-                #artisans-carousel .artisan-card {
-                    min-width: 270px;
-                    max-width: 340px;
+                #artisans-carousel .category-carousel-card {
+                    width: 15vw;
+                    min-width: 15vw;
+                    max-width: 15vw;
+                }
+            }
+            @media (min-width: 1400px) {
+                #artisans-carousel .category-carousel-card {
+                    width: 12vw;
+                    min-width: 12vw;
+                    max-width: 12vw;
                 }
             }
         `;
+        // Gestione scroll "a pagina" per mobile e desktop
+        let carouselPage = 0;
+        function scrollCarousel(direction) {
+            const container = document.getElementById('artisans-carousel');
+            const cards = container.querySelectorAll('.category-carousel-card');
+            if (!cards.length) return;
+            let cardsPerPage = 3;
+            if (window.innerWidth >= 1200) {
+                cardsPerPage = 5;
+            } else if (window.innerWidth >= 768) {
+                cardsPerPage = 5;
+            }
+            const cardWidth = cards[0].offsetWidth + parseInt(getComputedStyle(container).gap || 16);
+            const totalCards = cards.length;
+            const maxPage = Math.max(0, Math.ceil(totalCards / cardsPerPage) - 1);
+            if (direction === 'right') {
+                carouselPage = Math.min(carouselPage + 1, maxPage);
+            } else {
+                carouselPage = Math.max(carouselPage - 1, 0);
+            }
+            container.scrollTo({
+                left: carouselPage * cardWidth * cardsPerPage,
+                behavior: 'smooth'
+            });
+        }
+        if (leftBtn && rightBtn && container) {
+            leftBtn.onclick = () => scrollCarousel('left');
+            rightBtn.onclick = () => scrollCarousel('right');
+        }
     }
 
     return {

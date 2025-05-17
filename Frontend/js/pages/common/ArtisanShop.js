@@ -24,23 +24,22 @@ export async function loadArtisanShopPage(params) {
 
     // Struttura base
     pageElement.innerHTML = `
-        <div class="container py-4">
-            <div class="row mb-2">
-                <div class="col-12">
-                    <button id="back-btn" class="btn btn-outline-secondary mb-3">
-                        <i class="bi bi-arrow-left"></i> Torna indietro
-                    </button>
-                </div>
-            </div>
+        <div class="container py-4 artisan-shop-page">
             <div class="row mb-4">
                 <div class="col-12">
-                    <div class="card shadow-sm border-0 p-4 d-flex flex-row align-items-center gap-4">
-                        <div id="artisan-img-wrapper" class="artisan-img-placeholder d-flex align-items-center justify-content-center bg-light rounded-circle" style="width:80px;height:80px;overflow:hidden;">
-                            <span class="display-4 text-primary"><i class="bi bi-person-badge"></i></span>
+                    <div class="artisan-header card border-0 shadow-sm p-0 position-relative overflow-hidden mb-4">
+                        <div class="artisan-banner position-relative w-100" id="artisan-banner" style="height: 200px;">
+                            <div class="banner-overlay position-absolute top-0 start-0 w-100 h-100" style="background: rgba(255,255,255,0.25);"></div>
                         </div>
-                        <div>
-                            <h2 class="h4 mb-1" id="artisan-name">Artigiano</h2>
-                            <div class="text-muted small" id="artisan-id">ID: ${artisanId}</div>
+                        <div class="artisan-profile-wrapper position-absolute start-50 translate-middle-x" style="top: 140px; z-index:2;">
+                            <div id="artisan-img-wrapper" class="artisan-img-placeholder d-flex align-items-center justify-content-center bg-light rounded-circle border border-4 border-white shadow" style="width:120px;height:120px;overflow:hidden;">
+                                <span class="display-4 text-primary"><i class="bi bi-person-badge"></i></span>
+                            </div>
+                        </div>
+                        <div class="artisan-info text-center px-3" style="margin-top: 60px;">
+                            <h2 class="fw-bold mb-1" id="artisan-name">Artigiano</h2>
+                            <div class="artisan-bio text-secondary fst-italic mb-2" id="artisan-bio"></div>
+                            <div class="text-muted small" id="artisan-member-date"></div>
                         </div>
                     </div>
                 </div>
@@ -54,6 +53,48 @@ export async function loadArtisanShopPage(params) {
                 </div>
             </div>
         </div>
+        <style>
+        .artisan-header {
+            border-radius: 1.2rem;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            position: relative;
+            background: #fff;
+        }
+        .artisan-banner {
+            min-height: 200px;
+            background: #f8f9fa;
+            object-fit: cover;
+            border-top-left-radius: 1.2rem;
+            border-top-right-radius: 1.2rem;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+        .banner-overlay {
+            background: rgba(255,255,255,0.25);
+            pointer-events: none;
+        }
+        .artisan-profile-wrapper {
+            left: 50%;
+            transform: translateX(-50%);
+            top: 140px;
+            position: absolute;
+            z-index: 2;
+        }
+        .artisan-img-placeholder {
+            border: 4px solid #fff !important;
+        }
+        .artisan-info {
+            margin-top: 60px;
+            padding-bottom: 1rem;
+        }
+        @media (max-width: 767px) {
+            .artisan-header { border-radius: 0.8rem; }
+            .artisan-banner { min-height: 120px; }
+            .artisan-profile-wrapper { top: 90px; }
+            .artisan-info { margin-top: 60px; }
+        }
+        </style>
     `;
 
     // Renderizza i prodotti
@@ -91,7 +132,6 @@ export async function loadArtisanShopPage(params) {
             .artisan-shop-page .product-img-wrapper { height: 90px !important; }
             .artisan-shop-page .card-body .p-2 { padding: 0.5rem !important; }
             .artisan-shop-page .card-title { font-size: 1rem; }
-        }
         </style>`;
     }
 
@@ -113,18 +153,29 @@ export async function loadArtisanShopPage(params) {
     async function loadArtisan() {
         try {
             const data = await UsersAPI.getArtisans({ id: artisanId });
-            console.log("dati artigiano", data);
             // Se la risposta è un singolo oggetto (quando passo id)
             const found = data.data && data.data.id ? data.data : null;
             if (found) {
                 state.artisan = found;
                 pageElement.querySelector('#artisan-name').textContent = found.name;
-                pageElement.querySelector('#artisan-id').textContent = `ID: ${found.id}`;
-                // Aggiorna la foto profilo se presente
+                pageElement.querySelector('#artisan-bio').textContent = found.bio || '';
+                // Data formattata
+                if (found.approved_at) {
+                    const date = new Date(found.approved_at);
+                    const mesi = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'];
+                    pageElement.querySelector('#artisan-member-date').textContent =
+                        `Membro da: ${date.getDate()} ${mesi[date.getMonth()]} ${date.getFullYear()}`;
+                }
+                // Banner
+                const bannerDiv = pageElement.querySelector('#artisan-banner');
+                if (bannerDiv && found.url_banner) {
+                    bannerDiv.style.background = `url('http://localhost:3005${found.url_banner}') center/cover no-repeat`;
+                }
+                // Foto profilo
                 const imgWrapper = pageElement.querySelector('#artisan-img-wrapper');
                 if (imgWrapper) {
                     if (found.image) {
-                        imgWrapper.innerHTML = `<img src=\"http://localhost:3005${found.image}\" alt=\"${found.name}\" style=\"width:80px; height:80px; object-fit:cover; border-radius:50%;\" />`;
+                        imgWrapper.innerHTML = `<img src=\"http://localhost:3005${found.image}\" alt=\"${found.name}\" style=\"width:120px; height:120px; object-fit:cover; border-radius:50%;\" />`;
                     } else {
                         imgWrapper.innerHTML = '<span class="display-4 text-primary"><i class="bi bi-person-badge"></i></span>';
                     }
