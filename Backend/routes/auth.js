@@ -153,4 +153,23 @@ router.get('/profile', verifyToken, async (req, res) => {
   }
 });
 
+/**
+ * @route   PUT /auth/profile
+ * @desc    Aggiorna profilo utente (solo nome)
+ * @access  Private (solo utenti autenticati)
+ */
+router.put('/profile', verifyToken, async (req, res) => {
+  try {
+    const { name } = req.body;
+    if (!name) {
+      return res.status(400).json({ success: false, message: 'Il nome è obbligatorio' });
+    }
+    await db.query('UPDATE users SET name = ? WHERE id = ?', [name, req.user.id]);
+    res.json({ success: true, message: 'Profilo aggiornato con successo', data: { name } });
+  } catch (error) {
+    console.error('Errore durante l\'aggiornamento del profilo:', error);
+    res.status(500).json({ success: false, message: 'Errore durante l\'aggiornamento del profilo', error: error.message });
+  }
+});
+
 module.exports = router;

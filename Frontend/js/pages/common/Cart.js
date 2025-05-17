@@ -2,6 +2,7 @@ import CartAPI from '../../../api/cart.js';
 import * as OrdersAPI from '../../../api/orders.js';
 import { showBootstrapToast } from '../../components/Toast.js';
 import { authService } from '../../services/authService.js';
+import { router } from '../../router.js';
 
 const ICONS = ['🛒', '🎁', '🧵', '🎨', '🖼️', '🪡', '🪆', '🧶', '🪵', '🪚'];
 
@@ -155,8 +156,8 @@ export async function loadCartPage() {
                     showBootstrapToast('Utente non autenticato', 'Errore', 'error');
                     return;
                 }
-                const result = await OrdersAPI.checkoutOrder(user.id);
-                await renderCart();
+                // Naviga alla pagina di checkout invece di inviare subito l'ordine
+                router.navigate('/checkout');
             } catch (error) {
                 showBootstrapToast(error.message || 'Errore nel checkout', 'Errore', 'error');
             }

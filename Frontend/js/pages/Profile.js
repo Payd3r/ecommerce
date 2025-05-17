@@ -16,7 +16,14 @@ export async function loadProfilePage() {
     
     // Ottiene i dati dell'utente
     const user = await ApiService.getProfile();
-    console.log("utente",user);
+    let address = {};
+    try {
+        address = await ApiService.getAddress();
+        if (!address) address = {};
+    } catch (e) {
+        address = {};
+        console.log("errore",e);
+    }
     
     // Costruisce il contenuto della pagina
     pageElement.innerHTML = `
@@ -52,8 +59,12 @@ export async function loadProfilePage() {
                         <h2 class="h5 mb-3">Informazioni personali</h2>
                         <form id="profile-form">
                             <div class="mb-3">
-                                <label for="name" class="form-label">Nome completo</label>
-                                <input type="text" id="name" name="name" class="form-control" value="${user.name}" required>
+                                <label for="name" class="form-label">Nome</label>
+                                <input type="text" id="name" name="name" class="form-control" value="${address.name || ''}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="surname" class="form-label">Cognome</label>
+                                <input type="text" id="surname" name="surname" class="form-control" value="${address.surname || ''}" required>
                             </div>
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
@@ -63,6 +74,30 @@ export async function loadProfilePage() {
                             <div class="mb-3">
                                 <label for="role" class="form-label">Tipo di account</label>
                                 <input type="text" id="role" class="form-control" value="${getRoleLabel(user.role)}" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="stato" class="form-label">Stato</label>
+                                <input type="text" id="stato" name="stato" class="form-control" value="${address.stato || ''}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="citta" class="form-label">Città</label>
+                                <input type="text" id="citta" name="citta" class="form-control" value="${address.citta || ''}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="provincia" class="form-label">Provincia</label>
+                                <input type="text" id="provincia" name="provincia" class="form-control" value="${address.provincia || ''}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="via" class="form-label">Via</label>
+                                <input type="text" id="via" name="via" class="form-control" value="${address.via || ''}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="numero_civico" class="form-label">Numero civico</label>
+                                <input type="number" id="numero_civico" name="numero_civico" class="form-control" value="${address.numero_civico || ''}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="cap" class="form-label">CAP</label>
+                                <input type="text" id="cap" name="cap" class="form-control" value="${address.cap || ''}">
                             </div>
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary">
@@ -133,53 +168,51 @@ export async function loadProfilePage() {
      */
     async function handleProfileUpdate(event) {
         event.preventDefault();
-        
         const form = event.target;
         const name = form.name.value.trim();
-        
-        // Validazione base
-        if (!name) {
-            showBootstrapToast('Il nome è obbligatorio', 'Errore', 'error');
+        const surname = form.surname.value.trim();
+        const stato = form.stato.value.trim();
+        const citta = form.citta.value.trim();
+        const provincia = form.provincia.value.trim();
+        const via = form.via.value.trim();
+        const numero_civico = form.numero_civico.value.trim();
+        const cap = form.cap.value.trim();
+        if (!name || !surname) {
+            showBootstrapToast('Nome e cognome sono obbligatori', 'Errore', 'error');
             return;
         }
-        
         try {
-            // Disabilita il form durante la richiesta
             const submitBtn = form.querySelector('button[type="submit"]');
             const btnText = submitBtn.querySelector('.btn-text');
-            
             submitBtn.disabled = true;
             btnText.innerHTML = '<span class="btn-loader"></span> Aggiornamento...';
-            
-            // Mostra il loader
             loader.show();
-            
-            // In un'implementazione reale, qui aggiorneremmo il profilo
-            // await updateProfile({ name });
-            
-            // Simulazione della chiamata API
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            // Aggiorna i dati utente nel localStorage
-            const updatedUser = { ...user, name };
-            localStorage.setItem('auth_user', JSON.stringify(updatedUser));
-            
-            // Mostra messaggio di successo
+            // Aggiorna profilo utente solo se il nome è cambiato
+            if (name !== user.name || surname !== user.surname) {
+                await ApiService.updateProfile({ name, surname });
+                const updatedUser = { ...user, name, surname };
+                localStorage.setItem('auth_user', JSON.stringify(updatedUser));
+            }
+            // Aggiorna/crea indirizzo sempre
+            await ApiService.saveAddress({
+                stato: stato || "",
+                citta: citta || "",
+                provincia: provincia || "",
+                via: via || "",
+                cap: cap || "",
+                numero_civico: numero_civico === "" ? 0 : Number(numero_civico),
+                name,
+                surname
+            });
             showBootstrapToast('Profilo aggiornato con successo', 'Successo', 'success');
-            
-            // Invia evento di cambio autenticazione
             document.dispatchEvent(new CustomEvent('auth:change'));
         } catch (error) {
             showBootstrapToast('Errore durante l\'aggiornamento del profilo: ' + error.message, 'Errore', 'error');
         } finally {
-            // Ripristina il form
             const submitBtn = form.querySelector('button[type="submit"]');
             const btnText = submitBtn.querySelector('.btn-text');
-            
             submitBtn.disabled = false;
             btnText.textContent = 'Aggiorna profilo';
-            
-            // Nasconde il loader
             loader.hide();
         }
     }
