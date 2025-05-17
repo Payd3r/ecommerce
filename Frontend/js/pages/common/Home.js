@@ -66,7 +66,7 @@ export async function loadHomePage() {
                 <div id="featured-products-container" class="row g-4"></div>
             </div>
         </section>
-        <section class="artisans-week py-4">
+        <section class="artisans-week pt-4">
             <div class="container">
                 <h2 class="mb-4">Artigiani della Settimana</h2>
                 <div class="position-relative px-3" style="padding-left: 2vw; padding-right: 2vw;">
@@ -736,18 +736,30 @@ export async function loadHomePage() {
         // Simboli diversi per ogni artigiano (ciclo)
         const iconList = ['🧑‍🎨', '👩‍🎨', '🧔', '👨‍🦰', '👩‍🦰', '🧑‍🦱', '👨‍🦳', '👩‍🦳', '🧑‍🦲', '👨‍🦲', '👩‍🦲', '🧑‍🦰', '🧑‍🦳', '🧑‍🦲'];
         artisans.slice(0, 20).forEach((artisan, idx) => {
+            // Format approved_at
+            let membroDa = '';
+            if (artisan.approved_at) {
+                const date = new Date(artisan.approved_at);
+                const mesi = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'];
+                membroDa = `Membro da: ${date.getDate()} ${mesi[date.getMonth()]} ${date.getFullYear()}`;
+            }
             html += `
                 <div class="category-carousel-card d-flex flex-shrink-0">
-                    <div class="category-card card flex-fill mb-0 shadow-sm border-0">
-                        <div class="card-body text-center py-3 px-2">
-                            <div class="category-image mb-2 d-flex justify-content-center align-items-center mx-auto" style="background-color: var(--secondary-color); width: 70px; height: 70px; border-radius: 50%; overflow: hidden;">
+                    <div class="artisan-card card flex-fill mb-0 shadow border-0 position-relative overflow-hidden">
+                        ${artisan.url_banner ?
+                            `<div class='artisan-banner position-absolute top-0 start-0 w-100 h-100' style="background: url('http://localhost:3005${artisan.url_banner}') center/cover no-repeat; opacity: 0.25; z-index:1;"></div>`
+                            : ''}
+                        <div class="card-body text-center py-4 px-2 position-relative" style="z-index:2;">
+                            <div class="artisan-profile-img mx-auto mb-2 position-relative d-flex justify-content-center align-items-center" style="width: 90px; height: 90px; border-radius: 50%; overflow: hidden; border: 4px solid #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.15); background: #f8f9fa;">
                                 ${artisan.image ?
-                                    `<img src="http://localhost:3005${artisan.image}" alt="${artisan.name}" style="width:100%; height:100%; object-fit:cover;" />` :
-                                    `<span class="category-icon fs-4">${iconList[idx % iconList.length]}</span>`
+                                    `<img src="http://localhost:3005${artisan.image}" alt="${artisan.name}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />` :
+                                    `<span class="category-icon fs-1">${iconList[idx % iconList.length]}</span>`
                                 }
                             </div>
-                            <h6 class="fw-bold mb-1 small category-card-title">${artisan.name}</h6>
-                            <a href="/artisan-shop/${artisan.id}" class="btn btn-outline-primary btn-sm mt-1" data-route>Scopri</a>
+                            <h6 class="fw-bold mb-1 category-card-title">${artisan.name}</h6>
+                            <div class="text-muted small mb-2">${membroDa}</div>
+                            ${artisan.bio ? `<div class="artisan-bio small mb-2 text-secondary fst-italic">${artisan.bio}</div>` : ''}
+                            <a href="/artisan-shop/${artisan.id}" class="btn btn-outline-primary btn-sm mt-1 px-4 rounded-pill shadow-sm" data-route>Scopri</a>
                         </div>
                     </div>
                 </div>
@@ -758,13 +770,13 @@ export async function loadHomePage() {
         const leftBtn = document.getElementById('artisan-carousel-left');
         const rightBtn = document.getElementById('artisan-carousel-right');
         if (leftBtn && rightBtn && container) {
-            const card = container.querySelector('.category-card');
+            const card = container.querySelector('.category-card, .artisan-card');
             const scrollAmount = card ? card.offsetWidth + 8 : 120;
             leftBtn.onclick = () => container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
             rightBtn.onclick = () => container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
         }
 
-        // Stili specifici per ingrandire le card artigiani su PC, aggiunti all'head
+        // Stili specifici per le card artigiani
         const artisanCardStyleId = 'artisan-card-styles-override';
         let styleElement = document.getElementById(artisanCardStyleId);
         if (!styleElement) {
@@ -773,30 +785,56 @@ export async function loadHomePage() {
             document.head.appendChild(styleElement);
         }
         styleElement.textContent = `
-            @media (min-width: 992px) { /* Tablet L e Desktop S */
-                #artisans-carousel .category-carousel-card {
-                    min-width: 190px; 
-                    max-width: 220px; 
+            #artisans-carousel {
+                overflow-y: visible !important;
+                padding-bottom: 48px !important;
+            }
+            #artisans-carousel .artisan-card {
+                min-width: 220px;
+                max-width: 260px;
+                background: #fff;
+                border-radius: 1.2rem;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.10);
+                transition: transform 0.2s, box-shadow 0.2s;
+            }
+            #artisans-carousel .artisan-card:hover {
+                transform: translateY(-7px) scale(1.03);
+                box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+            }
+            #artisans-carousel .artisan-banner {
+                border-radius: 1.2rem;
+                pointer-events: none;
+            }
+            #artisans-carousel .artisan-profile-img {
+                box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+                background: #fff;
+            }
+            #artisans-carousel .category-card-title {
+                font-size: 1.1rem;
+            }
+            #artisans-carousel .artisan-bio {
+                min-height: 1.5em;
+                max-height: 3em;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+            }
+            @media (min-width: 992px) {
+                #artisans-carousel .artisan-card {
+                    min-width: 250px;
+                    max-width: 300px;
                 }
-                #artisans-carousel .category-carousel-card .category-image {
-                    width: 90px; 
-                    height: 90px;
-                }
-                #artisans-carousel .category-carousel-card .category-card-title {
-                    font-size: 1.05rem; 
+                #artisans-carousel .artisan-profile-img {
+                    width: 110px !important;
+                    height: 110px !important;
                 }
             }
-            @media (min-width: 1200px) { /* Desktop M+ */
-                 #artisans-carousel .category-carousel-card {
-                    min-width: 200px; 
-                    max-width: 230px; 
-                }
-                #artisans-carousel .category-carousel-card .category-image {
-                    width: 100px; 
-                    height: 100px;
-                }
-                 #artisans-carousel .category-carousel-card .category-card-title {
-                    font-size: 1.1rem; 
+            @media (min-width: 1200px) {
+                #artisans-carousel .artisan-card {
+                    min-width: 270px;
+                    max-width: 340px;
                 }
             }
         `;

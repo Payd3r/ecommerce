@@ -60,26 +60,36 @@ export async function loadArtisanPage() {
             list.innerHTML = '<div class="col-12 text-center text-muted">Nessun artigiano trovato.</div>';
             return;
         }
-        list.innerHTML = artisans.map(artisan => `
-            <div class="col-6 col-md-4">
-                <div class="card h-100 shadow-sm border-0">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-center align-items-center" style="background-color: var(--secondary-color); width: 100px; height: 100px; border-radius: 50%; overflow: hidden;">
-                                ${artisan.image ?
-                                    `<img src=\"http://localhost:3005${artisan.image}\" alt=\"${artisan.name}\" style=\"width:100px; height:100px; object-fit:cover;\" />` :
-                                    '<span class="display-3 text-primary"><i class="bi bi-person-badge"></i></span>'
-                                }
-                            </div>
+        list.innerHTML = artisans.map(artisan => {
+            // Format approved_at
+            let membroDa = '';
+            if (artisan.approved_at) {
+                const date = new Date(artisan.approved_at);
+                const mesi = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'];
+                membroDa = `Membro da: ${date.getDate()} ${mesi[date.getMonth()]} ${date.getFullYear()}`;
+            }
+            return `
+            <div class="col-12 col-md-6 col-lg-4 d-flex align-items-stretch">
+                <div class="artisan-card card flex-fill shadow border-0 position-relative overflow-hidden my-2">
+                    ${artisan.url_banner ?
+                        `<div class='artisan-banner position-absolute top-0 start-0 w-100 h-100' style="background: url('http://localhost:3005${artisan.url_banner}') center/cover no-repeat; opacity: 0.22; z-index:1;"></div>`
+                        : ''}
+                    <div class="card-body text-center py-4 px-2 position-relative" style="z-index:2;">
+                        <div class="artisan-profile-img mx-auto mb-2 position-relative d-flex justify-content-center align-items-center" style="width: 90px; height: 90px; border-radius: 50%; overflow: hidden; border: 4px solid #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.15); background: #f8f9fa;">
+                            ${artisan.image ?
+                                `<img src=\"http://localhost:3005${artisan.image}\" alt=\"${artisan.name}\" style=\"width:100%; height:100%; object-fit:cover; border-radius:50%;\" />` :
+                                '<span class="display-3 text-primary"><i class="bi bi-person-badge"></i></span>'
+                            }
                         </div>
-                        <h5 class="card-title mb-1">${artisan.name}</h5>
-                        <p class="card-text mb-1 small text-muted">ID: ${artisan.id}</p>
-                        <span class="badge bg-secondary">Artigiano</span>
-                        <button class="btn btn-outline-primary w-100 mt-3 artisan-shop-btn" data-id="${artisan.id}">Vai allo shop</button>
+                        <h5 class="fw-bold mb-1">${artisan.name}</h5>
+                        <div class="text-muted small mb-2">${membroDa}</div>
+                        ${artisan.bio ? `<div class="artisan-bio small mb-2 text-secondary fst-italic">${artisan.bio}</div>` : ''}
+                        <a href="/artisan-shop/${artisan.id}" class="btn btn-outline-primary mt-2 px-4 rounded-pill shadow-sm artisan-shop-btn" data-id="${artisan.id}" data-route>Vai allo shop</a>
                     </div>
                 </div>
             </div>
-        `).join('');
+            `;
+        }).join('');
         // Aggiungi spazio extra se ci sono pochi artigiani
         if (artisans.length < 4) {
             list.innerHTML += '<div class="col-12" style="height: 25vh;"></div>';
@@ -91,6 +101,62 @@ export async function loadArtisanPage() {
                 router.navigate(`/artisan-shop/${id}`);
             });
         });
+        // Stili custom per le card artigiano
+        let styleElement = document.getElementById('artisan-list-card-styles');
+        if (!styleElement) {
+            styleElement = document.createElement('style');
+            styleElement.id = 'artisan-list-card-styles';
+            document.head.appendChild(styleElement);
+        }
+        styleElement.textContent = `
+            .artisan-card {
+                min-height: 340px;
+                border-radius: 1.2rem;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.10);
+                transition: transform 0.2s, box-shadow 0.2s;
+                background: #fff;
+            }
+            .artisan-card:hover {
+                transform: translateY(-7px) scale(1.03);
+                box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+            }
+            .artisan-banner {
+                border-radius: 1.2rem;
+                pointer-events: none;
+            }
+            .artisan-profile-img {
+                box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+                background: #fff;
+            }
+            .artisan-bio {
+                min-height: 1.5em;
+                max-height: 3em;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+            }
+            /* Stile per la card filtri */
+            #filters-container .card {
+                border-radius: 1.2rem !important;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.10) !important;
+                background: #f8f9fa !important;
+                padding: 2rem 1.5rem !important;
+                border: none !important;
+            }
+            #filters-container .form-control {
+                border-radius: 0.8rem;
+                font-size: 1.08rem;
+                padding: 0.7rem 1rem;
+            }
+            #filters-container .btn-primary {
+                border-radius: 1.2rem;
+                font-weight: 500;
+                padding: 0.6rem 0;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            }
+        `;
     }
 
     // Funzione per renderizzare la paginazione

@@ -55,14 +55,22 @@ const UsersAPI = {
             throw new Error('Impossibile determinare l\'utente loggato');
         }
 
+        // userData dovrebbe essere un oggetto JSON solo con i campi da aggiornare (es. name, role)
+        // Non dovrebbe contenere file qui.
+        const bodyData = { ...userData };
+        // Rimuovi eventuali campi file se passati per errore, anche se non dovrebbero esserci.
+        delete bodyData.profileImage; 
+        delete bodyData.bannerImage;
+        delete bodyData.biography; // La biografia è gestita da updateArtisanDetails
+
         try {
             const response = await fetchWithAuth(`${API_BASE_URL}/users/${user.id}`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json', // Assicurati che sia JSON
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(userData)
+                body: JSON.stringify(bodyData) // Invia solo dati JSON
             });
 
             if (!response.ok) {
@@ -377,6 +385,38 @@ const UsersAPI = {
             return await response.json();
         } catch (error) {
             console.error('Errore API getCounts:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Aggiorna i dettagli specifici dell'artigiano (bio, immagini).
+     * @param {FormData} artisanData - FormData contenente bio, profileImage (file), bannerImage (file).
+     * @returns {Promise} Promise con i dati aggiornati.
+     */
+    updateArtisanDetails: async (artisanData) => {
+        const token = authService.getToken();
+        if (!token) {
+            throw new Error('Utente non autenticato');
+        }
+        // L'ID utente è implicito nel token e gestito dal backend.
+        try {
+            const response = await fetchWithAuth(`${API_BASE_URL}/users/artisan-details`, {
+                method: 'POST',
+                headers: {
+                    // 'Content-Type': 'multipart/form-data' // NON impostare Content-Type con FormData, il browser lo fa.
+                    'Authorization': `Bearer ${token}`
+                },
+                body: artisanData // Invia direttamente FormData
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Errore nell\'aggiornamento dei dettagli artigiano');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Errore API updateArtisanDetails:', error);
             throw error;
         }
     },

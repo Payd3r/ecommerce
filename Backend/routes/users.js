@@ -3,6 +3,45 @@ const router = express.Router();
 const db = require('../models/db');
 const bcrypt = require('bcrypt');
 const { verifyToken, checkRole } = require('../middleware/auth');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+const projectRoot = path.join(__dirname, '..', '..'); 
+
+const profileUploadDir = path.join(projectRoot, 'Media', 'profile');
+const bannerUploadDir = path.join(projectRoot, 'Media', 'banner');
+
+if (!fs.existsSync(profileUploadDir)) {
+    fs.mkdirSync(profileUploadDir, { recursive: true });
+}
+if (!fs.existsSync(bannerUploadDir)) {
+    fs.mkdirSync(bannerUploadDir, { recursive: true });
+}
+
+
+// Helper function to check file type
+function checkFileType(file, filetypes, cb) {
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = filetypes.test(file.mimetype);
+    if (mimetype && extname) {
+        return cb(null, true);
+    } else {
+        cb(new Error('Error: Images Only! (jpeg, jpg, png, gif)'));
+    }
+}
+
+// Multer upload instances
+const artisanDetailsUpload = multer({
+    storage: multer.memoryStorage(), // Process files from buffer
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+    fileFilter: function (req, file, cb) {
+        checkFileType(file, /jpeg|jpg|png|gif/, cb);
+    }
+}).fields([
+    { name: 'profileImage', maxCount: 1 },
+    { name: 'bannerImage', maxCount: 1 }
+]);
 
 // GET /users - Ottieni tutti gli utenti con paginazione, ricerca e filtri
 // Solo admin può vedere tutti gli utenti
@@ -21,12 +60,14 @@ router.get('/', verifyToken, checkRole('admin'), async (req, res) => {
         let query = 'SELECT id, name, email, role, created_at FROM users WHERE 1=1';
         let countQuery = 'SELECT COUNT(*) as total FROM users WHERE 1=1';
         const queryParams = [];
+        const countQueryParams = []; // Separate params for count query if they differ
 
         // Aggiungi la condizione di ricerca per nome se presente
         if (req.query.name) {
             query += ' AND name LIKE ?';
             countQuery += ' AND name LIKE ?';
             queryParams.push(`%${req.query.name}%`);
+            countQueryParams.push(`%${req.query.name}%`);
         }
 
         // Aggiungi la condizione di ricerca per email se presente
@@ -34,6 +75,7 @@ router.get('/', verifyToken, checkRole('admin'), async (req, res) => {
             query += ' AND email LIKE ?';
             countQuery += ' AND email LIKE ?';
             queryParams.push(`%${req.query.email}%`);
+            countQueryParams.push(`%${req.query.email}%`);
         }
 
         // Aggiungi il filtro per il ruolo se presente
@@ -41,6 +83,7 @@ router.get('/', verifyToken, checkRole('admin'), async (req, res) => {
             query += ' AND role = ?';
             countQuery += ' AND role = ?';
             queryParams.push(role);
+            countQueryParams.push(role);
         }
 
         // Aggiungi ordinamento e paginazione
@@ -49,10 +92,9 @@ router.get('/', verifyToken, checkRole('admin'), async (req, res) => {
 
         // Esegui le query
         const [users] = await db.query(query, queryParams);
-        const [totalCount] = await db.query(countQuery, queryParams.slice(0, queryParams.length - 2));
-
-        // Calcola la paginazione
-        const total = totalCount[0].total;
+        const [totalCountResult] = await db.query(countQuery, countQueryParams);
+        const total = totalCountResult[0].total;
+        
         const totalPages = Math.ceil(total / limit);
         const hasNextPage = page < totalPages;
         const hasPrevPage = page > 1;
@@ -83,14 +125,18 @@ router.get('/artisans', async (req, res) => {
         const id = req.query.id ? parseInt(req.query.id) : null;
         if (id) {
             // Restituisci solo l'artigiano con quell'id
-            const [artisans] = await db.query('SELECT id, name, created_at FROM users WHERE role = "artisan" AND id = ?', [id]);
+            // Join con profile_image e extended_users
+            const [artisans] = await db.query(
+                `SELECT u.id, u.name, u.created_at, pi.url as image, eu.url_banner, eu.bio, eu.approved_at 
+                 FROM users u
+                 LEFT JOIN profile_image pi ON u.id = pi.user_id
+                 LEFT JOIN extended_users eu ON u.id = eu.id_users
+                 WHERE u.role = "artisan" AND u.id = ? AND eu.approved = 1`, [id]
+            );
             if (artisans.length === 0) {
-                return res.status(404).json({ error: 'Artigiano non trovato' });
+                return res.status(404).json({ error: 'Artigiano non trovato o non approvato' });
             }
-            // Prendi immagine profilo
-            const [img] = await db.query('SELECT url FROM profile_image WHERE user_id = ? LIMIT 1', [id]);
-            const image = img.length > 0 ? img[0].url : null;
-            return res.json({ data: { ...artisans[0], image } });
+            return res.json({ data: artisans[0] });
         }
         // Procedi con la normale logica della route
         const page = parseInt(req.query.page) || 1;
@@ -98,45 +144,42 @@ router.get('/artisans', async (req, res) => {
         const offset = (page - 1) * limit;
         const searchTerm = req.query.search || '';
 
-        // Costruisci la query di base per ottenere solo gli artisani
-        let query = 'SELECT id, name, created_at FROM users WHERE role = "artisan"';
-        let countQuery = 'SELECT COUNT(*) as total FROM users WHERE role = "artisan"';
+        // Costruisci la query di base per ottenere solo gli artisani approvati
+        let query = `SELECT u.id, u.name, u.created_at, pi.url as image, eu.url_banner, eu.bio, eu.approved_at
+                     FROM users u
+                     LEFT JOIN profile_image pi ON u.id = pi.user_id
+                     LEFT JOIN extended_users eu ON u.id = eu.id_users
+                     WHERE u.role = 'artisan' AND eu.approved = 1`;
+        let countQuery = `SELECT COUNT(*) as total
+                          FROM users u
+                          LEFT JOIN extended_users eu ON u.id = eu.id_users
+                          WHERE u.role = 'artisan' AND eu.approved = 1`;
+        
         const queryParams = [];
+        const countQueryParams = [];
         
         // Aggiungi la condizione di ricerca se presente
         if (searchTerm) {
-            query += ' AND name LIKE ?';
-            countQuery += ' AND name LIKE ?';
+            query += ' AND u.name LIKE ?';
+            countQuery += ' AND u.name LIKE ?';
             queryParams.push(`%${searchTerm}%`);
+            countQueryParams.push(`%${searchTerm}%`);
         }
 
         // Aggiungi ordinamento e paginazione
-        query += ' ORDER BY name ASC LIMIT ? OFFSET ?';
+        query += ' ORDER BY u.name ASC LIMIT ? OFFSET ?';
         queryParams.push(limit, offset);
 
-        // Esegui le query
         const [artisans] = await db.query(query, queryParams);
-        const [totalCount] = await db.query(countQuery, searchTerm ? [`%${searchTerm}%`] : []);
+        const [totalCountResult] = await db.query(countQuery, countQueryParams);
+        const total = totalCountResult[0].total;
 
-        // Prendi tutte le immagini profilo in un'unica query
-        const artisanIds = artisans.map(a => a.id);
-        let imagesMap = {};
-        if (artisanIds.length > 0) {
-            const [imgs] = await db.query('SELECT user_id, url FROM profile_image WHERE user_id IN (?)', [artisanIds]);
-            imgs.forEach(img => {
-                imagesMap[img.user_id] = img.url;
-            });
-        }
-        const artisansWithImage = artisans.map(a => ({ ...a, image: imagesMap[a.id] || null }));
-
-        // Calcola la paginazione
-        const total = totalCount[0].total;
         const totalPages = Math.ceil(total / limit);
         const hasNextPage = page < totalPages;
         const hasPrevPage = page > 1;
 
         res.json({
-            data: artisansWithImage,
+            data: artisans,
             pagination: {
                 total,
                 totalPages,
@@ -360,6 +403,109 @@ router.delete('/:id', verifyToken, checkRole('admin'), async (req, res) => {
     } catch (error) {
         console.error('Errore nell\'eliminazione dell\'utente:', error);
         res.status(500).json({ error: 'Errore nell\'eliminazione dell\'utente' });
+    }
+});
+
+// NUOVA ROTTA: POST /users/artisan-details
+router.post('/artisan-details', verifyToken, artisanDetailsUpload, async (req, res) => {
+    const userId = req.user.id;
+    const { bio } = req.body; // bio viene da req.body perché non è un file
+
+    // fileData conterrà i path relativi per il DB
+    let fileData = { profileImagePath: null, bannerImagePath: null };
+    let filesToDeleteOnError = []; // Tiene traccia dei file salvati per poterli cancellare in caso di errore DB
+
+    try {
+        const { profileImage, bannerImage } = req.files || {};
+
+        if (profileImage && profileImage[0]) {
+            const file = profileImage[0];
+            const profileFileName = `${userId}-profile-${Date.now()}${path.extname(file.originalname)}`;
+            
+            // Crea la directory specifica dell'utente per l'immagine profilo se non esiste
+            const userSpecificProfileDir = path.join(profileUploadDir, String(userId));
+            if (!fs.existsSync(userSpecificProfileDir)) {
+                fs.mkdirSync(userSpecificProfileDir, { recursive: true });
+            }
+            
+            const profileDiskPath = path.join(userSpecificProfileDir, profileFileName);
+            fs.writeFileSync(profileDiskPath, file.buffer);
+            fileData.profileImagePath = `/Media/profile/${userId}/${profileFileName}`; // Path aggiornato
+            filesToDeleteOnError.push(profileDiskPath);
+
+            await db.query(
+                'INSERT INTO profile_image (user_id, url) VALUES (?, ?) ON DUPLICATE KEY UPDATE url = VALUES(url)',
+                [userId, fileData.profileImagePath]
+            );
+        }
+
+        if (bannerImage && bannerImage[0]) {
+            const file = bannerImage[0];
+            const bannerFileName = `${userId}-banner-${Date.now()}${path.extname(file.originalname)}`;
+            const bannerDiskPath = path.join(bannerUploadDir, bannerFileName); // Il banner non ha sottocartella utente
+            fs.writeFileSync(bannerDiskPath, file.buffer);
+            fileData.bannerImagePath = `/Media/banner/${bannerFileName}`;
+            filesToDeleteOnError.push(bannerDiskPath);
+        }
+
+        // UPSERT per extended_users
+        const fieldsToInsert = ['id_users'];
+        const valuesToInsert = [userId];
+        const fieldsToUpdate = [];
+
+        const altTextForBanner = req.body.alt_text_banner || ''; // Assumendo che alt_text sia per il banner
+        fieldsToInsert.push('alt_text');
+        valuesToInsert.push(altTextForBanner);
+        fieldsToUpdate.push('alt_text = VALUES(alt_text)');
+
+        if (fileData.bannerImagePath) {
+            fieldsToInsert.push('url_banner');
+            valuesToInsert.push(fileData.bannerImagePath);
+            fieldsToUpdate.push('url_banner = VALUES(url_banner)');
+        }
+        
+        if (bio !== undefined) { 
+            fieldsToInsert.push('bio');
+            valuesToInsert.push(bio);
+            fieldsToUpdate.push('bio = VALUES(bio)');
+        }
+
+        if (fieldsToInsert.length > 2 || (fieldsToInsert.length === 2 && (fileData.bannerImagePath || bio !== undefined))) { 
+            let upsertQuery = `
+                INSERT INTO extended_users (${fieldsToInsert.join(', ')})
+                VALUES (${valuesToInsert.map(() => '?').join(', ')})
+            `;
+            if (fieldsToUpdate.length > 0) {
+                upsertQuery += ` ON DUPLICATE KEY UPDATE ${fieldsToUpdate.join(', ')}`;
+            }
+            await db.query(upsertQuery, valuesToInsert);
+        } else if (fieldsToInsert.length === 2 && fieldsToUpdate.length > 0) {
+            let updateOnlyQuery = `INSERT INTO extended_users (id_users, alt_text) VALUES (?, ?) ON DUPLICATE KEY UPDATE alt_text = VALUES(alt_text)`
+            await db.query(updateOnlyQuery, [userId, altTextForBanner]);
+        }
+
+        res.status(200).json({
+            message: 'Dettagli artigiano aggiornati con successo.',
+            profileImage: fileData.profileImagePath,
+            bannerImage: fileData.bannerImagePath,
+            bio: bio
+        });
+
+    } catch (error) {
+        console.error('Errore API /artisan-details:', error);
+        // Rollback manuale dei file salvati se c'è un errore DB
+        filesToDeleteOnError.forEach(filePath => {
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
+        });
+        // Rispondi con l'errore specifico di multer se è un errore di tipo file
+        if (error instanceof multer.MulterError) {
+            return res.status(400).json({ error: `Errore upload file: ${error.message}` });
+        } else if (error.message && error.message.startsWith('Error: Images Only!')) {
+             return res.status(400).json({ error: error.message });
+        }
+        res.status(500).json({ error: 'Errore server nell\'aggiornamento dei dettagli artigiano.', details: error.message });
     }
 });
 
