@@ -33,6 +33,7 @@ app.use('/cart', require('./routes/cart'));
 app.use('/orders', require('./routes/orders'));
 app.use('/images', require('./routes/images'));
 app.use('/issues', require('./routes/issue'));
+app.use('/address', require('./routes/address'));
 
 app.listen(port, () => {
   console.log(`Server attivo su http://localhost:${port}`);

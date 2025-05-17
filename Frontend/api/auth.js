@@ -60,7 +60,6 @@ export class ApiService {
     static async getProfile() {
         try {
             console.log("entro");
-
             const token = authService.getToken();
             const response = await fetchWithAuth(`${API_BASE_URL}/auth/profile`, {
                 headers: {
@@ -74,6 +73,69 @@ export class ApiService {
             throw new Error(data.message);
         } catch (error) {
             console.error('Errore durante il recupero del profilo:', error);
+            throw error;
+        }
+    }
+
+    static async getAddress() {
+        try {
+            const token = authService.getToken();
+            const response = await fetchWithAuth(`${API_BASE_URL}/address/me`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            const data = await response.json();
+            if (data.success) {
+                return data.data;
+            }
+            throw new Error(data.message);
+        } catch (error) {
+            console.error('Errore durante il recupero dell\'indirizzo:', error);
+            throw error;
+        }
+    }
+
+    static async saveAddress(address) {
+        try {
+            const token = authService.getToken();
+            const response = await fetchWithAuth(`${API_BASE_URL}/address`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(address)
+            });
+            const data = await response.json();
+            if (data.success) {
+                return data.data;
+            }
+            throw new Error(data.message);
+        } catch (error) {
+            console.error('Errore durante il salvataggio dell\'indirizzo:', error);
+            throw error;
+        }
+    }
+
+    static async updateProfile({ name, surname }) {
+        try {
+            const token = authService.getToken();
+            const response = await fetchWithAuth(`${API_BASE_URL}/auth/profile`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ name, surname })
+            });
+            const data = await response.json();
+            if (data.success) {
+                return data.data;
+            }
+            throw new Error(data.message);
+        } catch (error) {
+            console.error('Errore durante l\'aggiornamento del profilo:', error);
             throw error;
         }
     }

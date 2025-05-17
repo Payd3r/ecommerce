@@ -4,6 +4,7 @@ import { showBootstrapToast } from './components/Toast.js';
 import { loader } from './components/Loader.js';
 // Importo la pagina prodotti
 // Import dinamico per la pagina di aiuto/nuova issue
+import { loadCheckoutPage } from './pages/common/Checkout.js';
 
 /**
  * Router dell'applicazione con gestione delle route protette
@@ -235,5 +236,7 @@ routerInstance.register('/issue/new', async () => ({
     mount: () => {},
     unmount: () => {}
 }), { title: 'Nuova Segnalazione' });
+
+routerInstance.register('/checkout', loadCheckoutPage, { requireAuth: true, title: 'Checkout' });
 
 export const router = routerInstance;
