@@ -1,4 +1,4 @@
-import { getOrdersByArtisan, getOrderItems, deleteOrder, updateOrderStatus } from '../../../api/orders.js';
+import { getOrdersByArtisan, getOrderItems, deleteOrder, updateOrderStatus, getAddressByUserId } from '../../../api/orders.js';
 import { authService } from '../../services/authService.js';
 
 export async function loadManageOrdersPage() {
@@ -128,7 +128,7 @@ export async function loadManageOrdersPage() {
             </div>
         </div>`;
 
-    // Modali
+    // Modal
     pageElement.innerHTML += `
         <div class="modal fade" id="deleteOrderModal" tabindex="-1" aria-labelledby="deleteOrderModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -372,6 +372,13 @@ export async function loadManageOrdersPage() {
         const tableBody = pageElement.querySelector('#order-details-table-body');
         tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Caricamento...</td></tr>';
         let order = orders.find(o => o.id === orderId);
+        let address = null;
+        try {
+            // Carica subito i dati di spedizione del cliente
+            address = await getAddressByUserId(order.client_id);
+        } catch (e) {
+            address = null;
+        }
         try {
             const items = await getOrderItems(orderId);
             const user = authService.getUser();
@@ -442,6 +449,40 @@ export async function loadManageOrdersPage() {
             modal.hide();
             setTimeout(() => showDeleteOrderModal(orderId), 300);
         };
+        // Mostra info spedizione SEMPRE nel modal
+        const modalBody = pageElement.querySelector('#orderDetailsModal .modal-body');
+        let shippingInfoContainer = modalBody.querySelector('#shipping-info-container');
+        if (!shippingInfoContainer) {
+            shippingInfoContainer = document.createElement('div');
+            shippingInfoContainer.className = 'mt-4';
+            shippingInfoContainer.id = 'shipping-info-container';
+            modalBody.appendChild(shippingInfoContainer);
+        }
+        if (address) {
+            shippingInfoContainer.innerHTML = `
+                <h6 class="fw-bold">
+                    Informazioni di spedizione
+                    <i class="bi bi-truck ms-2"></i>
+                </h6>
+                <ul class="list-group mb-2">
+                    <li class="list-group-item"><b>Nome:</b> ${address.name || '-'}</li>
+                    <li class="list-group-item"><b>Cognome:</b> ${address.surname || '-'}</li>
+                    <li class="list-group-item"><b>Stato:</b> ${address.stato || '-'}</li>
+                    <li class="list-group-item"><b>Città:</b> ${address.citta || '-'}</li>
+                    <li class="list-group-item"><b>Provincia:</b> ${address.provincia || '-'}</li>
+                    <li class="list-group-item"><b>Indirizzo:</b> ${address.via || '-'} ${address.numero_civico || ''}</li>
+                    <li class="list-group-item"><b>CAP:</b> ${address.cap || '-'}</li>
+                </ul>
+            `;
+        } else {
+            shippingInfoContainer.innerHTML = `
+                <h6 class="fw-bold">
+                    Informazioni di spedizione
+                    <i class="bi bi-truck ms-2"></i>
+                </h6>
+                <div class="text-danger">Dati di spedizione non disponibili</div>
+            `;
+        }
         modal.show();
     }
 

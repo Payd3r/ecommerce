@@ -153,6 +153,25 @@ export async function loadClientOrdersPage() {
                     tableBody.innerHTML += row;
                 });
             }
+            // Mostra info spedizione
+            const addressHtml = order && order.via ? `
+                <div class="mt-4">
+                    <h6 class="fw-bold">Informazioni di spedizione</h6>
+                    <ul class="list-group mb-2">
+                        <li class="list-group-item"><b>Nome:</b> ${order.address_name || ''}</li>
+                        <li class="list-group-item"><b>Cognome:</b> ${order.address_surname || ''}</li>
+                        <li class="list-group-item"><b>Indirizzo:</b> ${order.via || ''} ${order.numero_civico || ''}</li>
+                        <li class="list-group-item"><b>Città:</b> ${order.citta || ''}</li>
+                        <li class="list-group-item"><b>Provincia:</b> ${order.provincia || ''}</li>
+                        <li class="list-group-item"><b>CAP:</b> ${order.cap || ''}</li>
+                        <li class="list-group-item"><b>Stato:</b> ${order.stato || ''}</li>
+                    </ul>
+                </div>
+            ` : '';
+            const modalBody = pageElement.querySelector('#orderDetailsModal .modal-body');
+            if (modalBody && !modalBody.querySelector('.list-group')) {
+                modalBody.insertAdjacentHTML('beforeend', addressHtml);
+            }
         } catch (error) {
             tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Errore nel caricamento dei dettagli ordine</td></tr>';
         }

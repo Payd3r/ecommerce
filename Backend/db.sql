@@ -83,6 +83,8 @@ CREATE TABLE `category_images` (
 CREATE TABLE `delivery_info` (
   `id` int NOT NULL,
   `user_id` int NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `surname` varchar(100) NOT NULL,
   `stato` varchar(32) NOT NULL,
   `citta` varchar(32) NOT NULL,
   `provincia` varchar(32) NOT NULL,

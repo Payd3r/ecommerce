@@ -46,4 +46,20 @@ router.post('/', verifyToken, async (req, res) => {
   }
 });
 
+// GET /address/user/:userId - Solo per admin o artigiano
+router.get('/user/:userId', verifyToken, async (req, res) => {
+  try {
+    // Consenti solo ad admin o artigiani
+    if (!['admin', 'artisan'].includes(req.user.role)) {
+      return res.status(403).json({ success: false, message: 'Non autorizzato' });
+    }
+    const user_id = req.params.userId;
+    const [rows] = await db.query('SELECT * FROM delivery_info WHERE user_id = ?', [user_id]);
+    const address = rows[0] || null;
+    res.json({ success: true, data: address });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Errore nel recupero indirizzo' });
+  }
+});
+
 module.exports = router; 

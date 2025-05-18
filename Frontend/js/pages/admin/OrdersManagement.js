@@ -2,6 +2,7 @@ import { authService } from '../../services/authService.js';
 import { showBootstrapToast } from '../../components/Toast.js';
 import * as OrdersAPI from '../../../api/orders.js';
 import { router } from '../../router.js';
+import { getAddressByUserId } from '../../../api/orders.js';
 
 /**
  * Carica la pagina di gestione ordini per l'amministratore
@@ -172,7 +173,7 @@ export async function loadOrdersManagementPage() {
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="orderDetailsModalLabel">Dettagli Conto</h5>
+                        <h5 class="modal-title" id="orderDetailsModalLabel">Dettagli Ordine</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -379,7 +380,19 @@ export async function loadOrdersManagementPage() {
     window.viewOrderDetails = async function (orderId) {
         window._lastOrderDetailsId = orderId; // salva id per riapertura
         try {
+            // Recupera items ordine
             const items = await OrdersAPI.getOrderItems(orderId);
+            // Recupera ordine per client_id
+            const ordersData = await OrdersAPI.getOrders();
+            const order = (ordersData.orders || ordersData || []).find(o => o.id === orderId);
+            let address = null;
+            if (order && order.client_id) {
+                try {
+                    address = await getAddressByUserId(order.client_id);
+                } catch (e) {
+                    address = null;
+                }
+            }
             const tableBody = document.getElementById('order-details-table-body');
             tableBody.innerHTML = '';
             if (!items || items.length === 0) {
@@ -398,6 +411,40 @@ export async function loadOrdersManagementPage() {
                     </tr>`;
                     tableBody.innerHTML += row;
                 });
+            }
+            // Sezione informazioni spedizione
+            const modalBody = document.querySelector('#orderDetailsModal .modal-body');
+            let shippingInfoContainer = modalBody.querySelector('#shipping-info-container');
+            if (!shippingInfoContainer) {
+                shippingInfoContainer = document.createElement('div');
+                shippingInfoContainer.className = 'mt-4';
+                shippingInfoContainer.id = 'shipping-info-container';
+                modalBody.appendChild(shippingInfoContainer);
+            }
+            if (address) {
+                shippingInfoContainer.innerHTML = `
+                    <h6 class="fw-bold">
+                        Informazioni di spedizione
+                        <i class="bi bi-truck ms-2"></i>
+                    </h6>
+                    <ul class="list-group mb-2">
+                        <li class="list-group-item"><b>Nome:</b> ${address.name || '-'}</li>
+                        <li class="list-group-item"><b>Cognome:</b> ${address.surname || '-'}</li>
+                        <li class="list-group-item"><b>Stato:</b> ${address.stato || '-'}</li>
+                        <li class="list-group-item"><b>Città:</b> ${address.citta || '-'}</li>
+                        <li class="list-group-item"><b>Provincia:</b> ${address.provincia || '-'}</li>
+                        <li class="list-group-item"><b>Indirizzo:</b> ${address.via || '-'} ${address.numero_civico || ''}</li>
+                        <li class="list-group-item"><b>CAP:</b> ${address.cap || '-'}</li>
+                    </ul>
+                `;
+            } else {
+                shippingInfoContainer.innerHTML = `
+                    <h6 class="fw-bold">
+                        Informazioni di spedizione
+                        <i class="bi bi-truck ms-2"></i>
+                    </h6>
+                    <div class="text-danger">Dati di spedizione non disponibili</div>
+                `;
             }
             document.getElementById('order-details-change-status-btn').onclick = function() {
                 // Chiudi modal dettagli e apri cambio stato

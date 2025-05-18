@@ -3,6 +3,7 @@ import { fetchWithAuth } from '../js/services/fetchWithAuth.js';
 
 const API_URL = '/orders';
 const API_BASE_URL = 'http://localhost:3005/orders';
+const ADDRESS_API_BASE_URL = 'http://localhost:3005/address';
 
 // Ottieni tutti gli ordini (solo per admin)
 export async function getAllOrders() {
@@ -155,4 +156,18 @@ export async function updateOrderStatus(orderId, status) {
         throw new Error(err.error || 'Errore nell\'aggiornamento dello stato ordine');
     }
     return await res.json();
+}
+
+// Recupera i dati di spedizione (address) di un utente dato il suo userId
+export async function getAddressByUserId(userId) {
+    const token = authService.getToken();
+    if (!token) throw new Error('Token di accesso non trovato');
+    const res = await fetchWithAuth(`${ADDRESS_API_BASE_URL}/user/${userId}`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    if (!res.ok) throw new Error('Errore nel recupero dati spedizione');
+    const data = await res.json();
+    return data.data;
 }

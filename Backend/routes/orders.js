@@ -13,15 +13,20 @@ router.get('/', verifyToken, async (req, res) => {
                 return res.status(403).json({ error: 'Non hai i permessi per visualizzare questi ordini' });
             }
             const [orders] = await db.query(
-                `SELECT o.*, u.name as client_name FROM orders o JOIN users u ON o.client_id = u.id WHERE o.client_id = ? ORDER BY o.created_at DESC`,
+                `SELECT o.*, u.name as client_name, di.stato, di.citta, di.provincia, di.via, di.cap, di.numero_civico, di.name as address_name, di.surname as address_surname
+                 FROM orders o 
+                 JOIN users u ON o.client_id = u.id 
+                 LEFT JOIN delivery_info di ON o.client_id = di.user_id
+                 WHERE o.client_id = ? ORDER BY o.created_at DESC`,
                 [clientId]
             );
             return res.json(orders);
         }
         const [orders] = await db.query(`
-            SELECT o.*, u.name as client_name
+            SELECT o.*, u.name as client_name, di.stato, di.citta, di.provincia, di.via, di.cap, di.numero_civico, di.name as address_name, di.surname as address_surname
             FROM orders o
             JOIN users u ON o.client_id = u.id
+            LEFT JOIN delivery_info di ON o.client_id = di.user_id
             ORDER BY o.created_at DESC
         `);
         res.json(orders);
