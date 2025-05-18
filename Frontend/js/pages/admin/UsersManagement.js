@@ -87,8 +87,8 @@ export async function loadUsersManagementPage() {
                 </div>
             </div>
             <div class="row align-items-start">
-                <div class="col-md-4" id="filters-card">
-                    <div class="card">
+                <div class="col-md-4">
+                    <div class="card mb-4" id="filters-card">
                         <div class="card-body">
                             <h5 class="card-title">Filtri</h5>
                             <form id="filters-form">
@@ -114,6 +114,25 @@ export async function loadUsersManagementPage() {
                                     <button type="button" id="reset-filters-btn" class="btn btn-secondary">Reset Filtri</button>
                                 </div>
                             </form>
+                        </div>
+                    </div>
+                    <div class="card" id="pending-artisans-card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span>Artigiani da approvare</span>
+                        </div>
+                        <div class="card-body p-0 table-responsive">
+                            <table class="table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Data registrazione</th>
+                                        <th>Azione</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pending-artisans-table-body">
+                                    <tr><td colspan="4" class="text-center">Caricamento...</td></tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -278,14 +297,7 @@ export async function loadUsersManagementPage() {
 
     // Funzione per caricare e popolare la tabella degli utenti
     async function loadUsersTable(params = {}) {
-        // Aggiungi un timestamp e un tracciamento dello stack per identificare da dove viene chiamata
-        console.log("CHIAMATA A loadUsersTable", new Date().toISOString());
-        console.log("CALLER STACK:", new Error().stack);
-        
         try {
-            // IMPORTANTE: log dei parametri prima di qualsiasi manipolazione
-            console.log("PARAMETRI ORIGINALI:", JSON.stringify(params));
-            
             // Per sicurezza, estrai esplicitamente i parametri che ci interessano
             const page = parseInt(params.page) || 1;
             const name = params.name || '';
@@ -309,25 +321,16 @@ export async function loadUsersManagementPage() {
                 orderDir
             };
             
-            console.log("API CALL CON PARAMETRI:", JSON.stringify(apiParams));
-            console.log("PAGINA RICHIESTA:", page);
-
             // Chiamata API diretta senza usare state complicati
             const response = await UsersAPI.getUsers(apiParams);
             
-            console.log("RISPOSTA PAGINA:", response.pagination?.currentPage);
-            console.log("RISPOSTA COMPLETA:", JSON.stringify(response));
-            console.log("UTENTI RICEVUTI:", response.users?.length);
-
             // Ottieni gli utenti dalla risposta
             const users = response.users || [];
-            console.log("UTENTI DA RENDERIZZARE:", users);
             const pagination = response.pagination || {};
 
             // IMPORTANTE: trova il table body
             const tableBody = document.getElementById('users-table-body');
             if (!tableBody) {
-                console.error('Table body non trovato');
                 return;
             }
             
@@ -340,13 +343,8 @@ export async function loadUsersManagementPage() {
                 return;
             }
             
-            // Debug extra
-            console.log("RENDERING DELLA TABELLA CON UTENTI:", users.map(u => u.name).join(', '));
-            
             // Renderizza ogni utente ricevuto
             users.forEach((user, index) => {
-                console.log(`Renderizzazione utente #${index+1}:`, user.name);
-                
                 // Crea una nuova riga per questo utente
                 const row = document.createElement('tr');
                 
@@ -414,14 +412,9 @@ export async function loadUsersManagementPage() {
             createPagination(pagination);
             
         } catch (error) {
-            console.error('Errore completo:', error);
-            
             if (error.message && error.message.includes('401')) {
-                console.error('Errore di autenticazione. Reindirizzamento alla pagina di login.');
                 window.history.back();
             } else {
-                console.error('Errore durante il caricamento degli utenti:', error);
-                
                 // Notifica utente
                 showBootstrapToast('Errore nel caricamento degli utenti', 'Errore', 'danger');
                 
@@ -446,8 +439,6 @@ export async function loadUsersManagementPage() {
         
         if (totalPages <= 1) return;
         
-        console.log("RENDER PAGINAZIONE:", { currentPage, totalPages });
-        
         // APPROCCIO ULTRASEMPLIFICATO SENZA ELEMENTI HTML COMPLESSI
         // Creiamo semplici bottoni senza alcun collegamento al router
         
@@ -462,7 +453,6 @@ export async function loadUsersManagementPage() {
             prevBtn.className = 'btn btn-outline-primary';
             prevBtn.textContent = 'Precedente';
             prevBtn.onclick = function() {
-                console.log("CLICK PRECEDENTE");
                 loadUsersTable({ page: currentPage - 1 });
             };
             btnGroup.appendChild(prevBtn);
@@ -482,7 +472,6 @@ export async function loadUsersManagementPage() {
             // Solo per le pagine diverse da quella corrente
             if (i !== currentPage) {
                 pageBtn.onclick = function() {
-                    console.log(`CLICK PAGINA ${i}`);
                     loadUsersTable({ page: i });
                 };
             }
@@ -497,7 +486,6 @@ export async function loadUsersManagementPage() {
             nextBtn.className = 'btn btn-outline-primary';
             nextBtn.textContent = 'Successivo';
             nextBtn.onclick = function() {
-                console.log("CLICK SUCCESSIVO");
                 loadUsersTable({ page: currentPage + 1 });
             };
             btnGroup.appendChild(nextBtn);
@@ -505,8 +493,6 @@ export async function loadUsersManagementPage() {
         
         // Aggiungiamo i bottoni al container
         paginationContainer.appendChild(btnGroup);
-        
-        console.log('PAGINAZIONE CREATA CON SEMPLICI BOTTONI');
     }
 
     // Rendi le funzioni editUser e deleteUser accessibili globalmente
@@ -534,22 +520,95 @@ export async function loadUsersManagementPage() {
     async function loadDashboardData() {
         // Simulazione caricamento dati
         showBootstrapToast('Dashboard amministratore caricata con successo', 'Info', 'info');
-        
-        console.log("LOAD DASHBOARD DATA - NESSUNA CHIAMATA AUTOMATICA");
+    }
+
+    // Funzione per caricare e popolare la tabella degli artigiani da approvare
+    async function loadPendingArtisansTable() {
+        const tableBody = document.getElementById('pending-artisans-table-body');
+        if (!tableBody) return;
+        tableBody.innerHTML = '<tr><td colspan="4" class="text-center">Caricamento...</td></tr>';
+        try {
+            const response = await UsersAPI.getPendingArtisans({ limit: 5 });
+            const users = response.users || [];
+            if (users.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" class="text-center">Nessun artigiano da approvare</td></tr>';
+                return;
+            }
+            tableBody.innerHTML = '';
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.name || 'N/D'}</td>
+                    <td>${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/D'}</td>
+                    <td><button class="btn btn-sm btn-outline-success approve-artisan-btn" data-user-id="${user.id}">Approva</button></td>
+                `;
+                tableBody.appendChild(row);
+            });
+            // Event listener per i bottoni Approva
+            document.querySelectorAll('.approve-artisan-btn').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const userId = this.getAttribute('data-user-id');
+                    // Recupera info utente
+                    let userInfo = users.find(u => String(u.id) === String(userId));
+                    if (!userInfo) {
+                        showBootstrapToast('Utente non trovato', 'Errore', 'danger');
+                        return;
+                    }
+                    // Crea modal dinamico
+                    let modalHtml = `
+                    <div class="modal fade" id="approveArtisanModal" tabindex="-1" aria-labelledby="approveArtisanModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="approveArtisanModalLabel">Approva Artigiano</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p><b>Nome:</b> ${userInfo.name || 'N/D'}</p>
+                                    <p><b>Email:</b> ${userInfo.email || 'N/D'}</p>
+                                    <p><b>Data registrazione:</b> ${userInfo.created_at ? new Date(userInfo.created_at).toLocaleDateString() : 'N/D'}</p>
+                                    <p>Vuoi davvero approvare questo utente come artigiano?</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                                    <button type="button" class="btn btn-success" id="confirm-approve-artisan-btn">Approva</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                    // Rimuovi eventuale modal precedente
+                    let oldModal = document.getElementById('approveArtisanModal');
+                    if (oldModal) oldModal.remove();
+                    // Inserisci il modal nel DOM
+                    document.body.insertAdjacentHTML('beforeend', modalHtml);
+                    const approveModal = new bootstrap.Modal(document.getElementById('approveArtisanModal'));
+                    approveModal.show();
+                    // Gestisci click su Approva
+                    document.getElementById('confirm-approve-artisan-btn').onclick = async () => {
+                        try {
+                            await UsersAPI.approveArtisan(userId);
+                            showBootstrapToast('Utente approvato con successo!', 'Successo', 'success');
+                            approveModal.hide();
+                            await loadPendingArtisansTable();
+                            await loadUsersTable({ page: 1 }); // aggiorna anche la tabella utenti
+                        } catch (err) {
+                            showBootstrapToast('Errore durante l\'approvazione.', 'Errore', 'danger');
+                        }
+                    };
+                });
+            });
+        } catch (e) {
+            tableBody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Errore nel caricamento</td></tr>';
+        }
     }
 
     /**
      * Inizializza gli event listener
      */
     function mount() {
-        // Rimuovo la chiamata a loadDashboardData() dal mount perché causa una doppia chiamata
-        // loadDashboardData(); 
-        
         // Invece carico direttamente la tabella una sola volta all'avvio
         loadUsersTable({ page: 1 });
         
-        console.log("MOUNT COMPLETATO - INIZIALIZZAZIONE SOLO UNA VOLTA");
-
         const backBtn = document.getElementById('back-btn');
         if (backBtn) {
             backBtn.addEventListener('click', () => {
@@ -584,14 +643,12 @@ export async function loadUsersManagementPage() {
                 role: rawrole || '',
                 page: 1 // Esplicitamente reset alla pagina 1
             };
-            console.log("APPLICAZIONE FILTRI:", params);
             await loadUsersTable(params);
         };
 
         // Modifica per utilizzare onclick per il bottone "Reset Filtri"
         document.getElementById('reset-filters-btn').onclick = async () => {
             document.getElementById('filters-form').reset();
-            console.log("RESET FILTRI -> pagina 1");
             await loadUsersTable({ page: 1 });
         };
 
@@ -621,7 +678,6 @@ export async function loadUsersManagementPage() {
                 await loadUsersTable();
             } catch (error) {
                 toast.error('Errore durante l\'aggiunta dell\'utente.');
-                console.error(error);
             }
         });
 
@@ -660,7 +716,6 @@ export async function loadUsersManagementPage() {
                 showBootstrapToast('Errore durante l\'eliminazione utente.', 'Errore', 'danger');
             }
         });
-
 
         // Event listener per ordinamento colonna Nome
         let sortNameOrder = 'asc';
@@ -711,6 +766,8 @@ export async function loadUsersManagementPage() {
                 filtersCard.classList.toggle('mobile-visible');
             });
         }
+
+        loadPendingArtisansTable();
     }
 
     /**

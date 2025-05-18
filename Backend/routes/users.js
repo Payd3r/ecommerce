@@ -264,6 +264,25 @@ router.post('/', verifyToken, checkRole('admin'), async (req, res) => {
     }
 });
 
+// GET /users/pending-artisans - Artigiani in attesa di approvazione (solo admin)
+router.get('/pending-artisans', verifyToken, checkRole('admin'), async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 5;
+        const [pending] = await db.query(
+            `SELECT u.id, u.name, u.email, u.created_at
+             FROM users u
+             LEFT JOIN extended_users eu ON u.id = eu.id_users
+             WHERE u.role = 'client' AND eu.approved = 0
+             ORDER BY u.created_at DESC
+             LIMIT ?`, [limit]
+        );
+        res.json({ users: pending });
+    } catch (error) {
+        console.error('Errore nel recupero degli artigiani da approvare:', error);
+        res.status(500).json({ error: 'Errore nel recupero degli artigiani da approvare' });
+    }
+});
+
 // GET /users/:id - Ottieni un utente specifico
 // Un utente può vedere solo il proprio profilo, admin può vedere tutti
 router.get('/:id', verifyToken, async (req, res) => {
@@ -506,6 +525,21 @@ router.post('/artisan-details', verifyToken, artisanDetailsUpload, async (req, r
              return res.status(400).json({ error: error.message });
         }
         res.status(500).json({ error: 'Errore server nell\'aggiornamento dei dettagli artigiano.', details: error.message });
+    }
+});
+
+// PUT /users/:id/approve - Approva un artigiano (solo admin)
+router.put('/:id/approve', verifyToken, checkRole('admin'), async (req, res) => {
+    const userId = req.params.id;
+    try {
+        // Aggiorna il ruolo in 'artisan' nella tabella users
+        await db.query('UPDATE users SET role = ? WHERE id = ?', ['artisan', userId]);
+        // Imposta approved=1 in extended_users
+        await db.query('UPDATE extended_users SET approved = 1 WHERE id_users = ?', [userId]);
+        res.json({ message: 'Utente approvato con successo' });
+    } catch (error) {
+        console.error('Errore nell\'approvazione dell\'utente:', error);
+        res.status(500).json({ error: 'Errore nell\'approvazione dell\'utente' });
     }
 });
 

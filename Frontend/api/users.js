@@ -420,6 +420,65 @@ const UsersAPI = {
             throw error;
         }
     },
+
+    /**
+     * Ottiene gli artigiani in attesa di approvazione (pending)
+     * @param {Object} params - Parametri opzionali (limit)
+     * @returns {Promise} Promise con la lista degli utenti pending
+     */
+    getPendingArtisans: async (params = {}) => {
+        const token = authService.getToken();
+        if (!token) {
+            throw new Error('Utente non autenticato');
+        }
+        try {
+            const queryParams = new URLSearchParams();
+            if (params.limit) queryParams.append('limit', params.limit);
+            const url = `${API_BASE_URL}/users/pending-artisans${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+            const response = await fetchWithAuth(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Errore nel recupero degli artigiani da approvare');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Errore API getPendingArtisans:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Approva un artigiano (cambia ruolo e imposta approved=1)
+     * @param {number|string} userId - ID dell'utente da approvare
+     * @returns {Promise} Promise con esito
+     */
+    approveArtisan: async (userId) => {
+        const token = authService.getToken();
+        if (!token) throw new Error('Utente non autenticato');
+        try {
+            const response = await fetchWithAuth(`${API_BASE_URL}/users/${userId}/approve`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Errore nell\'approvazione dell\'utente');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Errore API approveArtisan:', error);
+            throw error;
+        }
+    },
 };
 
 export default UsersAPI;
