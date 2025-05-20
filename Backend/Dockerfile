@@ -6,15 +6,13 @@ WORKDIR /usr/src/app
 
 # Copia i file di package per installare le dipendenze
 COPY package*.json ./
+ENV NODE_ENV=development
 
 # Installa le dipendenze
 RUN npm install
 
 # Copia tutto il resto del codice sorgente
 COPY . .
-
-# Crea la directory Media se non esiste
-RUN mkdir -p ../Media
 
 # Espone la porta specificata nell'env
 EXPOSE 3005

@@ -35,11 +35,17 @@ router.get('/', async (req, res) => {
             queryParams.push(`%${search}%`);
             countParams.push(`%${search}%`);
         }
-        if (category) {
-            query += ' AND p.category_id = ?';
-            countQuery += ' AND category_id = ?';
-            queryParams.push(category);
-            countParams.push(category);
+        let categories = req.query['category[]'];
+        if (categories) {
+            if (!Array.isArray(categories)) {
+                categories = [categories];
+            }
+            if (categories.length > 0) {
+                query += ` AND p.category_id IN (${categories.map(() => '?').join(',')})`;
+                countQuery += ` AND category_id IN (${categories.map(() => '?').join(',')})`;
+                queryParams.push(...categories);
+                countParams.push(...categories);
+            }
         }
         if (artisan) {
             query += ' AND p.artisan_id = ?';
