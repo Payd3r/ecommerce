@@ -3,10 +3,7 @@ import { fetchWithAuth } from '../js/services/fetchWithAuth.js';
 const API_URL = 'http://localhost:3005';
 import { authService } from '../js/services/authService.js';
 
-<<<<<<< Updated upstream
-=======
 const API_URL = getApiUrl();
->>>>>>> Stashed changes
 /**
  * Servizio per la gestione delle API delle categorie
  */

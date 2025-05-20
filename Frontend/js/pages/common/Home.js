@@ -219,13 +219,8 @@ export async function loadHomePage() {
                             <div class="card-body text-center py-3 px-2 position-relative" style="z-index:2;">
                                 <div class="category-profile-img mx-auto mb-2 position-relative d-flex justify-content-center align-items-center">
                                     ${category.image ?
-<<<<<<< Updated upstream
-                                        `<img src="http://localhost:3005${category.image}" alt="${category.name}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />` :
-                                        `<span class="category-icon fs-4">${icon}</span>`
-=======
                                         `<img src="${getApiUrl()}${category.image}" alt="${category.name}" />` :
                                         `<span class="category-icon fs-1">${icon}</span>`
->>>>>>> Stashed changes
                                     }
                                 </div>
                                 <h6 class="fw-bold mb-1 category-card-title">${category.name}</h6>
@@ -611,19 +606,11 @@ export async function loadHomePage() {
                             ${discountBadge}
                             ${stockBadge}
                             ${product.image && product.image.url ?
-<<<<<<< Updated upstream
-                    `<img src="http://localhost:3005${product.image.url}" alt="${product.name}" class="product-img-actual" />` :
-                    `<div class="product-img-placeholder">
-                                <span class="placeholder-icon">🖼️</span>
-                            </div>`
-                }
-=======
                                 `<img src="${getApiUrl()}${product.image.url}" alt="${product.name}" class="product-img-actual" />` :
                                 `<div class="product-img-placeholder">
                                     <span class="placeholder-icon">🖼️</span>
                                 </div>`
                             }
->>>>>>> Stashed changes
                         </div>
                         <div class="product-content p-1 mt-2">
                             <h6 class="fw-bold mb-1 product-name-text">${product.name}</h6>

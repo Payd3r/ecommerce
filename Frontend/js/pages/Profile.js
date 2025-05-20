@@ -9,7 +9,6 @@ import { uploadProfileImage } from '../../api/images.js';
 import { getApiUrl } from '../../api/config.js';
 import { authService } from '../services/authService.js';
 import { countries } from '../assets.geo.js';
->>>>>>> Stashed changes
 
 /**
  * Carica la pagina profilo dell'utente

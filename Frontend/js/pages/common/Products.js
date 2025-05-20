@@ -332,15 +332,9 @@ export async function loadProductsPage(params = {}) {
                             ${discountBadge}
                             ${stockBadge}
                             ${product.image && product.image.url ?
-<<<<<<< Updated upstream
-                    `<img src=\"http://localhost:3005${product.image.url}\" alt=\"${product.name}\" style=\"height: 110px; width: 100%; object-fit: cover; border-radius: 8px;\" />` :
-                    `<div style=\"width: 100%; height: 110px; background: #fff; border: 1px solid #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center;\">
-                                    <span class=\"placeholder-icon\">🖼️</span>
-=======
                     `<img src="${getApiUrl()}${product.image.url}" alt="${product.name}" class="product-img-actual" />` :
                     `<div class="product-img-placeholder">
                                     <span class="placeholder-icon">🖼️</span>
->>>>>>> Stashed changes
                                 </div>`
                 }
                         </div>

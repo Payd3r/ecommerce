@@ -107,26 +107,6 @@ export async function loadArtisanShopPage(params) {
             list.innerHTML = '<div class="col-12 text-center text-muted">Nessun prodotto trovato per questo artigiano.</div>';
             return;
         }
-<<<<<<< Updated upstream
-        list.innerHTML = products.map(product => `
-            <div class="col-6 col-md-4">
-                <div class="card h-100 shadow-sm border-0">
-                    <div class="card-body d-flex flex-column p-0">
-                        <div class="w-100 product-img-wrapper" style="height: 140px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; border-top-left-radius: 12px; border-top-right-radius: 12px; overflow: hidden;">
-                            ${product.image && product.image.url ?
-                                `<img src=\"http://localhost:3005${product.image.url}\" alt=\"${product.name}\" style=\"width:100%; height:100%; object-fit:cover; display:block;\" />` :
-                                '<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: #ccc;">🖼️</div>'
-                            }
-                        </div>
-                        <div class="p-2 d-flex flex-column flex-grow-1">
-                            <h5 class="card-title mb-2">${product.name}</h5>
-                            <div class="mb-2 text-muted small">Categoria: ${product.category_name || '-'}</div>
-                            <div class="mb-2 d-none d-md-block">${product.description ? product.description : ''}</div>
-                            <div class="mt-auto d-flex justify-content-between align-items-center">
-                                <span class="fw-bold">€ ${Number(product.price).toFixed(2)}</span>
-                                <a href="/products/${product.id}" class="btn btn-outline-primary btn-sm ms-2" data-route>Dettagli</a>
-                            </div>
-=======
         list.innerHTML = products.map(product => {
             // Badge sconto
             let discountBadge = '';
@@ -158,7 +138,6 @@ export async function loadArtisanShopPage(params) {
                         <div class="mt-auto d-flex justify-content-between align-items-center">
                             <span class="product-price fw-bold small">€ ${Number(product.price).toFixed(2)}</span>
                             <a href="/products/${product.id}" class="btn btn-outline-primary btn-sm ms-2" data-route>Dettagli</a>
->>>>>>> Stashed changes
                         </div>
                     </div>
                 </div>
@@ -201,21 +180,13 @@ export async function loadArtisanShopPage(params) {
                 // Banner
                 const bannerDiv = pageElement.querySelector('#artisan-banner');
                 if (bannerDiv && found.url_banner) {
-<<<<<<< Updated upstream
-                    bannerDiv.style.background = `url('http://localhost:3005${found.url_banner}') center/cover no-repeat`;
-=======
                     bannerDiv.style.background = `url('${getApiUrl()}${found.url_banner}') center/cover no-repeat`;
->>>>>>> Stashed changes
                 }
                 // Foto profilo
                 const imgWrapper = pageElement.querySelector('#artisan-img-wrapper');
                 if (imgWrapper) {
                     if (found.image) {
-<<<<<<< Updated upstream
-                        imgWrapper.innerHTML = `<img src=\"http://localhost:3005${found.image}\" alt=\"${found.name}\" style=\"width:120px; height:120px; object-fit:cover; border-radius:50%;\" />`;
-=======
                         imgWrapper.innerHTML = `<img src=\"${getApiUrl()}${found.image}\" alt=\"${found.name}\" style=\"width:120px; height:120px; object-fit:cover; border-radius:50%;\" />`;
->>>>>>> Stashed changes
                     } else {
                         imgWrapper.innerHTML = '<span class="display-4 text-primary"><i class="bi bi-person-badge"></i></span>';
                     }
