@@ -1,6 +1,7 @@
-const API_URL = 'http://101.58.39.17:3015';
 import { authService } from '../js/services/authService.js';
+import { getApiUrl } from './config.js';
 
+const API_URL = getApiUrl();
 // Funzione per upload immagini prodotto
 export async function uploadProductImages(productId, files) {
     const formData = new FormData();

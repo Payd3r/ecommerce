@@ -1,6 +1,8 @@
 import { fetchWithAuth } from '../js/services/fetchWithAuth.js';
-const API_URL = 'http://101.58.39.17:3015';
+import { getApiUrl } from './config.js';
 import { authService } from '../js/services/authService.js';
+
+const API_URL = getApiUrl();
 
 // Funzione per ottenere i prodotti con filtri e paginazione
 async function getProducts(params = {}) {

@@ -1,7 +1,8 @@
 import { authService } from '../js/services/authService.js';
 import { fetchWithAuth } from '../js/services/fetchWithAuth.js';
+import { getApiUrl } from './config.js';
 
-const API_URL = 'http://101.58.39.17:3015';
+const API_URL = getApiUrl();
 
 export class ApiService {
     static async login(email, password) {

@@ -1,7 +1,8 @@
 import { fetchWithAuth } from '../js/services/fetchWithAuth.js';
-const API_URL = 'http://101.58.39.17:3015';
+import { getApiUrl } from './config.js';
 import { authService } from '../js/services/authService.js';
 
+const API_URL = getApiUrl();
 const CartAPI = {
     // 1. Crea carrello (se non esiste)
     createCart: async () => {
