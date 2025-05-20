@@ -59,7 +59,6 @@ export class ApiService {
 
     static async getProfile() {
         try {
-            console.log("entro");
             const token = authService.getToken();
             const response = await fetchWithAuth(`${API_BASE_URL}/auth/profile`, {
                 headers: {

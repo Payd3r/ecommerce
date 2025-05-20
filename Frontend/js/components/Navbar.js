@@ -48,10 +48,12 @@ class Navbar {
                             <span style="font-size:1.2rem;">🔍</span>
                         </button>
 
-                        <!-- Carrello (solo Desktop) -->
+                        <!-- Carrello (solo Desktop, e solo se autenticato) -->
+                        ${isAuthenticated ? `
                         <a href="/cart" class="btn position-relative p-0 d-none d-lg-flex align-items-center justify-content-center" id="navbar-cart-btn-desktop" style="width:40px;height:40px;" data-route>
                             <span style="font-size:1.6rem;">🛒</span>
                         </a>
+                        ` : ''}
 
                         <!-- Profilo/Login (solo Desktop) -->
                         <div class="d-none d-lg-flex align-items-center" id="navbar-desktop-auth-actions">
@@ -76,37 +78,60 @@ class Navbar {
                             `}
                         </div>
 
-                        <!-- Carrello (solo Mobile) -->
+                        <!-- Bottoni Login/Registrati solo icona su mobile -->
+                        ${!isAuthenticated ? `
+                        <div class="d-flex d-lg-none align-items-center gap-1 ms-1">
+                            <a href="/login" class="btn btn-outline-primary d-flex align-items-center justify-content-center p-0" style="width:40px;height:40px;" data-route title="Accedi">
+                                <i class="bi bi-person-circle fs-4"></i>
+                            </a>
+                            <a href="/register" class="btn btn-primary d-flex align-items-center justify-content-center p-0" style="width:40px;height:40px;" data-route title="Registrati">
+                                <i class="bi bi-person-plus fs-4"></i>
+                            </a>
+                        </div>
+                        ` : ''}
+
+                        <!-- Carrello (solo Mobile, solo se autenticato) -->
+                        ${isAuthenticated ? `
                         <a href="/cart" class="btn position-relative p-0 d-flex align-items-center justify-content-center d-lg-none" id="navbar-cart-btn-mobile" style="width:40px;height:40px;" data-route>
                             <span style="font-size:1.6rem;">🛒</span>
                         </a>
+                        ` : ''}
 
                         <!-- Profilo (solo Mobile, se autenticato) -->
                         ${isAuthenticated ? `
-                        <div class="dropdown d-lg-none" id="navbar-mobile-auth-actions">
-                            <button class="btn btn-outline-primary d-flex align-items-center justify-content-center p-0 border-0 bg-transparent shadow-none" type="button" id="userDropdownMobile" data-bs-toggle="dropdown" aria-expanded="false" style="height:40px;width:40px;outline:none;box-shadow:none;">
+                        <div class="d-lg-none position-relative" id="navbar-mobile-auth-actions">
+                            <button class="btn btn-outline-primary d-flex align-items-center justify-content-center p-0 border-0 bg-transparent shadow-none" type="button" id="userDropdownMobile" aria-expanded="false" style="height:40px;width:40px;outline:none;box-shadow:none;">
                                 ${user.image ? `
                                     <img src="http://localhost:3005${user.image}" alt="Foto profilo" style="width:40px; height:40px; object-fit:cover; border-radius:10px; border:1.5px solid #e0e0e0;" />
                                 ` : `
                                     <span class="d-flex align-items-center justify-content-center bg-light" style="width:40px; height:40px; border-radius:10px; border:1.5px solid #e0e0e0;"><i class="bi bi-person-circle fs-2 text-secondary"></i></span>
                                 `}
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdownMobile">
-                                <li><a class="dropdown-item" href="/profile" data-route>Profilo</a></li>
-                                <li><a class="dropdown-item" href="/myorders" data-route>I miei ordini</a></li>
-                                <li><a class="dropdown-item" href="#" id="logout-btn-mobile">Esci</a></li>
-                            </ul>
+                            <div id="mobile-user-menu-overlay" style="display:none; position:fixed; top:50vh; left:0; width:100vw; height:50vh; background:rgba(0,0,0,0.25); z-index:1040;"></div>
+                            <div id="mobile-user-menu" style="display:none; position:fixed; top:56px; left:0; width:100vw; background:#fff; z-index:1050; border-bottom-left-radius: 18px; border-bottom-right-radius: 18px;">
+                                <div class="px-3 pt-3 pb-1">
+                                    <a class="dropdown-item d-flex align-items-center gap-2" href="/" data-route><i class="bi bi-house-door"></i>Home</a>
+                                    <a class="dropdown-item d-flex align-items-center gap-2" href="/products" data-route><i class="bi bi-box-seam"></i>Prodotti</a>
+                                    <a class="dropdown-item d-flex align-items-center gap-2" href="/categories" data-route><i class="bi bi-tags"></i>Categorie</a>
+                                    <a class="dropdown-item d-flex align-items-center gap-2" href="/artisans" data-route><i class="bi bi-people"></i>Artigiani</a>
+                                    <a class="dropdown-item d-flex align-items-center gap-2" href="/issue/new" data-route><i class="bi bi-question-circle"></i>Aiuto</a>
+                                    ${user.role === 'admin' ? `<a class="dropdown-item d-flex align-items-center gap-2" href="/admin/dashboard" data-route><i class='bi bi-speedometer2'></i>Dashboard</a>` : ''}
+                                    ${user.role === 'artisan' ? `<a class="dropdown-item d-flex align-items-center gap-2" href="/artisan/dashboard" data-route><i class='bi bi-speedometer2'></i>Dashboard</a>` : ''}
+                                </div>
+                                <hr class="my-1">
+                                <div class="px-3 pb-3 pt-1">
+                                    <a class="dropdown-item d-flex align-items-center gap-2" href="/profile" data-route><i class="bi bi-person"></i>Profilo</a>
+                                    <a class="dropdown-item d-flex align-items-center gap-2" href="/myorders" data-route><i class="bi bi-bag"></i>I miei ordini</a>
+                                    <a class="dropdown-item d-flex align-items-center gap-2" href="#" id="logout-btn-mobile"><i class="bi bi-box-arrow-right"></i>Esci</a>
+                                </div>
+                            </div>
                         </div>
                         ` : ''}
-                        
-                        <!-- Navbar Toggler (per Mobile) -->
-                        <button class="navbar-toggler ms-1" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbarMobileCollapse" aria-controls="mainNavbarMobileCollapse" aria-expanded="false" aria-label="Toggle navigation">
-                            <span class="navbar-toggler-icon"></span>
-                        </button>
                     </div>
                 </div>
 
                 <!-- Contenuto Collassabile Mobile (Link pagine e Login/Register se non autenticato) -->
+                ${!isAuthenticated ? `
                 <div class="collapse navbar-collapse d-lg-none" id="mainNavbarMobileCollapse">
                     <ul class="navbar-nav mt-3 mb-lg-0 d-lg-none">
                         <li class="nav-item"><a class="nav-link" href="/" data-route>Home</a></li>
@@ -114,17 +139,14 @@ class Navbar {
                         <li class="nav-item"><a class="nav-link" href="/categories" data-route>Categorie</a></li>
                         <li class="nav-item"><a class="nav-link" href="/artisans" data-route>Artigiani</a></li>
                         <li class="nav-item"><a class="nav-link" href="/issue/new" data-route>Aiuto</a></li>
-                        ${isAuthenticated && user && user.role === 'admin' ? `<li class="nav-item"><a class="nav-link" href="/admin/dashboard" data-route>Dashboard</a></li>` : ''}
-                        ${isAuthenticated && user && user.role === 'artisan' ? `<li class="nav-item"><a class="nav-link" href="/artisan/dashboard" data-route>Dashboard</a></li>` : ''}
                     </ul>
                     <!-- Login/Register buttons for mobile if not authenticated -->
-                    ${!isAuthenticated ? `
                     <div class="mt-3 d-grid gap-2 d-lg-none">
                         <a href="/login" class="btn btn-outline-primary" data-route>Accedi</a>
                         <a href="/register" class="btn btn-primary" data-route>Registrati</a>
                     </div>
-                    ` : ''}
                 </div>
+                ` : ''}
             </div>
         `;
 
@@ -151,7 +173,6 @@ class Navbar {
         const searchAreaContainer = document.getElementById('search-area-below-navbar'); // L'elemento che mostriamo/nascondiamo
         const searchInput = document.getElementById('navbar-search-input'); // Nell'searchAreaEl
         const searchResultsDropdown = document.getElementById('search-results-dropdown'); // Nell'searchAreaEl
-        const mainNavbarMobileCollapse = document.getElementById('mainNavbarMobileCollapse'); // Nell'navbarEl
 
         const closeSearch = () => {
             if (searchAreaContainer) searchAreaContainer.style.display = 'none';
@@ -170,10 +191,6 @@ class Navbar {
                 } else {
                     searchAreaContainer.style.display = 'block';
                     searchInput.focus();
-                    if (mainNavbarMobileCollapse && mainNavbarMobileCollapse.classList.contains('show')) {
-                        const collapse = window.bootstrap.Collapse.getOrCreateInstance(mainNavbarMobileCollapse);
-                        if (collapse) collapse.hide();
-                    }
                 }
             });
 
@@ -209,13 +226,95 @@ class Navbar {
         const allNavLinks = navbarEl.querySelectorAll('.nav-link[data-route], .dropdown-item[data-route]');
         allNavLinks.forEach(link => {
             link.addEventListener('click', () => {
-                closeSearch(); 
-                if (mainNavbarMobileCollapse && mainNavbarMobileCollapse.classList.contains('show')) {
-                    const collapse = window.bootstrap.Collapse.getOrCreateInstance(mainNavbarMobileCollapse);
-                    if (collapse) collapse.hide();
-                }
+                closeSearch();
             });
         });
+
+        // --- Mobile user menu full width logic ---
+        if (isAuthenticated) {
+            const userDropdownMobileBtn = document.getElementById('userDropdownMobile');
+            const mobileUserMenu = document.getElementById('mobile-user-menu');
+            const mobileUserMenuOverlay = document.getElementById('mobile-user-menu-overlay');
+            const navbarEl = document.querySelector('.navbar');
+            // Aggiungo il CSS per la navbar bianca e menu mobile senza ombra se non già presente
+            if (!document.getElementById('navbar-mobile-menu-style')) {
+                const style = document.createElement('style');
+                style.id = 'navbar-mobile-menu-style';
+                style.textContent = `
+                    .navbar.navbar-mobile-menu-open {
+                        background: #fff !important;
+                        box-shadow: none !important;
+                        border-bottom: 1px solid #e5e5e5 !important;
+                    }
+                    #mobile-user-menu {
+                        box-shadow: none !important;
+                        background: #fff !important;
+                        border-top: 1px solid #e5e5e5 !important;
+                    }
+                    #mobile-user-menu .dropdown-item {
+                        padding-top: 0.65rem !important;
+                        padding-bottom: 0.65rem !important;
+                        font-size: 1.08rem !important;
+                        background: #fff !important;
+                        color: #222 !important;
+                    }
+                    #mobile-user-menu .dropdown-item:active, #mobile-user-menu .dropdown-item:focus, #mobile-user-menu .dropdown-item:hover {
+                        background: #f5f5f5 !important;
+                        color: #111 !important;
+                    }
+                    body.menu-mobile-open {
+                        background: #fff !important;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            let mobileMenuOpen = false;
+            function closeMobileMenu() {
+                if (mobileUserMenu) mobileUserMenu.style.display = 'none';
+                if (mobileUserMenuOverlay) {
+                    mobileUserMenuOverlay.style.display = 'none';
+                    mobileUserMenuOverlay.style.top = '50vh';
+                    mobileUserMenuOverlay.style.height = '50vh';
+                    mobileUserMenuOverlay.style.background = 'rgba(0,0,0,0.25)';
+                }
+                if (navbarEl) navbarEl.classList.remove('navbar-mobile-menu-open');
+                document.body.classList.remove('menu-mobile-open');
+                mobileMenuOpen = false;
+            }
+            function openMobileMenu() {
+                if (mobileUserMenu) mobileUserMenu.style.display = 'block';
+                if (mobileUserMenuOverlay) {
+                    mobileUserMenuOverlay.style.display = 'block';
+                    mobileUserMenuOverlay.style.top = '50vh';
+                    mobileUserMenuOverlay.style.height = '50vh';
+                    mobileUserMenuOverlay.style.background = 'rgba(0,0,0,0.25)';
+                }
+                if (navbarEl) navbarEl.classList.add('navbar-mobile-menu-open');
+                document.body.classList.add('menu-mobile-open');
+                mobileMenuOpen = true;
+            }
+            if (userDropdownMobileBtn && mobileUserMenu && mobileUserMenuOverlay) {
+                userDropdownMobileBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (mobileMenuOpen) {
+                        closeMobileMenu();
+                    } else {
+                        openMobileMenu();
+                    }
+                });
+                mobileUserMenuOverlay.addEventListener('click', closeMobileMenu);
+                // Chiudi menu su resize desktop
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth >= 992) closeMobileMenu();
+                });
+                // Chiudi menu su click su una voce
+                mobileUserMenu.querySelectorAll('a[data-route], a[href="#"]').forEach(link => {
+                    link.addEventListener('click', () => {
+                        closeMobileMenu();
+                    });
+                });
+            }
+        }
     }
 
     /**

@@ -30,7 +30,10 @@ services:
       DB_PORT: 3306
       JWT_SECRET: ecommerce_artisan_platform_secret_key
     volumes:
+      - ./Backend:/usr/src/app
       - ./Media:/usr/src/app/Media
+      - /usr/src/app/node_modules
+    command: npm run dev
 
   frontend:
     build: ./Frontend
@@ -41,6 +44,7 @@ services:
     depends_on:
       - backend
     volumes:
+      - ./Frontend:/usr/share/nginx/html
       - ./Media:/usr/share/nginx/html/Media
 
 volumes:

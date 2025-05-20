@@ -4,73 +4,55 @@ import { authService } from '../../services/authService.js';
 
 export function loadHelpIssuePage() {
     const page = document.createElement('div');
-    page.className = 'container py-5';
+    page.className = 'container pb-5';
     page.innerHTML = `
-        <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-6">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <h2 class="card-title mb-4 text-center">Hai bisogno di aiuto?</h2>
-                        <form id="help-issue-form">
-                            <div class="mb-3">
-                                <label for="issue-title" class="form-label">Titolo *</label>
-                                <input type="text" class="form-control" id="issue-title" name="title" required maxlength="100">
-                            </div>
-                            <div class="mb-3">
-                                <label for="issue-description" class="form-label">Descrizione *</label>
-                                <textarea class="form-control" id="issue-description" name="description" rows="4" required></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100">Invia Segnalazione</button>
-                        </form>
-                        <div id="help-issue-error" class="alert alert-danger mt-3 d-none"></div>
-                    </div>
+        <section class="help-issues-section">
+            <div class="container">
+                <div class="section-header my-3 d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0">Le tue Segnalazioni</h2>
+                    <button id="open-issue-modal" class="btn btn-primary ms-2" type="button">
+                        <i class="bi bi-plus-circle"></i> Invia Segnalazione
+                    </button>
                 </div>
-            </div>
-        </div>
-        <div class="row justify-content-center mt-5">
-            <div class="col-md-10 col-lg-8">
-                <div class="row g-4">
-                    <div class="col-md-4 col-12 mb-4 mb-md-0" style="min-width:0;">
-                        <div class="card filters-card">
-                            <div class="card-body">
-                                <h5 class="card-title">Filtri</h5>
-                                <form id="user-issues-filters-form">
-                                    <div class="mb-3">
-                                        <label for="filter-title" class="form-label">Titolo</label>
-                                        <input type="text" class="form-control" id="filter-title" name="title" placeholder="Cerca per titolo">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="filter-status" class="form-label">Stato</label>
-                                        <select class="form-select" id="filter-status" name="status">
-                                            <option value="">Tutti</option>
-                                            <option value="open">Aperta</option>
-                                            <option value="closed">Chiusa</option>
-                                            <option value="refused">Rifiutata</option>
-                                            <option value="solved">Risolta</option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="filter-date" class="form-label">Data</label>
-                                        <input type="date" class="form-control" id="filter-date" name="date">
-                                    </div>
-                                    <button type="submit" class="btn btn-primary w-100">Applica filtri</button>
-                                    <button type="button" class="btn btn-secondary w-100 mt-2" id="reset-user-issues-filters-btn">Reset filtri</button>
-                                </form>
-                            </div>
+                <div class="row pb-5 pt-2">
+                    <aside class="col-12 col-md-4 mb-4 mb-md-0" id="filters-container" style="${window.innerWidth < 768 ? 'display:none;' : 'display:block;'}">
+                        <div class="card shadow-sm border-0 p-3 position-relative">
+                            <button type="button" class="btn btn-link text-secondary position-absolute top-0 end-0 mt-4 me-2 p-0" id="reset-user-issues-filters-btn" style="font-size:1rem;">Reset</button>
+                            <h5 class="mb-3">Filtra le segnalazioni</h5>
+                            <form id="user-issues-filters-form">
+                                <div class="mb-3">
+                                    <label for="filter-title" class="form-label">Titolo</label>
+                                    <input type="text" class="form-control" id="filter-title" name="title" placeholder="Cerca per titolo">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="filter-status" class="form-label">Stato</label>
+                                    <select class="form-select" id="filter-status" name="status">
+                                        <option value="">Tutti</option>
+                                        <option value="open">Aperta</option>
+                                        <option value="closed">Chiusa</option>
+                                        <option value="refused">Rifiutata</option>
+                                        <option value="solved">Risolta</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="filter-date" class="form-label">Data</label>
+                                    <input type="date" class="form-control" id="filter-date" name="date">
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">Applica filtri</button>
+                            </form>
                         </div>
-                    </div>
-                    <div class="col-md-8 col-12">
-                        <div class="card shadow-sm">
+                    </aside>
+                    <main class="col-12 col-md-8">
+                        <div class="card shadow-sm border-0">
                             <div class="card-body">
-                                <h4 class="card-title mb-3 text-center">Le tue segnalazioni inviate</h4>
                                 <div class="table-responsive">
-                                    <table class="table mb-0">
+                                    <table class="table mb-0 align-middle" id="user-issues-table">
                                         <thead>
                                             <tr>
-                                                <th>ID</th>
+                                                <th class="d-none d-md-table-cell">ID</th>
                                                 <th>Titolo</th>
                                                 <th>Stato</th>
-                                                <th>Data</th>
+                                                <th class="d-none d-md-table-cell">Data</th>
                                                 <th>Dettagli</th>
                                             </tr>
                                         </thead>
@@ -82,66 +64,83 @@ export function loadHelpIssuePage() {
                                 <div id="user-issues-pagination" class="mt-3 d-flex justify-content-center"></div>
                             </div>
                         </div>
+                    </main>
+                </div>
+            </div>
+        </section>
+        <!-- Modal per invio segnalazione -->
+        <div class="modal fade" id="help-issue-modal" tabindex="-1" aria-labelledby="helpIssueModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="helpIssueModalLabel">Hai bisogno di aiuto?</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="help-issue-form">
+                            <div class="mb-3">
+                                <label for="issue-title" class="form-label">Titolo *</label>
+                                <input type="text" class="form-control" id="issue-title" name="title" required maxlength="100">
+                            </div>
+                            <div class="mb-3">
+                                <label for="issue-description" class="form-label">Descrizione *</label>
+                                <textarea class="form-control" id="issue-description" name="description" rows="4" required></textarea>
+                            </div>
+                            <div id="help-issue-error" class="alert alert-danger mt-3 d-none"></div>
+                            <button type="submit" class="btn btn-primary w-100">Invia Segnalazione</button>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     `;
+
     setTimeout(() => {
-        const form = page.querySelector('#help-issue-form');
-        const error = page.querySelector('#help-issue-error');
-        if (form) {
-            form.onsubmit = async function (e) {
-                e.preventDefault();
-                error.classList.add('d-none');
-                const formData = new FormData(form);
-                const user = authService.getUser();
-                console.log('USER:', user);
-                if (!user || (!user.id && !user.id_user)) {
-                    error.textContent = 'Devi essere autenticato per inviare una segnalazione.';
-                    error.classList.remove('d-none');
-                    return;
-                }
-                try {
-                    // Preparo i dati
-                    let title = formData.get('title') || '';
-                    if (title.length > 32) title = title.slice(0, 32);
-                    let description = formData.get('description') || '';
-                    // Converto la data in formato YYYY-MM-DD
-                    const now = new Date();
-                    const created_at = now.toISOString().split('T')[0];
-                    const id_client = user.id || user.id_user;
-                    // Validazione extra
-                    if (!title.trim() || !description.trim()) {
-                        error.textContent = 'Compila tutti i campi obbligatori.';
-                        error.classList.remove('d-none');
-                        return;
-                    }
-                    if (title.length > 32) {
-                        error.textContent = 'Il titolo non può superare i 32 caratteri.';
-                        error.classList.remove('d-none');
-                        return;
-                    }
-                    await createIssue({
-                        title,
-                        description,
-                        status: 'open',
-                        created_at,
-                        id_client
-                    });
-                    form.reset();
-                    if (typeof showBootstrapToast === 'function') {
-                        showBootstrapToast('Segnalazione inviata con successo!', 'Successo', 'success');
-                    }
-                } catch (err) {
-                    if (typeof showBootstrapToast === 'function') {
-                        showBootstrapToast(err.message || 'Errore durante l\'invio della segnalazione.', 'Errore', 'danger');
-                    } else {
-                        error.textContent = err.message || 'Errore durante l\'invio della segnalazione.';
-                        error.classList.remove('d-none');
-                    }
-                }
+        // Modal Bootstrap
+        const openModalBtn = page.querySelector('#open-issue-modal');
+        const helpIssueModal = new bootstrap.Modal(page.querySelector('#help-issue-modal'));
+        if (openModalBtn) {
+            openModalBtn.addEventListener('click', () => {
+                helpIssueModal.show();
+            });
+        }
+        // Toggle filtri mobile
+        const filtersContainer = page.querySelector('#filters-container');
+        const toggleFiltersBtn = page.querySelector('#toggle-filters');
+        function hideFiltersMobile() {
+            if (window.innerWidth < 768 && filtersContainer) {
+                filtersContainer.style.display = 'none';
+            } else if (filtersContainer) {
+                filtersContainer.style.display = 'block';
             }
+        }
+        if (toggleFiltersBtn && filtersContainer) {
+            toggleFiltersBtn.addEventListener('click', () => {
+                if (window.innerWidth < 768) {
+                    if (filtersContainer.style.display === 'none' || filtersContainer.style.display === '') {
+                        filtersContainer.style.display = 'block';
+                    } else {
+                        filtersContainer.style.display = 'none';
+                    }
+                }
+            });
+        }
+        // Nascondi filtri dopo submit/reset su mobile
+        const filtersForm = page.querySelector('#user-issues-filters-form');
+        const resetBtn = page.querySelector('#reset-user-issues-filters-btn');
+        if (filtersForm) {
+            filtersForm.onsubmit = function(e) {
+                e.preventDefault();
+                applyUserIssuesFilters();
+                hideFiltersMobile();
+            };
+        }
+        if (resetBtn) {
+            resetBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                resetUserIssuesFilters();
+                hideFiltersMobile();
+            });
         }
         let allUserIssues = [];
         let filteredUserIssues = [];
@@ -204,10 +203,10 @@ export function loadHelpIssuePage() {
             pageIssues.forEach(issue => {
                 tableBody.innerHTML += `
                     <tr>
-                        <td>${issue.id_issue}</td>
+                        <td class="d-none d-md-table-cell">${issue.id_issue}</td>
                         <td>${issue.title}</td>
                         <td>${renderStatusBadge(issue.status)}</td>
-                        <td>${issue.created_at ? issue.created_at.split('T')[0] : '-'}</td>
+                        <td class="d-none d-md-table-cell">${formatDate(issue.created_at)}</td>
                         <td class="text-center">
                             <button class="btn btn-link p-0 m-0 d-flex justify-content-center align-items-center user-issue-details-btn" data-issue-id="${issue.id_issue}" title="Dettagli segnalazione">
                                 <i class="bi bi-eye fs-5"></i>
@@ -290,6 +289,12 @@ export function loadHelpIssuePage() {
                 default: return `<span class="badge bg-secondary">${status}</span>`;
             }
         }
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            const mesi = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'];
+            return `${date.getDate()} ${mesi[date.getMonth()]} ${date.getFullYear()}`;
+        }
         function showUserIssueDetails(issue) {
             // Modal semplice con dettagli e commento admin
             const modal = document.createElement('div');
@@ -306,7 +311,7 @@ export function loadHelpIssuePage() {
                             <p><strong>Titolo:</strong> ${issue.title}</p>
                             <p><strong>Descrizione:</strong><br>${issue.description || '-'}</p>
                             <p><strong>Stato:</strong> ${renderStatusBadge(issue.status)}</p>
-                            <p><strong>Data:</strong> ${issue.created_at ? issue.created_at.split('T')[0] : '-'}</p>
+                            <p><strong>Data:</strong> ${formatDate(issue.created_at)}</p>
                             <hr>
                             <p><strong>Commento admin:</strong><br>${issue.admin_note ? issue.admin_note : '<span class="text-muted">Nessun commento</span>'}</p>
                         </div>
@@ -324,21 +329,34 @@ export function loadHelpIssuePage() {
                 modal.remove();
             });
         }
-        // Eventi filtri
-        const filtersForm = document.getElementById('user-issues-filters-form');
-        if (filtersForm) {
-            filtersForm.onsubmit = function(e) {
-                e.preventDefault();
-                applyUserIssuesFilters();
-            };
-            const resetBtn = document.getElementById('reset-user-issues-filters-btn');
-            if (resetBtn) {
-                resetBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    resetUserIssuesFilters();
-                });
+        // Miglioramenti tabella mobile: meno spazi bianchi
+        const style = document.createElement('style');
+        style.textContent = `
+        @media (max-width: 767px) {
+            .help-issues-section .section-header h2 {
+                font-size: 1.3rem;
+                margin-bottom: 0.5rem;
+            }
+            .help-issues-section .section-header .btn {
+                font-size: 1rem;
+                padding: 0.4rem 0.7rem;
+            }
+            #filters-container {
+                margin-bottom: 1.2rem;
+            }
+            #user-issues-table th, #user-issues-table td {
+                padding: 0.4rem 0.3rem;
+                font-size: 0.98rem;
+            }
+            #user-issues-table th.d-none, #user-issues-table td.d-none {
+                display: none !important;
+            }
+            .card-body > h4.card-title {
+                display: none;
             }
         }
+        `;
+        document.head.appendChild(style);
         loadUserIssues();
     }, 0);
     return page;

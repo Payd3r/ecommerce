@@ -286,7 +286,6 @@ export async function loadProfilePage() {
      * Gestisce il logout
      */
     function handleLogout() {
-        console.log("entro");
         // Esegue il logout
         authService.logout();
         // Invia evento di cambio autenticazione

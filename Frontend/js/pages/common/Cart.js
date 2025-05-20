@@ -55,18 +55,18 @@ export async function loadCartPage() {
                                 '<span style="font-size:1.5rem;">🛒</span>'
                             }
                         </td>
-                        <td style="min-width:110px; font-size:0.98rem;">
+                        <td style="min-width:100px; font-size:0.98rem;">
                             ${item.name}
                         </td>
-                        <td class="d-none d-sm-table-cell" style="width:60px; font-size:0.98rem;">${price.toFixed(2)} €</td>
-                        <td style="max-width:80px;">
+                        <td class="d-none d-sm-table-cell" style="width:80px; font-size:0.98rem;">${price.toFixed(2)} €</td>
+                        <td style="max-width:60px;">
                             <div class="input-group input-group-sm flex-nowrap">
                                 <button class="btn btn-outline-secondary btn-qty-minus px-2" type="button">-</button>
                                 <input type="number" class="form-control text-center cart-qty-input px-1" value="${item.quantity}" min="1" style="width:36px;">
                                 <button class="btn btn-outline-secondary btn-qty-plus px-2" type="button">+</button>
                             </div>
                         </td>
-                        <td style="width:70px;"><span class="fw-bold">${subtotal.toFixed(2)} €</span></td>
+                        <td style="width:100px;"><span class="fw-bold">${subtotal.toFixed(2)} €</span></td>
                         <td><button class="btn btn-danger btn-sm btn-remove-item"><i class="bi bi-trash"></i></button></td>
                     </tr>
                 `;

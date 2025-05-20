@@ -65,7 +65,7 @@ export async function loadProductsPage(params = {}) {
                 </div>
                 <div class="row pb-5 pt-2">
                     <aside class="col-12 col-md-4 mb-4 mb-md-0" id="filters-container" style="${window.innerWidth < 768 ? 'display:none;' : ''}">
-                        <div class="card shadow-sm border-0 p-3 position-relative">
+                        <div class="card shadow-sm border-0 p-3 position-relative me-3">
                             <button type="reset" class="btn btn-link text-secondary position-absolute top-0 end-0 mt-4 me-2 p-0" id="reset-filters" style="font-size:1rem;">Reset</button>
                             <h5 class="mb-3">Filtra i risultati</h5>
                             <form id="filters-form" class="filters-form">
@@ -132,7 +132,6 @@ export async function loadProductsPage(params = {}) {
             toggleProductsLoader(true);
             // Carica categorie
             const categoriesRes = await CategoriesAPI.getCategoryTree();
-            console.log(categoriesRes);
             state.categories = categoriesRes || [];
             populateCategoryTree(state.categories);
             // Carica artigiani se autenticato
@@ -164,6 +163,7 @@ export async function loadProductsPage(params = {}) {
                     delete params[key];
                 }
             });
+            console.log('[Products.js] Parametri inviati a getProducts:', params);
             const response = await getProducts(params);
             state.products = (response.products || []).map(product => ({
                 ...product,
@@ -244,52 +244,7 @@ export async function loadProductsPage(params = {}) {
         treeContainer.appendChild(tree);
         // Stile per il bordo sinistro delle sottocategorie, linea sotto la checkbox, caret visibile e padding corretto
         const style = document.createElement('style');
-        style.textContent = `
-            #category-tree .form-check {
-                padding-left: 0rem !important;
-                margin-bottom: 0.2rem;
-                min-height: 1.8rem;
-            }
-            #category-tree ul {
-                margin-bottom: 0.2rem;
-            }
-            #category-tree ul ul {
-                margin-left: 1.3rem;
-                padding-left: 1.1rem;
-                border-left: none !important;
-            }
-            #category-tree ul {
-                border-left: none !important;
-            }
-            #category-tree li.category-li {
-                position: relative;
-                margin-bottom: 0.1rem;
-            }
-            #category-tree li.category-li::before {
-                display: none !important;
-            }
-            #category-tree ul:not(.show) {
-                display: none;
-            }
-            #category-tree ul.show {
-                display: block;
-            }
-            .category-collapse-btn,
-            .category-empty-icon {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                min-width: 1.5rem;
-                width: 1.5rem;
-                height: 1.5rem;
-                margin-right: 0.1rem;
-            }
-            .category-collapse-btn i {
-                font-size: 1.1rem;
-                vertical-align: middle;
-                transition: transform 0.2s;
-            }
-        `;
+        style.textContent = ``;
         treeContainer.appendChild(style);
 
         // Gestione collapse/expand icona caret SOLO JS custom
@@ -443,12 +398,14 @@ export async function loadProductsPage(params = {}) {
     }
 
     function handleFilterSubmit(event) {
+        console.log('[Products.js] handleFilterSubmit chiamato');
         event.preventDefault();
         const form = event.target;
         const formData = new FormData(form);
         state.filters.search = formData.get('search') || '';
         // Raccogli tutte le categorie selezionate (array)
         const selectedCategories = Array.from(form.querySelectorAll('input[name="category[]"]:checked')).map(cb => cb.value);
+        console.log('[Products.js] Categorie selezionate dal tree:', selectedCategories);
         state.filters.category = selectedCategories;
         state.filters.artisan = formData.get('artisan') || '';
         state.filters.minPrice = formData.get('minPrice') || '';
@@ -484,10 +441,12 @@ export async function loadProductsPage(params = {}) {
     }
 
     function mount() {
+        console.log('[Products.js] mount chiamato');
         loadProductsData();
         const filtersForm = document.getElementById('filters-form');
         if (filtersForm) {
             filtersForm.addEventListener('submit', handleFilterSubmit);
+            console.log('[Products.js] Event listener submit aggiunto');
         }
         const resetFiltersButton = document.getElementById('reset-filters');
         if (resetFiltersButton) {

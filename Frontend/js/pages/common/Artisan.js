@@ -32,7 +32,7 @@ export async function loadArtisanPage() {
             <div class="row gx-0 gx-md-4 align-items-start">
                 <!-- Sidebar -->
                 <div class="col-12 col-md-3 mb-4 mb-md-0 h-100" id="filters-container" style="${window.innerWidth < 768 ? 'display:none;' : ''}">
-                    <div class="card shadow-sm border-0 p-3 mt-2">
+                    <div class="card shadow-sm border-0 p-3 mt-2 me-3">
                         <h2 class="h5 mb-3">Filtra Artigiani</h2>
                         <form id="artisan-filter-form">
                             <div class="mb-3">
@@ -125,18 +125,6 @@ export async function loadArtisanPage() {
                 .artisan-page .subtitle {
                     display: none !important;
                 }
-                #toggle-filters {
-                    display: inline-block !important;
-                }
-                #filters-container {
-                    margin-right: 0;
-                    margin-bottom: 1.5rem;
-                }
-            }
-            @media (min-width: 768px) {
-                #toggle-filters {
-                    display: none !important;
-                }
             }
             .artisan-card {
                 min-height: 220px;
@@ -159,25 +147,6 @@ export async function loadArtisanPage() {
             .artisan-profile-img {
                 box-shadow: 0 2px 8px rgba(0,0,0,0.13);
                 background: #fff;
-            }
-            /* Stile per la card filtri */
-            #filters-container .card {
-                border-radius: 1.2rem !important;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.10) !important;
-                background: #f8f9fa !important;
-                padding: 2rem 1.5rem !important;
-                border: none !important;
-            }
-            #filters-container .form-control {
-                border-radius: 0.8rem;
-                font-size: 1.08rem;
-                padding: 0.7rem 1rem;
-            }
-            #filters-container .btn-primary {
-                border-radius: 1.2rem;
-                font-weight: 500;
-                padding: 0.6rem 0;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.07);
             }
         `;
     }

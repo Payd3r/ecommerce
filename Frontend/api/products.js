@@ -9,7 +9,13 @@ async function getProducts(params = {}) {
     if (params.page) queryParams.append('page', params.page);
     if (params.limit) queryParams.append('limit', params.limit);
     if (params.search) queryParams.append('search', params.search);
-    if (params.category) queryParams.append('category', params.category);
+    if (params.category) {
+        if (Array.isArray(params.category)) {
+            params.category.forEach(cat => queryParams.append('category[]', cat));
+        } else {
+            queryParams.append('category[]', params.category);
+        }
+    }
     if (params.artisan) queryParams.append('artisan', params.artisan);
     if (params.minPrice) queryParams.append('minPrice', params.minPrice);
     if (params.maxPrice) queryParams.append('maxPrice', params.maxPrice);
