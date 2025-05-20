@@ -1,14 +1,13 @@
 import { authService } from '../js/services/authService.js';
 import { fetchWithAuth } from '../js/services/fetchWithAuth.js';
 
-const API_URL = '/issues';
-const API_BASE_URL = 'http://localhost:3005/issues';
+const API_URL = 'http://101.58.39.17:3015/issues';
 
 // Ottieni tutte le segnalazioni (paginato)
 export async function getIssues(page = 1, pageSize = 10) {
     const token = authService.getToken();
     if (!token) throw new Error('Token di accesso non trovato');
-    const res = await fetchWithAuth(`${API_BASE_URL}?page=${page}&pageSize=${pageSize}`, {
+    const res = await fetchWithAuth(`${API_URL}?page=${page}&pageSize=${pageSize}`, {
         headers: {
             'Authorization': `Bearer ${token}`
         }
@@ -21,7 +20,7 @@ export async function getIssues(page = 1, pageSize = 10) {
 export async function updateIssue(issue) {
     const token = authService.getToken();
     if (!token) throw new Error('Token di accesso non trovato');
-    const res = await fetchWithAuth(`${API_BASE_URL}/${issue.id_issue}`, {
+    const res = await fetchWithAuth(`${API_URL}/${issue.id_issue}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -41,7 +40,7 @@ export async function updateIssue(issue) {
 export async function deleteIssue(issueId) {
     const token = authService.getToken();
     if (!token) throw new Error('Token di accesso non trovato');
-    const res = await fetchWithAuth(`${API_BASE_URL}/${issueId}`, {
+    const res = await fetchWithAuth(`${API_URL}/${issueId}`, {
         method: 'DELETE',
         headers: {
             'Authorization': `Bearer ${token}`
@@ -65,7 +64,7 @@ export async function createIssue(issueData) {
         headers['Authorization'] = `Bearer ${token}`;
     }
     const fetchFn = token ? fetchWithAuth : fetch;
-    const res = await fetchFn(API_BASE_URL, {
+    const res = await fetchFn(API_URL, {
         method: 'POST',
         headers,
         body: JSON.stringify(issueData)

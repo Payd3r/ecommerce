@@ -7,5 +7,5 @@ mkdir -p Media
 docker-compose up -d
 
 echo "Progetto ecommerce avviato con successo!"
-echo "Frontend: http://localhost:3000"
-echo "Backend: http://localhost:3005" 
+echo "Frontend: http://localhost:3010"
+echo "Backend: http://localhost:3015" 

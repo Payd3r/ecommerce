@@ -99,7 +99,7 @@ export async function showEditProductModal(productId, categories, onSuccess) {
             wrapper.style.width = '80px';
             wrapper.style.height = '80px';
             wrapper.innerHTML = `
-              <img src="http://localhost:3005${img.url}" class="rounded border" style="width: 100%; height: 100%; object-fit: cover;" />
+              <img src="http://localhost:3015${img.url}" class="rounded border" style="width: 100%; height: 100%; object-fit: cover;" />
               <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0" style="z-index:2;" title="Rimuovi" data-type="existing" data-idx="${idx}"><i class="bi bi-x"></i></button>
             `;
             previewList.appendChild(wrapper);

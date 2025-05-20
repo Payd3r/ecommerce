@@ -2,8 +2,8 @@ import { authService } from '../js/services/authService.js';
 import { fetchWithAuth } from '../js/services/fetchWithAuth.js';
 
 const API_URL = '/orders';
-const API_BASE_URL = 'http://localhost:3005/orders';
-const ADDRESS_API_BASE_URL = 'http://localhost:3005/address';
+const API_BASE_URL = 'http://101.58.39.17:3015/orders';
+const ADDRESS_API_BASE_URL = 'http://101.58.39.17:3015/address';
 
 // Ottieni tutti gli ordini (solo per admin)
 export async function getAllOrders() {

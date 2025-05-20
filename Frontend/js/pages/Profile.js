@@ -39,7 +39,7 @@ export async function loadProfilePage() {
                         <div class="d-flex align-items-center mb-3">
                           <div class="me-3" id="profileImagePreviewWrapper">
                             ${user.image ? `
-                              <img src="http://localhost:3005${user.image}" id="profileImagePreview" alt="Foto profilo" class="rounded-circle border" style="width: 72px; height: 72px; object-fit: cover;" />
+                              <img src="http://localhost:3015${user.image}" id="profileImagePreview" alt="Foto profilo" class="rounded-circle border" style="width: 72px; height: 72px; object-fit: cover;" />
                             ` : `
                               <div id="profileImagePreview" class="d-flex align-items-center justify-content-center bg-light rounded-circle border" style="width: 72px; height: 72px;">
                                 <i class="bi bi-person-circle fs-1 text-secondary"></i>
@@ -359,7 +359,7 @@ export async function loadProfilePage() {
                 const res = await uploadProfileImage(user.id, file);
                 console.log("res",res);
                 // Aggiorna la preview
-                const imgUrl = res.files && res.files[0] ? `http://localhost:3005${res.files[0].url}` : null;
+                const imgUrl = res.files && res.files[0] ? `http://localhost:3015${res.files[0].url}` : null;
                 if (imgUrl) {
                     profileImagePreviewWrapper.innerHTML = `<img src="${imgUrl}" id="profileImagePreview" alt="Foto profilo" class="rounded-circle border" style="width: 72px; height: 72px; object-fit: cover;" />`;
                 }

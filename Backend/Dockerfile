@@ -15,7 +15,7 @@ RUN npm install
 COPY . .
 
 # Espone la porta specificata nell'env
-EXPOSE 3005
+EXPOSE 3015
 
 # Comando per avviare l'applicazione
 CMD ["npm", "start"] 

@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3005';
+const API_URL = 'http://101.58.39.17:3015';
 import { authService } from '../js/services/authService.js';
 
 // Funzione per upload immagini prodotto
