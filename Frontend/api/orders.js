@@ -1,15 +1,14 @@
 import { authService } from '../js/services/authService.js';
 import { fetchWithAuth } from '../js/services/fetchWithAuth.js';
+import { getApiUrl } from './config.js';
 
-const API_URL = '/orders';
-const API_BASE_URL = 'http://localhost:3005/orders';
-const ADDRESS_API_BASE_URL = 'http://localhost:3005/address';
+const API_URL = getApiUrl();
 
 // Ottieni tutti gli ordini (solo per admin)
 export async function getAllOrders() {
     const token = authService.getToken();
     if (!token) throw new Error('Token di accesso non trovato');
-    const res = await fetchWithAuth(API_BASE_URL, {
+    const res = await fetchWithAuth(`${API_URL}/orders`, {
         headers: {
             'Authorization': `Bearer ${token}`
         }
@@ -22,7 +21,7 @@ export async function getAllOrders() {
 export async function getOrders() {
     const token = authService.getToken();
     if (!token) throw new Error('Token di accesso non trovato');
-    const res = await fetchWithAuth(API_BASE_URL, {
+    const res = await fetchWithAuth(`${API_URL}/orders`, {
         headers: {
             'Authorization': `Bearer ${token}`
         }
@@ -33,7 +32,7 @@ export async function getOrders() {
 
 // Crea un nuovo ordine
 export async function createOrder(orderData) {
-    const res = await fetch(API_URL, {
+    const res = await fetch(`${API_URL}/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData)
@@ -57,7 +56,7 @@ export async function checkoutOrder(userId, paymentIntentId) {
         },
         body: JSON.stringify(body)
     };
-    const res = await fetchWithAuth(`${API_BASE_URL}/checkout`, options);
+    const res = await fetchWithAuth(`${API_URL}/orders/checkout`, options);
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.error || 'Errore nel checkout');
@@ -67,28 +66,28 @@ export async function checkoutOrder(userId, paymentIntentId) {
 
 // Ottieni tutti gli ordini relativi ai prodotti di un artigiano
 export async function getOrdersByArtisan(artisanId) {
-    const res = await fetch(`${API_BASE_URL}/by-artisan/${artisanId}`);
+    const res = await fetch(`${API_URL}/orders/by-artisan/${artisanId}`);
     if (!res.ok) throw new Error('Errore nel recupero degli ordini per artigiano');
     return await res.json();
 }
 
 // Ottieni le vendite mensili per artigiano
 export async function getMonthlySalesByArtisan(artisanId) {
-    const res = await fetch(`${API_BASE_URL}/stats/sales?artisanId=${artisanId}`);
+    const res = await fetch(`${API_URL}/orders/stats/sales?artisanId=${artisanId}`);
     if (!res.ok) throw new Error('Errore nel recupero delle vendite mensili');
     return await res.json();
 }
 
 // Ottieni il numero di ordini mensili per artigiano
 export async function getMonthlyOrdersByArtisan(artisanId) {
-    const res = await fetch(`${API_BASE_URL}/stats/orders?artisanId=${artisanId}`);
+    const res = await fetch(`${API_URL}/orders/stats/orders?artisanId=${artisanId}`);
     if (!res.ok) throw new Error('Errore nel recupero del numero ordini mensili');
     return await res.json();
 }
 
 // Ottieni gli order items di un ordine specifico
 export async function getOrderItems(orderId) {
-    const res = await fetch(`${API_BASE_URL}/${orderId}/items`);
+    const res = await fetch(`${API_URL}/orders/${orderId}/items`);
     if (!res.ok) throw new Error('Errore nel recupero degli order items');
     return await res.json();
 }
@@ -113,7 +112,7 @@ export async function getFilteredOrdersByArtisan(artisanId, params = {}) {
 export async function getOrdersByClient(clientId) {
     const token = authService.getToken();
     if (!token) throw new Error('Token di accesso non trovato');
-    const res = await fetchWithAuth(`${API_BASE_URL}?clientId=${clientId}`, {
+    const res = await fetchWithAuth(`${API_URL}/orders?clientId=${clientId}`, {
         headers: {
             'Authorization': `Bearer ${token}`
         }
@@ -126,7 +125,7 @@ export async function getOrdersByClient(clientId) {
 export async function deleteOrder(orderId) {
     const token = authService.getToken();
     if (!token) throw new Error('Token di accesso non trovato');
-    const res = await fetch(`${API_BASE_URL}/${orderId}`, {
+    const res = await fetch(`${API_URL}/orders/${orderId}`, {
         method: 'DELETE',
         headers: {
             'Authorization': `Bearer ${token}`
@@ -144,7 +143,7 @@ export async function deleteOrder(orderId) {
 export async function updateOrderStatus(orderId, status) {
     const token = authService.getToken();
     if (!token) throw new Error('Token di accesso non trovato');
-    const res = await fetch(`${API_BASE_URL}/${orderId}`, {
+    const res = await fetch(`${API_URL}/orders/${orderId}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -164,7 +163,7 @@ export async function updateOrderStatus(orderId, status) {
 export async function getAddressByUserId(userId) {
     const token = authService.getToken();
     if (!token) throw new Error('Token di accesso non trovato');
-    const res = await fetchWithAuth(`${ADDRESS_API_BASE_URL}/user/${userId}`, {
+    const res = await fetchWithAuth(`${ADDRESS_API_URL}/address/user/${userId}`, {
         headers: {
             'Authorization': `Bearer ${token}`
         }
@@ -187,7 +186,7 @@ export async function createPaymentIntent(userId) {
         },
         body: JSON.stringify({ userId })
     };
-    const res = await fetchWithAuth(`${API_BASE_URL}/create-payment-intent`, options);
+    const res = await fetchWithAuth(`${API_URL}/orders/create-payment-intent`, options);
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.error || 'Errore nella creazione del pagamento');

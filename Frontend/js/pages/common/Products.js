@@ -3,6 +3,7 @@ import { getProducts } from '../../../api/products.js';
 import CategoriesAPI from '../../../api/categories.js';
 import UsersAPI from '../../../api/users.js';
 import { showBootstrapToast } from '../../components/Toast.js';
+import { getApiUrl } from '../../../api/config.js';
 
 /**
  * Carica la pagina Prodotti

@@ -1,7 +1,8 @@
 import { fetchWithAuth } from '../js/services/fetchWithAuth.js';
-// Utilizziamo l'URL di base delle API dell'applicazione
-const API_BASE_URL = 'http://localhost:3005';
+import { getApiUrl } from './config.js';
 import { authService } from '../js/services/authService.js';
+
+const API_URL = getApiUrl();
 
 /**
  * Servizio per la gestione delle API degli utenti
@@ -19,7 +20,7 @@ const UsersAPI = {
         }
 
         try {
-            const response = await fetchWithAuth(`${API_BASE_URL}/users/me`, {
+            const response = await fetchWithAuth(`${API_URL}/users/me`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -64,7 +65,7 @@ const UsersAPI = {
         delete bodyData.biography; // La biografia è gestita da updateArtisanDetails
 
         try {
-            const response = await fetchWithAuth(`${API_BASE_URL}/users/${user.id}`, {
+            const response = await fetchWithAuth(`${API_URL}/users/${user.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json', // Assicurati che sia JSON
@@ -98,7 +99,7 @@ const UsersAPI = {
         }
 
         try {
-            const response = await fetchWithAuth(`${API_BASE_URL}/users/password`, {
+            const response = await fetchWithAuth(`${API_URL}/users/password`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -131,7 +132,7 @@ const UsersAPI = {
         }
 
         try {
-            const response = await fetchWithAuth(`${API_BASE_URL}/users/me`, {
+            const response = await fetchWithAuth(`${API_URL}/users/me`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -167,7 +168,7 @@ const UsersAPI = {
             if (params.id) queryParams.append('id', params.id);
 
             const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
-            const url = `${API_BASE_URL}/users/artisans${queryString}`;
+            const url = `${API_URL}/users/artisans${queryString}`;
 
             // Prepara gli headers con il token di autenticazione
             const headers = {
@@ -207,7 +208,7 @@ const UsersAPI = {
                 throw new Error('Utente non autenticato');
             }
 
-            const response = await fetchWithAuth(`${API_BASE_URL}/users?${queryParams}`, {
+            const response = await fetchWithAuth(`${API_URL}/users?${queryParams}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -239,7 +240,7 @@ const UsersAPI = {
         }
 
         try {
-            const response = await fetchWithAuth(`${API_BASE_URL}/users`, {
+            const response = await fetchWithAuth(`${API_URL}/users`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -271,7 +272,7 @@ const UsersAPI = {
             throw new Error('Utente non autenticato');
         }
         try {
-            const response = await fetchWithAuth(`${API_BASE_URL}/users/${userId}`, {
+            const response = await fetchWithAuth(`${API_URL}/users/${userId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -312,7 +313,7 @@ const UsersAPI = {
             throw new Error('Nessun campo da aggiornare');
         }
         try {
-            const response = await fetchWithAuth(`${API_BASE_URL}/users/${userId}`, {
+            const response = await fetchWithAuth(`${API_URL}/users/${userId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -342,7 +343,7 @@ const UsersAPI = {
             throw new Error('Utente non autenticato');
         }
         try {
-            const response = await fetchWithAuth(`${API_BASE_URL}/users/${userId}`, {
+            const response = await fetchWithAuth(`${API_URL}/users/${userId}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -371,7 +372,7 @@ const UsersAPI = {
             throw new Error('Utente non autenticato');
         }
         try {
-            const response = await fetchWithAuth(`${API_BASE_URL}/users/counts`, {
+            const response = await fetchWithAuth(`${API_URL}/users/counts`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -401,7 +402,7 @@ const UsersAPI = {
         }
         // L'ID utente è implicito nel token e gestito dal backend.
         try {
-            const response = await fetchWithAuth(`${API_BASE_URL}/users/artisan-details`, {
+            const response = await fetchWithAuth(`${API_URL}/users/artisan-details`, {
                 method: 'POST',
                 headers: {
                     // 'Content-Type': 'multipart/form-data' // NON impostare Content-Type con FormData, il browser lo fa.
@@ -434,7 +435,7 @@ const UsersAPI = {
         try {
             const queryParams = new URLSearchParams();
             if (params.limit) queryParams.append('limit', params.limit);
-            const url = `${API_BASE_URL}/users/pending-artisans${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+            const url = `${API_URL}/users/pending-artisans${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
             const response = await fetchWithAuth(url, {
                 method: 'GET',
                 headers: {
@@ -462,7 +463,7 @@ const UsersAPI = {
         const token = authService.getToken();
         if (!token) throw new Error('Utente non autenticato');
         try {
-            const response = await fetchWithAuth(`${API_BASE_URL}/users/${userId}/approve`, {
+            const response = await fetchWithAuth(`${API_URL}/users/${userId}/approve`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

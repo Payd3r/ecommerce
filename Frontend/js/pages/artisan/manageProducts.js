@@ -4,6 +4,7 @@ import CategoriesAPI from '../../../api/categories.js';
 import { showAddProductModal } from './modals/addProduct.js';
 import { showEditProductModal } from './modals/editProduct.js';
 import { showViewProductModal } from './modals/viewProduct.js';
+import { getApiUrl } from '../../../api/config.js';
 
 export async function loadManageProductsPage() {
     const pageElement = document.createElement('div');
@@ -74,9 +75,9 @@ export async function loadManageProductsPage() {
                     <td class="text-center">
                         ${p.image && p.image.url ?
                     `<div class="product-thumb-wrapper" style="position:relative; display:inline-block;">
-                                <img src="http://localhost:3005${p.image.url}" alt="img" class="product-thumb-img" style="width:40px; height:40px; object-fit:cover; border-radius:6px; cursor:pointer;" />
+                                <img src="${getApiUrl()}${p.image.url}" alt="img" class="product-thumb-img" style="width:40px; height:40px; object-fit:cover; border-radius:6px; cursor:pointer;" />
                                 <div class="product-tooltip-img" style="display:none; position:absolute; left:50%; top:50%; transform:translate(-50%, -50%); z-index:10;">
-                                    <img src="http://localhost:3005${p.image.url}" alt="img" style="width:220px; height:220px; object-fit:cover; border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,0.18); border:2px solid #fff;" />
+                                    <img src="${getApiUrl()}${p.image.url}" alt="img" style="width:220px; height:220px; object-fit:cover; border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,0.18); border:2px solid #fff;" />
                                 </div>
                             </div>`
                     :

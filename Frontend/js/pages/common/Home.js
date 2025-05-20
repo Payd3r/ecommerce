@@ -2,7 +2,7 @@
 import { getProducts, getProduct } from '../../../api/products.js';
 import CategoriesAPI from '../../../api/categories.js';
 import UsersAPI from '../../../api/users.js';
-
+import { getApiUrl } from '../../../api/config.js';
 // Importo i componenti
 import { showBootstrapToast } from '../../components/Toast.js';
 
@@ -288,7 +288,7 @@ export async function loadHomePage() {
                 <div class="product-card card">
                     <div class="product-image" style="background-color: var(--light-bg); display: flex; align-items: center; justify-content: center; height: 120px;">
                         ${product.image && product.image.url ?
-                    `<img src="http://localhost:3005${product.image.url}" alt="${product.name}" style="height: 100px; width: 100%; object-fit: cover; border-radius: 8px;" />` :
+                    `<img src="${getApiUrl()}${product.image.url}" alt="${product.name}" style="height: 100px; width: 100%; object-fit: cover; border-radius: 8px;" />` :
                     `<div style="width: 80px; height: 80px; background: #fff; border: 1px solid #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
                                 <span class="placeholder-icon">🖼️</span>
                             </div>`
@@ -646,12 +646,12 @@ export async function loadHomePage() {
                 <div class="category-carousel-card d-flex flex-shrink-0">
                     <div class="artisan-card card flex-fill mb-0 shadow border-0 position-relative overflow-hidden">
                         ${artisan.url_banner ?
-                            `<div class='artisan-banner position-absolute top-0 start-0 w-100 h-100' style="background: url('http://localhost:3005${artisan.url_banner}') center/cover no-repeat; opacity: 0.25; z-index:1;"></div>`
+                            `<div class='artisan-banner position-absolute top-0 start-0 w-100 h-100' style="background: url('${getApiUrl()}${artisan.url_banner}') center/cover no-repeat; opacity: 0.25; z-index:1;"></div>`
                             : ''}
                         <div class="card-body text-center py-3 px-2 position-relative" style="z-index:2;">
                             <div class="artisan-profile-img mx-auto mb-2 position-relative d-flex justify-content-center align-items-center" style="width: 90px; height: 90px; border-radius: 50%; overflow: hidden; border: 4px solid #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.15); background: #f8f9fa;">
                                 ${artisan.image ?
-                                    `<img src="http://localhost:3005${artisan.image}" alt="${artisan.name}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />` :
+                                    `<img src="${getApiUrl()}${artisan.image}" alt="${artisan.name}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />` :
                                     `<span class="category-icon fs-1">${iconList[idx % iconList.length]}</span>`
                                 }
                             </div>

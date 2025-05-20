@@ -2,6 +2,7 @@ import { getProductsByArtisan } from '../../../api/products.js';
 import UsersAPI from '../../../api/users.js';
 import { loader } from '../../components/Loader.js';
 import { showBootstrapToast } from '../../components/Toast.js';
+import { getApiUrl } from '../../../api/config.js';
 
 /**
  * Carica la pagina dello shop di un artigiano

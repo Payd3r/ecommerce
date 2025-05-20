@@ -1,6 +1,6 @@
 /**
  * Test di integrazione per le API dei prodotti
- * Questi test si connettono al backend reale in esecuzione su localhost:3005
+ * Questi test si connettono al backend reale in esecuzione su localhost:3015
  */
 const request = require('supertest');
 const { API_BASE_URL, TEST_USER } = require('./config');

@@ -1,12 +1,13 @@
 import { authService } from '../js/services/authService.js';
 import { fetchWithAuth } from '../js/services/fetchWithAuth.js';
+import { getApiUrl } from './config.js';
 
-const API_BASE_URL = 'http://localhost:3005';
+const API_URL = getApiUrl();
 
 export class ApiService {
     static async login(email, password) {
         try {
-            const response = await fetchWithAuth(`${API_BASE_URL}/auth/login`, {
+            const response = await fetchWithAuth(`${API_URL}/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -31,7 +32,7 @@ export class ApiService {
 
     static async register(name, email, password, role) {
         try {
-            const response = await fetchWithAuth(`${API_BASE_URL}/auth/register`, {
+            const response = await fetchWithAuth(`${API_URL}/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -60,7 +61,7 @@ export class ApiService {
     static async getProfile() {
         try {
             const token = authService.getToken();
-            const response = await fetchWithAuth(`${API_BASE_URL}/auth/profile`, {
+            const response = await fetchWithAuth(`${API_URL}/auth/profile`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -79,7 +80,7 @@ export class ApiService {
     static async getAddress() {
         try {
             const token = authService.getToken();
-            const response = await fetchWithAuth(`${API_BASE_URL}/address/me`, {
+            const response = await fetchWithAuth(`${API_URL}/address/me`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -98,7 +99,7 @@ export class ApiService {
     static async saveAddress(address) {
         try {
             const token = authService.getToken();
-            const response = await fetchWithAuth(`${API_BASE_URL}/address`, {
+            const response = await fetchWithAuth(`${API_URL}/address`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -120,7 +121,7 @@ export class ApiService {
     static async updateProfile({ name, surname }) {
         try {
             const token = authService.getToken();
-            const response = await fetchWithAuth(`${API_BASE_URL}/auth/profile`, {
+            const response = await fetchWithAuth(`${API_URL}/auth/profile`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

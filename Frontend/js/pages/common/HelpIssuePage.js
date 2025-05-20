@@ -1,5 +1,3 @@
-// Pagina creazione nuova segnalazione (issue)
-import { createIssue } from '../../../api/issues.js';
 import { authService } from '../../services/authService.js';
 
 export function loadHelpIssuePage() {

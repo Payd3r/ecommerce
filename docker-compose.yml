@@ -13,16 +13,17 @@ services:
     volumes:
       - mariadbdata:/var/lib/mysql      
       - ./Backend/db.sql:/docker-entrypoint-initdb.d/db.sql
+
   backend:
     build: ./Backend
     container_name: node-backend
     restart: always
     ports:
-      - "3005:3005"
+      - "3015:3015"
     depends_on:
       - db
     environment:
-      PORT: 3005
+      PORT: 3015
       DB_HOST: db
       DB_USER: ukiui5tx8fkytjk
       DB_PASSWORD: usf6FFdMfLXgAGqORnmR8
@@ -33,6 +34,7 @@ services:
       - ./Backend:/usr/src/app
       - ./Media:/usr/src/app/Media
       - /usr/src/app/node_modules
+    working_dir: /usr/src/app
     command: npm run dev
 
   frontend:
@@ -40,7 +42,7 @@ services:
     container_name: node-frontend
     restart: always
     ports:
-      - "3000:80"
+      - "3010:80"
     depends_on:
       - backend
     volumes:

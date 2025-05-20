@@ -4,7 +4,7 @@
  * Tipi supportati: success, error, warning, info
  */
 
-export function showBootstrapToast(message, title = '', type = 'info', delay = 3000) {
+export function showBootstrapToast(message, title = '', type = 'info', delay = 3010) {
     const container = document.getElementById('toast-container');
     if (!container) return;
 
