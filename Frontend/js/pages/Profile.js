@@ -4,8 +4,6 @@ import { showBootstrapToast } from '../components/Toast.js';
 import { loader } from '../components/Loader.js';
 import { router } from '../router.js';
 import { uploadProfileImage } from '../../api/images.js';
-<<<<<<< Updated upstream
-=======
 import { getApiUrl } from '../../api/config.js';
 import { authService } from '../services/authService.js';
 import { countries } from '../assets.geo.js';

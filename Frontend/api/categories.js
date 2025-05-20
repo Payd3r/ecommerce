@@ -1,6 +1,6 @@
 import { fetchWithAuth } from '../js/services/fetchWithAuth.js';
 // Utilizziamo l'URL di base delle API dell'applicazione
-const API_URL = 'http://localhost:3005';
+import { getApiUrl } from './config.js';
 import { authService } from '../js/services/authService.js';
 
 const API_URL = getApiUrl();
