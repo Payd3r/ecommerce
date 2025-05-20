@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const db = require('../models/db');
 const { verifyToken } = require('../middleware/auth');
+require('dotenv').config();
+const Stripe = require('stripe');
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 // GET /orders - Ottieni tutti gli ordini (admin o per test)
 router.get('/', verifyToken, async (req, res) => {
@@ -60,8 +63,17 @@ router.post('/checkout', verifyToken, async (req, res) => {
     const connection = await db.getConnection();
     try {
         await connection.beginTransaction();
-        // Usa userId dal body se presente, altrimenti da req.user
         const userId = req.body.userId || req.user.id;
+        const paymentIntentId = req.body.paymentIntentId;
+        // Se è richiesto il pagamento, verifica che sia stato effettuato
+        if (paymentIntentId) {
+            const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+            if (!paymentIntent || paymentIntent.status !== 'succeeded') {
+                await connection.rollback();
+                connection.release();
+                return res.status(400).json({ error: 'Pagamento non valido o non riuscito' });
+            }
+        }
         // Trova il carrello dell'utente
         const [carts] = await connection.query('SELECT id FROM carts WHERE user_id = ?', [userId]);
         if (carts.length === 0) {
@@ -415,6 +427,47 @@ router.put('/:orderId', verifyToken, async (req, res) => {
     } catch (error) {
         console.error('Errore nell\'aggiornamento dello stato ordine:', error);
         res.status(500).json({ error: 'Errore nell\'aggiornamento dello stato ordine' });
+    }
+});
+
+// POST /orders/create-payment-intent - Crea una PaymentIntent Stripe
+router.post('/create-payment-intent', verifyToken, async (req, res) => {
+    try {
+        // Calcola il totale del carrello dell'utente
+        const userId = req.body.userId || req.user.id;
+        const [carts] = await db.query('SELECT id FROM carts WHERE user_id = ?', [userId]);
+        if (carts.length === 0) {
+            return res.status(400).json({ error: 'Carrello vuoto o non trovato' });
+        }
+        const cartId = carts[0].id;
+        const [items] = await db.query(`
+            SELECT ci.quantity, p.price, p.discount
+            FROM cart_items ci
+            JOIN products p ON ci.product_id = p.id
+            WHERE ci.cart_id = ?
+        `, [cartId]);
+        if (items.length === 0) {
+            return res.status(400).json({ error: 'Carrello vuoto' });
+        }
+        let total = 0;
+        for (const item of items) {
+            let finalPrice = item.price;
+            if (item.discount && item.discount > 0 && item.discount < 100) {
+                finalPrice = finalPrice * (1 - item.discount / 100);
+            }
+            total += finalPrice * item.quantity;
+        }
+        // importo in centesimi
+        const amount = Math.round(total * 100);
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount,
+            currency: 'eur',
+            metadata: { userId: String(userId) }
+        });
+        res.json({ clientSecret: paymentIntent.client_secret });
+    } catch (err) {
+        console.error('Errore Stripe PaymentIntent:', err);
+        res.status(500).json({ error: 'Errore nella creazione del pagamento', details: err.message });
     }
 });
 

@@ -4,6 +4,7 @@ import { showBootstrapToast } from '../../components/Toast.js';
 import { authService } from '../../services/authService.js';
 import { ApiService } from '../../../api/auth.js';
 import { router } from '../../router.js';
+import { createPaymentIntent } from '../../../api/orders.js';
 
 export async function loadCheckoutPage() {
     const pageElement = document.createElement('div');
@@ -150,11 +151,8 @@ export async function loadCheckoutPage() {
         const form = pageElement.querySelector('#delivery-form');
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            // Aggiorna nome se modificato prima di procedere
             await userForm.requestSubmit();
-            // Prendi i dati dal form
             const fd = new FormData(form);
-            // Splitta address in via e numero_civico
             let via = '';
             let numero_civico = '';
             const addressField = fd.get('address').trim();
@@ -165,7 +163,6 @@ export async function loadCheckoutPage() {
             } else {
                 via = addressField;
             }
-            // Salva/aggiorna indirizzo
             try {
                 await ApiService.saveAddress({
                     stato: fd.get('stato'),
@@ -181,19 +178,88 @@ export async function loadCheckoutPage() {
                 showBootstrapToast('Errore nel salvataggio dell\'indirizzo', 'Errore', 'error');
                 return;
             }
-            // Invia ordine
+            // --- INTEGRAZIONE STRIPE ---
             try {
                 const user = authService.getUser();
                 if (!user || !user.id) {
                     showBootstrapToast('Utente non autenticato', 'Errore', 'error');
                     return;
                 }
-                await OrdersAPI.checkoutOrder(user.id);
-                showBootstrapToast('Ordine inviato con successo!', 'Successo', 'success');
-                setTimeout(() => router.navigate('/myorders'), 1200);
+                // 1. Ottieni clientSecret dal backend
+                const { clientSecret } = await createPaymentIntent(user.id);
+                // 2. Mostra un modal per inserire la carta
+                const stripe = window.Stripe('pk_test_51RQktnE3wYvtSR1NPDjHv3Tgjx3jjX92MuXRzjnL4hDUW2NJJLQaQsuXTxvQvikCNq9x7YxaeUvpaJUrZ1E7iFYt00m0ZAtC6d');
+                const elements = stripe.elements();
+                let cardElement = elements.getElement('card');
+                if (!cardElement) {
+                    cardElement = elements.create('card');
+                }
+                // Crea modal
+                let modal = document.getElementById('stripe-modal');
+                if (!modal) {
+                    modal = document.createElement('div');
+                    modal.id = 'stripe-modal';
+                    modal.innerHTML = `
+                        <div class="modal fade" tabindex="-1" id="stripeModal" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title">Pagamento con Carta</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <form id="stripe-card-form">
+                                  <div id="stripe-card-element" class="mb-3"></div>
+                                  <button type="submit" class="btn btn-primary w-100">Paga</button>
+                                </form>
+                                <div id="stripe-error" class="text-danger mt-2"></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                    `;
+                    document.body.appendChild(modal);
+                }
+                // Mostra il modal
+                const bsModal = new bootstrap.Modal(document.getElementById('stripeModal'));
+                bsModal.show();
+                // Monta l'elemento carta
+                setTimeout(() => {
+                    cardElement.mount('#stripe-card-element');
+                }, 100);
+                // Gestisci submit del form Stripe
+                const stripeForm = document.getElementById('stripe-card-form');
+                stripeForm.onsubmit = async (ev) => {
+                    ev.preventDefault();
+                    document.getElementById('stripe-error').textContent = '';
+                    const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+                        payment_method: {
+                            card: cardElement,
+                            billing_details: {
+                                name: deliveryInfo.name + ' ' + deliveryInfo.surname
+                            }
+                        }
+                    });
+                    if (error) {
+                        document.getElementById('stripe-error').textContent = error.message;
+                        return;
+                    }
+                    if (paymentIntent && paymentIntent.status === 'succeeded') {
+                        bsModal.hide();
+                        // Procedi con la creazione dell'ordine, passando paymentIntentId
+                        try {
+                            await OrdersAPI.checkoutOrder(user.id, paymentIntent.id);
+                            showBootstrapToast('Pagamento e ordine riusciti!', 'Successo', 'success');
+                            setTimeout(() => router.navigate('/myorders'), 1200);
+                        } catch (error) {
+                            showBootstrapToast(error.message || 'Errore nell\'invio dell\'ordine', 'Errore', 'error');
+                        }
+                    }
+                };
             } catch (error) {
-                showBootstrapToast(error.message || 'Errore nell\'invio dell\'ordine', 'Errore', 'error');
+                showBootstrapToast(error.message || 'Errore nel pagamento', 'Errore', 'error');
             }
+            // --- FINE INTEGRAZIONE STRIPE ---
         });
     }
 

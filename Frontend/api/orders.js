@@ -43,17 +43,19 @@ export async function createOrder(orderData) {
 }
 
 // Checkout: crea ordine dal carrello dell'utente autenticato
-export async function checkoutOrder(userId) {
+export async function checkoutOrder(userId, paymentIntentId) {
     if (!userId) throw new Error('userId mancante');
     const token = authService.getToken();
     if (!token) throw new Error('Token di accesso non trovato');
+    const body = { userId };
+    if (paymentIntentId) body.paymentIntentId = paymentIntentId;
     const options = {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ userId })
+        body: JSON.stringify(body)
     };
     const res = await fetchWithAuth(`${API_BASE_URL}/checkout`, options);
     if (!res.ok) {
@@ -170,4 +172,25 @@ export async function getAddressByUserId(userId) {
     if (!res.ok) throw new Error('Errore nel recupero dati spedizione');
     const data = await res.json();
     return data.data;
+}
+
+// Crea una PaymentIntent Stripe per il carrello dell'utente
+export async function createPaymentIntent(userId) {
+    if (!userId) throw new Error('userId mancante');
+    const token = authService.getToken();
+    if (!token) throw new Error('Token di accesso non trovato');
+    const options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ userId })
+    };
+    const res = await fetchWithAuth(`${API_BASE_URL}/create-payment-intent`, options);
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Errore nella creazione del pagamento');
+    }
+    return await res.json();
 }
