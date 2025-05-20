@@ -38,13 +38,13 @@ export async function loadHomePage() {
                 <a href="/products" class="btn btn-primary btn-lg" data-route>Esplora i Prodotti</a>
             </div>
         </section>
-        <section class="featured py-4">
+        <section class="featured pt-4">
             <div class="container">
-                <h2 class="mb-4">Categorie in Evidenza</h2>
+                <h2 class="mb-0">Categorie in Evidenza</h2>
                 <div class="position-relative px-3"  style="padding-left: 2vw; padding-right: 2vw;">
-                    <button id="cat-carousel-left" class="btn btn-light position-absolute top-50 start-0 translate-middle-y z-1"><i class="bi bi-chevron-left"></i></button>
+                    <button id="cat-carousel-left" class="btn btn-light position-absolute top-50 start-0 translate-middle-y"><i class="bi bi-chevron-left"></i></button>
                     <div id="featured-categories" class="d-flex flex-nowrap overflow-auto py-2 px-5" style="scroll-behavior: smooth; gap: 1rem; scrollbar-width: none; -ms-overflow-style: none;"></div>
-                    <button id="cat-carousel-right" class="btn btn-light position-absolute top-50 end-0 translate-middle-y z-1"><i class="bi bi-chevron-right"></i></button>
+                    <button id="cat-carousel-right" class="btn btn-light position-absolute top-50 end-0 translate-middle-y"><i class="bi bi-chevron-right"></i></button>
                 </div>
             </div>
         </section>
@@ -196,7 +196,6 @@ export async function loadHomePage() {
         const categoriesContainer = document.getElementById('featured-categories');
         if (!categoriesContainer) return;
 
-        console.log("categories", categories);
         let html = '';
         if (categories.length === 0) {
             html = '<div class="empty-state">Nessuna categoria disponibile</div>';
@@ -216,17 +215,22 @@ export async function loadHomePage() {
                 const icon = iconList[idx % iconList.length];
                 html += `
                     <div class="category-carousel-card d-flex flex-shrink-0">
-                        <div class="category-card card flex-fill mb-0 shadow-sm border-0">
-                            <div class="card-body text-center py-3 px-2">
-                                <div class="category-image mb-2 d-flex justify-content-center align-items-center mx-auto" style="background-color: var(--secondary-color); width: 70px; height: 70px; border-radius: 50%; overflow: hidden;">
+                        <div class="category-card card flex-fill mb-0 shadow border-0 position-relative overflow-hidden">
+                            <div class="card-body text-center py-3 px-2 position-relative" style="z-index:2;">
+                                <div class="category-profile-img mx-auto mb-2 position-relative d-flex justify-content-center align-items-center">
                                     ${category.image ?
+<<<<<<< Updated upstream
                                         `<img src="http://localhost:3005${category.image}" alt="${category.name}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" />` :
                                         `<span class="category-icon fs-4">${icon}</span>`
+=======
+                                        `<img src="${getApiUrl()}${category.image}" alt="${category.name}" />` :
+                                        `<span class="category-icon fs-1">${icon}</span>`
+>>>>>>> Stashed changes
                                     }
                                 </div>
-                                <h6 class="fw-bold mb-1 small category-card-title">${category.name}</h6>
+                                <h6 class="fw-bold mb-1 category-card-title">${category.name}</h6>
                                 <p class="text-muted mb-2 small category-card-text">${category.productCount || 0} prodotti</p>
-                                <a href="/products?category=${category.id}" class="btn btn-outline-primary btn-sm mt-1" data-route>Esplora</a>
+                                <a href="/products?category=${category.id}" class="btn btn-outline-primary btn-sm mt-1 px-4 rounded-pill shadow-sm" data-route>Esplora</a>
                             </div>
                         </div>
                     </div>
@@ -238,68 +242,32 @@ export async function loadHomePage() {
         section.innerHTML = `
             <div class="position-relative px-2">
                 <button id="cat-carousel-left" class="btn btn-light position-absolute top-50 start-0 translate-middle-y z-1"><i class="bi bi-chevron-left"></i></button>
-                <div id="featured-categories" class="d-flex flex-nowrap overflow-auto py-2 px-2" style="scroll-behavior: smooth; gap: 0.75rem; scrollbar-width: none; -ms-overflow-style: none;">
+                <div id="featured-categories" class="d-flex flex-nowrap overflow-auto p-4">
                     ${html}
                 </div>
                 <button id="cat-carousel-right" class="btn btn-light position-absolute top-50 end-0 translate-middle-y z-1"><i class="bi bi-chevron-right"></i></button>
             </div>
-            <style>
-                #featured-categories::-webkit-scrollbar { display: none; }
-                .category-carousel-card { 
-                    min-width: 110px;
-                    max-width: 130px;
-                }
-                .category-carousel-card .category-image {
-                    width: 60px; height: 60px;
-                }
-                .category-carousel-card .category-card-title { font-size: 0.8rem; }
-                .category-carousel-card .category-card-text { font-size: 0.7rem; }
-
-                /* Effetto Hover per tutte le .category-card nei caroselli */
-                .category-card {
-                    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-                }
-                .category-card:hover {
-                    transform: translateY(-5px);
-                    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-                }
-
-                @media (max-width: 600px) {
-                  .category-carousel-card { min-width: 100px; max-width: 120px; }
-                }
-                @media (min-width: 768px) {
-                    .category-carousel-card { 
-                        min-width: 140px; 
-                        max-width: 160px; 
-                    }
-                    .category-carousel-card .category-image {
-                        width: 70px; height: 70px;
-                    }
-                     .category-carousel-card .category-card-title { font-size: 0.9rem; }
-                     .category-carousel-card .category-card-text { font-size: 0.75rem; }
-                }
-                @media (min-width: 992px) {
-                    .category-carousel-card { 
-                        min-width: 180px; 
-                        max-width: 200px; 
-                    }
-                    .category-carousel-card .category-image {
-                        width: 80px; height: 80px;
-                    }
-                    .category-carousel-card .category-card-title { font-size: 1rem; }
-                    .category-carousel-card .category-card-text { font-size: 0.8rem; }
-                }
-            </style>
         `;
-        // JS per lo scroll di una sola card
+        // JS per lo scroll a pagina
         const container = document.getElementById('featured-categories');
         const leftBtn = document.getElementById('cat-carousel-left');
         const rightBtn = document.getElementById('cat-carousel-right');
+        let carouselPage = 0;
+        function scrollCarousel(direction) {
+            const cards = container.querySelectorAll('.category-carousel-card');
+            if (!cards.length) return;
+            const cardWidth = cards[0].offsetWidth + 16; // 8px margin su entrambi i lati
+            const maxScroll = container.scrollWidth - container.clientWidth;
+            if (direction === 'right') {
+                container.scrollBy({ left: cardWidth, behavior: 'smooth' });
+            } else {
+                container.scrollBy({ left: -cardWidth, behavior: 'smooth' });
+            }
+            // Opzionale: puoi disabilitare le frecce se sei a inizio/fine
+        }
         if (leftBtn && rightBtn && container) {
-            const card = container.querySelector('.category-card');
-            const scrollAmount = card ? card.offsetWidth + 8 : 120; // 8px gap
-            leftBtn.onclick = () => container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-            rightBtn.onclick = () => container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+            leftBtn.onclick = () => scrollCarousel('left');
+            rightBtn.onclick = () => scrollCarousel('right');
         }
     }
 
@@ -616,34 +584,46 @@ export async function loadHomePage() {
     function renderProductSection(products, containerId) {
         const container = document.getElementById(containerId);
         if (!container) return;
-
-        // Applica le classi per le colonne direttamente al container
-        container.className = 'row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3'; // 2 mobile, 3 tablet, 4 lg-desktop, 5 xl-desktop
-
+        container.className = 'row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3';
         let html = '';
         let toShow = shuffleArray(products);
-        
-        // Limita i prodotti mostrati se necessario (es. solo 5 per ultimi arrivi)
         if (containerId === 'latest-arrivals-container') {
-            toShow = toShow.slice(0, 5); // Mostra sempre 5 per "Ultimi Arrivi" indipendentemente dalle colonne
+            toShow = toShow.slice(0, 5);
         } else if (containerId === 'featured-products-container') {
-             toShow = toShow.slice(0, 10); // Mostra 10 per "Prodotti in Evidenza"
+            toShow = toShow.slice(0, 10);
         }
-
-
         for (let i = 0; i < toShow.length; i++) {
             const product = toShow[i];
-            // La classe col viene gestita da row-cols-* sul parent
+            // Badge sconto
+            let discountBadge = '';
+            if (product.discount && product.discount > 0) {
+                discountBadge = `<span class="badge bg-danger position-absolute top-0 start-0 m-2" style="z-index:2;">${product.discount}%</span>`;
+            }
+            // Badge ultimi rimasti
+            let stockBadge = '';
+            if (typeof product.stock === 'number' && product.stock >= 0 && product.stock <= 2) {
+                stockBadge = `<span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2" style="z-index:2;">Ultimi rimasti</span>`;
+            }
             html += `
                 <div class="col d-flex align-items-stretch">
-                    <div class="product-card card flex-fill h-100 p-2" style="min-width:0;">
-                        <div class="product-image-wrapper d-flex align-items-center justify-content-center">
+                    <div class="product-card card flex-fill h-100 p-2 position-relative">
+                        <div class="product-image-wrapper d-flex align-items-center justify-content-center position-relative">
+                            ${discountBadge}
+                            ${stockBadge}
                             ${product.image && product.image.url ?
+<<<<<<< Updated upstream
                     `<img src="http://localhost:3005${product.image.url}" alt="${product.name}" class="product-img-actual" />` :
                     `<div class="product-img-placeholder">
                                 <span class="placeholder-icon">🖼️</span>
                             </div>`
                 }
+=======
+                                `<img src="${getApiUrl()}${product.image.url}" alt="${product.name}" class="product-img-actual" />` :
+                                `<div class="product-img-placeholder">
+                                    <span class="placeholder-icon">🖼️</span>
+                                </div>`
+                            }
+>>>>>>> Stashed changes
                         </div>
                         <div class="product-content p-1 mt-2">
                             <h6 class="fw-bold mb-1 product-name-text">${product.name}</h6>
@@ -658,74 +638,6 @@ export async function loadHomePage() {
             `;
         }
         container.innerHTML = html;
-
-        // Stile per altezza e immagini prodotti (può essere messo in un file CSS separato)
-        const styleElement = document.getElementById('product-card-styles') || document.createElement('style');
-        styleElement.id = 'product-card-styles';
-        styleElement.textContent = `
-            .product-card {
-                transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-            }
-            .product-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-            }
-            .product-image-wrapper {
-                background-color: var(--light-bg);
-                height: 150px; /* Altezza base per mobile */
-                border-radius: 8px; /* Arrotondamento per il wrapper */
-                overflow: hidden; /* Per contenere l'immagine arrotondata */
-            }
-            .product-img-actual {
-                height: 100%; 
-                width: 100%; 
-                object-fit: cover;
-            }
-            .product-img-placeholder {
-                width: 100%; 
-                height: 100%; 
-                background: #fff; 
-                border: 1px solid #eee; 
-                display: flex; 
-                align-items: center; 
-                justify-content: center;
-                border-radius: 8px; /* Deve combaciare con wrapper se non c'è immagine */
-            }
-            .product-name-text {
-                 font-size: 0.9rem; /* Base mobile */
-                 display: -webkit-box;
-                -webkit-line-clamp: 2;
-                -webkit-box-orient: vertical;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                min-height: 2.4em; /* Altezza per due righe approx */
-            }
-
-            @media (min-width: 768px) { /* Tablet */
-                .product-image-wrapper {
-                    height: 180px; 
-                }
-                .product-name-text {
-                     font-size: 0.95rem;
-                }
-            }
-            @media (min-width: 992px) { /* Desktop LG - 4 colonne */
-                .product-image-wrapper {
-                    height: 200px; /* Più alte per desktop */
-                }
-                 .product-name-text {
-                     font-size: 1rem;
-                }
-            }
-             @media (min-width: 1200px) { /* Desktop XL - 5 colonne */
-                .product-image-wrapper {
-                    height: 180px; /* Leggermente meno per 5 colonne per bilanciare la larghezza ridotta */
-                }
-            }
-        `;
-        if (!document.getElementById('product-card-styles')) {
-            document.head.appendChild(styleElement);
-        }
     }
 
     // Carosello artigiani della settimana
@@ -796,80 +708,6 @@ export async function loadHomePage() {
                 width: 100%;
                 min-width: 0;
             }
-            #artisans-carousel .category-carousel-card {
-                flex: 0 0 auto;
-                width: 210px;
-                margin: 0;
-            }
-            #artisans-carousel .artisan-card {
-                width: 100%;
-                min-width: 0;
-                max-width: 100%;
-                min-height: 160px;
-                background: #fff;
-                border-radius: 1.2rem;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.10);
-                transition: transform 0.2s, box-shadow 0.2s;
-                padding: 0.7rem 0.3rem 1rem 0.3rem;
-                position: relative;
-                z-index: 1;
-                margin: 0;
-            }
-            #artisans-carousel .artisan-card:hover {
-                transform: translateY(-7px) scale(1.03);
-                box-shadow: 0 4px 16px rgba(0,0,0,0.13);
-            }
-            #artisans-carousel .artisan-banner {
-                border-radius: 1.2rem;
-                pointer-events: none;
-                position: absolute;
-                top: 0; left: 0; width: 100%; height: 100%;
-                z-index: 0;
-            }
-            #artisans-carousel .artisan-profile-img {
-                box-shadow: 0 2px 10px rgba(0,0,0,0.18);
-                background: #fff;
-                position: relative;
-                z-index: 2;
-            }
-            #artisans-carousel .category-card-title {
-                font-size: 1.1rem;
-            }
-            @media (max-width: 767px) {
-                #artisans-carousel .category-carousel-card {
-                    width: 33.333vw;
-                    min-width: 33.333vw;
-                    max-width: 33.333vw;
-                }
-                #artisans-carousel .artisan-card {
-                    min-height: 120px;
-                    padding: 0.5rem 0.2rem 0.7rem 0.2rem;
-                }
-                #artisans-carousel .artisan-member-date {
-                    display: none !important;
-                }
-            }
-            @media (min-width: 768px) {
-                #artisans-carousel .category-carousel-card {
-                    width: 19vw;
-                    min-width: 19vw;
-                    max-width: 19vw;
-                }
-            }
-            @media (min-width: 1200px) {
-                #artisans-carousel .category-carousel-card {
-                    width: 15vw;
-                    min-width: 15vw;
-                    max-width: 15vw;
-                }
-            }
-            @media (min-width: 1400px) {
-                #artisans-carousel .category-carousel-card {
-                    width: 12vw;
-                    min-width: 12vw;
-                    max-width: 12vw;
-                }
-            }
         `;
         // Gestione scroll "a pagina" per mobile e desktop
         let carouselPage = 0;
@@ -907,4 +745,4 @@ export async function loadHomePage() {
         mount,
         unmount
     };
-} 
+}

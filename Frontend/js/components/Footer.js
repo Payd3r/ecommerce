@@ -33,7 +33,6 @@ class Footer {
                             <li><a href="/products" data-route class="text-decoration-none text-secondary">Prodotti</a></li>
                             <li><a href="/categories" data-route class="text-decoration-none text-secondary">Categorie</a></li>
                             <li><a href="/artisans" data-route class="text-decoration-none text-secondary">Artigiani</a></li>
-                            <li><a href="/about" data-route class="text-decoration-none text-secondary">Chi siamo</a></li>
                             <li><a href="/contact" data-route class="text-decoration-none text-secondary">Contatti</a></li>
                         </ul>
                     </div>

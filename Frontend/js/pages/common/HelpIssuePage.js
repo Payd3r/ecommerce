@@ -7,15 +7,28 @@ export function loadHelpIssuePage() {
     page.className = 'container pb-5';
     page.innerHTML = `
         <section class="help-issues-section">
-            <div class="container">
-                <div class="section-header my-3 d-flex justify-content-between align-items-center">
-                    <h2 class="mb-0">Le tue Segnalazioni</h2>
-                    <button id="open-issue-modal" class="btn btn-primary ms-2" type="button">
+            <div class="container py-4 help-issues-page">
+                <div class="d-flex align-items-center justify-content-between mb-0 mb-md-2 flex-wrap">
+                    <h1 class="page-title mb-0 flex-grow-1">Le tue Segnalazioni</h1>
+                    <div class="d-none d-md-flex align-items-center ms-2">
+                        <button id="open-issue-modal" class="btn btn-primary ms-2" type="button">
+                            <i class="bi bi-plus-circle"></i> Invia Segnalazione
+                        </button>
+                    </div>
+                </div>
+                <div class="spacer-mobile mb-3"></div>
+                <div class="d-flex d-md-none align-items-center gap-2 mb-3">
+                    <button id="toggle-filters" class="btn btn-outline-primary flex-fill" type="button">
+                        <i class="bi bi-funnel"></i> Filtri
+                    </button>
+                    <button id="open-issue-modal-mobile" class="btn btn-primary flex-fill" type="button">
                         <i class="bi bi-plus-circle"></i> Invia Segnalazione
                     </button>
                 </div>
+                <div class="page-subtitle mb-4">Gestisci e consulta tutte le tue segnalazioni di assistenza o problemi relativi agli ordini.</div>
+                <div class="spacer-mobile mb-3"></div>
                 <div class="row pb-5 pt-2">
-                    <aside class="col-12 col-md-4 mb-4 mb-md-0" id="filters-container" style="${window.innerWidth < 768 ? 'display:none;' : 'display:block;'}">
+                    <aside class="col-12 col-md-4 mb-4 mb-md-0 pe-3" id="filters-container" style="${window.innerWidth < 768 ? 'display:none;' : 'display:block;'}">
                         <div class="card shadow-sm border-0 p-3 position-relative">
                             <button type="button" class="btn btn-link text-secondary position-absolute top-0 end-0 mt-4 me-2 p-0" id="reset-user-issues-filters-btn" style="font-size:1rem;">Reset</button>
                             <h5 class="mb-3">Filtra le segnalazioni</h5>
@@ -49,11 +62,11 @@ export function loadHelpIssuePage() {
                                     <table class="table mb-0 align-middle" id="user-issues-table">
                                         <thead>
                                             <tr>
-                                                <th class="d-none d-md-table-cell">ID</th>
+                                                <th class="d-none d-md-table-cell text-center">ID</th>
                                                 <th>Titolo</th>
-                                                <th>Stato</th>
-                                                <th class="d-none d-md-table-cell">Data</th>
-                                                <th>Dettagli</th>
+                                                <th class="text-center">Stato</th>
+                                                <th class="d-none d-md-table-cell text-center">Data</th>
+                                                <th class="text-center">Dettagli</th>
                                             </tr>
                                         </thead>
                                         <tbody id="user-issues-table-body">
@@ -98,9 +111,15 @@ export function loadHelpIssuePage() {
     setTimeout(() => {
         // Modal Bootstrap
         const openModalBtn = page.querySelector('#open-issue-modal');
+        const openModalBtnMobile = page.querySelector('#open-issue-modal-mobile');
         const helpIssueModal = new bootstrap.Modal(page.querySelector('#help-issue-modal'));
         if (openModalBtn) {
             openModalBtn.addEventListener('click', () => {
+                helpIssueModal.show();
+            });
+        }
+        if (openModalBtnMobile) {
+            openModalBtnMobile.addEventListener('click', () => {
                 helpIssueModal.show();
             });
         }
@@ -203,14 +222,16 @@ export function loadHelpIssuePage() {
             pageIssues.forEach(issue => {
                 tableBody.innerHTML += `
                     <tr>
-                        <td class="d-none d-md-table-cell">${issue.id_issue}</td>
+                        <td class="d-none d-md-table-cell text-center">${issue.id_issue}</td>
                         <td>${issue.title}</td>
-                        <td>${renderStatusBadge(issue.status)}</td>
-                        <td class="d-none d-md-table-cell">${formatDate(issue.created_at)}</td>
-                        <td class="text-center">
-                            <button class="btn btn-link p-0 m-0 d-flex justify-content-center align-items-center user-issue-details-btn" data-issue-id="${issue.id_issue}" title="Dettagli segnalazione">
-                                <i class="bi bi-eye fs-5"></i>
-                            </button>
+                        <td class="text-center">${renderStatusBadge(issue.status)}</td>
+                        <td class="d-none d-md-table-cell text-center">${formatDate(issue.created_at)}</td>
+                        <td class="text-center align-middle p-0">
+                            <div class="d-flex justify-content-center align-items-center" style="height:100%;min-height:38px;">
+                                <button class="btn btn-link p-0 m-0 d-flex justify-content-center align-items-center user-issue-details-btn" data-issue-id="${issue.id_issue}" title="Dettagli segnalazione" style="height:38px;width:38px;">
+                                    <i class="bi bi-eye fs-5"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>`;
             });
@@ -296,33 +317,30 @@ export function loadHelpIssuePage() {
             return `${date.getDate()} ${mesi[date.getMonth()]} ${date.getFullYear()}`;
         }
         function showUserIssueDetails(issue) {
-            // Modal semplice con dettagli e commento admin
             const modal = document.createElement('div');
             modal.className = 'modal fade';
             modal.tabIndex = -1;
             modal.innerHTML = `
                 <div class="modal-dialog">
                     <div class="modal-content">
-                        <div class="modal-header">
+                        <div class="modal-header bg-primary text-white">
                             <h5 class="modal-title">Dettagli Segnalazione #${issue.id_issue}</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Chiudi"></button>
                         </div>
                         <div class="modal-body">
-                            <p><strong>Titolo:</strong> ${issue.title}</p>
-                            <p><strong>Descrizione:</strong><br>${issue.description || '-'}</p>
-                            <p><strong>Stato:</strong> ${renderStatusBadge(issue.status)}</p>
-                            <p><strong>Data:</strong> ${formatDate(issue.created_at)}</p>
+                            <div class="mb-3">
+                                <span class="badge ${issue.status === 'open' ? 'bg-warning text-dark' : issue.status === 'closed' ? 'bg-success' : issue.status === 'refused' ? 'bg-danger' : 'bg-info'} px-3 py-2 fs-6">${renderStatusBadge(issue.status).replace(/<[^>]+>/g, '')}</span>
+                            </div>
+                            <div class="mb-2"><strong>Titolo:</strong><br><span class="text-dark">${issue.title}</span></div>
+                            <div class="mb-2"><strong>Descrizione:</strong><br><span class="text-secondary">${issue.description || '-'}</span></div>
+                            <div class="mb-2"><strong>Data:</strong> <span class="text-dark">${formatDate(issue.created_at)}</span></div>
                             <hr>
-                            <p><strong>Commento admin:</strong><br>${issue.admin_note ? issue.admin_note : '<span class="text-muted">Nessun commento</span>'}</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+                            <div class="mb-2"><strong>Commento admin:</strong><br>${issue.admin_note ? `<span class="text-success">${issue.admin_note}</span>` : '<span class="text-muted">Nessun commento</span>'}</div>
                         </div>
                     </div>
                 </div>
             `;
             document.body.appendChild(modal);
-            // Bootstrap Modal
             const bsModal = new bootstrap.Modal(modal);
             bsModal.show();
             modal.addEventListener('hidden.bs.modal', () => {
@@ -354,6 +372,7 @@ export function loadHelpIssuePage() {
             .card-body > h4.card-title {
                 display: none;
             }
+            .spacer-mobile { margin-bottom: 1.5rem !important; }
         }
         `;
         document.head.appendChild(style);

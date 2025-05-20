@@ -1,5 +1,4 @@
 import { authService } from '../../services/authService.js';
-import { showBootstrapToast } from '../../components/Toast.js';
 import * as OrdersAPI from '../../../api/orders.js';
 import { router } from '../../router.js';
 /**
@@ -16,9 +15,10 @@ export async function loadClientOrdersPage() {
     }
 
     pageElement.innerHTML = `
-        <div class="row mb-4 align-items-center">
-            <div class="col-12 text-center">
-                <h1 class="display-5 fw-bold mb-2">I miei ordini</h1>
+        <div class="row align-items-center">
+            <div class="col-12 text-start">
+                <h1 class="page-title">I miei ordini</h1>
+                <p class="page-subtitle d-none d-md-block">Visualizza e gestisci i tuoi ordini.</p>
             </div>
         </div>
         <div class="row mb-2 align-items-center">

@@ -11,11 +11,11 @@ export async function loadCategoryPage() {
     pageElement.className = 'category-page';
 
     pageElement.innerHTML = `
-        <div class="container pb-5 mt-4">
+        <div class="container pb-5 mt-4 category-page">
             <div class="row">
                 <div class="col-12 text-center">
-                    <h1 class="display-5 fw-bold mb-2">Categorie</h1>
-                    <p class="text-muted">Scopri tutte le categorie e sottocategorie disponibili</p>
+                    <h1 class="page-title mb-2">Categorie</h1>
+                    <p class="page-subtitle">Scopri tutte le categorie e sottocategorie disponibili</p>
                 </div>
             </div>
             <div class="row justify-content-center">

@@ -23,12 +23,12 @@ export async function loadArtisanPage() {
     pageElement.innerHTML = `
         <div class="container py-4 artisan-page">
             <div class="d-flex align-items-center justify-content-between mb-0 mb-md-2">
-                <h1 class="h4 mb-0">Artigiani</h1>
+                <h1 class="page-title mb-0">Artigiani</h1>
                 <button id="toggle-filters" class="btn btn-outline-primary d-md-none ms-2" type="button">
                     <i class="bi bi-funnel"></i> Filtri
                 </button>
             </div>
-            <div class="subtitle mb-4">Scopri i nostri artigiani selezionati e le loro storie</div>
+            <div class="page-subtitle mb-4">Scopri i nostri artigiani selezionati e le loro storie</div>
             <div class="row gx-0 gx-md-4 align-items-start">
                 <!-- Sidebar -->
                 <div class="col-12 col-md-3 mb-4 mb-md-0 h-100" id="filters-container" style="${window.innerWidth < 768 ? 'display:none;' : ''}">

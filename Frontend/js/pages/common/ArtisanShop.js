@@ -28,6 +28,9 @@ export async function loadArtisanShopPage(params) {
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="artisan-header card border-0 shadow-sm p-0 position-relative overflow-hidden mb-4">
+                        <button id="back-btn" class="btn btn-light position-absolute top-0 start-0 m-3 px-3 py-2 d-flex align-items-center shadow-sm" style="z-index:10;">
+                            <i class="bi bi-arrow-left me-2"></i> Indietro
+                        </button>
                         <div class="artisan-banner position-relative w-100" id="artisan-banner" style="height: 200px;">
                             <div class="banner-overlay position-absolute top-0 start-0 w-100 h-100" style="background: rgba(255,255,255,0.25);"></div>
                         </div>
@@ -104,6 +107,7 @@ export async function loadArtisanShopPage(params) {
             list.innerHTML = '<div class="col-12 text-center text-muted">Nessun prodotto trovato per questo artigiano.</div>';
             return;
         }
+<<<<<<< Updated upstream
         list.innerHTML = products.map(product => `
             <div class="col-6 col-md-4">
                 <div class="card h-100 shadow-sm border-0">
@@ -122,17 +126,45 @@ export async function loadArtisanShopPage(params) {
                                 <span class="fw-bold">€ ${Number(product.price).toFixed(2)}</span>
                                 <a href="/products/${product.id}" class="btn btn-outline-primary btn-sm ms-2" data-route>Dettagli</a>
                             </div>
+=======
+        list.innerHTML = products.map(product => {
+            // Badge sconto
+            let discountBadge = '';
+            if (product.discount && product.discount > 0) {
+                discountBadge = `<span class="badge bg-danger position-absolute top-0 start-0 m-2" style="z-index:2;">${product.discount}%</span>`;
+            }
+            // Badge ultimi rimasti
+            let stockBadge = '';
+            if (typeof product.stock === 'number' && product.stock >= 0 && product.stock <= 2) {
+                stockBadge = `<span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2" style="z-index:2;">Ultimi rimasti</span>`;
+            }
+            return `
+            <div class="col-6 col-md-4 d-flex align-items-stretch">
+                <div class="product-card card flex-fill h-100 p-2 position-relative">
+                    <div class="product-image-wrapper d-flex align-items-center justify-content-center position-relative" style="height: 140px;">
+                        ${discountBadge}
+                        ${stockBadge}
+                        ${product.image && product.image.url ?
+                            `<img src="${getApiUrl()}${product.image.url}" alt="${product.name}" class="product-img-actual" />` :
+                            `<div class="product-img-placeholder">
+                                <span class="placeholder-icon">🖼️</span>
+                            </div>`
+                        }
+                    </div>
+                    <div class="product-content p-1 d-flex flex-column flex-grow-1">
+                        <h6 class="fw-bold mb-1 product-name-text">${product.name}</h6>
+                        <div class="mb-2 text-muted small">Categoria: ${product.category_name || '-'}</div>
+                        <div class="mb-2 d-none d-md-block">${product.description ? product.description : ''}</div>
+                        <div class="mt-auto d-flex justify-content-between align-items-center">
+                            <span class="product-price fw-bold small">€ ${Number(product.price).toFixed(2)}</span>
+                            <a href="/products/${product.id}" class="btn btn-outline-primary btn-sm ms-2" data-route>Dettagli</a>
+>>>>>>> Stashed changes
                         </div>
                     </div>
                 </div>
             </div>
-        `).join('') + `
-        <style>
-        @media (max-width: 767.98px) {
-            .artisan-shop-page .product-img-wrapper { height: 90px !important; }
-            .artisan-shop-page .card-body .p-2 { padding: 0.5rem !important; }
-            .artisan-shop-page .card-title { font-size: 1rem; }
-        </style>`;
+            `;
+        }).join('');
     }
 
     // Renderizza la paginazione
@@ -169,13 +201,21 @@ export async function loadArtisanShopPage(params) {
                 // Banner
                 const bannerDiv = pageElement.querySelector('#artisan-banner');
                 if (bannerDiv && found.url_banner) {
+<<<<<<< Updated upstream
                     bannerDiv.style.background = `url('http://localhost:3005${found.url_banner}') center/cover no-repeat`;
+=======
+                    bannerDiv.style.background = `url('${getApiUrl()}${found.url_banner}') center/cover no-repeat`;
+>>>>>>> Stashed changes
                 }
                 // Foto profilo
                 const imgWrapper = pageElement.querySelector('#artisan-img-wrapper');
                 if (imgWrapper) {
                     if (found.image) {
+<<<<<<< Updated upstream
                         imgWrapper.innerHTML = `<img src=\"http://localhost:3005${found.image}\" alt=\"${found.name}\" style=\"width:120px; height:120px; object-fit:cover; border-radius:50%;\" />`;
+=======
+                        imgWrapper.innerHTML = `<img src=\"${getApiUrl()}${found.image}\" alt=\"${found.name}\" style=\"width:120px; height:120px; object-fit:cover; border-radius:50%;\" />`;
+>>>>>>> Stashed changes
                     } else {
                         imgWrapper.innerHTML = '<span class="display-4 text-primary"><i class="bi bi-person-badge"></i></span>';
                     }

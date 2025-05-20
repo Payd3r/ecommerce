@@ -64,8 +64,8 @@ export async function loadArtisanDashboardPage() {
     // HTML
     pageElement.innerHTML = `
         <div class="mb-4">
-            <h1 class="display-5">Dashboard Artigiano</h1>
-            <p class="lead">Benvenuto, <b>${user.name}</b>!</p>
+            <h1 class="page-title">Dashboard Artigiano</h1>
+            <p class="page-subtitle">Benvenuto, <b>${user.name}</b>!</p>
         </div>
 
         ${notifications.length > 0 ? `
@@ -127,8 +127,8 @@ export async function loadArtisanDashboardPage() {
                                 <tr>
                                     <th>Data</th>
                                     <th>Cliente</th>
-                                    <th>Totale</th>
-                                    <th>Stato</th>
+                                    <th class="text-center d-none d-md-table-cell">Totale</th>
+                                    <th class="text-center">Stato</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -138,8 +138,8 @@ export async function loadArtisanDashboardPage() {
                                     <tr>
                                         <td>${o.created_at ? new Date(o.created_at).toLocaleDateString() : '-'}</td>
                                         <td>${clientNames[o.client_id] || '-'}</td>
-                                        <td><b>€ ${Number(o.total_price).toFixed(2)}</b></td>
-                                        <td>${getOrderStatusBadge(o.status)}</td>
+                                        <td class="text-center d-none d-md-table-cell"><b>€ ${Number(o.total_price).toFixed(2)}</b></td>
+                                        <td class="text-center">${getOrderStatusBadge(o.status)}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
@@ -158,9 +158,9 @@ export async function loadArtisanDashboardPage() {
                             <thead>
                                 <tr>
                                     <th>Nome</th>
-                                    <th>Prezzo</th>
-                                    <th>Stock</th>
-                                    <th>Stato</th>
+                                    <th class="text-center">Prezzo</th>
+                                    <th class="text-center">Stock</th>
+                                    <th class="text-center">Stato</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -168,10 +168,10 @@ export async function loadArtisanDashboardPage() {
                                     <tr><td colspan="4" class="text-center">Nessun prodotto</td></tr>
                                 ` : products.map(p => `
                                     <tr>
-                                        <td class="text-truncate" style="max-width: 120px;" title="${p.name}">${truncateName(p.name, 15)}</td>
-                                        <td><b>€ ${Number(p.price).toFixed(2)}</b></td>
-                                        <td>${p.stock}</td>
-                                        <td>${getProductStatusDot(p.stock)}</td>
+                                        <td class="text-truncate" style="max-width: 160px;" title="${p.name}">${truncateName(p.name, 35)}</td>
+                                        <td class="text-center"><b>€ ${Number(p.price).toFixed(2)}</b></td>
+                                        <td class="text-center">${p.stock}</td>
+                                        <td class="text-center">${getProductStatusDot(p.stock)}</td>
                                     </tr>
                                 `).join('')}
                             </tbody>
@@ -205,11 +205,11 @@ export async function loadArtisanDashboardPage() {
     function getOrderStatusBadge(status) {
         switch (status) {
             case 'pending': return '<span class="badge bg-warning">In attesa</span>';
-            case 'processing': return '<span class="badge bg-info">In lavorazione</span>';
+            case 'accepted': return '<span class="badge bg-info">In lavorazione</span>';
             case 'shipped': return '<span class="badge bg-primary">Spedito</span>';
             case 'completed': return '<span class="badge bg-success">Completato</span>';
             case 'delivered': return '<span class="badge bg-success">Consegnato</span>';
-            case 'cancelled': return '<span class="badge bg-danger">Annullato</span>';
+            case 'refused': return '<span class="badge bg-danger">Annullato</span>';
             default: return `<span class="badge bg-secondary">${status}</span>`;
         }
     }
@@ -233,7 +233,11 @@ export async function loadArtisanDashboardPage() {
     setTimeout(() => {
         if (window.Chart) {
             // Vendite
-            const salesLabels = salesStats.map(s => s.month);
+            const salesLabels = salesStats.map(s => {
+                const [year, month] = s.month.split('-');
+                const mesi = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'];
+                return mesi[parseInt(month, 10) - 1];
+            });
             const salesData = salesStats.map(s => Number(s.total_sales));
             const salesCtx = pageElement.querySelector('#salesChart');
             if (salesCtx) {
@@ -257,7 +261,11 @@ export async function loadArtisanDashboardPage() {
                 });
             }
             // Ordini
-            const ordersLabels = ordersStats.map(s => s.month);
+            const ordersLabels = ordersStats.map(s => {
+                const [year, month] = s.month.split('-');
+                const mesi = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'];
+                return mesi[parseInt(month, 10) - 1];
+            });
             const ordersData = ordersStats.map(s => Number(s.total_orders));
             const ordersCtx = pageElement.querySelector('#ordersChart');
             if (ordersCtx) {

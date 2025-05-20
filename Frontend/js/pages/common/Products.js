@@ -55,74 +55,73 @@ export async function loadProductsPage(params = {}) {
 
     // Costruisce il contenuto della pagina
     pageElement.innerHTML = `
-        <section class="products-section">
-            <div class="container">
-                <div class="section-header mt-3 d-flex justify-content-between align-items-center">
-                    <h2 class="mb-0">Tutti i Prodotti</h2>
-                    <button id="toggle-filters" class="btn btn-outline-secondary d-md-none ms-2" type="button">
-                        <i class="bi bi-funnel"></i> Filtri
-                    </button>
-                </div>
-                <div class="row pb-5 pt-2">
-                    <aside class="col-12 col-md-4 mb-4 mb-md-0" id="filters-container" style="${window.innerWidth < 768 ? 'display:none;' : ''}">
-                        <div class="card shadow-sm border-0 p-3 position-relative me-3">
-                            <button type="reset" class="btn btn-link text-secondary position-absolute top-0 end-0 mt-4 me-2 p-0" id="reset-filters" style="font-size:1rem;">Reset</button>
-                            <h5 class="mb-3">Filtra i risultati</h5>
-                            <form id="filters-form" class="filters-form">
-                                <div class="mb-3">
-                                    <label for="search" class="form-label">Ricerca</label>
-                                    <input type="text" id="search" name="search" class="form-control" placeholder="Cerca prodotti...">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Categoria</label>
-                                    <div id="category-tree"></div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="artisan" class="form-label">Artigiano</label>
-                                    <select id="artisan" name="artisan" class="form-select rounded-3">
-                                        <option value="">Tutti gli artigiani</option>
-                                    </select>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col">
-                                        <label for="min-price" class="form-label">Prezzo minimo (€)</label>
-                                        <input type="number" id="min-price" name="minPrice" min="0" step="1" class="form-control" placeholder="Min">
-                                    </div>
-                                    <div class="col">
-                                        <label for="max-price" class="form-label">Prezzo massimo (€)</label>
-                                        <input type="number" id="max-price" name="maxPrice" min="0" step="1" class="form-control" placeholder="Max">
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn btn-primary w-100 mt-2">Applica filtri</button>
-                            </form>
-                        </div>
-                    </aside>
-                    <main class="col-12 col-md-8">
-                        <div id="products-container" class="row g-4">
-                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
-                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
-                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
-                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
-                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
-                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
-                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
-                            <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
-                        </div>
-                        <nav aria-label="Paginazione prodotti">
-                            <ul id="pagination" class="pagination justify-content-center mt-4 mb-0">
-                                <li class="page-item"><button id="prev-page" class="page-link" disabled>&laquo; Precedente</button></li>
-                                <span id="page-numbers" class="d-flex align-items-center"></span>
-                                <li class="page-item"><button id="next-page" class="page-link" disabled>Successiva &raquo;</button></li>
-                            </ul>
-                        </nav>
-                        <div id="no-results" class="no-results alert alert-warning mt-4 d-none">
-                            <p class="mb-2">Nessun prodotto trovato con i criteri di ricerca specificati.</p>
-                            <button id="clear-filters" class="btn btn-primary">Cancella filtri</button>
-                        </div>
-                    </main>
-                </div>
+        <div class="container py-4 products-page">
+            <div class="d-flex align-items-center justify-content-between mb-0 mb-md-2">
+                <h1 class="page-title mb-0">Prodotti</h1>
+                <button id="toggle-filters" class="btn btn-outline-primary d-md-none ms-2" type="button">
+                    <i class="bi bi-funnel"></i> Filtri
+                </button>
             </div>
-        </section>
+            <div class="page-subtitle mb-4">Scopri la nostra selezione di prodotti artigianali unici, realizzati con passione dai migliori artigiani italiani.</div>
+            <div class="row pb-5 pt-2">
+                <aside class="col-12 col-md-4 mb-4 mb-md-0" id="filters-container" style="${window.innerWidth < 768 ? 'display:none;' : ''}">
+                    <div class="card shadow-sm border-0 p-3 position-relative me-3">
+                        <button type="reset" class="btn btn-link text-secondary position-absolute top-0 end-0 mt-4 me-2 p-0" id="reset-filters" style="font-size:1rem;">Reset</button>
+                        <h5 class="mb-3">Filtra i risultati</h5>
+                        <form id="filters-form" class="filters-form">
+                            <div class="mb-3">
+                                <label for="search" class="form-label">Ricerca</label>
+                                <input type="text" id="search" name="search" class="form-control" placeholder="Cerca prodotti...">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Categoria</label>
+                                <div id="category-tree"></div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="artisan" class="form-label">Artigiano</label>
+                                <select id="artisan" name="artisan" class="form-select rounded-3">
+                                    <option value="">Tutti gli artigiani</option>
+                                </select>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label for="min-price" class="form-label">Prezzo minimo (€)</label>
+                                    <input type="number" id="min-price" name="minPrice" min="0" step="1" class="form-control" placeholder="Min">
+                                </div>
+                                <div class="col">
+                                    <label for="max-price" class="form-label">Prezzo massimo (€)</label>
+                                    <input type="number" id="max-price" name="maxPrice" min="0" step="1" class="form-control" placeholder="Max">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 mt-2">Applica filtri</button>
+                        </form>
+                    </div>
+                </aside>
+                <main class="col-12 col-md-8">
+                    <div id="products-container" class="row g-4">
+                        <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
+                        <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
+                        <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
+                        <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
+                        <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
+                        <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
+                        <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
+                        <div class="col-12 col-sm-6 col-lg-4"><div class="skeleton-card card"></div></div>
+                    </div>
+                    <nav aria-label="Paginazione prodotti">
+                        <ul id="pagination" class="pagination justify-content-center mt-4 mb-0">
+                            <li class="page-item"><button id="prev-page" class="page-link" disabled>&laquo; Precedente</button></li>
+                            <span id="page-numbers" class="d-flex align-items-center"></span>
+                            <li class="page-item"><button id="next-page" class="page-link" disabled>Successiva &raquo;</button></li>
+                        </ul>
+                    </nav>
+                    <div id="no-results" class="no-results alert alert-warning mt-4 d-none">
+                        <p class="mb-2">Nessun prodotto trovato con i criteri di ricerca specificati.</p>
+                        <button id="clear-filters" class="btn btn-primary">Cancella filtri</button>
+                    </div>
+                </main>
+            </div>
+        </div>
     `;
 
     // Carica dati iniziali
@@ -214,8 +213,8 @@ export async function loadProductsPage(params = {}) {
             li.innerHTML = `
                 <div class="form-check d-flex align-items-center gap-1" style="margin-bottom: 0.2rem; min-height: 1.8rem;">
                     ${hasChildren
-                        ? `<button type=\"button\" class=\"btn btn-sm btn-link p-0 me-1 ms-0 category-collapse-btn d-flex align-items-center\" data-target=\"${collapseId}\" aria-expanded=\"false\" aria-controls=\"${collapseId}\"><i class=\"bi bi-caret-right-fill\"></i></button>`
-                        : '<span class=\"category-empty-icon me-1\" style=\"display:inline-block;width:1.5rem;\"></span>'}
+                    ? `<button type=\"button\" class=\"btn btn-sm btn-link p-0 me-1 ms-0 category-collapse-btn d-flex align-items-center\" data-target=\"${collapseId}\" aria-expanded=\"false\" aria-controls=\"${collapseId}\"><i class=\"bi bi-caret-right-fill\"></i></button>`
+                    : '<span class=\"category-empty-icon me-1\" style=\"display:inline-block;width:1.5rem;\"></span>'}
                     <input class="form-check-input ms-0" type="checkbox" id="cat-${cat.id}" value="${cat.id}" name="category[]">
                     <label class="form-check-label ms-1" for="cat-${cat.id}">${cat.name}</label>
                 </div>
@@ -249,7 +248,7 @@ export async function loadProductsPage(params = {}) {
 
         // Gestione collapse/expand icona caret SOLO JS custom
         treeContainer.querySelectorAll('.category-collapse-btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
+            btn.addEventListener('click', function (e) {
                 e.preventDefault();
                 const targetId = btn.getAttribute('data-target');
                 const target = document.getElementById(targetId);
@@ -268,7 +267,7 @@ export async function loadProductsPage(params = {}) {
 
         // Selezione/deselezione ricorsiva figli e selezione padre se tutti i figli sono selezionati
         treeContainer.querySelectorAll('input[type="checkbox"][name="category[]"]').forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
+            checkbox.addEventListener('change', function () {
                 // Seleziona/deseleziona tutti i figli
                 const li = checkbox.closest('li');
                 if (!li) return;
@@ -316,14 +315,32 @@ export async function loadProductsPage(params = {}) {
             return;
         }
         products.forEach(product => {
+            // Badge sconto
+            let discountBadge = '';
+            if (product.discount && product.discount > 0) {
+                discountBadge = `<span class="badge bg-danger position-absolute top-0 start-0 m-2" style="z-index:2;">${product.discount}%</span>`;
+            }
+            // Badge ultimi rimasti
+            let stockBadge = '';
+            if (typeof product.stock === 'number' && product.stock >= 0 && product.stock <= 2) {
+                stockBadge = `<span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2" style="z-index:2;">Ultimi rimasti</span>`;
+            }
             html += `
                 <div class="col-6 col-md-4 col-lg-3 mb-0 d-flex align-items-stretch" style="padding-left:4px; padding-right:4px;">
-                    <div class="product-card card flex-fill h-100 p-2" style="min-width:0;">
-                        <div class="product-image d-flex align-items-center justify-content-center" style="background-color: var(--light-bg); height: 110px;">
+                    <div class="product-card card flex-fill h-100 p-2 position-relative" style="min-width:0;">
+                        <div class="product-image-wrapper d-flex align-items-center justify-content-center position-relative" style="height: 110px;">
+                            ${discountBadge}
+                            ${stockBadge}
                             ${product.image && product.image.url ?
+<<<<<<< Updated upstream
                     `<img src=\"http://localhost:3005${product.image.url}\" alt=\"${product.name}\" style=\"height: 110px; width: 100%; object-fit: cover; border-radius: 8px;\" />` :
                     `<div style=\"width: 100%; height: 110px; background: #fff; border: 1px solid #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center;\">
                                     <span class=\"placeholder-icon\">🖼️</span>
+=======
+                    `<img src="${getApiUrl()}${product.image.url}" alt="${product.name}" class="product-img-actual" />` :
+                    `<div class="product-img-placeholder">
+                                    <span class="placeholder-icon">🖼️</span>
+>>>>>>> Stashed changes
                                 </div>`
                 }
                         </div>

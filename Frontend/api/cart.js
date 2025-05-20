@@ -8,7 +8,7 @@ const CartAPI = {
         const token = authService.getToken();
         if (!token) throw new Error('Utente non autenticato');
         try {
-            const response = await fetchWithAuth(`${API_URL}`, {
+            const response = await fetchWithAuth(`${API_URL}/cart`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -32,7 +32,7 @@ const CartAPI = {
         const token = authService.getToken();
         if (!token) throw new Error('Utente non autenticato');
         try {
-            const response = await fetchWithAuth(`${API_URL}/items`, {
+            const response = await fetchWithAuth(`${API_URL}/cart/items`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -59,7 +59,7 @@ const CartAPI = {
         const token = authService.getToken();
         if (!token) throw new Error('Utente non autenticato');
         try {
-            const response = await fetchWithAuth(`${API_URL}`, {
+            const response = await fetchWithAuth(`${API_URL}/cart`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -82,7 +82,7 @@ const CartAPI = {
         const token = authService.getToken();
         if (!token) throw new Error('Utente non autenticato');
         try {
-            const response = await fetchWithAuth(`${API_URL}/items/${item_id}`, {
+            const response = await fetchWithAuth(`${API_URL}/cart/items/${item_id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -109,7 +109,7 @@ const CartAPI = {
         const token = authService.getToken();
         if (!token) throw new Error('Utente non autenticato');
         try {
-            const response = await fetchWithAuth(`${API_URL}/items/${item_id}`, {
+            const response = await fetchWithAuth(`${API_URL}/cart/items/${item_id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -134,7 +134,7 @@ const CartAPI = {
         const token = authService.getToken();
         if (!token) throw new Error('Utente non autenticato');
         try {
-            const response = await fetchWithAuth(`${API_URL}`, {
+            const response = await fetchWithAuth(`${API_URL}/cart`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',

@@ -11,6 +11,7 @@ import { loadLoginPage } from './pages/Login.js';
 import { loadRegisterPage } from './pages/Register.js';
 import { loadProfilePage } from './pages/Profile.js';
 import { loadNotFoundPage } from './pages/NotFound.js';
+import { loadContactsPage } from './pages/common/Contacts.js';
 
 // Importo le pagine dell'artigiano
 import { loadArtisanDashboardPage } from './pages/artisan/Dashboard.js';
@@ -33,6 +34,7 @@ import { loadClientOrdersPage } from './pages/common/MyOrders.js';
 import { loadBecameArtisanPage } from './pages/artisan/BecameArtisan.js';
 import { loadManageOrdersPage } from './pages/artisan/manageOrders.js';
 import { loadManageProductsPage } from './pages/artisan/manageProducts.js';
+
 
 // Classe principale dell'applicazione
 class App {
@@ -99,6 +101,8 @@ class App {
         router.register('/categories', loadCategoryPage, { title: 'Categorie - ArtigianatoShop' });
         router.register('/artisan-shop/:id', loadArtisanShopPage, { title: 'Shop Artigiano - ArtigianatoShop' });
         router.register('/myorders', loadClientOrdersPage, { title: 'I Miei Ordini - ArtigianatoShop' });
+        router.register('/contact', loadContactsPage, { title: 'Contatti - ArtigianatoShop' });
+
         // Route protetta: carrello solo per utenti autenticati
         router.register('/cart', loadCartPage, {
             requireAuth: true,
