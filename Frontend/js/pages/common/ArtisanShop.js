@@ -2,6 +2,7 @@ import { getProductsByArtisan } from '../../../api/products.js';
 import UsersAPI from '../../../api/users.js';
 import { loader } from '../../components/Loader.js';
 import { showBootstrapToast } from '../../components/Toast.js';
+import { getApiUrl } from '../../../api/config.js';
 
 /**
  * Carica la pagina dello shop di un artigiano
@@ -110,7 +111,7 @@ export async function loadArtisanShopPage(params) {
                     <div class="card-body d-flex flex-column p-0">
                         <div class="w-100 product-img-wrapper" style="height: 140px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; border-top-left-radius: 12px; border-top-right-radius: 12px; overflow: hidden;">
                             ${product.image && product.image.url ?
-                                `<img src=\"http://localhost:3015${product.image.url}\" alt=\"${product.name}\" style=\"width:100%; height:100%; object-fit:cover; display:block;\" />` :
+                                `<img src=\"${getApiUrl()}${product.image.url}\" alt=\"${product.name}\" style=\"width:100%; height:100%; object-fit:cover; display:block;\" />` :
                                 '<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: #ccc;">🖼️</div>'
                             }
                         </div>
@@ -169,13 +170,13 @@ export async function loadArtisanShopPage(params) {
                 // Banner
                 const bannerDiv = pageElement.querySelector('#artisan-banner');
                 if (bannerDiv && found.url_banner) {
-                    bannerDiv.style.background = `url('http://localhost:3015${found.url_banner}') center/cover no-repeat`;
+                    bannerDiv.style.background = `url('http://${getApiUrl()}${found.url_banner}') center/cover no-repeat`;
                 }
                 // Foto profilo
                 const imgWrapper = pageElement.querySelector('#artisan-img-wrapper');
                 if (imgWrapper) {
                     if (found.image) {
-                        imgWrapper.innerHTML = `<img src=\"http://localhost:3015${found.image}\" alt=\"${found.name}\" style=\"width:120px; height:120px; object-fit:cover; border-radius:50%;\" />`;
+                        imgWrapper.innerHTML = `<img src=\"http://${getApiUrl()}${found.image}\" alt=\"${found.name}\" style=\"width:120px; height:120px; object-fit:cover; border-radius:50%;\" />`;
                     } else {
                         imgWrapper.innerHTML = '<span class="display-4 text-primary"><i class="bi bi-person-badge"></i></span>';
                     }

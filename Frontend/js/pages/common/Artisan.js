@@ -2,6 +2,7 @@ import UsersAPI from '../../../api/users.js';
 import { loader } from '../../components/Loader.js';
 import { showBootstrapToast } from '../../components/Toast.js';
 import { router } from '../../router.js';
+import { getApiUrl } from '../../../api/config.js';
 
 /**
  * Carica la pagina degli artigiani con sidebar filtri
@@ -77,12 +78,12 @@ export async function loadArtisanPage() {
             <div class="col-12 col-sm-6 col-lg-4 d-flex align-items-stretch">
                 <div class="artisan-card card flex-fill shadow border-0 position-relative overflow-hidden my-2">
                     ${artisan.url_banner ?
-                        `<div class='artisan-banner position-absolute top-0 start-0 w-100 h-100' style="background: url('http://localhost:3015${artisan.url_banner}') center/cover no-repeat; opacity: 0.22; z-index:1;"></div>`
+                        `<div class='artisan-banner position-absolute top-0 start-0 w-100 h-100' style="background: url("${getApiUrl()}${artisan.url_banner}') center/cover no-repeat; opacity: 0.22; z-index:1;"></div>`
                         : ''}
                     <div class="card-body text-center py-3 px-2 position-relative" style="z-index:2;">
                         <div class="artisan-profile-img mx-auto mb-2 position-relative d-flex justify-content-center align-items-center" style="width: 70px; height: 70px; border-radius: 50%; overflow: hidden; border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.13); background: #f8f9fa;">
                             ${artisan.image ?
-                                `<img src=\"http://localhost:3015${artisan.image}\" alt=\"${artisan.name}\" style=\"width:100%; height:100%; object-fit:cover; border-radius:50%;\" />` :
+                                `<img src=\"${getApiUrl()}${artisan.image}\" alt=\"${artisan.name}\" style=\"width:100%; height:100%; object-fit:cover; border-radius:50%;\" />` :
                                 '<span class="display-3 text-primary"><i class="bi bi-person-badge"></i></span>'
                             }
                         </div>

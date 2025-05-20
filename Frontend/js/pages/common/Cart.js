@@ -1,10 +1,9 @@
 import CartAPI from '../../../api/cart.js';
-import * as OrdersAPI from '../../../api/orders.js';
+import { getApiUrl } from '../../../api/config.js';
 import { showBootstrapToast } from '../../components/Toast.js';
 import { authService } from '../../services/authService.js';
 import { router } from '../../router.js';
 
-const ICONS = ['🛒', '🎁', '🧵', '🎨', '🖼️', '🪡', '🪆', '🧶', '🪵', '🪚'];
 
 export async function loadCartPage() {
     const pageElement = document.createElement('div');
@@ -51,7 +50,7 @@ export async function loadCartPage() {
                     <tr data-item-id="${item.item_id}">
                         <td class="d-none d-sm-table-cell" style="width:48px;">
                             ${item.image ?
-                                `<img src=\"http://localhost:3015${item.image.url || item.image}\" alt=\"img\" style=\"width:40px; height:40px; object-fit:cover; border-radius:8px; border:1.5px solid #e0e0e0;\" />` :
+                                `<img src=\"${getApiUrl()}${item.image.url || item.image}\" alt=\"img\" style=\"width:40px; height:40px; object-fit:cover; border-radius:8px; border:1.5px solid #e0e0e0;\" />` :
                                 '<span style="font-size:1.5rem;">🛒</span>'
                             }
                         </td>

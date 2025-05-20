@@ -2,6 +2,7 @@ import CategoriesAPI from '../../../api/categories.js';
 import { loader } from '../../components/Loader.js';
 import { showBootstrapToast } from '../../components/Toast.js';
 import { router } from '../../router.js';
+import { getApiUrl } from '../../../api/config.js';
 
 /**
  * Carica la pagina delle categorie con visualizzazione ad accordion
@@ -45,7 +46,7 @@ export async function loadCategoryPage() {
                 return `
                     <li class="list-group-item bg-light mb-1 rounded-3 p-0" style="padding-left: ${level * 16 + 16}px;">
                         <div class="d-flex align-items-center gap-2 ${hasChildren ? 'category-accordion-header' : ''}" data-key="${nodeKey}" style="cursor: ${hasChildren ? 'pointer' : 'default'}; padding: 12px 16px;">
-                            ${cat.image ? `<img src=\"http://localhost:3015${cat.image}\" alt=\"img\" style=\"width:40px; height:40px; object-fit:cover; border-radius:8px; border:1.5px solid #e0e0e0;\" />` : ''}
+                            ${cat.image ? `<img src=\"${getApiUrl()}${cat.image}\" alt=\"img\" style=\"width:40px; height:40px; object-fit:cover; border-radius:8px; border:1.5px solid #e0e0e0;\" />` : ''}
                             <strong style=\"padding-left:${level * 18}px;\">${cat.name}</strong>
                             <span class="text-muted small ms-2">${cat.description || ''}</span>
                             ${hasChildren ? `<span class=\"ms-auto category-accordion-toggle\"><i class=\"bi bi-chevron-down\"></i></span>` : ''}

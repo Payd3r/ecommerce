@@ -2,6 +2,7 @@
 import { authService } from '../services/authService.js';
 import { router } from '../router.js';
 import { searchProducts } from '../../api/products.js'; // Importa la nuova funzione
+import { getApiUrl } from '../../api/config.js';
 
 /**
  * Componente Navbar che gestisce la barra di navigazione
@@ -61,7 +62,7 @@ class Navbar {
                                 <div class="dropdown">
                                     <button class="btn btn-outline-primary d-flex align-items-center justify-content-center p-0 border-0 bg-transparent shadow-none" type="button" id="userDropdownDesktop" data-bs-toggle="dropdown" aria-expanded="false" style="height:44px;width:44px;outline:none;box-shadow:none;">
                                         ${user.image ? `
-                                            <img src="http://localhost:3015${user.image}" alt="Foto profilo" style="width:44px; height:44px; object-fit:cover; border-radius:12px; border:1.5px solid #e0e0e0;" />
+                                            <img src="${getApiUrl()}${user.image}" alt="Foto profilo" style="width:44px; height:44px; object-fit:cover; border-radius:12px; border:1.5px solid #e0e0e0;" />
                                         ` : `
                                             <span class="d-flex align-items-center justify-content-center bg-light" style="width:44px; height:44px; border-radius:12px; border:1.5px solid #e0e0e0;"><i class="bi bi-person-circle fs-2 text-secondary"></i></span>
                                         `}
@@ -102,7 +103,7 @@ class Navbar {
                         <div class="d-lg-none position-relative" id="navbar-mobile-auth-actions">
                             <button class="btn btn-outline-primary d-flex align-items-center justify-content-center p-0 border-0 bg-transparent shadow-none" type="button" id="userDropdownMobile" aria-expanded="false" style="height:40px;width:40px;outline:none;box-shadow:none;">
                                 ${user.image ? `
-                                    <img src="http://localhost:3015${user.image}" alt="Foto profilo" style="width:40px; height:40px; object-fit:cover; border-radius:10px; border:1.5px solid #e0e0e0;" />
+                                    <img src="${getApiUrl()}${user.image}" alt="Foto profilo" style="width:40px; height:40px; object-fit:cover; border-radius:10px; border:1.5px solid #e0e0e0;" />
                                 ` : `
                                     <span class="d-flex align-items-center justify-content-center bg-light" style="width:40px; height:40px; border-radius:10px; border:1.5px solid #e0e0e0;"><i class="bi bi-person-circle fs-2 text-secondary"></i></span>
                                 `}
@@ -350,7 +351,7 @@ class Navbar {
                     item.href = `/products/${product.id}`;
                     item.dataset.route = '';
                     const img = document.createElement('img');
-                    img.src = product.image && product.image.url ? `http://localhost:3015${product.image.url}` : 'https://via.placeholder.com/40';
+                    img.src = product.image && product.image.url ? `${getApiUrl()}${product.image.url}` : 'https://via.placeholder.com/40';
                     img.alt = product.name;
                     img.style.width = '40px';
                     img.style.height = '40px';

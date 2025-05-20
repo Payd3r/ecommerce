@@ -3,6 +3,7 @@ import { getProducts } from '../../../api/products.js';
 import CategoriesAPI from '../../../api/categories.js';
 import UsersAPI from '../../../api/users.js';
 import { showBootstrapToast } from '../../components/Toast.js';
+import { getApiUrl } from '../../../api/config.js';
 
 /**
  * Carica la pagina Prodotti
@@ -321,7 +322,7 @@ export async function loadProductsPage(params = {}) {
                     <div class="product-card card flex-fill h-100 p-2" style="min-width:0;">
                         <div class="product-image d-flex align-items-center justify-content-center" style="background-color: var(--light-bg); height: 110px;">
                             ${product.image && product.image.url ?
-                    `<img src=\"http://localhost:3015${product.image.url}\" alt=\"${product.name}\" style=\"height: 110px; width: 100%; object-fit: cover; border-radius: 8px;\" />` :
+                    `<img src=\"${getApiUrl()}${product.image.url}\" alt=\"${product.name}\" style=\"height: 110px; width: 100%; object-fit: cover; border-radius: 8px;\" />` :
                     `<div style=\"width: 100%; height: 110px; background: #fff; border: 1px solid #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center;\">
                                     <span class=\"placeholder-icon\">🖼️</span>
                                 </div>`
