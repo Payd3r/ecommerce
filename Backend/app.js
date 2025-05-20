@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve la cartella Media come statica
-app.use('/Media', express.static(path.resolve(__dirname, 'Media')));
+app.use('/Media', express.static(path.resolve(__dirname, '../Media')));
 
 // Routes base
 app.get('/', (req, res) => {
@@ -36,6 +36,6 @@ app.use('/issues', require('./routes/issue'));
 app.use('/address', require('./routes/address'));
 
 app.listen(port, () => {
-  console.log(`Server attivo su http://localhost:${port}`);
+  console.log(`Server attivo su http://0.0.0.0:${port}`);
 });
 
