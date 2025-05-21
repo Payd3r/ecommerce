@@ -67,8 +67,8 @@ export async function loadProductDetailsPage(params = {}) {
                 <div class="d-flex align-items-center mb-3">
                     <span class="fs-4 fw-bold text-primary">
                         ${product.discount && product.discount > 0 && product.discount < 100 ?
-                            `<span class='text-danger'>${prezzoScontato.toFixed(2)} €</span> <span class='text-decoration-line-through text-muted fs-6 ms-2'>${product.price.toFixed(2)} €</span>` :
-                            `${product.price?.toFixed(2) || '0.00'} €`
+                            `<span class='text-danger'>${Number(prezzoScontato).toFixed(2)} €</span> <span class='text-decoration-line-through text-muted fs-6 ms-2'>${Number(product.price).toFixed(2)} €</span>` :
+                            `${Number(product.price).toFixed(2) || '0.00'} €`
                         }
                     </span>
                 </div>
@@ -94,6 +94,7 @@ export async function loadProductDetailsPage(params = {}) {
         } catch (error) {
             const info = document.getElementById('product-info');
             if (info) info.innerHTML = `<div class="alert alert-danger">Errore nel caricamento del prodotto.</div>`;
+            console.error(error);
         }
     }
 
