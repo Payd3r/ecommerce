@@ -13,7 +13,7 @@ export async function loadCategoryPage() {
     pageElement.innerHTML = `
         <div class="container pb-5 mt-4 category-page">
             <div class="row">
-                <div class="col-12 text-center">
+                <div class="col-12 text-md-center text-start">
                     <h1 class="page-title mb-2">Categorie</h1>
                     <p class="page-subtitle">Scopri tutte le categorie e sottocategorie disponibili</p>
                 </div>
@@ -47,7 +47,7 @@ export async function loadCategoryPage() {
                         <div class="d-flex align-items-center gap-2 ${hasChildren ? 'category-accordion-header' : ''}" data-key="${nodeKey}" style="cursor: ${hasChildren ? 'pointer' : 'default'}; padding: 12px 16px;">
                             ${cat.image ? `<img src=\"${cat.image}\" alt=\"img\" style=\"width:40px; height:40px; object-fit:cover; border-radius:8px; border:1.5px solid #e0e0e0;\" />` : ''}
                             <strong style=\"padding-left:${level * 18}px;\">${cat.name}</strong>
-                            <span class="text-muted small ms-2">${cat.description || ''}</span>
+                            <span class="text-muted small ms-2 d-none d-md-inline">${cat.description || ''}</span>
                             ${hasChildren ? `<span class=\"ms-auto category-accordion-toggle\"><i class=\"bi bi-chevron-down\"></i></span>` : ''}
                         </div>
                         ${hasChildren ? `<div class=\"category-accordion-body collapse\" id=\"${nodeKey}\">${renderCategoryNodes(cat.children, level + 1, nodeKey)}</div>` : ''}

@@ -56,17 +56,17 @@ export async function loadBecameArtisanPage() {
                                 <div class="col-md-6 mb-3">
                                     <label for="profile-image-input" class="form-label">Immagine Profilo</label>
                                     <input type="file" id="profile-image-input" name="profileImage" accept="image/*" class="form-control">
-                                    <div id="profile-image-preview-container" class="mt-2 text-center" style="${initialProfileImage ? '' : 'display:none;'}">
-                                        <img id="profile-image-preview" src="${initialProfileImage}" alt="Anteprima Profilo" class="img-thumbnail" style="max-width: 120px; max-height: 120px; border-radius: 50%;"/>
-                                        <button type="button" id="remove-profile-image" class="btn btn-sm btn-outline-danger mt-1" style="${initialProfileImage ? '' : 'display:none;'}">Rimuovi</button>
+                                    <div id="profile-image-preview-container" class="mt-2 mb-2 text-center" style="${initialProfileImage ? '' : 'display:none;'}; width: 120px; height: 120px; margin: 0 auto; position: relative;">
+                                        <img id="profile-image-preview" src="${initialProfileImage}" alt="Anteprima Profilo" class="img-thumbnail" style="width: 120px; height: 120px; object-fit: cover; border-radius: 50%; aspect-ratio: 1/1;"/>
+                                        <button type="button" id="remove-profile-image" class="btn btn-sm btn-outline-danger mt-1" style="${initialProfileImage ? '' : 'display:none;'}; position: absolute; left: 50%; transform: translateX(-50%); bottom: -35px;">Rimuovi</button>
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="banner-image-input" class="form-label">Immagine Banner (opzionale)</label>
                                     <input type="file" id="banner-image-input" name="bannerImage" accept="image/*" class="form-control">
-                                    <div id="banner-image-preview-container" class="mt-2 text-center" style="display:none;">
-                                        <img id="banner-image-preview" src="#" alt="Anteprima Banner" class="img-thumbnail" style="max-width: 100%; max-height: 150px;"/>
-                                        <button type="button" id="remove-banner-image" class="btn btn-sm btn-outline-danger mt-1" style="display:none;">Rimuovi</button>
+                                    <div id="banner-image-preview-container" class="mt-2 mb-2 text-center" style="display:none; width: 100%; max-width: 400px; aspect-ratio: 4/1; margin: 0 auto; position: relative;">
+                                        <img id="banner-image-preview" src="#" alt="Anteprima Banner" class="img-thumbnail" style="width: 100%; max-width: 400px; height: auto; aspect-ratio: 4/1; object-fit: cover; border-radius: 12px;"/>
+                                        <button type="button" id="remove-banner-image" class="btn btn-sm btn-outline-danger mt-1" style="display:none; position: absolute; left: 50%; transform: translateX(-50%); bottom: -35px;">Rimuovi</button>
                                     </div>
                                 </div>
                             </div>
@@ -130,22 +130,15 @@ export async function loadBecameArtisanPage() {
                     updatedProfileImageUrl = res.files[0].url;
                 }
             }
-            // 2. Carica il banner se presente
-            if (bannerImageFile) {
-                const res = await uploadBannerImage(user.id, bannerImageFile);
-                if (res && res.url) {
-                    updatedBannerImageUrl = res.url;
-                }
-            }
-            // 3. Aggiorna la bio tramite updateArtisanDetails
+            // 2. Aggiorna la bio tramite updateArtisanDetails
             if (biography) {
                 await UsersAPI.updateArtisanDetails({ bio: biography });
             }
-            // 4. Aggiorna il nome se cambiato (tramite API profilo, se necessario)
+            // 3. Aggiorna il nome se cambiato (tramite API profilo, se necessario)
             if (user.name !== nameFromForm) {
                 await UsersAPI.updateUser(user.id, { name: nameFromForm });
             }
-            // 5. Aggiorna l'utente in localStorage con i nuovi dati
+            // 4. Aggiorna l'utente in localStorage con i nuovi dati
             const currentUserFromAuth = authService.getUser();
             const userToStore = {
                 ...currentUserFromAuth,
@@ -153,6 +146,14 @@ export async function loadBecameArtisanPage() {
                 image: updatedProfileImageUrl // Immagine profilo aggiornata dalla risposta API
             };
             localStorage.setItem('auth_user', JSON.stringify(userToStore));
+
+            // 5. Carica il banner se presente (ULTIMA COSA)
+            if (bannerImageFile) {
+                const res = await uploadBannerImage(user.id, bannerImageFile);
+                if (res && res.url) {
+                    updatedBannerImageUrl = res.url;
+                }
+            }
 
             showBootstrapToast('Richiesta di diventare artigiano inviata con successo! Sarai ricontattato a breve.', 'Successo', 'success');
             document.dispatchEvent(new CustomEvent('auth:change', { detail: { user: userToStore } }));
