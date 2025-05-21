@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../models/db');
+const { toPublicImageUrl } = require('../services/imageUrl');
 
 // Funzione di utilità per costruire l'albero delle categorie
 const buildCategoryTree = async (categories, parentId = 1) => {
@@ -32,13 +33,13 @@ router.get('/tree', async (req, res) => {
                 [categoryIds]
             );
             images.forEach(img => {
-                imagesMap[img.category_id] = img.url;
+                imagesMap[img.category_id] = toPublicImageUrl(img.url);
             });
         }
         // Aggiungi campo image (solo url) a ciascuna categoria
         const categoriesWithImage = categories.map(c => ({
             ...c,
-            image: imagesMap[c.id] || null
+            image: imagesMap[c.id] ? imagesMap[c.id] : null
         }));
         const tree = await buildCategoryTree(categoriesWithImage);
         res.json(tree);
@@ -63,9 +64,39 @@ router.get('/', async (req, res) => {
                 imagesMap[img.category_id] = img.url;
             });
         }
+        // Ottieni tutte le categorie per costruire la mappa padre-figli
+        const allCategories = await db.query('SELECT id, dad_id FROM categories');
+        const parentMap = {};
+        allCategories[0].forEach(cat => {
+            if (!parentMap[cat.dad_id]) parentMap[cat.dad_id] = [];
+            parentMap[cat.dad_id].push(cat.id);
+        });
+        // Funzione ricorsiva per trovare tutti i discendenti di una categoria
+        function getAllDescendants(catId) {
+            let descendants = [];
+            if (parentMap[catId]) {
+                parentMap[catId].forEach(childId => {
+                    descendants.push(childId);
+                    descendants = descendants.concat(getAllDescendants(childId));
+                });
+            }
+            return descendants;
+        }
+        // Calcola il conteggio prodotti per ogni categoria (inclusi figli)
+        let productCounts = {};
+        for (const cat of categories) {
+            const descendants = getAllDescendants(cat.id);
+            const idsToCount = [cat.id, ...descendants];
+            const [countRows] = await db.query(
+                'SELECT COUNT(*) as product_count FROM products WHERE category_id IN (?)',
+                [idsToCount]
+            );
+            productCounts[cat.id] = countRows[0].product_count;
+        }
         const categoriesWithImage = categories.map(c => ({
             ...c,
-            image: imagesMap[c.id] || null
+            image: imagesMap[c.id] ? toPublicImageUrl(imagesMap[c.id]) : null,
+            product_count: productCounts[c.id] || 0
         }));
         res.json(categoriesWithImage);
     } catch (error) {
@@ -82,7 +113,7 @@ router.get('/:id', async (req, res) => {
             return res.status(404).json({ error: 'Categoria non trovata' });
         }
         const [images] = await db.query('SELECT url FROM category_images WHERE category_id = ? LIMIT 1', [req.params.id]);
-        const image = images.length > 0 ? images[0].url : null;
+        const image = images.length > 0 ? toPublicImageUrl(images[0].url) : null;
         res.json({ ...category[0], image });
     } catch (error) {
         console.error('Errore nel recupero della categoria:', error);

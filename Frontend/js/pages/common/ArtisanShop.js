@@ -2,7 +2,6 @@ import { getProductsByArtisan } from '../../../api/products.js';
 import UsersAPI from '../../../api/users.js';
 import { loader } from '../../components/Loader.js';
 import { showBootstrapToast } from '../../components/Toast.js';
-import { getApiUrl } from '../../../api/config.js';
 
 /**
  * Carica la pagina dello shop di un artigiano
@@ -26,14 +25,16 @@ export async function loadArtisanShopPage(params) {
     // Struttura base
     pageElement.innerHTML = `
         <div class="container py-4 artisan-shop-page">
+            <div class="row">
+                <div class="col-12">
+                    <button class="btn btn-outline-secondary mb-4" id="back-btn"><i class="bi bi-arrow-left"></i> Torna indietro</button>
+                </div>
+            </div>
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="artisan-header card border-0 shadow-sm p-0 position-relative overflow-hidden mb-4">
-                        <button id="back-btn" class="btn btn-light position-absolute top-0 start-0 m-3 px-3 py-2 d-flex align-items-center shadow-sm" style="z-index:10;">
-                            <i class="bi bi-arrow-left me-2"></i> Indietro
-                        </button>
                         <div class="artisan-banner position-relative w-100" id="artisan-banner" style="height: 200px;">
-                            <div class="banner-overlay position-absolute top-0 start-0 w-100 h-100" style="background: rgba(255,255,255,0.25);"></div>
+                            <div class="banner-overlay position-absolute top-0 start-0 w-100 h-100" style="background: rgba(255,255,255,0.25); pointer-events: none;"></div>
                         </div>
                         <div class="artisan-profile-wrapper position-absolute start-50 translate-middle-x" style="top: 140px; z-index:2;">
                             <div id="artisan-img-wrapper" class="artisan-img-placeholder d-flex align-items-center justify-content-center bg-light rounded-circle border border-4 border-white shadow" style="width:120px;height:120px;overflow:hidden;">
@@ -191,13 +192,13 @@ export async function loadArtisanShopPage(params) {
                 // Banner
                 const bannerDiv = pageElement.querySelector('#artisan-banner');
                 if (bannerDiv && found.url_banner) {
-                    bannerDiv.style.background = `url('${getApiUrl()}${found.url_banner}') center/cover no-repeat`;
+                    bannerDiv.style.background = `url('${found.url_banner}') center/cover no-repeat`;
                 }
                 // Foto profilo
                 const imgWrapper = pageElement.querySelector('#artisan-img-wrapper');
                 if (imgWrapper) {
                     if (found.image) {
-                        imgWrapper.innerHTML = `<img src=\"${getApiUrl()}${found.image}\" alt=\"${found.name}\" style=\"width:120px; height:120px; object-fit:cover; border-radius:50%;\" />`;
+                        imgWrapper.innerHTML = `<img src=\"${found.image}\" alt=\"${found.name}\" style=\"width:120px; height:120px; object-fit:cover; border-radius:50%;\" />`;
                     } else {
                         imgWrapper.innerHTML = '<span class="display-4 text-primary"><i class="bi bi-person-badge"></i></span>';
                     }
@@ -240,8 +241,13 @@ export async function loadArtisanShopPage(params) {
         // Bottone torna indietro
         const backBtn = pageElement.querySelector('#back-btn');
         if (backBtn) {
-            backBtn.addEventListener('click', () => {
-                window.history.back();
+            backBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (document.referrer && document.referrer !== window.location.href) {
+                    window.location.href = document.referrer;
+                } else {
+                    window.location.href = '/';
+                }
             });
         }
     }

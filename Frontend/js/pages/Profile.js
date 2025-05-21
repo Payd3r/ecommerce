@@ -3,8 +3,7 @@ import { ApiService } from '../../api/auth.js';
 import { showBootstrapToast } from '../components/Toast.js';
 import { loader } from '../components/Loader.js';
 import { router } from '../router.js';
-import { uploadProfileImage } from '../../api/images.js';
-import { getApiUrl } from '../../api/config.js';
+import { uploadProfileImage, uploadBannerImage } from '../../api/images.js';
 import { authService } from '../services/authService.js';
 import { countries } from '../assets.geo.js';
 
@@ -19,6 +18,7 @@ export async function loadProfilePage() {
 
     // Ottiene i dati dell'utente
     const user = await ApiService.getProfile();
+    console.log("user", user);
     let address = {};
     try {
         address = await ApiService.getAddress();
@@ -28,9 +28,17 @@ export async function loadProfilePage() {
         console.log("errore", e);
     }
 
+    // Trova se l'utente è artigiano e ha dati extended_users
+    const isArtisan = user.role === 'artisan' && user.extended_users;
+    const artisanData = isArtisan ? user.extended_users : null;
+
+    // Determina le classi delle colonne in base al ruolo
+    const infoColClass = isArtisan ? 'col-12' : 'col-12 col-md-6';
+    const passwordColClass = isArtisan ? 'col-12' : 'col-12 col-md-6';
+
     // Costruisce il contenuto della pagina
     pageElement.innerHTML = `
-        <div class="container py-5">
+        <div class="container pb-5 pt-3">
             <div class="row">
                 <div class="col-12">
                     <h1 class="page-title mb-3">Il tuo profilo</h1>
@@ -38,52 +46,80 @@ export async function loadProfilePage() {
                 </div>
             </div>
             <div class="row g-4">
-                <div class="col-12 col-md-6">
-                    <div class="card shadow-sm border-0 p-4 h-100">
-                        <h2 class="h5 mb-3">Info Pubbliche</h2>
-                        <div class="d-flex align-items-center mb-3 flex-column flex-md-row text-center text-md-start">
-                          <div class="me-md-3 mb-3 mb-md-0" id="profileImagePreviewWrapper">
-                            ${user.image ? `
-                              <img src="${getApiUrl()}${user.image}" id="profileImagePreview" alt="Foto profilo" class="rounded-circle border" style="width: 72px; height: 72px; object-fit: cover;" />
-                            ` : `
-                              <div id="profileImagePreview" class="d-flex align-items-center justify-content-center bg-light rounded-circle border" style="width: 72px; height: 72px;">
-                                <i class="bi bi-person-circle fs-1 text-secondary"></i>
-                              </div>
-                            `}
-                          </div>
-                          <div>
-                            <h2 class="h5 mb-1">${user.name}</h2>
-                            <div class="text-muted small mb-1">${user.email}</div>
-                            <span class="badge bg-secondary">${getRoleLabel(user.role)}</span>
-                          </div>
+                <div class="${infoColClass}">
+                    <form id="public-info-form" class="card shadow-sm border-0 p-4 h-100" style="min-height:480px;">
+                        <h2 class="h5 mb-0">Info Pubbliche</h2>
+                        <div class="row">
+                            <div class="col-md-6 mt-3">
+                                <div class="d-flex align-items-center mb-3 flex-column flex-md-row text-center text-md-start">
+                                    <div class="me-md-3 mb-3 mb-md-0" id="profileImagePreviewWrapper">
+                                        ${user.image ? `
+                                          <img src="${user.image}" id="profileImagePreview" alt="Foto profilo" class="rounded-circle border" style="width: 90px; height: 90px; object-fit: cover;" />
+                                        ` : `
+                                          <div id="profileImagePreview" class="d-flex align-items-center justify-content-center bg-light rounded-circle border" style="width: 72px; height: 72px;">
+                                            <i class="bi bi-person-circle fs-1 text-secondary"></i>
+                                          </div>
+                                        `}
+                                    </div>
+                                    <div>
+                                        <h2 class="h5 mb-1">${user.name}</h2>
+                                        <div class="text-muted small mb-1">${user.email}</div>
+                                        <span class="badge bg-secondary">${getRoleLabel(user.role)}</span>
+                                        ${isArtisan && artisanData.approved ? '<span class="badge bg-success ms-2">Approvato</span>' : isArtisan ? '<span class="badge bg-warning text-dark ms-2">Non approvato</span>' : ''}
+                                        ${isArtisan && artisanData.approved_at ? `<div class="text-muted small mt-1">Membro da: ${new Date(artisanData.approved_at).toLocaleDateString('it-IT')}</div>` : ''}
+                                    </div>
+                                    
+                                </div>
+                                <label class="form-label">Foto profilo</label>
+                                <input type="file" class="form-control" id="profileImageInput" accept="image/*" />
+                                <div class="mb-3 mt-3">
+                                    <label for="nickname" class="form-label">Nickname</label>
+                                    <input type="text" id="nickname" name="nickname" class="form-control" value="${user.nickname || ''}" maxlength="32" />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" id="email" name="email" class="form-control" value="${user.email}" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">                               
+                                ${isArtisan ? `                                
+                                <div class="mb-2">
+                                    ${artisanData.url_banner ? `<img src="${artisanData.url_banner}" alt="Banner" class="img-fluid rounded mb-2" style="max-height:125px;width:100%;object-fit:cover;" />` : ''}
+                                    <label for="bannerInput" class="form-label">Banner profilo</label>                                    
+                                    <input type="file" class="form-control" id="bannerInput" accept="image/*" />
+                                </div>
+                                <div class="mb-2">
+                                    <label for="bio" class="form-label">Bio</label>
+                                    <textarea id="bio" name="bio" class="form-control" maxlength="2024" rows="5">${artisanData.bio || ''}</textarea>
+                                </div>
+                                ` : ''}
+                            </div>
                         </div>
-                        <form id="profile-image-form" class="mb-0">
-                          <label class="form-label">Foto profilo</label>
-                          <input type="file" class="form-control" id="profileImageInput" accept="image/*" />
-                          <div class="mb-3 mt-3">
-                            <label for="nickname" class="form-label">Nickname</label>
-                            <input type="text" id="nickname" name="nickname" class="form-control" value="${user.nickname || ''}" maxlength="32" />
-                          </div>
-                          <button type="submit" class="btn btn-primary w-100 mt-2">Salva profilo</button>
-                        </form>
-                    </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-2">Aggiorna Info Pubbliche</button>
+                    </form>
                 </div>
-                <div class="col-12 col-md-6">
+                <div class="${passwordColClass}">
                     <div class="card shadow-sm border-0 p-4 h-100 mb-4 mb-lg-0">
                         <h2 class="h5 mb-3">Cambia password</h2>
                         <form id="password-form">
-                            <div class="mb-3">
-                                <label for="current-password" class="form-label">Password attuale</label>
-                                <input type="password" id="current-password" name="currentPassword" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="new-password" class="form-label">Nuova password</label>
-                                <input type="password" id="new-password" name="newPassword" class="form-control" required minlength="6">
-                                <div class="form-text">La password deve contenere almeno 6 caratteri</div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="confirm-password" class="form-label">Conferma nuova password</label>
-                                <input type="password" id="confirm-password" name="confirmPassword" class="form-control" required minlength="6">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="current-password" class="form-label">Password attuale</label>
+                                        <input type="password" id="current-password" name="currentPassword" class="form-control" required>
+                                    </div>                                    
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="new-password" class="form-label">Nuova password</label>
+                                        <input type="password" id="new-password" name="newPassword" class="form-control" required minlength="6">
+                                        <div class="form-text">La password deve contenere almeno 6 caratteri</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="confirm-password" class="form-label">Conferma nuova password</label>
+                                        <input type="password" id="confirm-password" name="confirmPassword" class="form-control" required minlength="6">
+                                    </div>
+                                </div>
                             </div>
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary">
@@ -141,7 +177,7 @@ export async function loadProfilePage() {
                             </div>
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary">
-                                    <span class="btn-text">Aggiorna profilo</span>
+                                    <span class="btn-text">Aggiorna Info Personali</span>
                                 </button>
                             </div>
                         </form>
@@ -355,29 +391,67 @@ export async function loadProfilePage() {
         }
 
         // Gestione upload foto profilo
-        const profileImageForm = document.getElementById('profile-image-form');
+        const publicInfoForm = document.getElementById('public-info-form');
         const profileImageInput = document.getElementById('profileImageInput');
         const profileImagePreviewWrapper = document.getElementById('profileImagePreviewWrapper');
-        profileImageForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const file = profileImageInput.files[0];
-            if (!file) {
-                showBootstrapToast('Seleziona un file immagine', 'Errore', 'danger');
-                return;
-            }
-            try {
-                const res = await uploadProfileImage(user.id, file);
-                console.log("res", res);
-                // Aggiorna la preview
-                const imgUrl = res.files && res.files[0] ? `${getApiUrl()}${res.files[0].url}` : null;
-                if (imgUrl) {
-                    profileImagePreviewWrapper.innerHTML = `<img src="${imgUrl}" id="profileImagePreview" alt="Foto profilo" class="rounded-circle border" style="width: 72px; height: 72px; object-fit: cover;" />`;
+        const nicknameInput = document.getElementById('nickname');
+        const bioInput = document.getElementById('bio');
+        const bannerInput = document.getElementById('bannerInput');
+
+        if (publicInfoForm) {
+            publicInfoForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                loader.show();
+                try {
+                    console.log('[DEBUG] Submit public-info-form');
+                    const nickname = nicknameInput ? nicknameInput.value.trim() : '';
+                    const emailInput = document.getElementById('email');
+                    const email = emailInput ? emailInput.value.trim() : '';
+                    console.log('[DEBUG] nickname:', nickname, 'user.nickname:', user.nickname);
+                    console.log('[DEBUG] email:', email, 'user.email:', user.email);
+                    let updated = false;
+                    if ((nickname && nickname !== user.nickname) || (email && email !== user.email)) {
+                        console.log('[DEBUG] Chiamo ApiService.updateProfile', { nickname, email });
+                        await ApiService.updateProfile({ nickname, email });
+                        updated = true;
+                    }
+                    // Aggiorna foto profilo
+                    const profileFile = profileImageInput && profileImageInput.files[0];
+                    if (profileFile) {
+                        console.log('[DEBUG] Upload nuova foto profilo');
+                        await uploadProfileImage(user.id, profileFile);
+                        updated = true;
+                    }
+                    // Se artigiano, aggiorna bio e banner
+                    if (isArtisan) {
+                        const bio = bioInput ? bioInput.value.trim() : '';
+                        console.log('[DEBUG] bio:', bio, 'artisanData.bio:', artisanData.bio);
+                        if (bio !== (artisanData.bio || '')) {
+                            console.log('[DEBUG] Chiamo ApiService.updateArtisanBio', { bio });
+                            await ApiService.updateArtisanBio({ bio });
+                            updated = true;
+                        }
+                        const bannerFile = bannerInput && bannerInput.files[0];
+                        if (bannerFile) {
+                            console.log('[DEBUG] Upload nuovo banner');
+                            await uploadBannerImage(user.id, bannerFile);
+                            updated = true;
+                        }
+                    }
+                    if (updated) {
+                        showBootstrapToast('Informazioni pubbliche aggiornate con successo', 'Successo', 'success');
+                        document.dispatchEvent(new CustomEvent('auth:change'));
+                    } else {
+                        showBootstrapToast('Nessuna modifica da salvare', 'Info', 'info');
+                    }
+                } catch (err) {
+                    console.error('[DEBUG] Errore durante il salvataggio delle informazioni pubbliche', err);
+                    showBootstrapToast('Errore durante il salvataggio delle informazioni pubbliche', 'Errore', 'danger');
+                } finally {
+                    loader.hide();
                 }
-                showBootstrapToast('Foto profilo aggiornata con successo', 'Successo', 'success');
-            } catch (err) {
-                showBootstrapToast('Errore durante il salvataggio della foto profilo', 'Errore', 'danger');
-            }
-        });
+            });
+        }
 
         // --- POPOLAMENTO SELECT GEOGRAFICHE ---
         const statoSelect = document.getElementById('stato');

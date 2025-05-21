@@ -118,7 +118,7 @@ export class ApiService {
         }
     }
 
-    static async updateProfile({ name, surname }) {
+    static async updateProfile({ nickname, email }) {
         try {
             const token = authService.getToken();
             const response = await fetchWithAuth(`${API_URL}/auth/profile`, {
@@ -127,7 +127,7 @@ export class ApiService {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ name, surname })
+                body: JSON.stringify({ nickname, email })
             });
             const data = await response.json();
             if (data.success) {
@@ -138,5 +138,34 @@ export class ApiService {
             console.error('Errore durante l\'aggiornamento del profilo:', error);
             throw error;
         }
+    }
+
+    static async updateArtisanBio({ bio }) {
+        const token = authService.getToken();
+        const response = await fetchWithAuth(`${API_URL}/auth/artisan/bio`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ bio })
+        });
+        const data = await response.json();
+        if (data.success) return data;
+        throw new Error(data.message);
+    }
+
+    static async uploadArtisanBanner(userId, file) {
+        const formData = new FormData();
+        formData.append('banner', file);
+        const token = authService.getToken();
+        const res = await fetch(`${API_URL}/auth/artisan/banner`, {
+            method: 'POST',
+            headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+            body: formData
+        });
+        const data = await res.json();
+        if (data.success) return data;
+        throw new Error(data.message);
     }
 } 

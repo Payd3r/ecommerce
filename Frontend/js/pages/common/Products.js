@@ -3,7 +3,7 @@ import { getProducts } from '../../../api/products.js';
 import CategoriesAPI from '../../../api/categories.js';
 import UsersAPI from '../../../api/users.js';
 import { showBootstrapToast } from '../../components/Toast.js';
-import { getApiUrl } from '../../../api/config.js';
+
 
 /**
  * Carica la pagina Prodotti
@@ -338,7 +338,7 @@ export async function loadProductsPage(params = {}) {
                             ${discountBadge}
                             ${stockBadge}
                             ${product.image && product.image.url ?
-                    `<img src="${getApiUrl()}${product.image.url}" alt="${product.name}" class="product-img-actual" />` :
+                    `<img src="${product.image.url}" alt="${product.name}" class="product-img-actual" />` :
                     `<div class="product-img-placeholder">
                                     <span class="placeholder-icon">🖼️</span>
                                 </div>`
