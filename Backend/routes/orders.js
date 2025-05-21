@@ -4,7 +4,7 @@ const db = require('../models/db');
 const { verifyToken } = require('../middleware/auth');
 require('dotenv').config();
 const Stripe = require('stripe');
-const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = Stripe("sk_test_51RQktnE3wYvtSR1Ne20OWPwX7VLwH6j9Bnpb06vv1e4eXZYEEbU4I1InNWFhlrWbdoJLa206P1gVml47ZX2JFw1W00X8h0VobE");
 
 // GET /orders - Ottieni tutti gli ordini (admin o per test)
 router.get('/', verifyToken, async (req, res) => {

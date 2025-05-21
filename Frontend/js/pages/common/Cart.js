@@ -9,7 +9,8 @@ export async function loadCartPage() {
     pageElement.className = 'cart-page';
     pageElement.innerHTML = `
         <div class="container py-5">
-            <h2 class="mb-4">Il tuo Carrello</h2>
+            <h1 class="page-title mb-2">Il tuo Carrello</h1>
+            <div class="page-subtitle mb-4">Rivedi i prodotti selezionati prima di procedere all'acquisto.</div>
             <div id="cart-content">
                 <div class="text-center my-5">
                     <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Caricamento...</span></div>
@@ -36,8 +37,8 @@ export async function loadCartPage() {
                     <th class="d-none d-sm-table-cell"></th>
                     <th>Prodotto</th>
                     <th class="text-nowrap d-none d-sm-table-cell">Prezzo</th>
-                    <th class="text-nowrap">Quantità</th>
-                    <th class="text-nowrap">Totale</th>
+                    <th class="text-nowrap text-center">Quantità</th>
+                    <th class="text-nowrap text-center">Totale</th>
                     <th></th>
                 </tr></thead><tbody>`;
             let total = 0;
@@ -66,14 +67,14 @@ export async function loadCartPage() {
                                 `${price.toFixed(2)} €`
                             }
                         </td>
-                        <td style="max-width:60px;">
+                        <td style="max-width:60px;" class="text-center">
                             <div class="input-group input-group-sm flex-nowrap">
                                 <button class="btn btn-outline-secondary btn-qty-minus px-2" type="button">-</button>
                                 <input type="number" class="form-control text-center cart-qty-input px-1" value="${item.quantity}" min="1" style="width:36px;">
                                 <button class="btn btn-outline-secondary btn-qty-plus px-2" type="button">+</button>
                             </div>
                         </td>
-                        <td style="width:100px;"><span class="fw-bold">
+                        <td style="width:100px;" class="text-center"><span class="fw-bold">
                             ${item.discount && item.discount > 0 && item.discount < 100 ?
                                 `<span class='text-danger'>${subtotal.toFixed(2)} €</span> <span class='text-decoration-line-through text-muted small ms-1'>${(price * item.quantity).toFixed(2)} €</span>` :
                                 `${subtotal.toFixed(2)} €`
@@ -93,6 +94,10 @@ export async function loadCartPage() {
                 .cart-table-custom th, .cart-table-custom td { padding: 0.35rem 0.3rem; font-size: 0.97rem; }
                 .cart-table-custom input[type=number] { font-size: 0.97rem; }
                 .cart-total-row { justify-content: center !important; text-align: center; }
+                .cart-table-custom th:nth-child(4), .cart-table-custom th:nth-child(5),
+                .cart-table-custom td:nth-child(4), .cart-table-custom td:nth-child(5) {
+                    text-align: center !important;
+                }
             }
             </style>`;
             document.getElementById('checkout-btn').disabled = false;

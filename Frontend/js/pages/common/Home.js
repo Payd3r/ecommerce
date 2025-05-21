@@ -30,19 +30,26 @@ export async function loadHomePage() {
 
     // Costruisce il contenuto della pagina
     pageElement.innerHTML = `
-        <section class="hero py-5 bg-light">
-            <div class="container text-center">
-                <h1 class="display-4 mb-2">Scopri l'Artigianato Italiano</h1>
-                <p class="lead mb-4">Prodotti unici realizzati con passione e tradizione</p>
+        <section class="hero py-5 bg-light" style="background: url('../../css/background.jpg') center/cover no-repeat; min-height: 340px; position: relative;">
+            <style>
+              .hero-strong-shadow {
+                font-weight: 600 !important;
+                text-shadow: 0 4px 16px rgba(0,0,0,0.85), 0 1px 0 #222;
+              }
+            </style>
+            <div class="container text-center position-relative" style="z-index:2;">
+                <h1 class="display-4 mb-2 text-white hero-strong-shadow">Scopri l'Artigianato Italiano</h1>
+                <p class="lead mb-4 text-white hero-strong-shadow">Cibi unici realizzati con passione e tradizione</p>
                 <a href="/products" class="btn btn-primary btn-lg" data-route>Esplora i Prodotti</a>
             </div>
+            <div style="position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.55);z-index:1;"></div>
         </section>
         <section class="featured pt-4">
             <div class="container">
                 <h2 class="mb-0">Categorie in Evidenza</h2>
-                <div class="position-relative px-3"  style="padding-left: 2vw; padding-right: 2vw;">
+                <div class="position-relative">
                     <button id="cat-carousel-left" class="btn btn-light position-absolute top-50 start-0 translate-middle-y"><i class="bi bi-chevron-left"></i></button>
-                    <div id="featured-categories" class="d-flex flex-nowrap overflow-auto py-2 px-5" style="scroll-behavior: smooth; gap: 1rem; scrollbar-width: none; -ms-overflow-style: none;"></div>
+                    <div id="featured-categories" class="d-flex flex-nowrap overflow-auto py-2" style="scroll-behavior: smooth; gap: 1rem; scrollbar-width: none; -ms-overflow-style: none;"></div>
                     <button id="cat-carousel-right" class="btn btn-light position-absolute top-50 end-0 translate-middle-y"><i class="bi bi-chevron-right"></i></button>
                 </div>
             </div>
@@ -236,7 +243,7 @@ export async function loadHomePage() {
         section.innerHTML = `
             <div class="position-relative px-2">
                 <button id="cat-carousel-left" class="btn btn-light position-absolute top-50 start-0 translate-middle-y z-1"><i class="bi bi-chevron-left"></i></button>
-                <div id="featured-categories" class="d-flex flex-nowrap overflow-auto p-4">
+                <div id="featured-categories" class="d-flex flex-nowrap overflow-auto pe-4 py-4">
                     ${html}
                 </div>
                 <button id="cat-carousel-right" class="btn btn-light position-absolute top-50 end-0 translate-middle-y z-1"><i class="bi bi-chevron-right"></i></button>

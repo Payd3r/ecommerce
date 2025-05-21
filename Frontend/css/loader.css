@@ -79,8 +79,8 @@ body {
 }
 @media (max-width: 576px) {
     #app-container {
-        padding-left: 0.25rem;
-        padding-right: 0.25rem;
+        padding-left: 0rem;
+        padding-right: 0rem;
     }
     #footer-container {
         font-size: 0.9rem;

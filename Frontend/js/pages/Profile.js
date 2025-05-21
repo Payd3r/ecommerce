@@ -50,7 +50,7 @@ export async function loadProfilePage() {
                     <form id="public-info-form" class="card shadow-sm border-0 p-4 h-100" style="min-height:480px;">
                         <h2 class="h5 mb-0">Info Pubbliche</h2>
                         <div class="row">
-                            <div class="col-12 mt-3">
+                            <div class="${isArtisan ? 'col-12 col-md-6 mt-3' : 'col-12 mt-3'}">
                                 <div class="d-flex align-items-center mb-3 flex-column flex-md-row text-center text-md-start">
                                     <div class="me-md-3 mb-3 mb-md-0" id="profileImagePreviewWrapper">
                                         ${user.image ? `
@@ -80,7 +80,7 @@ export async function loadProfilePage() {
                                     <input type="email" id="email" name="email" class="form-control" value="${user.email}" />
                                 </div>
                             </div>
-                            <div class="col-12">                               
+                            <div class="${isArtisan ? 'col-12 col-md-6' : 'col-12'}">                               
                                 ${isArtisan ? `                                
                                 <div class="mb-2">
                                     ${artisanData.url_banner ? `<img src="${artisanData.url_banner}" alt="Banner" class="img-fluid rounded mb-2" style="max-height:125px;width:100%;object-fit:cover;" />` : ''}

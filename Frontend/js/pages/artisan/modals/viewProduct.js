@@ -1,5 +1,4 @@
 import { getProduct } from '../../../../api/products.js';
-import { getApiUrl } from '../../../../api/config.js';
 
 export async function showViewProductModal(productId, categories) {
     // Rimuovi eventuale modal precedente
@@ -27,7 +26,7 @@ export async function showViewProductModal(productId, categories) {
           <div class="carousel-inner">
             ${images.map((img, idx) => `
               <div class="carousel-item${idx === 0 ? ' active' : ''}">
-                <img src="${getApiUrl()}${img.url}" class="d-block w-100 rounded" alt="${img.alt_text || ''}" style="max-height:320px; object-fit:contain; background:#f8f9fa;">
+                <img src="${img.url}" class="d-block w-100 rounded" alt="${img.alt_text || ''}" style="max-height:320px; object-fit:contain; background:#f8f9fa;">
               </div>
             `).join('')}
           </div>
@@ -42,12 +41,12 @@ export async function showViewProductModal(productId, categories) {
         </div>
         <div class="d-flex justify-content-center gap-2 mb-3" id="productImagesThumbs">
           ${images.map((img, idx) => `
-            <img src="${getApiUrl()}${img.url}" data-idx="${idx}" class="rounded border thumb-img" style="width:56px; height:56px; object-fit:cover; cursor:pointer;${idx === 0 ? ' border-primary border-2' : ''}" alt="thumb" />
+            <img src="${img.url}" data-idx="${idx}" class="rounded border thumb-img" style="width:56px; height:56px; object-fit:cover; cursor:pointer;${idx === 0 ? ' border-primary border-2' : ''}" alt="thumb" />
           `).join('')}
         </div>
         `;
     } else if (images.length === 1) {
-        imagesHtml = `<img src="${getApiUrl()}${images[0].url}" class="img-fluid rounded mb-3 d-block mx-auto" alt="${images[0].alt_text || ''}" style="max-height:320px; object-fit:contain; background:#f8f9fa;">`;
+        imagesHtml = `<img src="${images[0].url}" class="img-fluid rounded mb-3 d-block mx-auto" alt="${images[0].alt_text || ''}" style="max-height:320px; object-fit:contain; background:#f8f9fa;">`;
     } else {
         imagesHtml = `<div class="d-flex align-items-center justify-content-center bg-light rounded mb-3" style="height:200px;"><i class="bi bi-image fs-1 text-secondary"></i></div>`;
     }

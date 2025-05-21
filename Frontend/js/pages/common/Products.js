@@ -63,7 +63,7 @@ export async function loadProductsPage(params = {}) {
                     <i class="bi bi-funnel"></i> Filtri
                 </button>
             </div>
-            <div class="page-subtitle mb-4">Scopri la nostra selezione di prodotti artigianali unici, realizzati con passione dai migliori artigiani italiani.</div>
+            <div class="page-subtitle mb-4">Sfoglia la nostra selezione di prodotti artigianali autentici, realizzati con passione dai migliori artigiani italiani.</div>
             <div class="row pb-5 pt-2">
                 <aside class="col-12 col-md-4 mb-4 mb-md-0" id="filters-container" style="${window.innerWidth < 768 ? 'display:none;' : ''}">
                     <div class="card shadow-sm border-0 p-3 position-relative me-3">

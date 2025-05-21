@@ -36,24 +36,24 @@ export async function loadManageOrdersPage() {
     // HTML struttura principale
     pageElement.innerHTML = `
         <div class="container mt-4">
-            <div class="row mb-4 align-items-center">
-                <div class="col-12 text-center">
-                    <h1 class="display-5 fw-bold mb-2">Gestione Ordini</h1>
-                </div>
-            </div>
-            <div class="row mb-4 align-items-center d-none d-md-flex">
-                <div class="col-6 d-flex align-items-center">
+            <div class="row align-items-center mb-0 mb-md-2">
+                <div class="col-12 mb-2">
                     <button class="btn btn-outline-secondary" id="back-btn"><i class="bi bi-arrow-left"></i> Torna indietro</button>
                 </div>
-                <div class="col-6 d-flex justify-content-end">
+                <!-- Desktop: titolo e aggiorna lista sulla stessa riga -->
+                <div class="col-12 d-none d-md-flex align-items-center justify-content-between">
+                    <h1 class="page-title mb-0">Gestione Ordini</h1>
                     <button id="refresh-orders-btn" class="btn btn-primary">Aggiorna Lista</button>
                 </div>
-            </div>
-            <div class="row d-flex d-md-none">
-                <div class="col-12 mobile-btns">
-                    <button class="btn btn-outline-secondary w-100" id="back-btn-mobile"><i class="bi bi-arrow-left"></i> Torna indietro</button>
-                    <button class="btn btn-primary w-100" id="refresh-orders-btn-mobile">Aggiorna Lista</button>
-                    <button class="btn btn-success w-100" id="toggle-filters-mobile">Filtri</button>
+                <!-- Mobile: titolo su una riga, bottoni su riga sotto -->
+                <div class="col-12 d-flex d-md-none flex-column gap-2 mb-3">
+                    <h1 class="page-title mb-2">Gestione Ordini</h1>
+                    <div class="d-flex gap-2">
+                        <button id="toggle-filters" class="btn btn-outline-primary flex-fill" type="button">
+                            <i class="bi bi-funnel"></i> Filtri
+                        </button>
+                        <button id="refresh-orders-btn-mobile" class="btn btn-primary flex-fill"><i class="bi bi-arrow-clockwise me-2"></i>Aggiorna Lista</button>
+                    </div>
                 </div>
             </div>
             <div class="row align-items-start">
@@ -625,19 +625,23 @@ export async function loadManageOrdersPage() {
         document.head.appendChild(style);
     }
 
-    // Gestione bottoni mobile nel mount
-    const backBtnMobile = pageElement.querySelector('#back-btn-mobile');
-    if (backBtnMobile) backBtnMobile.onclick = () => window.history.back();
+    // Bottone filtri mobile: mostra/nasconde i filtri
+    const toggleFiltersBtn = pageElement.querySelector('#toggle-filters');
+    const filtersCard = pageElement.querySelector('#filters-card');
+    if (toggleFiltersBtn && filtersCard) {
+        toggleFiltersBtn.onclick = () => {
+            if (filtersCard.style.display === 'none' || filtersCard.style.display === '') {
+                filtersCard.style.display = 'block';
+            } else {
+                filtersCard.style.display = 'none';
+            }
+        };
+    }
     const refreshOrdersBtnMobile = pageElement.querySelector('#refresh-orders-btn-mobile');
     if (refreshOrdersBtnMobile) refreshOrdersBtnMobile.onclick = () => {
         form.reset();
         filter = { minPrice: '', maxPrice: '', startDate: '', endDate: '', status: '', sort: 'desc', customer: '' };
         applyFilters();
-    };
-    const toggleFiltersMobile = pageElement.querySelector('#toggle-filters-mobile');
-    if (toggleFiltersMobile) toggleFiltersMobile.onclick = () => {
-        const filtersCard = pageElement.querySelector('#filters-card');
-        filtersCard.classList.toggle('mobile-visible');
     };
 
     // Funzione toast Bootstrap (se non già presente)
