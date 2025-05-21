@@ -86,7 +86,12 @@ export async function loadManageProductsPage() {
                     </td>
                     <td class="text-center d-none d-md-table-cell">${p.name}</td>
                     <td class="text-center d-none d-md-table-cell">${p.category_name || '-'}</td>
-                    <td class="text-center">${p.price} €</td>
+                    <td class="text-center">
+                        ${p.discount && p.discount > 0 && p.discount < 100 ?
+                            `<span class='text-danger fw-bold'>${(p.price * (1 - p.discount / 100)).toFixed(2)} €</span> <span class='text-decoration-line-through text-muted small ms-1'>${p.price.toFixed(2)} €</span>` :
+                            `${p.price} €`
+                        }
+                    </td>
                     <td class="text-center">${p.stock}</td>
                     <td class="text-center d-none d-md-table-cell">${p.stock > 0 ? 'Disponibile' : 'Non disponibile'}</td>
                     <td class="text-center d-none d-md-table-cell">${p.created_at ? p.created_at.split('T')[0] : '-'}</td>

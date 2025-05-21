@@ -112,37 +112,47 @@ export async function loadArtisanShopPage(params) {
             // Badge sconto
             let discountBadge = '';
             if (product.discount && product.discount > 0) {
-                discountBadge = `<span class="badge bg-danger position-absolute top-0 start-0 m-2" style="z-index:2;">${product.discount}%</span>`;
+                discountBadge = `<span class=\"badge bg-danger position-absolute top-0 start-0 m-2\" style=\"z-index:2;\">${product.discount}%</span>`;
             }
             // Badge ultimi rimasti
             let stockBadge = '';
             if (typeof product.stock === 'number' && product.stock >= 0 && product.stock <= 2) {
-                stockBadge = `<span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2" style="z-index:2;">Ultimi rimasti</span>`;
+                stockBadge = `<span class=\"badge bg-warning text-dark position-absolute top-0 end-0 m-2\" style=\"z-index:2;\">Ultimi rimasti</span>`;
+            }
+            // Calcolo prezzo scontato
+            let prezzoScontato = product.price;
+            if (product.discount && product.discount > 0 && product.discount < 100) {
+                prezzoScontato = product.price * (1 - product.discount / 100);
             }
             return `
-            <div class="col-6 col-md-4 d-flex align-items-stretch">
-                <div class="product-card card flex-fill h-100 p-2 position-relative">
-                    <div class="product-image-wrapper d-flex align-items-center justify-content-center position-relative" style="height: 140px;">
+            <div class=\"col-6 col-md-4 d-flex align-items-stretch\">
+                <div class=\"product-card card flex-fill h-100 p-2 position-relative\">
+                    <div class=\"product-image-wrapper d-flex align-items-center justify-content-center position-relative\" style=\"height: 140px;\">
                         ${discountBadge}
                         ${stockBadge}
                         ${product.image && product.image.url ?
-                            `<img src="${getApiUrl()}${product.image.url}" alt="${product.name}" class="product-img-actual" />` :
-                            `<div class="product-img-placeholder">
-                                <span class="placeholder-icon">🖼️</span>
+                            `<img src=\"${getApiUrl()}${product.image.url}\" alt=\"${product.name}\" class=\"product-img-actual\" />` :
+                            `<div class=\"product-img-placeholder\">
+                                <span class=\"placeholder-icon\">🖼️</span>
                             </div>`
                         }
                     </div>
-                    <div class="product-content p-1 d-flex flex-column flex-grow-1">
-                        <h6 class="fw-bold mb-1 product-name-text">${product.name}</h6>
-                        <div class="mb-2 text-muted small">Categoria: ${product.category_name || '-'}</div>
-                        <div class="mb-2 d-none d-md-block">${product.description ? product.description : ''}</div>
-                        <div class="mt-auto d-flex justify-content-between align-items-center">
-                            <span class="product-price fw-bold small">€ ${Number(product.price).toFixed(2)}</span>
-                            <a href="/products/${product.id}" class="btn btn-outline-primary btn-sm ms-2" data-route>Dettagli</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                    <div class=\"product-content p-1 d-flex flex-column flex-grow-1\">
+                        <h6 class=\"fw-bold mb-1 product-name-text\">${product.name}</h6>
+                        <div class=\"mb-2 text-muted small\">Categoria: ${product.category_name || '-'}<\/div>
+                        <div class=\"mb-2 d-none d-md-block\">${product.description ? product.description : ''}<\/div>
+                        <div class=\"mt-auto d-flex justify-content-between align-items-center\">
+                            <span class=\"product-price fw-bold small\">
+                                ${product.discount && product.discount > 0 && product.discount < 100 ?
+                                    `<span class='text-danger'>${prezzoScontato.toFixed(2)} €</span> <span class='text-decoration-line-through text-muted small ms-1'>${product.price.toFixed(2)} €</span>` :
+                                    `${product.price?.toFixed(2) || '0.00'} €`
+                                }
+                            </span>
+                            <a href=\"/products/${product.id}\" class=\"btn btn-outline-primary btn-sm ms-2\" data-route>Dettagli<\/a>
+                        <\/div>
+                    <\/div>
+                <\/div>
+            <\/div>
             `;
         }).join('');
     }

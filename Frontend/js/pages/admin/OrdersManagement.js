@@ -202,6 +202,20 @@ export async function loadOrdersManagementPage() {
 
     let orderIdToDelete = null;
     let orderIdToChangeStatus = null;
+    // Stato filtri e paginazione
+    let currentFilters = {
+        customer: '',
+        status: '',
+        dateFrom: '',
+        dateTo: '',
+        totalMin: '',
+        totalMax: '',
+        payment: '',
+        page: 1,
+        limit: 10,
+        orderBy: 'created_at',
+        orderDir: 'DESC'
+    };
 
     function getStatusBadge(status) {
         switch (status) {
@@ -234,7 +248,7 @@ export async function loadOrdersManagementPage() {
             prevBtn.className = 'btn btn-sm btn-outline-primary';
             prevBtn.textContent = 'Precedente';
             prevBtn.onclick = function() {
-                loadOrdersTable({ page: currentPage - 1 });
+                loadOrdersTable({ ...currentFilters, page: currentPage - 1 });
             };
             btnGroup.appendChild(prevBtn);
         }
@@ -253,7 +267,7 @@ export async function loadOrdersManagementPage() {
             // Solo per le pagine diverse da quella corrente
             if (i !== currentPage) {
                 pageBtn.onclick = function() {
-                    loadOrdersTable({ page: i });
+                    loadOrdersTable({ ...currentFilters, page: i });
                 };
             }
             
@@ -267,7 +281,7 @@ export async function loadOrdersManagementPage() {
             nextBtn.className = 'btn btn-sm btn-outline-primary';
             nextBtn.textContent = 'Successivo';
             nextBtn.onclick = function() {
-                loadOrdersTable({ page: currentPage + 1 });
+                loadOrdersTable({ ...currentFilters, page: currentPage + 1 });
             };
             btnGroup.appendChild(nextBtn);
         }
@@ -277,19 +291,20 @@ export async function loadOrdersManagementPage() {
     }
 
     async function loadOrdersTable(params = {}) {
+        currentFilters = { ...currentFilters, ...params };
         try {
             // Parametri di filtro
-            let customer = params.customer !== undefined ? params.customer : '';
-            let status = params.status !== undefined ? params.status : '';
-            let dateFrom = params.dateFrom !== undefined ? params.dateFrom : '';
-            let dateTo = params.dateTo !== undefined ? params.dateTo : '';
-            let totalMin = params.totalMin !== undefined ? params.totalMin : '';
-            let totalMax = params.totalMax !== undefined ? params.totalMax : '';
-            let payment = params.payment !== undefined ? params.payment : '';
-            let page = params.page !== undefined ? params.page : 1;
-            let limit = params.limit !== undefined ? params.limit : 10;
-            let orderBy = params.orderBy !== undefined ? params.orderBy : 'created_at';
-            let orderDir = params.orderDir !== undefined ? params.orderDir : 'DESC';
+            let customer = currentFilters.customer;
+            let status = currentFilters.status;
+            let dateFrom = currentFilters.dateFrom;
+            let dateTo = currentFilters.dateTo;
+            let totalMin = currentFilters.totalMin;
+            let totalMax = currentFilters.totalMax;
+            let payment = currentFilters.payment;
+            let page = currentFilters.page;
+            let limit = currentFilters.limit;
+            let orderBy = currentFilters.orderBy;
+            let orderDir = currentFilters.orderDir;
 
             // Chiamata API (qui puoi adattare se hai endpoint paginati/filtrati)
             const ordersData = await OrdersAPI.getOrders();
@@ -492,7 +507,8 @@ export async function loadOrdersManagementPage() {
         document.getElementById('apply-filters-btn').onclick = async () => {
             const filtersForm = document.getElementById('filters-form');
             const formData = new FormData(filtersForm);
-            const params = {
+            currentFilters = {
+                ...currentFilters,
                 customer: formData.get('filter-customer') || '',
                 status: formData.get('filter-status') || '',
                 dateFrom: formData.get('filter-date-from') || '',
@@ -500,12 +516,24 @@ export async function loadOrdersManagementPage() {
                 totalMin: formData.get('filter-total-min') || '',
                 totalMax: formData.get('filter-total-max') || '',
                 payment: formData.get('filter-payment') || '',
+                page: 1
             };
-            await loadOrdersTable(params);
+            await loadOrdersTable(currentFilters);
         };
         document.getElementById('reset-filters-btn').onclick = async () => {
             document.getElementById('filters-form').reset();
-            await loadOrdersTable();
+            currentFilters = {
+                ...currentFilters,
+                customer: '',
+                status: '',
+                dateFrom: '',
+                dateTo: '',
+                totalMin: '',
+                totalMax: '',
+                payment: '',
+                page: 1
+            };
+            await loadOrdersTable(currentFilters);
         };
         document.getElementById('confirm-delete-order-btn').addEventListener('click', async () => {
             if (!orderIdToDelete) return;
@@ -563,8 +591,8 @@ export async function loadOrdersManagementPage() {
         sortCreatedCol.addEventListener('click', async () => {
             sortCreatedOrder = sortCreatedOrder === 'ASC' ? 'DESC' : 'ASC';
             updateSortCreatedIcon();
-            const params = { orderBy: 'created_at', orderDir: sortCreatedOrder };
-            await loadOrdersTable(params);
+            currentFilters = { ...currentFilters, orderBy: 'created_at', orderDir: sortCreatedOrder };
+            await loadOrdersTable(currentFilters);
         });
 
         // CSS responsive mobile

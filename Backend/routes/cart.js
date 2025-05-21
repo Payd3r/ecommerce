@@ -61,7 +61,7 @@ router.get('/', verifyToken, async (req, res) => {
         }
         const cartId = carts[0].id;
         const [items] = await db.query(`
-            SELECT ci.id as item_id, ci.product_id, ci.quantity, p.name, p.price
+            SELECT ci.id as item_id, ci.product_id, ci.quantity, p.name, p.price, p.discount
             FROM cart_items ci
             JOIN products p ON ci.product_id = p.id
             WHERE ci.cart_id = ?
@@ -80,7 +80,8 @@ router.get('/', verifyToken, async (req, res) => {
         }
         const itemsWithImage = items.map(i => ({
             ...i,
-            image: imagesMap[i.product_id] || null
+            image: imagesMap[i.product_id] || null,
+            discount: i.discount || 0
         }));
         res.json({ items: itemsWithImage });
     } catch (error) {

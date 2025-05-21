@@ -41,7 +41,7 @@ export async function loadAdminDashboardPage() {
 
         // Prodotti e ordini: logica invariata
         const [prodRes, ordRes] = await Promise.all([
-            getProducts({ limit: 1 }),
+            getProducts({ limit: 5 }),
             getOrders()
         ]);
         productsRes = prodRes;

@@ -49,7 +49,13 @@ export async function loadCheckoutPage() {
     try {
         const data = await CartAPI.getCart();
         cartItems = data.items || [];
-        total = cartItems.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0);
+        total = cartItems.reduce((sum, item) => {
+            let prezzoScontato = Number(item.price);
+            if (item.discount && item.discount > 0 && item.discount < 100) {
+                prezzoScontato = prezzoScontato * (1 - item.discount / 100);
+            }
+            return sum + prezzoScontato * item.quantity;
+        }, 0);
     } catch {
         cartItems = [];
         total = 0;
@@ -119,9 +125,20 @@ export async function loadCheckoutPage() {
                         ${cartItems.map(item => `
                             <tr>
                                 <td>${item.name}</td>
-                                <td>${Number(item.price).toFixed(2)} €</td>
+                                <td>
+                                    ${item.discount && item.discount > 0 && item.discount < 100 ?
+                                        `<span class='text-danger'>${(Number(item.price) * (1 - item.discount / 100)).toFixed(2)} €</span> <span class='text-decoration-line-through text-muted small ms-1'>${Number(item.price).toFixed(2)} €</span>` :
+                                        `${Number(item.price).toFixed(2)} €`
+                                        
+                                    }
+                                </td>
                                 <td>${item.quantity}</td>
-                                <td>${(Number(item.price) * item.quantity).toFixed(2)} €</td>
+                                <td>
+                                    ${item.discount && item.discount > 0 && item.discount < 100 ?
+                                        `<span class='text-danger'>${(Number(item.price) * (1 - item.discount / 100) * item.quantity).toFixed(2)} €</span> <span class='text-decoration-line-through text-muted small ms-1'>${(Number(item.price) * item.quantity).toFixed(2)} €</span>` :
+                                        `${(Number(item.price) * item.quantity).toFixed(2)} €`
+                                    }
+                                </td>
                             </tr>
                         `).join('')}
                     </tbody>

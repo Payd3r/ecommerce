@@ -15,21 +15,20 @@ export async function loadProductsManagementPage() {
     let categories = [];
     let artisans = [];
     let filteredProducts = [];
-    let currentPage = 1;
-    const pageSize = 12;
-
-    // Stato filtri
-    let filter = {
+    // Stato filtri e paginazione
+    let currentFilters = {
         search: '',
         category: '',
         minPrice: '',
         maxPrice: '',
-        artisan: ''
+        artisan: '',
+        page: 1,
+        limit: 12
     };
 
     // Carica categorie
     try {
-        categories = await CategoriesAPI.getCategories();
+        categories = await CategoriesAPI.getCategoryTree();
     } catch (e) {
         categories = [];
     }
@@ -43,27 +42,15 @@ export async function loadProductsManagementPage() {
     }
 
     // Carica prodotti
-    async function fetchProducts() {
-        console.log('fetchProducts chiamata');
-        const params = {
-            search: filter.search,
-            category: filter.category,
-            minPrice: filter.minPrice,
-            maxPrice: filter.maxPrice,
-            artisan: filter.artisan,
-            page: currentPage,
-            limit: pageSize
-        };
-        console.log('fetchProducts params:', params);
+    async function fetchProducts(params = {}) {
+        currentFilters = { ...currentFilters, ...params };
         try {
-            const res = await getProducts(params);
-            console.log('Risposta getProducts:', res);
+            const res = await getProducts(currentFilters);
             products = res.products || [];
             filteredProducts = products;
             renderTable();
             renderPagination(res.pagination);
         } catch (e) {
-            console.error('Errore fetchProducts:', e);
             filteredProducts = [];
             renderTable();
             renderPagination({ totalPages: 1, currentPage: 1 });
@@ -86,7 +73,7 @@ export async function loadProductsManagementPage() {
     function renderTable() {
         console.log('renderTable chiamata, prodotti:', filteredProducts);
         // Prendi SEMPRE il riferimento attuale dal DOM
-        const tableBody = document.querySelector('#products-table-body');
+        const tableBody = pageElement.querySelector('#products-table-body');
         if (!tableBody) {
             console.error('Non trovo #products-table-body nel DOM!');
             return;
@@ -97,7 +84,12 @@ export async function loadProductsManagementPage() {
                 <tr data-product-id="${p.id}">
                     <td class="text-center">${p.name}</td>
                     <td class="text-center d-none d-md-table-cell">${p.category_name || '-'}</td>
-                    <td class="text-center d-none d-md-table-cell">${p.price} €</td>
+                    <td class="text-center d-none d-md-table-cell">
+                        ${p.discount && p.discount > 0 && p.discount < 100 ?
+                            `<span class='text-danger fw-bold'>${(p.price * (1 - p.discount / 100)).toFixed(2)} €</span> <span class='text-decoration-line-through text-muted small ms-1'>${p.price.toFixed(2)} €</span>` :
+                            `${p.price} €`
+                        }
+                    </td>
                     <td class="text-center d-none d-md-table-cell">${p.stock > 0 ? 'Disponibile' : 'Non disponibile'}</td>
                     <td class="text-center d-none d-md-table-cell">${formatDateIT(p.created_at)}</td>
                     <td class="text-center d-none d-md-table-cell">${p.artisan_name || p.artisan_email || '-'}</td>
@@ -170,8 +162,7 @@ export async function loadProductsManagementPage() {
             prevBtn.className = 'btn btn-sm btn-outline-primary';
             prevBtn.textContent = 'Precedente';
             prevBtn.onclick = function() {
-                currentPage = current - 1;
-                fetchProducts();
+                fetchProducts({ page: current - 1 });
             };
             btnGroup.appendChild(prevBtn);
         }
@@ -190,8 +181,7 @@ export async function loadProductsManagementPage() {
             // Solo per le pagine diverse da quella corrente
             if (i !== current) {
                 pageBtn.onclick = function() {
-                    currentPage = i;
-                    fetchProducts();
+                    fetchProducts({ page: i });
                 };
             }
             
@@ -205,8 +195,7 @@ export async function loadProductsManagementPage() {
             nextBtn.className = 'btn btn-sm btn-outline-primary';
             nextBtn.textContent = 'Successivo';
             nextBtn.onclick = function() {
-                currentPage = current + 1;
-                fetchProducts();
+                fetchProducts({ page: current + 1 });
             };
             btnGroup.appendChild(nextBtn);
         }
@@ -218,14 +207,21 @@ export async function loadProductsManagementPage() {
     // Funzione per azzerare i filtri e refreshare la tabella
     async function resetFiltersAndRefresh() {
         console.log('resetFiltersAndRefresh');
-        filter = { search: '', category: '', minPrice: '', maxPrice: '', artisan: '' };
-        currentPage = 1;
+        currentFilters = {
+            search: '',
+            category: '',
+            minPrice: '',
+            maxPrice: '',
+            artisan: '',
+            page: 1,
+            limit: 12
+        };
         const form = pageElement.querySelector('#filters-form');
         if (form) form.reset();
         await fetchProducts();
     }
 
-    // HTML
+    // HTML FILTRI AVANZATI (come Products.js)
     pageElement.innerHTML = `
         <div class="row align-items-center">
             <div class="col-12 text-center">
@@ -237,59 +233,58 @@ export async function loadProductsManagementPage() {
                 <button class="btn btn-outline-secondary" id="back-btn"><i class="bi bi-arrow-left"></i> Torna indietro</button>
             </div>
             <div class="col-6 d-flex justify-content-end">
-                <a href="#" id="addProductBtn" class="btn btn-success">Aggiungi prodotto</a>
+                <button id="refreshProductsBtn" class="btn btn-outline-primary d-flex align-items-center gap-2">
+                    <span id="refresh-spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    <i class="bi bi-arrow-clockwise"></i> Aggiorna tabella
+                </button>
             </div>
         </div>
         <div class="row mb-3 d-flex d-md-none">
             <div class="col-12 d-flex flex-column gap-2">
                 <button class="btn btn-outline-secondary w-100" id="back-btn-mobile"><i class="bi bi-arrow-left"></i> Torna indietro</button>
-                <a href="#" id="addProductBtnMobile" class="btn btn-success w-100">Aggiungi prodotto</a>
+                <button id="refreshProductsBtnMobile" class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2">
+                    <span id="refresh-spinner-mobile" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    <i class="bi bi-arrow-clockwise"></i> Aggiorna tabella
+                </button>
             </div>
         </div>
-        <div class="row g-4">
-            <div class="col-md-4 mb-3 mb-md-0">
-                <div class="d-md-none mb-2">
-                    <button id="toggle-filters" class="btn btn-outline-secondary w-100">Filtri <i class="bi bi-funnel"></i></button>
+        <div class="row pb-5 pt-2">
+            <aside class="col-12 col-md-4 mb-4 mb-md-0" id="filters-container" style="${window.innerWidth < 768 ? 'display:none;' : ''}">
+                <div class="card shadow-sm border-0 p-3 position-relative me-3">
+                    <button type="reset" class="btn btn-link text-secondary position-absolute top-0 end-0 mt-4 me-2 p-0" id="reset-filters" style="font-size:1rem;">Reset</button>
+                    <h5 class="mb-3">Filtra i risultati</h5>
+                    <form id="filters-form" class="filters-form">
+                        <div class="mb-3">
+                            <label for="search" class="form-label">Ricerca</label>
+                            <input type="text" id="search" name="search" class="form-control" placeholder="Cerca prodotti...">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Categoria</label>
+                            <div id="category-tree"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="artisan" class="form-label">Artigiano</label>
+                            <select id="artisan" name="artisan" class="form-select rounded-3">
+                                <option value="">Tutti gli artigiani</option>
+                                ${artisans.map(a => `<option value="${a.id}">${a.name || a.email}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="min-price" class="form-label">Prezzo minimo (€)</label>
+                                <input type="number" id="min-price" name="minPrice" min="0" step="1" class="form-control" placeholder="Min">
+                            </div>
+                            <div class="col">
+                                <label for="max-price" class="form-label">Prezzo massimo (€)</label>
+                                <input type="number" id="max-price" name="maxPrice" min="0" step="1" class="form-control" placeholder="Max">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-2">Applica filtri</button>
+                    </form>
                 </div>
-                <div class="card" id="filters-card" style="${window.innerWidth < 768 ? 'display:none;' : ''}">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <span>Filtri</span>
-                        <button type="button" id="resetFiltersBtn" class="btn btn-sm btn-outline-secondary">Azzera filtri</button>
-                    </div>
-                    <div class="card-body">
-                        <form id="filters-form">
-                            <div class="mb-3">
-                                <label class="form-label">Cerca</label>
-                                <input type="text" class="form-control" id="search" placeholder="Nome prodotto..." />
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Categoria</label>
-                                <select class="form-select" id="category">
-                                    <option value="">Tutte</option>
-                                    ${categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Artigiano</label>
-                                <select class="form-select" id="artisan">
-                                    <option value="">Tutti</option>
-                                    ${artisans.map(a => `<option value="${a.id}">${a.name || a.email}</option>`).join('')}
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Prezzo (range)</label>
-                                <div class="input-group">
-                                    <input type="number" min="0" step="0.01" class="form-control" id="minPrice" placeholder="Min" />
-                                    <input type="number" min="0" step="0.01" class="form-control" id="maxPrice" placeholder="Max" />
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100">Applica filtri</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-8 mt-3 mt-md-0">
-                <div class="card h-100">
+            </aside>
+            <main class="col-12 col-md-8">
+                <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <span>Prodotti</span>
                     </div>
@@ -315,55 +310,211 @@ export async function loadProductsManagementPage() {
                         </nav>
                     </div>
                 </div>
-            </div>
+            </main>
         </div>
         <style>
         @media (max-width: 767.98px) {
-            #filters-card { margin-bottom: 1.5rem !important; }
+            #filters-container { margin-bottom: 1.5rem !important; }
             #products-table-wrapper { overflow-x: auto; }
             .table th, .table td { white-space: nowrap; }
         }
         </style>
     `;
 
-    // Eventi filtri
-    const form = pageElement.querySelector('#filters-form');
-    form.addEventListener('submit', e => {
-        e.preventDefault();
-        filter.search = form.search.value;
-        filter.category = form.category.value;
-        filter.minPrice = form.minPrice.value;
-        filter.maxPrice = form.maxPrice.value;
-        filter.artisan = form.artisan.value;
-        currentPage = 1;
-        fetchProducts();
-        // Nascondi i filtri su mobile
-        const filtersCard = document.getElementById('filters-card');
-        if (window.innerWidth < 768 && filtersCard) {
-            filtersCard.style.display = 'none';
-        }
+    // Event listener per il bottone back-btn (subito dopo aver settato l'HTML)
+    const backBtn = pageElement.querySelector('#back-btn');
+    if (backBtn) backBtn.addEventListener('click', () => {
+        router.navigate('/admin/dashboard');
     });
 
-    // Bottone azzera filtri
-    pageElement.querySelector('#resetFiltersBtn').addEventListener('click', () => {
-        resetFiltersAndRefresh();
-        // Nascondi i filtri su mobile
-        const filtersCard = document.getElementById('filters-card');
-        if (window.innerWidth < 768 && filtersCard) {
-            filtersCard.style.display = 'none';
+    // TREE CATEGORIE (come Products.js)
+    function renderCategoryTree(categories, level = 1) {
+        const ul = document.createElement('ul');
+        ul.className = 'list-unstyled mb-0' + (level === 1 ? ' show' : '');
+        categories.forEach(cat => {
+            const hasChildren = Array.isArray(cat.children) && cat.children.length > 0;
+            const collapseId = `collapse-cat-${cat.id}`;
+            const li = document.createElement('li');
+            li.className = 'category-li position-relative';
+            li.innerHTML = `
+                <div class="form-check d-flex align-items-center gap-1" style="margin-bottom: 0.2rem; min-height: 1.8rem;">
+                    ${hasChildren
+                    ? `<button type=\"button\" class=\"btn btn-sm btn-link p-0 me-1 ms-0 category-collapse-btn d-flex align-items-center\" data-target=\"${collapseId}\" aria-expanded=\"false\" aria-controls=\"${collapseId}\"><i class=\"bi bi-caret-right-fill\"></i></button>`
+                    : '<span class=\"category-empty-icon me-1\" style=\"display:inline-block;width:1.5rem;\"></span>'}
+                    <input class="form-check-input ms-0" type="checkbox" id="cat-${cat.id}" value="${cat.id}" name="category[]">
+                    <label class="form-check-label ms-1" for="cat-${cat.id}">${cat.name}</label>
+                </div>
+            `;
+            if (hasChildren) {
+                const childUl = renderCategoryTree(cat.children, level + 1);
+                childUl.classList.add('ms-0');
+                childUl.id = collapseId;
+                li.appendChild(childUl);
+            }
+            ul.appendChild(li);
+        });
+        return ul;
+    }
+    function populateCategoryTree(categories) {
+        const treeContainer = pageElement.querySelector('#category-tree');
+        if (!treeContainer) return;
+        treeContainer.innerHTML = '';
+        if (!categories || !Array.isArray(categories) || categories.length === 0) {
+            treeContainer.innerHTML = '<div class="text-muted">Nessuna categoria disponibile</div>';
+            return;
         }
-    });
-
-    // Bottone toggle filtri mobile
-    const toggleFiltersBtn = pageElement.querySelector('#toggle-filters');
-    if (toggleFiltersBtn) {
-        toggleFiltersBtn.addEventListener('click', () => {
-            const filtersCard = document.getElementById('filters-card');
-            if (filtersCard) {
-                if (filtersCard.style.display === 'none' || filtersCard.style.display === '') {
-                    filtersCard.style.display = 'block';
+        const tree = renderCategoryTree(categories);
+        treeContainer.appendChild(tree);
+        // CSS per minimizzazione/espansione e rotazione caret
+        const style = document.createElement('style');
+        style.textContent = `
+        .category-li ul {
+            display: none;
+            margin-left: 1.5rem;
+            padding-left: 0.5rem;
+            border-left: 1px solid #eee;
+        }
+        .category-li ul.show {
+            display: block;
+        }
+        .category-collapse-btn i {
+            transition: transform 0.2s;
+        }
+        .category-collapse-btn[aria-expanded="true"] i {
+            transform: rotate(90deg);
+        }
+        `;
+        treeContainer.appendChild(style);
+        // Collapse/expand caret
+        treeContainer.querySelectorAll('.category-collapse-btn').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = btn.getAttribute('data-target');
+                const target = pageElement.querySelector(`#${targetId}`);
+                if (!target) return;
+                const isOpen = target.classList.contains('show');
+                if (isOpen) {
+                    target.classList.remove('show');
+                    btn.setAttribute('aria-expanded', 'false');
                 } else {
-                    filtersCard.style.display = 'none';
+                    target.classList.add('show');
+                    btn.setAttribute('aria-expanded', 'true');
+                }
+            });
+        });
+        // Selezione/deselezione ricorsiva figli e selezione padre se tutti i figli sono selezionati
+        treeContainer.querySelectorAll('input[type="checkbox"][name="category[]"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function () {
+                // Seleziona/deseleziona tutti i figli
+                const li = checkbox.closest('li');
+                if (!li) return;
+                const childCheckboxes = li.querySelectorAll('ul input[type="checkbox"][name="category[]"]');
+                childCheckboxes.forEach(cb => { cb.checked = checkbox.checked; });
+                // Aggiorna i padri
+                updateParentCheckbox(li);
+            });
+        });
+        function updateParentCheckbox(li) {
+            const parentUl = li.parentElement.closest('ul');
+            if (!parentUl) return;
+            const parentLi = parentUl.parentElement.closest('li');
+            if (!parentLi) return;
+            const parentCheckbox = parentLi.querySelector('> .form-check input[type="checkbox"][name="category[]"]');
+            if (!parentCheckbox) return;
+            const siblingCheckboxes = parentUl.querySelectorAll('> li > .form-check input[type="checkbox"][name="category[]"]');
+            const allChecked = Array.from(siblingCheckboxes).every(cb => cb.checked);
+            const someChecked = Array.from(siblingCheckboxes).some(cb => cb.checked);
+            parentCheckbox.checked = allChecked;
+            parentCheckbox.indeterminate = !allChecked && someChecked;
+            updateParentCheckbox(parentLi);
+        }
+    }
+    populateCategoryTree(categories);
+
+    // Popola filtro artigiano
+    function populateArtisanFilter(artisans) {
+        const artisanSelect = pageElement.querySelector('#artisan');
+        if (!artisanSelect) return;
+        let optionsHtml = '<option value="">Tutti gli artigiani</option>';
+        artisans.forEach(artisan => {
+            optionsHtml += `<option value="${artisan.id}">${artisan.name || artisan.email}</option>`;
+        });
+        artisanSelect.innerHTML = optionsHtml;
+    }
+    populateArtisanFilter(artisans);
+
+    // Funzione ricorsiva per ottenere tutti gli ID delle categorie selezionate e dei loro figli
+    function getAllCategoryIds(selectedIds, categories) {
+        let allIds = new Set();
+        function traverse(nodes) {
+            for (const cat of nodes) {
+                if (selectedIds.includes(String(cat.id))) {
+                    collectIds(cat);
+                } else if (cat.children && cat.children.length) {
+                    traverse(cat.children);
+                }
+            }
+        }
+        function collectIds(cat) {
+            allIds.add(String(cat.id));
+            if (cat.children && cat.children.length) {
+                cat.children.forEach(collectIds);
+            }
+        }
+        traverse(categories);
+        return Array.from(allIds);
+    }
+
+    // Gestione submit filtri avanzata
+    const filtersForm = pageElement.querySelector('#filters-form');
+    filtersForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const formData = new FormData(filtersForm);
+        currentFilters.search = formData.get('search') || '';
+        // Categorie: array di tutte le selezionate
+        const selectedCategories = Array.from(filtersForm.querySelectorAll('input[name="category[]"]:checked')).map(cb => cb.value);
+        const allCategoryIds = getAllCategoryIds(selectedCategories, categories);
+        currentFilters.category = allCategoryIds;
+        currentFilters.artisan = formData.get('artisan') || '';
+        currentFilters.minPrice = formData.get('minPrice') || '';
+        currentFilters.maxPrice = formData.get('maxPrice') || '';
+        currentFilters.page = 1;
+        fetchProducts(currentFilters);
+        // Nascondi i filtri su mobile
+        const filtersContainer = pageElement.querySelector('#filters-container');
+        if (window.innerWidth < 768 && filtersContainer) {
+            filtersContainer.style.display = 'none';
+        }
+    });
+    // Reset filtri
+    pageElement.querySelector('#reset-filters').addEventListener('click', function () {
+        currentFilters = {
+            search: '',
+            category: '',
+            minPrice: '',
+            maxPrice: '',
+            artisan: '',
+            page: 1,
+            limit: 12
+        };
+        filtersForm.reset();
+        fetchProducts(currentFilters);
+        // Nascondi i filtri su mobile
+        const filtersContainer = pageElement.querySelector('#filters-container');
+        if (window.innerWidth < 768 && filtersContainer) {
+            filtersContainer.style.display = 'none';
+        }
+    });
+    // Toggle filtri mobile
+    const toggleFiltersButton = pageElement.querySelector('#toggle-filters');
+    const filtersContainer = pageElement.querySelector('#filters-container');
+    if (toggleFiltersButton && filtersContainer) {
+        toggleFiltersButton.addEventListener('click', () => {
+            if (window.innerWidth < 768) {
+                if (filtersContainer.style.display === 'none' || filtersContainer.style.display === '') {
+                    filtersContainer.style.display = 'block';
+                } else {
+                    filtersContainer.style.display = 'none';
                 }
             }
         });
@@ -373,36 +524,37 @@ export async function loadProductsManagementPage() {
     if (backBtnMobile) backBtnMobile.addEventListener('click', () => {
         router.navigate('/admin/dashboard');
     });
-    const addProductBtnMobile = pageElement.querySelector('#addProductBtnMobile');
-    if (addProductBtnMobile) {
-        addProductBtnMobile.addEventListener('click', e => {
-            e.preventDefault();
-            showAddProductModal(categories, () => {
-                resetFiltersAndRefresh();
-            });
+    // Bottone refresh mobile
+    const refreshBtnMobile = pageElement.querySelector('#refreshProductsBtnMobile');
+    const refreshSpinnerMobile = pageElement.querySelector('#refresh-spinner-mobile');
+    if (refreshBtnMobile) {
+        refreshBtnMobile.addEventListener('click', async () => {
+            refreshBtnMobile.setAttribute('disabled', 'disabled');
+            refreshSpinnerMobile.classList.remove('d-none');
+            await fetchProducts(currentFilters);
+            refreshSpinnerMobile.classList.add('d-none');
+            refreshBtnMobile.removeAttribute('disabled');
+        });
+    }
+    // Bottone refresh desktop
+    const refreshBtn = pageElement.querySelector('#refreshProductsBtn');
+    const refreshSpinner = pageElement.querySelector('#refresh-spinner');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', async () => {
+            refreshBtn.setAttribute('disabled', 'disabled');
+            refreshSpinner.classList.remove('d-none');
+            await fetchProducts(currentFilters);
+            refreshSpinner.classList.add('d-none');
+            refreshBtn.removeAttribute('disabled');
         });
     }
 
-    // Eventi paginazione
-    pageElement.querySelector('#products-pagination').addEventListener('click', e => {
-        if (e.target.tagName === 'A') {
-            e.preventDefault();
-            currentPage = parseInt(e.target.dataset.page);
-            fetchProducts();
-        }
-    });
-
     // Prima renderizzazione
-    fetchProducts();
+    fetchProducts(currentFilters);
 
     return {
         render: () => pageElement,
-        mount: () => { 
-            const backBtn = document.getElementById('back-btn');
-            if (backBtn) backBtn.addEventListener('click', () => {
-                router.navigate('/admin/dashboard');
-            });
-        },
+        mount: () => { /* vuoto, non serve più qui */ },
         unmount: () => { }
     };
 }

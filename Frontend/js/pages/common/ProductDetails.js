@@ -55,13 +55,22 @@ export async function loadProductDetailsPage(params = {}) {
             const info = document.getElementById('product-info');
             if (!info) return;
             const isLogged = authService.isAuthenticated();
+            let prezzoScontato = product.price;
+            if (product.discount && product.discount > 0 && product.discount < 100) {
+                prezzoScontato = product.price * (1 - product.discount / 100);
+            }
             info.innerHTML = `
                 <h2 class="fw-bold mb-2">${product.name}</h2>
                 <p class="text-muted mb-2">Categoria: <span class="fw-semibold">${product.category_name || '-'}</span></p>
                 <p class="mb-2">Artigiano: <span class="fw-semibold">${product.artisan_name || '-'}</span></p>
                 <p class="mb-3">${product.description || 'Nessuna descrizione disponibile.'}</p>
                 <div class="d-flex align-items-center mb-3">
-                    <span class="fs-4 fw-bold text-primary">${Number(product.price).toFixed(2)} €</span>
+                    <span class="fs-4 fw-bold text-primary">
+                        ${product.discount && product.discount > 0 && product.discount < 100 ?
+                            `<span class='text-danger'>${prezzoScontato.toFixed(2)} €</span> <span class='text-decoration-line-through text-muted fs-6 ms-2'>${product.price.toFixed(2)} €</span>` :
+                            `${product.price?.toFixed(2) || '0.00'} €`
+                        }
+                    </span>
                 </div>
                 <button class="btn btn-primary w-100" id="add-to-cart-btn" ${!isLogged ? 'disabled' : ''}>Aggiungi al carrello</button>
                 ${!isLogged ? '<div class="text-danger text-center mt-2 small">Devi essere loggato per aggiungere al carrello</div>' : ''}
