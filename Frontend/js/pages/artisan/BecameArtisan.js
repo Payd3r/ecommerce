@@ -3,6 +3,7 @@ import UsersAPI from '../../../api/users.js';
 import { authService } from '../../services/authService.js';
 import { router } from '../../router.js';
 import { showBootstrapToast } from '../../components/Toast.js';
+import { uploadProfileImage, uploadBannerImage } from '../../../api/images.js';
 
 /**
  * Pagina per diventare artigiano
@@ -115,37 +116,36 @@ export async function loadBecameArtisanPage() {
 
         let updatedName = user.name; // Inizializza con il nome attuale
         let updatedProfileImageUrl = user.image; // Inizializza con l'immagine attuale
+        let updatedBannerImageUrl = null;
 
         try {
             if (user.name !== nameFromForm) {
                 updatedName = nameFromForm;
             }
 
-            const artisanApplicationData = new FormData();
-            if (biography) {
-                artisanApplicationData.append('bio', biography);
-            }
+            // 1. Carica la foto profilo se presente
             if (profileImageFile) {
-                artisanApplicationData.append('profileImage', profileImageFile);
-            }
-            if (bannerImageFile) {
-                artisanApplicationData.append('bannerImage', bannerImageFile);
-            }
-            artisanApplicationData.append('name', nameFromForm); // Invia il nome dal form
-            artisanApplicationData.append('email', email);
-
-            let applicationResult = null;
-            if (biography || profileImageFile || bannerImageFile) {
-                applicationResult = await UsersAPI.updateArtisanDetails(artisanApplicationData);
-                console.log('Richiesta artigiano inviata:', applicationResult);
-                if (applicationResult && applicationResult.profileImage) {
-                    updatedProfileImageUrl = applicationResult.profileImage;
+                const res = await uploadProfileImage(user.id, profileImageFile);
+                if (res && res.files && res.files[0] && res.files[0].url) {
+                    updatedProfileImageUrl = res.files[0].url;
                 }
-            } else {
-                console.log('Nessuna biografia o immagine fornita per la richiesta artigiano. Inviata richiesta base.');
             }
-            
-            // Aggiorna l'utente in localStorage con il nuovo nome (dal form) e la nuova immagine profilo (dalla risposta API)
+            // 2. Carica il banner se presente
+            if (bannerImageFile) {
+                const res = await uploadBannerImage(user.id, bannerImageFile);
+                if (res && res.url) {
+                    updatedBannerImageUrl = res.url;
+                }
+            }
+            // 3. Aggiorna la bio tramite updateArtisanDetails
+            if (biography) {
+                await UsersAPI.updateArtisanDetails({ bio: biography });
+            }
+            // 4. Aggiorna il nome se cambiato (tramite API profilo, se necessario)
+            if (user.name !== nameFromForm) {
+                await UsersAPI.updateUser(user.id, { name: nameFromForm });
+            }
+            // 5. Aggiorna l'utente in localStorage con i nuovi dati
             const currentUserFromAuth = authService.getUser();
             const userToStore = {
                 ...currentUserFromAuth,

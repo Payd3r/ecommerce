@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../models/db');
 const { verifyToken, checkRole } = require('../middleware/auth');
+const { toPublicImageUrl } = require('../services/imageUrl');
 
 // GET /products - Ottieni tutti i prodotti con paginazione e filtri
 router.get('/', async (req, res) => {
@@ -71,7 +72,7 @@ router.get('/', async (req, res) => {
                 [productIds]
             );
             images.forEach(img => {
-                imagesMap[img.product_id] = img;
+                imagesMap[img.product_id] = { ...img, url: toPublicImageUrl(img.url) };
             });
         }
         const productsWithImage = products.map(p => ({
@@ -127,7 +128,7 @@ router.get('/:id', async (req, res) => {
         // Restituisci il prodotto con le immagini
         res.json({
             ...product[0],
-            images
+            images: images.map(img => ({ ...img, url: toPublicImageUrl(img.url) }))
         });
     } catch (error) {
         console.error('Errore nel recupero del prodotto:', error);
@@ -290,7 +291,7 @@ router.get('/by-artisan/:id', async (req, res) => {
                 [productIds]
             );
             images.forEach(img => {
-                imagesMap[img.product_id] = img;
+                imagesMap[img.product_id] = { ...img, url: toPublicImageUrl(img.url) };
             });
         }
         const productsWithImage = products.map(p => ({

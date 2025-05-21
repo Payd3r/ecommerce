@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve la cartella Media come statica
-app.use('/Media', express.static(path.resolve(__dirname, 'Media')));
+// app.use('/Media', express.static(path.resolve(__dirname, 'Media'))); // ora servito da imageserver
 
 // Routes base
 app.get('/', (req, res) => {

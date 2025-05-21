@@ -391,8 +391,8 @@ const UsersAPI = {
     },
 
     /**
-     * Aggiorna i dettagli specifici dell'artigiano (bio, immagini).
-     * @param {FormData} artisanData - FormData contenente bio, profileImage (file), bannerImage (file).
+     * Aggiorna i dettagli specifici dell'artigiano (solo bio e dati testuali, NON immagini).
+     * @param {Object} artisanData - Oggetto contenente bio (e altri dati testuali).
      * @returns {Promise} Promise con i dati aggiornati.
      */
     updateArtisanDetails: async (artisanData) => {
@@ -405,10 +405,10 @@ const UsersAPI = {
             const response = await fetchWithAuth(`${API_URL}/users/artisan-details`, {
                 method: 'POST',
                 headers: {
-                    // 'Content-Type': 'multipart/form-data' // NON impostare Content-Type con FormData, il browser lo fa.
+                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: artisanData // Invia direttamente FormData
+                body: JSON.stringify(artisanData)
             });
 
             if (!response.ok) {

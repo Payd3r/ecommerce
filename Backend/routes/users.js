@@ -6,11 +6,12 @@ const { verifyToken, checkRole } = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { toPublicImageUrl } = require('../services/imageUrl');
 
 const projectRoot = path.join(__dirname, '..', '..'); 
 
-const profileUploadDir = path.join(projectRoot, 'Media', 'profile');
-const bannerUploadDir = path.join(projectRoot, 'Media', 'banner');
+const profileUploadDir = path.join(__dirname, '../Media/profile');
+const bannerUploadDir = path.join(__dirname, '../Media/banner');
 
 if (!fs.existsSync(profileUploadDir)) {
     fs.mkdirSync(profileUploadDir, { recursive: true });
@@ -136,7 +137,10 @@ router.get('/artisans', async (req, res) => {
             if (artisans.length === 0) {
                 return res.status(404).json({ error: 'Artigiano non trovato o non approvato' });
             }
-            return res.json({ data: artisans[0] });
+            const art = artisans[0];
+            art.image = art.image ? toPublicImageUrl(art.image) : null;
+            art.url_banner = art.url_banner ? toPublicImageUrl(art.url_banner) : null;
+            return res.json({ data: art });
         }
         // Procedi con la normale logica della route
         const page = parseInt(req.query.page) || 1;
@@ -167,10 +171,16 @@ router.get('/artisans', async (req, res) => {
         }
 
         // Aggiungi ordinamento e paginazione
-        query += ' ORDER BY u.name ASC LIMIT ? OFFSET ?';
+        query += ' ORDER BY u.created_at DESC LIMIT ? OFFSET ?';
         queryParams.push(limit, offset);
 
         const [artisans] = await db.query(query, queryParams);
+        // Applica toPublicImageUrl a image e url_banner
+        const artisansWithUrls = artisans.map(a => ({
+            ...a,
+            image: a.image ? toPublicImageUrl(a.image) : null,
+            url_banner: a.url_banner ? toPublicImageUrl(a.url_banner) : null
+        }));
         const [totalCountResult] = await db.query(countQuery, countQueryParams);
         const total = totalCountResult[0].total;
 
@@ -179,7 +189,7 @@ router.get('/artisans', async (req, res) => {
         const hasPrevPage = page > 1;
 
         res.json({
-            data: artisans,
+            data: artisansWithUrls,
             pagination: {
                 total,
                 totalPages,
@@ -190,11 +200,8 @@ router.get('/artisans', async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Errore nel recupero degli artisani:', error);
-        res.status(500).json({ 
-            error: 'Errore nel recupero degli artisani',
-            details: error.message 
-        });
+        console.error('Errore API /users/artisans:', error);
+        res.status(500).json({ error: 'Errore nel recupero degli artigiani.' });
     }
 });
 
@@ -426,106 +433,32 @@ router.delete('/:id', verifyToken, checkRole('admin'), async (req, res) => {
 });
 
 // NUOVA ROTTA: POST /users/artisan-details
-router.post('/artisan-details', verifyToken, artisanDetailsUpload, async (req, res) => {
+router.post('/artisan-details', verifyToken, async (req, res, next) => {
+    // Se la richiesta è multipart/form-data, passa al middleware multer (retrocompatibilità)
+    if (req.headers['content-type'] && req.headers['content-type'].includes('multipart/form-data')) {
+        return next();
+    }
+    // Altrimenti gestisci solo dati testuali (bio, ecc.)
     const userId = req.user.id;
-    const { bio } = req.body; // bio viene da req.body perché non è un file
-
-    // fileData conterrà i path relativi per il DB
-    let fileData = { profileImagePath: null, bannerImagePath: null };
-    let filesToDeleteOnError = []; // Tiene traccia dei file salvati per poterli cancellare in caso di errore DB
-
+    const { bio } = req.body;
     try {
-        const { profileImage, bannerImage } = req.files || {};
-
-        if (profileImage && profileImage[0]) {
-            const file = profileImage[0];
-            const profileFileName = `${userId}-profile-${Date.now()}${path.extname(file.originalname)}`;
-            
-            // Crea la directory specifica dell'utente per l'immagine profilo se non esiste
-            const userSpecificProfileDir = path.join(profileUploadDir, String(userId));
-            if (!fs.existsSync(userSpecificProfileDir)) {
-                fs.mkdirSync(userSpecificProfileDir, { recursive: true });
-            }
-            
-            const profileDiskPath = path.join(userSpecificProfileDir, profileFileName);
-            fs.writeFileSync(profileDiskPath, file.buffer);
-            fileData.profileImagePath = `/Media/profile/${userId}/${profileFileName}`; // Path aggiornato
-            filesToDeleteOnError.push(profileDiskPath);
-
+        if (bio !== undefined) {
             await db.query(
-                'INSERT INTO profile_image (user_id, url) VALUES (?, ?) ON DUPLICATE KEY UPDATE url = VALUES(url)',
-                [userId, fileData.profileImagePath]
+                'INSERT INTO extended_users (id_users, bio) VALUES (?, ?) ON DUPLICATE KEY UPDATE bio = VALUES(bio)',
+                [userId, bio]
             );
         }
-
-        if (bannerImage && bannerImage[0]) {
-            const file = bannerImage[0];
-            const bannerFileName = `${userId}-banner-${Date.now()}${path.extname(file.originalname)}`;
-            const bannerDiskPath = path.join(bannerUploadDir, bannerFileName); // Il banner non ha sottocartella utente
-            fs.writeFileSync(bannerDiskPath, file.buffer);
-            fileData.bannerImagePath = `/Media/banner/${bannerFileName}`;
-            filesToDeleteOnError.push(bannerDiskPath);
-        }
-
-        // UPSERT per extended_users
-        const fieldsToInsert = ['id_users'];
-        const valuesToInsert = [userId];
-        const fieldsToUpdate = [];
-
-        const altTextForBanner = req.body.alt_text_banner || ''; // Assumendo che alt_text sia per il banner
-        fieldsToInsert.push('alt_text');
-        valuesToInsert.push(altTextForBanner);
-        fieldsToUpdate.push('alt_text = VALUES(alt_text)');
-
-        if (fileData.bannerImagePath) {
-            fieldsToInsert.push('url_banner');
-            valuesToInsert.push(fileData.bannerImagePath);
-            fieldsToUpdate.push('url_banner = VALUES(url_banner)');
-        }
-        
-        if (bio !== undefined) { 
-            fieldsToInsert.push('bio');
-            valuesToInsert.push(bio);
-            fieldsToUpdate.push('bio = VALUES(bio)');
-        }
-
-        if (fieldsToInsert.length > 2 || (fieldsToInsert.length === 2 && (fileData.bannerImagePath || bio !== undefined))) { 
-            let upsertQuery = `
-                INSERT INTO extended_users (${fieldsToInsert.join(', ')})
-                VALUES (${valuesToInsert.map(() => '?').join(', ')})
-            `;
-            if (fieldsToUpdate.length > 0) {
-                upsertQuery += ` ON DUPLICATE KEY UPDATE ${fieldsToUpdate.join(', ')}`;
-            }
-            await db.query(upsertQuery, valuesToInsert);
-        } else if (fieldsToInsert.length === 2 && fieldsToUpdate.length > 0) {
-            let updateOnlyQuery = `INSERT INTO extended_users (id_users, alt_text) VALUES (?, ?) ON DUPLICATE KEY UPDATE alt_text = VALUES(alt_text)`
-            await db.query(updateOnlyQuery, [userId, altTextForBanner]);
-        }
-
         res.status(200).json({
             message: 'Dettagli artigiano aggiornati con successo.',
-            profileImage: fileData.profileImagePath,
-            bannerImage: fileData.bannerImagePath,
             bio: bio
         });
-
     } catch (error) {
-        console.error('Errore API /artisan-details:', error);
-        // Rollback manuale dei file salvati se c'è un errore DB
-        filesToDeleteOnError.forEach(filePath => {
-            if (fs.existsSync(filePath)) {
-                fs.unlinkSync(filePath);
-            }
-        });
-        // Rispondi con l'errore specifico di multer se è un errore di tipo file
-        if (error instanceof multer.MulterError) {
-            return res.status(400).json({ error: `Errore upload file: ${error.message}` });
-        } else if (error.message && error.message.startsWith('Error: Images Only!')) {
-             return res.status(400).json({ error: error.message });
-        }
+        console.error('Errore API /artisan-details (json):', error);
         res.status(500).json({ error: 'Errore server nell\'aggiornamento dei dettagli artigiano.', details: error.message });
     }
+}, artisanDetailsUpload, async (req, res) => {
+    // Questo blocco rimane per retrocompatibilità, ma ora le immagini non vengono più gestite qui
+    res.status(400).json({ error: 'Upload immagini non più supportato qui. Usa le API /images/upload/profile e /images/upload/banner.' });
 });
 
 // PUT /users/:id/approve - Approva un artigiano (solo admin)

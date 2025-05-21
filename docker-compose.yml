@@ -32,6 +32,7 @@ services:
       JWT_SECRET: ecommerce_artisan_platform_secret_key
     volumes:
       - ./Backend:/usr/src/app
+      # Volume condiviso per le immagini caricate dagli utenti
       - ./Media:/usr/src/app/Media
       - /usr/src/app/node_modules
     working_dir: /usr/src/app
@@ -47,6 +48,16 @@ services:
       - backend
     volumes:
       - ./Frontend:/usr/share/nginx/html
+      # NON montare ./Media qui, le immagini pubbliche sono servite da imageserver
+
+  imageserver:
+    image: nginx:alpine
+    container_name: imageserver
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      # Volume condiviso per le immagini pubbliche
       - ./Media:/usr/share/nginx/html/Media
 
 volumes:

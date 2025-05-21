@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../models/db'); // Assicurati che sia la tua connessione al DB
 const { verifyToken } = require('../middleware/auth');
+const { toPublicImageUrl } = require('../services/imageUrl');
 
 // 1. Crea carrello (se non esiste)
 router.post('/', verifyToken, async (req, res) => {
@@ -75,7 +76,7 @@ router.get('/', verifyToken, async (req, res) => {
                 [productIds]
             );
             images.forEach(img => {
-                imagesMap[img.product_id] = img.url;
+                imagesMap[img.product_id] = toPublicImageUrl(img.url);
             });
         }
         const itemsWithImage = items.map(i => ({

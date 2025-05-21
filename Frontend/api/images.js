@@ -65,3 +65,18 @@ export async function deleteProductImages(productId, imageIds) {
     if (!res.ok) throw new Error('Errore eliminazione immagini prodotto');
     return await res.json();
 }
+
+// Funzione per upload banner artigiano (una sola)
+export async function uploadBannerImage(userId, file) {
+    const formData = new FormData();
+    formData.append('id', userId);
+    formData.append('banner', file);
+    const token = authService.getToken();
+    const res = await fetch(`${API_URL}/images/upload/banner`, {
+        method: 'POST',
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+        body: formData
+    });
+    if (!res.ok) throw new Error('Errore upload banner');
+    return await res.json();
+}
