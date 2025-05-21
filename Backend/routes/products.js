@@ -169,11 +169,11 @@ router.post('/', verifyToken, checkRole('artisan'), async (req, res) => {
     }
 });
 
-// PUT /products/:id - Aggiorna un prodotto (solo l'artigiano proprietario)
-router.put('/:id', verifyToken, checkRole('artisan'), async (req, res) => {
+// PUT /products/:id - Aggiorna un prodotto (admin o artigiano proprietario)
+router.put('/:id', verifyToken, checkRole('artisan', 'admin'), async (req, res) => {
     const { name, description, price, stock, category_id } = req.body;
     const productId = req.params.id;
-    const artisan_id = req.user.id;
+    const user = req.user;
 
     // Validazione
     if (!name || !price) {
@@ -181,11 +181,14 @@ router.put('/:id', verifyToken, checkRole('artisan'), async (req, res) => {
     }
 
     try {
-        // Verifica che il prodotto esista e appartenga all'artigiano
-        const [product] = await db.query(
-            'SELECT * FROM products WHERE id = ? AND artisan_id = ?',
-            [productId, artisan_id]
-        );
+        let product;
+        if (user.role === 'admin') {
+            // L'admin può modificare qualsiasi prodotto
+            [product] = await db.query('SELECT * FROM products WHERE id = ?', [productId]);
+        } else {
+            // L'artigiano solo i suoi
+            [product] = await db.query('SELECT * FROM products WHERE id = ? AND artisan_id = ?', [productId, user.id]);
+        }
 
         if (product.length === 0) {
             return res.status(404).json({ 
@@ -193,13 +196,22 @@ router.put('/:id', verifyToken, checkRole('artisan'), async (req, res) => {
             });
         }
 
-        // Aggiorna il prodotto
-        await db.query(
-            `UPDATE products 
-             SET name = ?, description = ?, price = ?, stock = ?, category_id = ?
-             WHERE id = ? AND artisan_id = ?`,
-            [name, description, price, stock, category_id, productId, artisan_id]
-        );
+        // Aggiorna il prodotto (non filtrare per artisan_id se admin)
+        if (user.role === 'admin') {
+            await db.query(
+                `UPDATE products 
+                 SET name = ?, description = ?, price = ?, discount = ?, stock = ?, category_id = ?
+                 WHERE id = ?`,
+                [name, description, price, req.body.discount || 0, stock, category_id, productId]
+            );
+        } else {
+            await db.query(
+                `UPDATE products 
+                 SET name = ?, description = ?, price = ?, discount = ?, stock = ?, category_id = ?
+                 WHERE id = ? AND artisan_id = ?`,
+                [name, description, price, req.body.discount || 0, stock, category_id, productId, user.id]
+            );
+        }
 
         const [updatedProduct] = await db.query(
             `SELECT p.*, u.name as artisan_name, c.name as category_name 

@@ -341,7 +341,7 @@ router.put('/:orderId', verifyToken, async (req, res) => {
     const orderId = parseInt(req.params.orderId);
     const { status } = req.body;
     if (isNaN(orderId) || !status) {
-        return res.status(400).json({ error: 'ID ordine o stato non valido' });
+        return res.status(400).json({ error: 'ID ordine o stato non valido', debug: { orderId, status, body: req.body } });
     }
     try {
         // Recupera lo stato attuale e il client/artisan associato
@@ -356,10 +356,6 @@ router.put('/:orderId', verifyToken, async (req, res) => {
             accepted: ['shipped'],
             shipped: ['delivered']
         };
-        // Controlla se la transizione è valida
-        if (!validTransitions[currentStatus] || !validTransitions[currentStatus].includes(status)) {
-            return res.status(400).json({ error: `Transizione di stato non valida da '${currentStatus}' a '${status}'` });
-        }
         // Se admin, può cambiare stato liberamente
         if (req.user.role === 'admin') {
             // Se da pending a refused, restituisci scorte
@@ -375,11 +371,31 @@ router.put('/:orderId', verifyToken, async (req, res) => {
                     );
                 }
             }
+            // Se da pending a accepted, scala le scorte
+            if (currentStatus === 'pending' && status === 'accepted') {
+                const [orderItems] = await db.query(
+                    'SELECT product_id, quantity FROM order_items WHERE order_id = ?',
+                    [orderId]
+                );
+                for (const item of orderItems) {
+                    const [[prod]] = await db.query('SELECT stock FROM products WHERE id = ? FOR UPDATE', [item.product_id]);
+                    if (!prod || prod.stock < item.quantity) {
+                        return res.status(400).json({ error: `Scorte insufficienti per il prodotto ID: ${item.product_id}` });
+                    }
+                }
+                for (const item of orderItems) {
+                    await db.query('UPDATE products SET stock = stock - ? WHERE id = ?', [item.quantity, item.product_id]);
+                }
+            }
             const [result] = await db.query('UPDATE orders SET status = ? WHERE id = ?', [status, orderId]);
             if (result.affectedRows === 0) {
                 return res.status(404).json({ error: 'Ordine non trovato' });
             }
             return res.json({ message: 'Stato ordine aggiornato (admin)' });
+        }
+        // Controlla se la transizione è valida
+        if (!validTransitions[currentStatus] || !validTransitions[currentStatus].includes(status)) {
+            return res.status(400).json({ error: `Transizione di stato non valida da '${currentStatus}' a '${status}'` });
         }
         // Controlla permessi
         if (currentStatus === 'pending' && (status === 'accepted' || status === 'refused')) {

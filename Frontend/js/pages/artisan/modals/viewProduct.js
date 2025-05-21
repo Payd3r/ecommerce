@@ -76,7 +76,12 @@ export async function showViewProductModal(productId, categories) {
               <h2 class="h4 mb-2">${product.name}</h2>
               <div class="mb-2 text-muted">Categoria: <strong>${categoryName}</strong></div>
               <div class="mb-2">${product.description}</div>
-              <div class="mb-2"><span class="fw-bold">Prezzo:</span> ${product.price} €</div>
+              <div class="mb-2"><span class="fw-bold">Prezzo:</span> 
+                ${product.discount && product.discount > 0 && product.discount < 100 ?
+                  `<span class='text-danger'>${(product.price * (1 - product.discount / 100)).toFixed(2)} €</span> <span class='text-decoration-line-through text-muted small ms-1'>${product.price.toFixed(2)} €</span>` :
+                  `${product.price} €`
+                }
+              </div>
               ${product.discount ? `<div class="mb-2"><span class="fw-bold">Sconto:</span> ${product.discount}%</div>` : ''}
               <div class="mb-2"><span class="fw-bold">Stock:</span> ${product.stock}</div>
               <div class="mb-2"><span class="fw-bold">Creato il:</span> ${product.created_at ? new Date(product.created_at).toLocaleDateString('it-IT') : '-'}</div>

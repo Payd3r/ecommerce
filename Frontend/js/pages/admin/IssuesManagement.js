@@ -84,22 +84,28 @@ export async function loadIssuesManagementPage() {
     let issues = [];
     let filteredIssues = [];
     let totalIssues = 0;
-    let currentPage = 1;
-    const pageSize = 10;
     let sortBy = 'created_at';
     let sortDir = 'DESC';
+    // Stato filtri e paginazione
+    let currentFilters = {
+        title: '',
+        status: '',
+        date: '',
+        page: 1,
+        pageSize: 10
+    };
 
     // Carica segnalazioni dal server
-    async function fetchIssues(page = 1) {
-        currentPage = page;
+    async function fetchIssues(params = {}) {
+        currentFilters = { ...currentFilters, ...params };
         try {
             const res = await import('../../../api/issues.js');
-            const data = await res.getIssues(page, pageSize);
+            const data = await res.getIssues(currentFilters.page, currentFilters.pageSize);
             issues = data.issues || [];
             filteredIssues = [...issues];
             totalIssues = data.total || 0;
-            renderTable();
-            renderPagination(Math.ceil(totalIssues / pageSize) || 1);
+            applyFilters(false); // Applica i filtri correnti senza resettare la pagina
+            renderPagination(Math.ceil(filteredIssues.length / currentFilters.pageSize) || 1);
         } catch (e) {
             issues = [];
             filteredIssues = [];
@@ -110,11 +116,15 @@ export async function loadIssuesManagementPage() {
     }
 
     // Applica i filtri (frontend)
-    function applyFilters() {
+    function applyFilters(resetPage = true) {
         const form = document.getElementById('issues-filters-form');
         const title = form.title.value.trim().toLowerCase();
         const status = form.status.value;
         const date = form.date.value;
+        currentFilters.title = title;
+        currentFilters.status = status;
+        currentFilters.date = date;
+        if (resetPage) currentFilters.page = 1;
         filteredIssues = issues.filter(issue => {
             let ok = true;
             if (title && !(issue.title || '').toLowerCase().includes(title)) ok = false;
@@ -122,19 +132,18 @@ export async function loadIssuesManagementPage() {
             if (date && issue.created_at && issue.created_at.split('T')[0] !== date) ok = false;
             return ok;
         });
-        currentPage = 1;
         renderTable();
-        renderPagination(Math.ceil(filteredIssues.length / pageSize) || 1);
+        renderPagination(Math.ceil(filteredIssues.length / currentFilters.pageSize) || 1);
     }
 
     // Reset filtri
     function resetFilters() {
         const form = document.getElementById('issues-filters-form');
         form.reset();
+        currentFilters = { ...currentFilters, title: '', status: '', date: '', page: 1 };
         filteredIssues = [...issues];
-        currentPage = 1;
         renderTable();
-        renderPagination(Math.ceil(filteredIssues.length / pageSize) || 1);
+        renderPagination(Math.ceil(filteredIssues.length / currentFilters.pageSize) || 1);
     }
 
     // Renderizza la tabella
@@ -164,8 +173,10 @@ export async function loadIssuesManagementPage() {
             if (v1 > v2) return sortDir === 'ASC' ? 1 : -1;
             return 0;
         });
-        // Mostra direttamente tutti i risultati ricevuti dal backend (già paginati)
-        const pageIssues = filteredIssues;
+        // Mostra solo la pagina corrente
+        const startIdx = (currentFilters.page - 1) * currentFilters.pageSize;
+        const endIdx = startIdx + currentFilters.pageSize;
+        const pageIssues = filteredIssues.slice(startIdx, endIdx);
         if (pageIssues.length === 0) {
             tableBody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-5">Nessuna segnalazione trovata.</td></tr>`;
         } else {
@@ -191,9 +202,11 @@ export async function loadIssuesManagementPage() {
     // Badge stato
     function renderStatusBadge(status) {
         switch (status) {
-            case 'open': return '<span class="badge bg-warning">Aperta</span>';
+            case 'open': return '<span class="badge bg-warning text-dark">Aperta</span>';
             case 'closed': return '<span class="badge bg-success">Chiusa</span>';
-            default: return `<span class="badge bg-secondary">${status}</span>`;
+            case 'refused': return '<span class="badge bg-danger">Rifiutata</span>';
+            case 'solved': return '<span class="badge bg-info text-dark">Risolta</span>';
+            default: return `<span class="badge bg-secondary">${status ? status.charAt(0).toUpperCase() + status.slice(1) : ''}</span>`;
         }
     }
 
@@ -209,43 +222,43 @@ export async function loadIssuesManagementPage() {
         btnGroup.className = 'btn-group';
 
         // Bottone Precedente
-        if (currentPage > 1) {
+        if (currentFilters.page > 1) {
             const prevBtn = document.createElement('button');
             prevBtn.type = 'button';
             prevBtn.className = 'btn btn-outline-primary btn-sm';
             prevBtn.textContent = 'Precedente';
             prevBtn.onclick = function() {
-                fetchIssues(currentPage - 1);
+                fetchIssues({ page: currentFilters.page - 1 });
             };
             btnGroup.appendChild(prevBtn);
         }
 
         // Bottoni pagina (massimo 5)
         const maxButtons = 5;
-        const startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+        const startPage = Math.max(1, currentFilters.page - Math.floor(maxButtons / 2));
         const endPage = Math.min(totalPages, startPage + maxButtons - 1);
 
         for (let i = startPage; i <= endPage; i++) {
             const pageBtn = document.createElement('button');
             pageBtn.type = 'button';
-            pageBtn.className = `btn btn-sm ${i === currentPage ? 'btn-primary' : 'btn-outline-primary'}`;
+            pageBtn.className = `btn btn-sm ${i === currentFilters.page ? 'btn-primary' : 'btn-outline-primary'}`;
             pageBtn.textContent = i;
-            if (i !== currentPage) {
+            if (i !== currentFilters.page) {
                 pageBtn.onclick = function() {
-                    fetchIssues(i);
+                    fetchIssues({ page: i });
                 };
             }
             btnGroup.appendChild(pageBtn);
         }
 
         // Bottone Successivo
-        if (currentPage < totalPages) {
+        if (currentFilters.page < totalPages) {
             const nextBtn = document.createElement('button');
             nextBtn.type = 'button';
             nextBtn.className = 'btn btn-outline-primary btn-sm';
             nextBtn.textContent = 'Successivo';
             nextBtn.onclick = function() {
-                fetchIssues(currentPage + 1);
+                fetchIssues({ page: currentFilters.page + 1 });
             };
             btnGroup.appendChild(nextBtn);
         }

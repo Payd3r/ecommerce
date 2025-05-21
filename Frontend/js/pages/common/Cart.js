@@ -43,7 +43,11 @@ export async function loadCartPage() {
             let total = 0;
             items.forEach(item => {
                 const price = Number(item.price);
-                const subtotal = price * item.quantity;
+                let prezzoScontato = price;
+                if (item.discount && item.discount > 0 && item.discount < 100) {
+                    prezzoScontato = price * (1 - item.discount / 100);
+                }
+                const subtotal = prezzoScontato * item.quantity;
                 total += subtotal;
                 html += `
                     <tr data-item-id="${item.item_id}">
@@ -56,7 +60,12 @@ export async function loadCartPage() {
                         <td style="min-width:100px; font-size:0.98rem;">
                             ${item.name}
                         </td>
-                        <td class="d-none d-sm-table-cell" style="width:80px; font-size:0.98rem;">${price.toFixed(2)} €</td>
+                        <td class="d-none d-sm-table-cell" style="width:80px; font-size:0.98rem;">
+                            ${item.discount && item.discount > 0 && item.discount < 100 ?
+                                `<span class='text-danger'>${prezzoScontato.toFixed(2)} €</span> <span class='text-decoration-line-through text-muted small ms-1'>${price.toFixed(2)} €</span>` :
+                                `${price.toFixed(2)} €`
+                            }
+                        </td>
                         <td style="max-width:60px;">
                             <div class="input-group input-group-sm flex-nowrap">
                                 <button class="btn btn-outline-secondary btn-qty-minus px-2" type="button">-</button>
@@ -64,7 +73,12 @@ export async function loadCartPage() {
                                 <button class="btn btn-outline-secondary btn-qty-plus px-2" type="button">+</button>
                             </div>
                         </td>
-                        <td style="width:100px;"><span class="fw-bold">${subtotal.toFixed(2)} €</span></td>
+                        <td style="width:100px;"><span class="fw-bold">
+                            ${item.discount && item.discount > 0 && item.discount < 100 ?
+                                `<span class='text-danger'>${subtotal.toFixed(2)} €</span> <span class='text-decoration-line-through text-muted small ms-1'>${(price * item.quantity).toFixed(2)} €</span>` :
+                                `${subtotal.toFixed(2)} €`
+                            }
+                        </span></td>
                         <td><button class="btn btn-danger btn-sm btn-remove-item"><i class="bi bi-trash"></i></button></td>
                     </tr>
                 `;

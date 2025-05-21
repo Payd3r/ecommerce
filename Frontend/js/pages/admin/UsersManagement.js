@@ -298,14 +298,16 @@ export async function loadUsersManagementPage() {
     // Funzione per caricare e popolare la tabella degli utenti
     async function loadUsersTable(params = {}) {
         try {
+            // Unisci i parametri ricevuti con quelli correnti
+            currentFilters = { ...currentFilters, ...params };
             // Per sicurezza, estrai esplicitamente i parametri che ci interessano
-            const page = parseInt(params.page) || 1;
-            const name = params.name || '';
-            const email = params.email || '';
-            const role = params.role || '';
-            const limit = params.limit || 10;
-            const orderBy = params.orderBy || 'created_at';
-            const orderDir = params.orderDir || 'ASC';
+            const page = parseInt(currentFilters.page) || 1;
+            const name = currentFilters.name || '';
+            const email = currentFilters.email || '';
+            const role = currentFilters.role || '';
+            const limit = currentFilters.limit || 10;
+            const orderBy = currentFilters.orderBy || 'created_at';
+            const orderDir = currentFilters.orderDir || 'ASC';
             
             // Crea un oggetto parametri pulito
             const apiParams = {
@@ -453,7 +455,7 @@ export async function loadUsersManagementPage() {
             prevBtn.className = 'btn btn-outline-primary';
             prevBtn.textContent = 'Precedente';
             prevBtn.onclick = function() {
-                loadUsersTable({ page: currentPage - 1 });
+                loadUsersTable({ ...currentFilters, page: currentPage - 1 });
             };
             btnGroup.appendChild(prevBtn);
         }
@@ -472,7 +474,7 @@ export async function loadUsersManagementPage() {
             // Solo per le pagine diverse da quella corrente
             if (i !== currentPage) {
                 pageBtn.onclick = function() {
-                    loadUsersTable({ page: i });
+                    loadUsersTable({ ...currentFilters, page: i });
                 };
             }
             
@@ -486,7 +488,7 @@ export async function loadUsersManagementPage() {
             nextBtn.className = 'btn btn-outline-primary';
             nextBtn.textContent = 'Successivo';
             nextBtn.onclick = function() {
-                loadUsersTable({ page: currentPage + 1 });
+                loadUsersTable({ ...currentFilters, page: currentPage + 1 });
             };
             btnGroup.appendChild(nextBtn);
         }
@@ -607,7 +609,8 @@ export async function loadUsersManagementPage() {
      */
     function mount() {
         // Invece carico direttamente la tabella una sola volta all'avvio
-        loadUsersTable({ page: 1 });
+        currentFilters.page = 1;
+        loadUsersTable(currentFilters);
         
         const backBtn = document.getElementById('back-btn');
         if (backBtn) {
@@ -637,23 +640,32 @@ export async function loadUsersManagementPage() {
                 default:
                     break;
             }
-            const params = {
+            currentFilters = {
+                ...currentFilters,
                 name: formData.get('filter-name') || '',
                 email: formData.get('filter-email') || '',
                 role: rawrole || '',
-                page: 1 // Esplicitamente reset alla pagina 1
+                page: 1 // resetta sempre alla prima pagina
             };
-            await loadUsersTable(params);
+            await loadUsersTable(currentFilters);
         };
 
         // Modifica per utilizzare onclick per il bottone "Reset Filtri"
         document.getElementById('reset-filters-btn').onclick = async () => {
             document.getElementById('filters-form').reset();
-            await loadUsersTable({ page: 1 });
+            currentFilters = {
+                ...currentFilters,
+                name: '',
+                email: '',
+                role: '',
+                page: 1
+            };
+            await loadUsersTable(currentFilters);
         };
 
         // Add event listener for the 'Aggiungi Utente' button
         document.getElementById('add-user-btn').addEventListener('click', () => {
+            document.getElementById('add-user-form').reset(); // Svuota i campi del form
             const addUserModal = new bootstrap.Modal(document.getElementById('addUserModal'));
             addUserModal.show();
         });
@@ -666,18 +678,18 @@ export async function loadUsersManagementPage() {
             const role = document.getElementById('user-role').value;
 
             if (!name || !email || !password || !role) {
-                toast.error('Tutti i campi sono obbligatori!');
+                showBootstrapToast('Tutti i campi sono obbligatori!', 'Errore', 'danger');
                 return;
             }
 
             try {
                 await UsersAPI.createUser({ name, email, password, role });
-                toast.success('Utente aggiunto con successo!');
+                showBootstrapToast('Utente aggiunto con successo!', 'Successo', 'success');
                 const addUserModal = bootstrap.Modal.getInstance(document.getElementById('addUserModal'));
-                addUserModal.hide();
+                if (addUserModal) addUserModal.hide(); // Chiudi il modal solo se l'istanza esiste
                 await loadUsersTable();
             } catch (error) {
-                toast.error('Errore durante l\'aggiunta dell\'utente.');
+                showBootstrapToast('Errore durante l\'aggiunta dell\'utente.', 'Errore', 'danger');
             }
         });
 
@@ -755,6 +767,7 @@ export async function loadUsersManagementPage() {
         const addUserBtnMobile = document.getElementById('add-user-btn-mobile');
         if (addUserBtnMobile) {
             addUserBtnMobile.addEventListener('click', () => {
+                document.getElementById('add-user-form').reset(); // Svuota i campi del form
                 const addUserModal = new bootstrap.Modal(document.getElementById('addUserModal'));
                 addUserModal.show();
             });

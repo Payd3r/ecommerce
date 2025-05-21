@@ -326,6 +326,11 @@ export async function loadProductsPage(params = {}) {
             if (typeof product.stock === 'number' && product.stock >= 0 && product.stock <= 2) {
                 stockBadge = `<span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2" style="z-index:2;">Ultimi rimasti</span>`;
             }
+            // Calcolo prezzo scontato
+            let prezzoScontato = product.price;
+            if (product.discount && product.discount > 0 && product.discount < 100) {
+                prezzoScontato = product.price * (1 - product.discount / 100);
+            }
             html += `
                 <div class="col-6 col-md-4 col-lg-3 mb-0 d-flex align-items-stretch" style="padding-left:4px; padding-right:4px;">
                     <div class="product-card card flex-fill h-100 p-2 position-relative" style="min-width:0;">
@@ -343,7 +348,12 @@ export async function loadProductsPage(params = {}) {
                             <h6 class="fw-bold mb-1 small">${product.name}</h6>
                             <p class="product-artisan text-muted mb-1 small">di ${product.artisan?.name || 'Artigiano'}</p>
                             <div class="product-footer d-flex justify-content-between align-items-center">
-                                <span class="product-price fw-bold small">${product.price?.toFixed(2) || '0.00'} €</span>
+                                <span class="product-price fw-bold small">
+                                    ${product.discount && product.discount > 0 && product.discount < 100 ?
+                                        `<span class='text-danger'>${prezzoScontato.toFixed(2)} €</span> <span class='text-decoration-line-through text-muted small ms-1'>${product.price.toFixed(2)} €</span>` :
+                                        `${product.price?.toFixed(2) || '0.00'} €`
+                                    }
+                                </span>
                                 <a href="/products/${product.id}" class="btn btn-outline-primary btn-sm" data-route>Dettagli</a>
                             </div>
                         </div>

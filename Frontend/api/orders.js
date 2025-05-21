@@ -163,7 +163,7 @@ export async function updateOrderStatus(orderId, status) {
 export async function getAddressByUserId(userId) {
     const token = authService.getToken();
     if (!token) throw new Error('Token di accesso non trovato');
-    const res = await fetchWithAuth(`${ADDRESS_API_URL}/address/user/${userId}`, {
+    const res = await fetchWithAuth(`${API_URL}/address/user/${userId}`, {
         headers: {
             'Authorization': `Bearer ${token}`
         }
