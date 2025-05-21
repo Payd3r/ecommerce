@@ -120,10 +120,12 @@ export async function loadArtisanShopPage(params) {
             if (typeof product.stock === 'number' && product.stock >= 0 && product.stock <= 2) {
                 stockBadge = `<span class=\"badge bg-warning text-dark position-absolute top-0 end-0 m-2\" style=\"z-index:2;\">Ultimi rimasti</span>`;
             }
-            // Calcolo prezzo scontato
-            let prezzoScontato = product.price;
+            // Calcolo prezzo scontato e gestione fallback
+            let prezzo = parseFloat(product.price);
+            if (isNaN(prezzo)) prezzo = 0;
+            let prezzoScontato = prezzo;
             if (product.discount && product.discount > 0 && product.discount < 100) {
-                prezzoScontato = product.price * (1 - product.discount / 100);
+                prezzoScontato = prezzo * (1 - product.discount / 100);
             }
             return `
             <div class=\"col-6 col-md-4 d-flex align-items-stretch\">
@@ -132,7 +134,7 @@ export async function loadArtisanShopPage(params) {
                         ${discountBadge}
                         ${stockBadge}
                         ${product.image && product.image.url ?
-                            `<img src=\"${getApiUrl()}${product.image.url}\" alt=\"${product.name}\" class=\"product-img-actual\" />` :
+                            `<img src=\"${product.image.url}\" alt=\"${product.name}\" class=\"product-img-actual\" />` :
                             `<div class=\"product-img-placeholder\">
                                 <span class=\"placeholder-icon\">🖼️</span>
                             </div>`
@@ -145,8 +147,8 @@ export async function loadArtisanShopPage(params) {
                         <div class=\"mt-auto d-flex justify-content-between align-items-center\">
                             <span class=\"product-price fw-bold small\">
                                 ${product.discount && product.discount > 0 && product.discount < 100 ?
-                                    `<span class='text-danger'>${prezzoScontato.toFixed(2)} €</span> <span class='text-decoration-line-through text-muted small ms-1'>${product.price.toFixed(2)} €</span>` :
-                                    `${product.price?.toFixed(2) || '0.00'} €`
+                                    `<span class='text-danger'>${prezzoScontato.toFixed(2)} €</span> <span class='text-decoration-line-through text-muted small ms-1'>${prezzo.toFixed(2)} €</span>` :
+                                    `${prezzo.toFixed(2)} €`
                                 }
                             </span>
                             <a href=\"/products/${product.id}\" class=\"btn btn-outline-primary btn-sm ms-2\" data-route>Dettagli<\/a>
@@ -220,6 +222,7 @@ export async function loadArtisanShopPage(params) {
             renderPagination(state.pagination);
         } catch (error) {
             showBootstrapToast('Errore nel caricamento dei prodotti', 'Errore', 'error');
+            console.log(error);
         } finally {
             loader.hide();
         }

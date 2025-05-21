@@ -77,6 +77,9 @@ router.get('/', async (req, res) => {
         }
         const productsWithImage = products.map(p => ({
             ...p,
+            price: p.price !== undefined && p.price !== null ? Number(p.price) : 0,
+            discount: p.discount !== undefined && p.discount !== null ? Number(p.discount) : 0,
+            stock: p.stock !== undefined && p.stock !== null ? Number(p.stock) : 0,
             image: imagesMap[p.id] || null
         }));
 
@@ -308,6 +311,9 @@ router.get('/by-artisan/:id', async (req, res) => {
         }
         const productsWithImage = products.map(p => ({
             ...p,
+            price: p.price !== undefined && p.price !== null ? Number(p.price) : 0,
+            discount: p.discount !== undefined && p.discount !== null ? Number(p.discount) : 0,
+            stock: p.stock !== undefined && p.stock !== null ? Number(p.stock) : 0,
             image: imagesMap[p.id] || null
         }));
 

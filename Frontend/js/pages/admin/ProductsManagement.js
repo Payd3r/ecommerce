@@ -51,9 +51,7 @@ export async function loadProductsManagementPage() {
             renderTable();
             renderPagination(res.pagination);
         } catch (e) {
-            filteredProducts = [];
-            renderTable();
-            renderPagination({ totalPages: 1, currentPage: 1 });
+            console.error('Errore nel caricamento dei prodotti:', e);
         }
     }
 
@@ -114,7 +112,7 @@ export async function loadProductsManagementPage() {
                 const tr = btn.closest('tr');
                 const productId = tr.getAttribute('data-product-id');
                 console.log('Click su Modifica, productId:', productId);
-                showEditProductModal(productId, categories, () => {
+                showEditProductModal(productId, flattenCategories(categories), () => {
                     console.log('Callback dopo editProduct');
                     resetFiltersAndRefresh();
                 });
@@ -551,6 +549,18 @@ export async function loadProductsManagementPage() {
 
     // Prima renderizzazione
     fetchProducts(currentFilters);
+
+    // Funzione per appiattire l'albero delle categorie
+    function flattenCategories(categories) {
+        let result = [];
+        for (const cat of categories) {
+            result.push({ id: cat.id, name: cat.name });
+            if (cat.children && cat.children.length > 0) {
+                result = result.concat(flattenCategories(cat.children));
+            }
+        }
+        return result;
+    }
 
     return {
         render: () => pageElement,
