@@ -139,7 +139,6 @@ export async function loadUsersManagementPage() {
                 <div class="col-md-8 mb-5">
                     <div class="card h-100">
                         <div class="card-body d-flex flex-column">
-                            <h5 class="card-title d-mobile-hide">Utenti Registrati</h5>
                             <div class="table-responsive flex-grow-1">
                                 <table class="table mb-0"> 
                                     <thead>
@@ -295,6 +294,17 @@ export async function loadUsersManagementPage() {
         }
     }
 
+    // Funzione per formattare la data in italiano come '14 feb 2025'
+    function formatDateIT(dateString) {
+        if (!dateString) return 'N/D';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('it-IT', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        });
+    }
+
     // Funzione per caricare e popolare la tabella degli utenti
     async function loadUsersTable(params = {}) {
         try {
@@ -376,7 +386,7 @@ export async function loadUsersManagementPage() {
                         <td>${user.name || 'N/D'}</td>
                         <td class="d-mobile-none">${user.email || 'N/D'}</td>
                         <td>${getRoleBadge(user.role)}</td>
-                        <td class="d-mobile-none">${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/D'}</td>
+                        <td class="d-mobile-none">${user.created_at ? formatDateIT(user.created_at) : 'N/D'}</td>
                         <td>
                             <div class="dropdown">
                                 <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -541,7 +551,7 @@ export async function loadUsersManagementPage() {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${user.name || 'N/D'}</td>
-                    <td>${user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/D'}</td>
+                    <td>${user.created_at ? formatDateIT(user.created_at) : 'N/D'}</td>
                     <td><button class="btn btn-sm btn-outline-success approve-artisan-btn" data-user-id="${user.id}">Approva</button></td>
                 `;
                 tableBody.appendChild(row);
@@ -568,7 +578,7 @@ export async function loadUsersManagementPage() {
                                 <div class="modal-body">
                                     <p><b>Nome:</b> ${userInfo.name || 'N/D'}</p>
                                     <p><b>Email:</b> ${userInfo.email || 'N/D'}</p>
-                                    <p><b>Data registrazione:</b> ${userInfo.created_at ? new Date(userInfo.created_at).toLocaleDateString() : 'N/D'}</p>
+                                    <p><b>Data registrazione:</b> ${userInfo.created_at ? formatDateIT(userInfo.created_at) : 'N/D'}</p>
                                     <p>Vuoi davvero approvare questo utente come artigiano?</p>
                                 </div>
                                 <div class="modal-footer">

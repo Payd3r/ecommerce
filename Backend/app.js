@@ -24,6 +24,14 @@ app.get('/', (req, res) => {
   res.send('Benvenuto su Artigianato Online API');
 });
 
+// Aggiungi questa rotta per il health check
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Modularizzazione (aggiungeremo dopo)
 app.use('/auth', require('./routes/auth'));
 app.use('/products', require('./routes/products'));
@@ -38,4 +46,6 @@ app.use('/address', require('./routes/address'));
 app.listen(port, () => {
   console.log(`Server attivo su http://0.0.0.0:${port}`);
 });
+
+module.exports = app;
 

@@ -75,7 +75,7 @@ export async function loadAdminDashboardPage() {
         ordersRes = { orders: [] };
         issues = [];
     }
-
+    console.log(productsRes);
     pageElement.innerHTML = `
         <div class="mb-4">
             <h1 class="display-5">Dashboard Amministratore</h1>
@@ -173,8 +173,8 @@ export async function loadAdminDashboardPage() {
                             <thead>
                                 <tr>
                                     <th>Nome</th>
+                                    <th class="d-none d-md-table-cell">Email</th>
                                     <th>Ruolo</th>
-                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -183,8 +183,8 @@ export async function loadAdminDashboardPage() {
                                 ` : latestUsers.map(u => `
                                     <tr>
                                         <td>${u.name}</td>
-                                        <td>${u.role}</td>
-                                        <td><a href="/admin/users-management?search=${encodeURIComponent(u.name)}" class="btn btn-sm btn-outline-primary" data-route>Dettagli</a></td>
+                                        <td class="d-none d-md-table-cell">${u.email || '-'}</td>
+                                        <td>${getRoleBadge(u.role)}</td>                                       
                                     </tr>
                                 `).join('')}
                             </tbody>
@@ -215,7 +215,7 @@ export async function loadAdminDashboardPage() {
                                     <tr>
                                         <td>${o.client_name || o.client_id || '-'}</td>
                                         <td>${o.total_price} €</td>
-                                        <td>${o.status}</td>
+                                        <td>${getOrderStatusBadge(o.status)}</td>
                                         <td>${formatDateIT(o.created_at)}</td>
                                     </tr>
                                 `).join('')}
@@ -237,18 +237,20 @@ export async function loadAdminDashboardPage() {
                         <table class="table mb-0">
                             <thead>
                                 <tr>
-                                    <th>Nome</th>
-                                    <th class="w-50 w-md-auto">Prezzo</th>
+                                    <th></th>
+                                    <th>Nome</th>                                    
+                                    <th class="price-col">Prezzo</th>
                                     <th><span class="d-none d-md-inline">Creato il</span><span class="d-inline d-md-none">Creato</span></th>
                                 </tr>
                             </thead>
                             <tbody>
-                                ${(productsRes.products && productsRes.products.length > 0 ? productsRes.products.slice(0,5) : []).length === 0 ? `
-                                    <tr><td colspan="3" class="text-center">Nessun prodotto recente</td></tr>
-                                ` : productsRes.products.slice(0,5).map(p => `
+                                ${(productsRes.products && productsRes.products.length > 0 ? productsRes.products.slice(0, 5) : []).length === 0 ? `
+                                    <tr><td colspan="4" class="text-center">Nessun prodotto recente</td></tr>
+                                ` : productsRes.products.slice(0, 5).map(p => `
                                     <tr>
+                                        <td class="py-0 px-2 align-middle">${`<img src="${p.image.url}" alt="foto prodotto" style="width:32px;height:32px;object-fit:cover;border-radius:4px;">`}</td>
                                         <td>${p.name}</td>
-                                        <td>${p.price} €</td>
+                                        <td class="price-col">${formatPriceIT(p.price)}</td>
                                         <td>${formatDateIT(p.created_at)}</td>
                                     </tr>
                                 `).join('')}
@@ -269,7 +271,7 @@ export async function loadAdminDashboardPage() {
                                 <tr>
                                     <th class="d-none d-md-table-cell">ID</th>
                                     <th>Titolo</th>
-                                    <th>Cliente</th>
+                                    <th class="d-none d-md-table-cell">Cliente</th>
                                     <th>Stato</th>
                                     <th>Data</th>
                                 </tr>
@@ -281,8 +283,8 @@ export async function loadAdminDashboardPage() {
                                     <tr>
                                         <td class="d-none d-md-table-cell">${issue.id_issue}</td>
                                         <td>${issue.title}</td>
-                                        <td>${issue.client_name || '-'}</td>
-                                        <td>${issue.status || '-'}</td>
+                                        <td class="d-none d-md-table-cell">${issue.client_name || '-'}</td>
+                                        <td>${getIssueStatusBadge(issue.status)}</td>
                                         <td>${formatDateIT(issue.created_at)}</td>
                                     </tr>
                                 `).join('')}
@@ -312,10 +314,28 @@ export async function loadAdminDashboardPage() {
         document.head.appendChild(style);
     }
 
+    // CSS responsive per colonna prezzo molto stretta su mobile
+    if (!document.getElementById('dashboard-mobile-extra-style')) {
+        const style = document.createElement('style');
+        style.id = 'dashboard-mobile-extra-style';
+        style.innerHTML = `
+        @media (max-width: 767.98px) {
+            .price-col {
+                width: 1%;
+                white-space: nowrap;
+                padding-left: 0.2rem !important;
+                padding-right: 0.2rem !important;
+                text-align: right;
+            }
+        }
+        `;
+        document.head.appendChild(style);
+    }
+
     return {
         render: () => pageElement,
-        mount: () => {},
-        unmount: () => {}
+        mount: () => { },
+        unmount: () => { }
     };
 }
 
@@ -330,4 +350,57 @@ function formatDateIT(dateStr) {
     const anno = date.getFullYear();
     // Mostra solo giorno e mese su mobile, giorno mese anno su desktop
     return `<span class="d-none d-md-inline">${giorno} ${mese} ${anno}</span><span class="d-inline d-md-none">${giorno} ${mese}</span>`;
+}
+
+// Funzione per badge stato ordini
+function getOrderStatusBadge(status) {
+    switch (status) {
+        case 'pending':
+            return '<span class="badge bg-warning text-dark">In attesa</span>';
+        case 'refuse':
+            return '<span class="badge bg-danger">Rifiutato</span>';
+        case 'shipped':
+            return '<span class="badge bg-info text-dark">Spedito</span>';
+        case 'delivered':
+            return '<span class="badge bg-success">Consegnato</span>';
+        default:
+            return `<span class="badge bg-secondary">${status}</span>`;
+    }
+}
+
+// Funzione per badge stato segnalazioni
+function getIssueStatusBadge(status) {
+    switch (status) {
+        case 'refused':
+            return '<span class="badge bg-danger">Rifiutata</span>';
+        case 'solved':
+            return '<span class="badge bg-success">Risolta</span>';
+        case 'closed':
+            return '<span class="badge bg-secondary">Chiusa</span>';
+        case 'open':
+            return '<span class="badge bg-warning text-dark">Aperta</span>';
+        default:
+            return `<span class="badge bg-secondary">${status}</span>`;
+    }
+}
+
+// Funzione per badge ruolo utente
+function getRoleBadge(role) {
+    switch (role) {
+        case 'admin':
+            return '<span class="badge bg-danger">Admin</span>';
+        case 'artisan':
+            return '<span class="badge bg-warning text-dark">Artigiano</span>';
+        case 'client':
+            return '<span class="badge bg-primary">Cliente</span>';
+        default:
+            return `<span class="badge bg-secondary">${role}</span>`;
+    }
+}
+
+// Funzione per formattare il prezzo in euro secondo lo standard italiano
+function formatPriceIT(price) {
+    if (typeof price !== 'number') price = Number(price);
+    if (isNaN(price)) return '-';
+    return price.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
 }
