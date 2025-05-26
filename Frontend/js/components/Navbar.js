@@ -315,6 +315,24 @@ class Navbar {
                 });
             }
         }
+
+        // Aggiorna la foto profilo nella navbar quando cambia l'utente
+        document.removeEventListener('auth:change', this._handleAuthChange);
+        this._handleAuthChange = () => {
+            // Prendi l'utente aggiornato
+            const updatedUser = authService.getUser();
+            // Aggiorna la foto profilo desktop
+            const desktopImg = document.querySelector('#userDropdownDesktop img');
+            if (desktopImg && updatedUser && updatedUser.image) {
+                desktopImg.src = updatedUser.image;
+            }
+            // Aggiorna la foto profilo mobile
+            const mobileImg = document.querySelector('#userDropdownMobile img');
+            if (mobileImg && updatedUser && updatedUser.image) {
+                mobileImg.src = updatedUser.image;
+            }
+        };
+        document.addEventListener('auth:change', this._handleAuthChange);
     }
 
     /**

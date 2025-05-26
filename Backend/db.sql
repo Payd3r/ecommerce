@@ -98,10 +98,10 @@ INSERT INTO `delivery_info` (`id`, `user_id`, `name`, `surname`, `stato`, `citta
 
 CREATE TABLE `extended_users` (
   `id_users` int NOT NULL,
-  `url_banner` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `url_banner` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci,
   `bio` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `approved` tinyint(1) NOT NULL DEFAULT '0',
-  `alt_text` varchar(255) NOT NULL,
+  `alt_text` varchar(255) NOT NULL DEFAULT '....',
   `approved_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

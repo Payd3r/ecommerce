@@ -4,11 +4,10 @@ import CategoriesAPI from '../../../api/categories.js';
 import { showAddProductModal } from './modals/addProduct.js';
 import { showEditProductModal } from './modals/editProduct.js';
 import { showViewProductModal } from './modals/viewProduct.js';
-import { getApiUrl } from '../../../api/config.js';
 
 export async function loadManageProductsPage() {
     const pageElement = document.createElement('div');
-    pageElement.className = 'container py-4';
+    pageElement.className = 'container py-4 products-page';
 
     const user = authService.getUser();
     let products = [];
@@ -27,7 +26,7 @@ export async function loadManageProductsPage() {
 
     // Carica categorie
     try {
-        categories = await CategoriesAPI.getCategories();
+        categories = await CategoriesAPI.getCategoryTree();
     } catch (e) {
         categories = [];
     }
@@ -68,6 +67,17 @@ export async function loadManageProductsPage() {
             console.error('Non trovo #products-table-body nel DOM!');
             return;
         }
+        // Funzione per formattare la data
+        function formatDateIT(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            if (isNaN(date)) return '-';
+            const mesi = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'];
+            const giorno = String(date.getDate()).padStart(2, '0');
+            const mese = mesi[date.getMonth()];
+            const anno = date.getFullYear();
+            return `${giorno} ${mese} ${anno}`;
+        }
         tableBody.innerHTML = filteredProducts.length === 0 ?
             `<tr><td colspan="8" class="text-center">Nessun prodotto trovato</td></tr>` :
             filteredProducts.map(p => `
@@ -75,9 +85,10 @@ export async function loadManageProductsPage() {
                     <td class="text-center">
                         ${p.image && p.image.url ?
                     `<div class="product-thumb-wrapper" style="position:relative; display:inline-block;">
-                                <img src="${getApiUrl()}${p.image.url}" alt="img" class="product-thumb-img" style="width:40px; height:40px; object-fit:cover; border-radius:6px; cursor:pointer;" />
-                                <div class="product-tooltip-img" style="display:none; position:absolute; left:50%; top:50%; transform:translate(-50%, -50%); z-index:10;">
-                                    <img src="${getApiUrl()}${p.image.url}" alt="img" style="width:220px; height:220px; object-fit:cover; border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,0.18); border:2px solid #fff;" />
+                                <img src="${p.image.url}" alt="img" class="product-thumb-img" style="width:40px; height:40px; object-fit:cover; border-radius:6px; cursor:pointer;" />
+                                <div class="product-tooltip-img" style="display:none; position:absolute; left:50%; bottom:110%; transform:translateX(-50%); z-index:10; min-width:220px;">
+                                    <img src="${p.image.url}" alt="img" style="width:220px; height:220px; object-fit:cover; border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,0.18); border:2px solid #fff;" />
+                                    <div style='position:absolute; left:50%; top:100%; transform:translateX(-50%); width:0; height:0; border-left:12px solid transparent; border-right:12px solid transparent; border-top:12px solid #fff;'></div>
                                 </div>
                             </div>`
                     :
@@ -92,18 +103,23 @@ export async function loadManageProductsPage() {
                             `${p.price} €`
                         }
                     </td>
-                    <td class="text-center">${p.stock}</td>
-                    <td class="text-center d-none d-md-table-cell">${p.stock > 0 ? 'Disponibile' : 'Non disponibile'}</td>
-                    <td class="text-center d-none d-md-table-cell">${p.created_at ? p.created_at.split('T')[0] : '-'}</td>
+                    <td class="text-center">${p.stock === 0 ? `<span class='text-danger fw-bold'>0</span>` : p.stock}</td>
+                    <td class="text-center d-none d-md-table-cell">
+                        ${p.stock > 0
+                            ? `<span class='badge bg-success'>Disponibile</span>`
+                            : `<span class='badge bg-danger'>Non disponibile</span>`
+                        }
+                    </td>
+                    <td class="text-center d-none d-md-table-cell">${formatDateIT(p.created_at)}</td>
                     <td class="text-center">
                         <div class="dropdown">
                             <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Azioni
+                                <i class="bi bi-three-dots-vertical"></i>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item btn-view-product" href="#">Visualizza</a></li>
-                                <li><a class="dropdown-item btn-edit-product text-primary" href="#">Modifica</a></li>
-                                <li><a class="dropdown-item btn-delete-product text-danger" href="#">Elimina</a></li>
+                                <li><a class="dropdown-item btn-view-product" href="#"><i class="bi bi-eye me-2"></i>Visualizza</a></li>
+                                <li><a class="dropdown-item btn-edit-product text-primary" href="#"><i class="bi bi-pencil-square me-2"></i>Modifica</a></li>
+                                <li><a class="dropdown-item btn-delete-product text-danger" href="#"><i class="bi bi-trash me-2"></i>Elimina</a></li>
                             </ul>
                         </div>
                     </td>
@@ -247,83 +263,82 @@ export async function loadManageProductsPage() {
 
     // HTML
     pageElement.innerHTML = `
-        <div class="row align-items-center">
-            <div class="col-12 text-center">
-                <h1 class="display-5 fw-bold ">Gestione Prodotti</h1>
-            </div>
-        </div>
-        <div class="row mb-4 align-items-center d-none d-md-flex">
-            <div class="col-6 d-flex align-items-center">
-                <button class="btn btn-outline-secondary" id="back-btn"><i class="bi bi-arrow-left"></i> Torna indietro</button>
-            </div>
-            <div class="col-6 d-flex justify-content-end">
-                <a href="#" id="addProductBtn" class="btn btn-success">Aggiungi prodotto</a>
-            </div>
-        </div>
-        <div class="row d-flex d-md-none">
-            <div class="col-12 mobile-btns">
-                <button class="btn btn-outline-secondary w-100" id="back-btn-mobile"><i class="bi bi-arrow-left"></i> Torna indietro</button>
-                <a href="#" id="addProductBtnMobile" class="btn btn-success w-100">Aggiungi prodotto</a>
-                <button class="btn btn-primary w-100" id="toggle-filters-mobile">Filtri</button>
-            </div>
-        </div>
-        <div class="row g-4">
-            <div class="col-md-4" id="filters-card">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <span>Filtri</span>
-                        <button type="button" id="resetFiltersBtn" class="btn btn-sm btn-outline-secondary">Azzera filtri</button>
+        <div class="container pt-2 pb-5 products-page">
+            <div class="row align-items-center mb-0 mb-md-2">
+                <div class="col-12 mb-2">
+                    <button class="btn btn-outline-secondary" id="back-btn"><i class="bi bi-arrow-left"></i> Torna indietro</button>
+                </div>
+                <!-- Desktop: titolo e aggiungi prodotto sulla stessa riga -->
+                <div class="col-12 d-none d-md-flex align-items-center justify-content-between">
+                    <h1 class="page-title mb-0">Gestione Prodotti</h1>
+                    <a href="#" id="addProductBtn" class="btn btn-success">Aggiungi prodotto</a>
+                </div>
+                <!-- Mobile: titolo su una riga, bottoni su riga sotto -->
+                <div class="col-12 d-flex d-md-none flex-column gap-2">
+                    <h1 class="page-title mb-2">Gestione Prodotti</h1>
+                    <div class="d-flex gap-2">
+                        <button id="toggle-filters" class="btn btn-outline-primary flex-fill" type="button">
+                            <i class="bi bi-funnel"></i> Filtri
+                        </button>
+                        <a href="#" id="addProductBtnMobile" class="btn btn-success flex-fill "><i class="bi bi-plus-circle me-2"></i>Aggiungi</a>
                     </div>
-                    <div class="card-body">
-                        <form id="filters-form">
+                </div>
+            </div>
+            <div class="page-subtitle mb-4">Gestisci i tuoi prodotti artigianali, aggiungi nuovi articoli o modifica quelli esistenti.</div>
+            <div class="row pb-5 pt-2">
+                <aside class="col-12 col-md-4 mb-4 mb-md-0 filters-container" style="${window.innerWidth < 768 ? 'display:none;' : ''}">
+                    <div class="card shadow-sm border-0 p-3 position-relative me-0 me-md-3">
+                        <button type="reset" class="btn btn-link text-secondary position-absolute top-0 end-0 mt-4 me-2 p-0" id="reset-filters" style="font-size:1rem;">Reset</button>
+                        <h5 class="mb-3">Filtra i risultati</h5>
+                        <form id="filters-form" class="filters-form">
                             <div class="mb-3">
-                                <label class="form-label">Cerca</label>
-                                <input type="text" class="form-control" id="search" placeholder="Nome prodotto..." />
+                                <label for="search" class="form-label">Ricerca</label>
+                                <input type="text" id="search" name="search" class="form-control" placeholder="Cerca prodotti...">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Categoria</label>
-                                <select class="form-select" id="category">
-                                    <option value="">Tutte</option>
-                                    ${categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
-                                </select>
+                                <div id="category-tree"></div>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Prezzo (range)</label>
-                                <div class="input-group">
-                                    <input type="number" min="0" step="0.01" class="form-control" id="minPrice" placeholder="Min" />
-                                    <input type="number" min="0" step="0.01" class="form-control" id="maxPrice" placeholder="Max" />
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label for="min-price" class="form-label">Minimo (€)</label>
+                                    <input type="number" id="min-price" name="minPrice" min="0" step="1" class="form-control" placeholder="Min">
+                                </div>
+                                <div class="col-6">
+                                    <label for="max-price" class="form-label">Massimo (€)</label>
+                                    <input type="number" id="max-price" name="maxPrice" min="0" step="1" class="form-control" placeholder="Max">
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100">Applica filtri</button>
+                            <button type="submit" class="btn btn-primary w-100 mt-2">Applica filtri</button>
                         </form>
                     </div>
-                </div>
-            </div>
-            <div class="col-md-8">
-                <div class="card h-100">
-                    <div class="card-body p-0">
-                        <table class="table table-bordered align-middle mb-0">
-                            <thead>
-                                <tr>
-                                    <th class="text-center">Logo</th>
-                                    <th class="text-center d-none d-md-table-cell">Nome</th>
-                                    <th class="text-center d-none d-md-table-cell">Categoria</th>
-                                    <th class="text-center">Prezzo</th>
-                                    <th class="text-center">Stock</th>
-                                    <th class="text-center d-none d-md-table-cell">Stato</th>
-                                    <th class="text-center d-none d-md-table-cell">Creato il</th>
-                                    <th class="text-center">Azioni</th>
-                                </tr>
-                            </thead>
-                            <tbody id="products-table-body"></tbody>
-                        </table>
+                </aside>
+                <main class="col-12 col-md-8">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-body p-0">
+                            <table class="table table-bordered align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center">Logo</th>
+                                        <th class="text-center d-none d-md-table-cell">Nome</th>
+                                        <th class="text-center d-none d-md-table-cell">Categoria</th>
+                                        <th class="text-center">Prezzo</th>
+                                        <th class="text-center">Stock</th>
+                                        <th class="text-center d-none d-md-table-cell">Stato</th>
+                                        <th class="text-center d-none d-md-table-cell">Creato il</th>
+                                        <th class="text-center">Azioni</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="products-table-body"></tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer">
+                            <nav>
+                                <ul class="pagination justify-content-center mb-0" id="products-pagination"></ul>
+                            </nav>
+                        </div>
                     </div>
-                    <div class="card-footer">
-                        <nav>
-                            <ul class="pagination justify-content-center mb-0" id="products-pagination"></ul>
-                        </nav>
-                    </div>
-                </div>
+                </main>
             </div>
         </div>
     `;
@@ -333,17 +348,28 @@ export async function loadManageProductsPage() {
     form.addEventListener('submit', e => {
         e.preventDefault();
         filter.search = form.search.value;
-        filter.category = form.category.value;
+        // Raccogli tutte le categorie selezionate (array)
+        const selectedCategories = Array.from(form.querySelectorAll('input[name="category[]"]:checked')).map(cb => cb.value);
+        filter.category = selectedCategories;
         filter.minPrice = form.minPrice.value;
         filter.maxPrice = form.maxPrice.value;
         currentPage = 1;
         fetchProducts();
     });
 
-    // Bottone azzera filtri
-    pageElement.querySelector('#resetFiltersBtn').addEventListener('click', () => {
-        resetFiltersAndRefresh();
-    });
+    // Evento reset filtri
+    const resetBtn = pageElement.querySelector('#reset-filters');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            form.reset();
+            // Deseleziona tutte le checkbox categoria
+            form.querySelectorAll('input[name="category[]"]').forEach(cb => { cb.checked = false; cb.indeterminate = false; });
+            filter = { search: '', category: '', minPrice: '', maxPrice: '' };
+            currentPage = 1;
+            fetchProducts();
+        });
+    }
 
     // Eventi paginazione
     pageElement.querySelector('#products-pagination').addEventListener('click', e => {
@@ -415,11 +441,106 @@ export async function loadManageProductsPage() {
             resetFiltersAndRefresh();
         });
     };
-    const toggleFiltersMobile = pageElement.querySelector('#toggle-filters-mobile');
-    if (toggleFiltersMobile) toggleFiltersMobile.onclick = () => {
-        const filtersCard = pageElement.querySelector('#filters-card');
-        filtersCard.classList.toggle('mobile-visible');
-    };
+    // Bottone filtri mobile: mostra/nasconde i filtri
+    const toggleFiltersBtn = pageElement.querySelector('#toggle-filters');
+    const filtersContainer = pageElement.querySelector('.filters-container');
+    if (toggleFiltersBtn && filtersContainer) {
+        toggleFiltersBtn.onclick = () => {
+            if (filtersContainer.style.display === 'none' || filtersContainer.style.display === '') {
+                filtersContainer.style.display = 'block';
+            } else {
+                filtersContainer.style.display = 'none';
+            }
+        };
+    }
+
+    // --- Funzioni per albero categorie (devono essere qui per accedere a pageElement) ---
+    function renderCategoryTree(categories, level = 1) {
+        const ul = document.createElement('ul');
+        ul.className = 'list-unstyled mb-0' + (level === 1 ? ' show' : '');
+        categories.forEach(cat => {
+            const hasChildren = Array.isArray(cat.children) && cat.children.length > 0;
+            const collapseId = `collapse-cat-${cat.id}`;
+            const li = document.createElement('li');
+            li.className = 'category-li position-relative';
+            li.innerHTML = `
+                <div class="form-check d-flex align-items-center gap-1" style="margin-bottom: 0.2rem; min-height: 1.8rem;">
+                    ${hasChildren
+                    ? `<button type=\"button\" class=\"btn btn-sm btn-link p-0 me-1 ms-0 category-collapse-btn d-flex align-items-center\" data-target=\"${collapseId}\" aria-expanded=\"false\" aria-controls=\"${collapseId}\"><i class=\"bi bi-caret-right-fill\"></i></button>`
+                    : '<span class=\"category-empty-icon me-1\" style=\"display:inline-block;width:1.5rem;\"></span>'}
+                    <input class="form-check-input ms-0" type="checkbox" id="cat-${cat.id}" value="${cat.id}" name="category[]">
+                    <label class="form-check-label ms-1" for="cat-${cat.id}">${cat.name}</label>
+                </div>
+            `;
+            if (hasChildren) {
+                const childUl = renderCategoryTree(cat.children, level + 1);
+                childUl.classList.add('ms-0');
+                childUl.id = collapseId;
+                li.appendChild(childUl);
+            }
+            ul.appendChild(li);
+        });
+        return ul;
+    }
+
+    function populateCategoryTree(categories) {
+        const treeContainer = pageElement.querySelector('#category-tree');
+        if (!treeContainer) return;
+        treeContainer.innerHTML = '';
+        if (!categories || !Array.isArray(categories) || categories.length === 0) {
+            treeContainer.innerHTML = '<div class="text-muted">Nessuna categoria disponibile</div>';
+            return;
+        }
+        const tree = renderCategoryTree(categories);
+        treeContainer.appendChild(tree);
+        // Collapse/expand caret
+        treeContainer.querySelectorAll('.category-collapse-btn').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = btn.getAttribute('data-target');
+                const target = document.getElementById(targetId);
+                if (!target) return;
+                const isOpen = target.classList.contains('show');
+                if (isOpen) {
+                    target.classList.remove('show');
+                    btn.querySelector('i').className = 'bi bi-caret-right-fill';
+                } else {
+                    target.classList.add('show');
+                    btn.querySelector('i').className = 'bi bi-caret-down-fill';
+                }
+                btn.setAttribute('aria-expanded', String(!isOpen));
+            });
+        });
+        // Selezione/deselezione ricorsiva figli e selezione padre se tutti i figli sono selezionati
+        treeContainer.querySelectorAll('input[type="checkbox"][name="category[]"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function () {
+                // Seleziona/deseleziona tutti i figli
+                const li = checkbox.closest('li');
+                if (!li) return;
+                const childCheckboxes = li.querySelectorAll('ul input[type="checkbox"][name="category[]"]');
+                childCheckboxes.forEach(cb => { cb.checked = checkbox.checked; });
+                // Aggiorna i padri
+                updateParentCheckbox(li);
+            });
+        });
+        function updateParentCheckbox(li) {
+            const parentUl = li.parentElement.closest('ul');
+            if (!parentUl) return;
+            const parentLi = parentUl.parentElement.closest('li');
+            if (!parentLi) return;
+            const parentCheckbox = parentLi.querySelector('> .form-check input[type="checkbox"][name="category[]"]');
+            if (!parentCheckbox) return;
+            const siblingCheckboxes = parentUl.querySelectorAll('> li > .form-check input[type="checkbox"][name="category[]"]');
+            const allChecked = Array.from(siblingCheckboxes).every(cb => cb.checked);
+            const someChecked = Array.from(siblingCheckboxes).some(cb => cb.checked);
+            parentCheckbox.checked = allChecked;
+            parentCheckbox.indeterminate = !allChecked && someChecked;
+            updateParentCheckbox(parentLi);
+        }
+    }
+
+    // Dopo aver creato l'HTML, popola l'albero categorie
+    populateCategoryTree(categories);
 
     return {
         render: () => pageElement,

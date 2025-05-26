@@ -50,7 +50,7 @@ export async function loadProfilePage() {
                     <form id="public-info-form" class="card shadow-sm border-0 p-4 h-100" style="min-height:480px;">
                         <h2 class="h5 mb-0">Info Pubbliche</h2>
                         <div class="row">
-                            <div class="col-md-6 mt-3">
+                            <div class="${isArtisan ? 'col-12 col-md-6 mt-3' : 'col-12 mt-3'}">
                                 <div class="d-flex align-items-center mb-3 flex-column flex-md-row text-center text-md-start">
                                     <div class="me-md-3 mb-3 mb-md-0" id="profileImagePreviewWrapper">
                                         ${user.image ? `
@@ -62,13 +62,12 @@ export async function loadProfilePage() {
                                         `}
                                     </div>
                                     <div>
-                                        <h2 class="h5 mb-1">${user.name}</h2>
+                                        <h2 class="h5 mb-1">${user.nickname}</h2>
                                         <div class="text-muted small mb-1">${user.email}</div>
                                         <span class="badge bg-secondary">${getRoleLabel(user.role)}</span>
                                         ${isArtisan && artisanData.approved ? '<span class="badge bg-success ms-2">Approvato</span>' : isArtisan ? '<span class="badge bg-warning text-dark ms-2">Non approvato</span>' : ''}
                                         ${isArtisan && artisanData.approved_at ? `<div class="text-muted small mt-1">Membro da: ${new Date(artisanData.approved_at).toLocaleDateString('it-IT')}</div>` : ''}
                                     </div>
-                                    
                                 </div>
                                 <label class="form-label">Foto profilo</label>
                                 <input type="file" class="form-control" id="profileImageInput" accept="image/*" />
@@ -81,7 +80,7 @@ export async function loadProfilePage() {
                                     <input type="email" id="email" name="email" class="form-control" value="${user.email}" />
                                 </div>
                             </div>
-                            <div class="col-md-6">                               
+                            <div class="${isArtisan ? 'col-12 col-md-6' : 'col-12'}">                               
                                 ${isArtisan ? `                                
                                 <div class="mb-2">
                                     ${artisanData.url_banner ? `<img src="${artisanData.url_banner}" alt="Banner" class="img-fluid rounded mb-2" style="max-height:125px;width:100%;object-fit:cover;" />` : ''}
@@ -103,13 +102,13 @@ export async function loadProfilePage() {
                         <h2 class="h5 mb-3">Cambia password</h2>
                         <form id="password-form">
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-12">
                                     <div class="mb-3">
                                         <label for="current-password" class="form-label">Password attuale</label>
                                         <input type="password" id="current-password" name="currentPassword" class="form-control" required>
                                     </div>                                    
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-12">
                                     <div class="mb-3">
                                         <label for="new-password" class="form-label">Nuova password</label>
                                         <input type="password" id="new-password" name="newPassword" class="form-control" required minlength="6">
@@ -417,9 +416,45 @@ export async function loadProfilePage() {
                     }
                     // Aggiorna foto profilo
                     const profileFile = profileImageInput && profileImageInput.files[0];
+                    let newProfileImageUrl = null;
                     if (profileFile) {
                         console.log('[DEBUG] Upload nuova foto profilo');
-                        await uploadProfileImage(user.id, profileFile);
+                        const profileUploadRes = await uploadProfileImage(user.id, profileFile);
+                        console.log('Risposta upload profilo:', profileUploadRes);
+                        // Se la risposta contiene la nuova url, aggiorna la preview
+                        if (profileUploadRes && profileUploadRes.files && profileUploadRes.files[0] && profileUploadRes.files[0].url) {
+                            newProfileImageUrl = profileUploadRes.files[0].url;
+                            const profileImagePreview = document.getElementById('profileImagePreview');
+                            if (profileImagePreview) {
+                                if (profileImagePreview.tagName === 'IMG') {
+                                    profileImagePreview.src = newProfileImageUrl;
+                                } else {
+                                    // Se era il div placeholder, lo sostituisco con l'img
+                                    const wrapper = document.getElementById('profileImagePreviewWrapper');
+                                    if (wrapper) {
+                                        const img = document.createElement('img');
+                                        img.src = newProfileImageUrl;
+                                        img.id = 'profileImagePreview';
+                                        img.alt = 'Foto profilo';
+                                        img.className = 'rounded-circle border';
+                                        img.style.width = '90px';
+                                        img.style.height = '90px';
+                                        img.style.objectFit = 'cover';
+                                        wrapper.innerHTML = '';
+                                        wrapper.appendChild(img);
+                                    }
+                                }
+                            }
+                            // Aggiorna anche l'utente nel localStorage
+                            let authUser = localStorage.getItem('auth_user');
+                            if (authUser) {
+                                try {
+                                    authUser = JSON.parse(authUser);
+                                    authUser.image = newProfileImageUrl;
+                                    localStorage.setItem('auth_user', JSON.stringify(authUser));
+                                } catch (e) {}
+                            }
+                        }
                         updated = true;
                     }
                     // Se artigiano, aggiorna bio e banner
@@ -432,9 +467,33 @@ export async function loadProfilePage() {
                             updated = true;
                         }
                         const bannerFile = bannerInput && bannerInput.files[0];
+                        let newBannerUrl = null;
                         if (bannerFile) {
                             console.log('[DEBUG] Upload nuovo banner');
-                            await uploadBannerImage(user.id, bannerFile);
+                            const bannerUploadRes = await uploadBannerImage(user.id, bannerFile);
+                            console.log('Risposta upload banner:', bannerUploadRes);
+                            // Se la risposta contiene la nuova url, aggiorna la preview
+                            if (bannerUploadRes && bannerUploadRes.url) {
+                                newBannerUrl = bannerUploadRes.url;
+                                // Trova l'img del banner e aggiorna
+                                const bannerImg = publicInfoForm.querySelector('img[alt="Banner"]');
+                                if (bannerImg) {
+                                    bannerImg.src = newBannerUrl;
+                                } else {
+                                    // Se non esiste, crea l'img
+                                    const bannerDiv = bannerInput.closest('.mb-2');
+                                    if (bannerDiv) {
+                                        const img = document.createElement('img');
+                                        img.src = newBannerUrl;
+                                        img.alt = 'Banner';
+                                        img.className = 'img-fluid rounded mb-2';
+                                        img.style.maxHeight = '125px';
+                                        img.style.width = '100%';
+                                        img.style.objectFit = 'cover';
+                                        bannerDiv.insertBefore(img, bannerInput);
+                                    }
+                                }
+                            }
                             updated = true;
                         }
                     }
