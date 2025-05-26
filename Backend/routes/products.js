@@ -106,6 +106,51 @@ router.get('/', async (req, res) => {
     }
 });
 
+// GET /products/best-sellers - Prodotti più acquistati
+router.get('/best-sellers', async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 10;
+        // Query: somma le quantità vendute per prodotto
+        const [products] = await db.query(`
+            SELECT p.*, u.name as artisan_name, c.name as category_name, 
+                   COALESCE(SUM(oi.quantity), 0) as total_sold
+            FROM products p
+            LEFT JOIN order_items oi ON p.id = oi.product_id
+            LEFT JOIN users u ON p.artisan_id = u.id
+            LEFT JOIN categories c ON p.category_id = c.id
+            GROUP BY p.id
+            ORDER BY total_sold DESC, p.created_at DESC
+            LIMIT ?
+        `, [limit]);
+        // Recupera la prima immagine per ogni prodotto
+        const productIds = products.map(p => p.id);
+        let imagesMap = {};
+        if (productIds.length > 0) {
+            const [images] = await db.query(
+                'SELECT id, product_id, url, alt_text FROM product_images WHERE product_id IN (?) GROUP BY product_id',
+                [productIds]
+            );
+            images.forEach(img => {
+                imagesMap[img.product_id] = { ...img, url: toPublicImageUrl(img.url) };
+            });
+        }
+        const productsWithImage = products.map(p => ({
+            ...p,
+            price: p.price !== undefined && p.price !== null ? Number(p.price) : 0,
+            discount: p.discount !== undefined && p.discount !== null ? Number(p.discount) : 0,
+            stock: p.stock !== undefined && p.stock !== null ? Number(p.stock) : 0,
+            total_sold: p.total_sold !== undefined && p.total_sold !== null ? Number(p.total_sold) : 0,
+            image: imagesMap[p.id] || null
+        }));
+        res.json({
+            products: productsWithImage
+        });
+    } catch (error) {
+        console.error('Errore nel recupero dei best seller:', error);
+        res.status(500).json({ error: 'Errore nel recupero dei best seller' });
+    }
+});
+
 // GET /products/:id - Ottieni un prodotto specifico
 router.get('/:id', async (req, res) => {
     try {

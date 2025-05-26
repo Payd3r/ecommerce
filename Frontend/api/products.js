@@ -138,6 +138,18 @@ async function searchProducts(searchTerm, limit = 5) {
     return getProducts({ search: searchTerm, limit: limit, page: 1 });
 }
 
+// Funzione per ottenere i prodotti più acquistati (best seller)
+async function getBestSellerProducts(limit = 10) {
+    try {
+        const response = await fetch(`${API_URL}/products/best-sellers?limit=${limit}`);
+        if (!response.ok) throw new Error('Errore nel recupero dei best seller');
+        return await response.json();
+    } catch (error) {
+        console.error('Errore:', error);
+        throw error;
+    }
+}
+
 export {
     getProducts,
     getProduct,
@@ -145,5 +157,6 @@ export {
     updateProduct,
     deleteProduct,
     getProductsByArtisan,
-    searchProducts
+    searchProducts,
+    getBestSellerProducts
 }; 

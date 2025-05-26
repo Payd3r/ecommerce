@@ -1,5 +1,5 @@
 // Importo i servizi API
-import { getProducts, getProduct } from '../../../api/products.js';
+import { getProducts, getProduct, getBestSellerProducts } from '../../../api/products.js';
 import CategoriesAPI from '../../../api/categories.js';
 import UsersAPI from '../../../api/users.js';
 // Importo i componenti
@@ -51,7 +51,7 @@ export async function loadHomePage() {
             <div class="container">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h2 class="mb-0">Ultimi Arrivi</h2>
-                    <a href="/products" class="btn btn-link ms-auto" data-route>visualizza altro..</a>
+                    <a href="/products" class="btn btn-outline-primary btn-sm mt-1 px-4 rounded-pill shadow-sm ms-auto" data-route>Esplora tutti</a>
                 </div>
                 <div id="latest-arrivals-container" class="row g-4"></div>
             </div>
@@ -59,15 +59,15 @@ export async function loadHomePage() {
         <section class="featured-products py-4">
             <div class="container">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h2 class="mb-0">Prodotti in Evidenza</h2>
-                    <a href="/products" class="btn btn-link ms-auto" data-route>visualizza altro..</a>
+                    <h2 class="mb-0">Prodotti più acquistati</h2>
+                    <a href="/products" class="btn btn-outline-primary btn-sm mt-1 px-4 rounded-pill shadow-sm ms-auto" data-route>Esplora tutti</a>
                 </div>
                 <div id="featured-products-container" class="row g-4"></div>
             </div>
         </section>
         <section class="artisans-week pt-4">
             <div class="container">
-                <h2 class="mb-0">Artigiani della Settimana</h2>
+                <h2 class="mb-0">Artigiani</h2>
                 <div class="position-relative px-3" style="padding-left: 2vw; padding-right: 2vw;">
                     <button id="artisan-carousel-left" class="btn btn-light position-absolute top-50 start-0 translate-middle-y z-1"><i class="bi bi-chevron-left"></i></button>
                     <div id="artisans-carousel" class="d-flex flex-nowrap overflow-auto py-2 px-5" style="scroll-behavior: smooth; gap: 1rem; scrollbar-width: none; -ms-overflow-style: none;"></div>
@@ -106,11 +106,24 @@ export async function loadHomePage() {
             console.log("artisan", artisansRes);
             state.artisans = artisansRes.data || [];
 
-
             renderArtisansCarousel(state.artisans);
 
-            // Carica i prodotti
+            // Carica i prodotti normali (per ultimi arrivi)
             await loadProducts();
+
+            // Carica i best seller per la sezione "Prodotti più acquistati"
+            try {
+                const bestSellerRes = await getBestSellerProducts(5);
+                const bestSellers = (bestSellerRes.products || []).map(product => ({
+                    ...product,
+                    price: Number(product.price),
+                    artisan: { name: product.artisan_name },
+                    imageUrl: '',
+                }));
+                renderProductSection(bestSellers, 'featured-products-container');
+            } catch (e) {
+                renderProductSection([], 'featured-products-container');
+            }
 
         } catch (error) {
             console.error('Errore nel caricamento dei dati:', error);
@@ -580,11 +593,21 @@ export async function loadHomePage() {
         if (!container) return;
         container.className = 'row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3';
         let html = '';
-        let toShow = shuffleArray(products);
+        let toShow;
         if (containerId === 'latest-arrivals-container') {
-            toShow = toShow.slice(0, 5);
+            // Ordina per data di creazione decrescente e prendi i primi 5
+            toShow = products
+                .slice() // copia
+                .sort((a, b) => {
+                    const dateA = a.created_at ? new Date(a.created_at) : new Date(0);
+                    const dateB = b.created_at ? new Date(b.created_at) : new Date(0);
+                    return dateB - dateA;
+                })
+                .slice(0, 5);
         } else if (containerId === 'featured-products-container') {
-            toShow = toShow.slice(0, 10);
+            toShow = shuffleArray(products).slice(0, 10);
+        } else {
+            toShow = shuffleArray(products);
         }
         for (let i = 0; i < toShow.length; i++) {
             const product = toShow[i];
