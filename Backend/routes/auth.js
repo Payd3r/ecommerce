@@ -15,9 +15,40 @@ const { toPublicImageUrl } = require('../services/imageUrl');
 const bannerUpload = multer({ storage: multer.memoryStorage() });
 
 /**
- * @route   POST /auth/register
- * @desc    Registrazione nuovo utente
- * @access  Public
+ * @swagger
+ * /auth/register:
+ *   post:
+ *     summary: Registrazione nuovo utente
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *               - name
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *                 description: Ruolo utente (client o artisan)
+ *     responses:
+ *       201:
+ *         description: Utente registrato con successo
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Email già registrata o dati non validi
  */
 router.post('/register', async (req, res) => {
   try {
@@ -69,9 +100,34 @@ router.post('/register', async (req, res) => {
 });
 
 /**
- * @route   POST /auth/login
- * @desc    Login utente
- * @access  Public
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     summary: Login utente
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Login effettuato con successo
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       401:
+ *         description: Credenziali non valide
  */
 router.post('/login', async (req, res) => {
   try {
@@ -111,9 +167,22 @@ router.post('/login', async (req, res) => {
 });
 
 /**
- * @route   GET /auth/profile
- * @desc    Ottieni profilo utente
- * @access  Private (solo utenti autenticati)
+ * @swagger
+ * /auth/profile:
+ *   get:
+ *     summary: Ottieni profilo utente
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Profilo utente recuperato con successo
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       404:
+ *         description: Utente non trovato
  */
 router.get('/profile', verifyToken, async (req, res) => {
   try {
@@ -179,9 +248,33 @@ router.get('/profile', verifyToken, async (req, res) => {
 });
 
 /**
- * @route   PUT /auth/profile
- * @desc    Aggiorna profilo utente (solo nome)
- * @access  Private (solo utenti autenticati)
+ * @swagger
+ * /auth/profile:
+ *   put:
+ *     summary: Aggiorna profilo utente (solo nome o email)
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nickname:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Profilo aggiornato con successo
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Nessun campo da aggiornare
  */
 router.put('/profile', verifyToken, async (req, res) => {
   try {
@@ -211,6 +304,35 @@ router.put('/profile', verifyToken, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /auth/artisan/bio:
+ *   put:
+ *     summary: Aggiorna la bio dell'artigiano
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - bio
+ *             properties:
+ *               bio:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Bio aggiornata
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Bio obbligatoria
+ */
 // PUT /auth/artisan/bio
 router.put('/artisan/bio', verifyToken, async (req, res) => {
   try {

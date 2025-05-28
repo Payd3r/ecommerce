@@ -44,6 +44,66 @@ const artisanDetailsUpload = multer({
     { name: 'bannerImage', maxCount: 1 }
 ]);
 
+/**
+ * @swagger
+ * /users:
+ *   get:
+ *     summary: Ottieni tutti gli utenti (solo admin)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Numero della pagina
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Numero di utenti per pagina
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *         description: Filtro per nome
+ *       - in: query
+ *         name: email
+ *         schema:
+ *           type: string
+ *         description: Filtro per email
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *         description: Filtro per ruolo
+ *       - in: query
+ *         name: orderBy
+ *         schema:
+ *           type: string
+ *         description: Campo per ordinamento
+ *       - in: query
+ *         name: orderDir
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *         description: Direzione ordinamento
+ *     responses:
+ *       200:
+ *         description: Lista utenti con paginazione
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 users:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 pagination:
+ *                   type: object
+ */
 // GET /users - Ottieni tutti gli utenti con paginazione, ricerca e filtri
 // Solo admin può vedere tutti gli utenti
 router.get('/', verifyToken, checkRole('admin'), async (req, res) => {
@@ -120,6 +180,41 @@ router.get('/', verifyToken, checkRole('admin'), async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /users/artisans:
+ *   get:
+ *     summary: Ottieni tutti gli artigiani approvati o uno specifico
+ *     tags: [Users]
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         description: ID dell'artigiano (opzionale)
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Numero della pagina
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Numero di artigiani per pagina
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Filtro per nome
+ *     responses:
+ *       200:
+ *         description: Lista artigiani o dettaglio artigiano
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ */
 // GET /users/artisans - Ottieni tutti gli artisani o uno specifico se viene passato id
 router.get('/artisans', async (req, res) => {
     try {
@@ -205,6 +300,22 @@ router.get('/artisans', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /users/counts:
+ *   get:
+ *     summary: Conta utenti per ruolo (solo admin)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Conteggio utenti per ruolo
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ */
 // GET /users/counts - Conta utenti per ruolo
 router.get('/counts', verifyToken, checkRole('admin'), async (req, res) => {
     try {
@@ -219,6 +330,44 @@ router.get('/counts', verifyToken, checkRole('admin'), async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /users:
+ *   post:
+ *     summary: Crea un nuovo utente (solo admin)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - password
+ *               - role
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Utente creato
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Dati non validi o email già registrata
+ */
 // POST /users - Crea un nuovo utente
 // Solo admin può creare nuovi utenti (la registrazione normale va gestita separatamente)
 router.post('/', verifyToken, checkRole('admin'), async (req, res) => {
@@ -271,6 +420,28 @@ router.post('/', verifyToken, checkRole('admin'), async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /users/pending-artisans:
+ *   get:
+ *     summary: Artigiani in attesa di approvazione (solo admin)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Numero massimo di risultati
+ *     responses:
+ *       200:
+ *         description: Lista artigiani da approvare
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ */
 // GET /users/pending-artisans - Artigiani in attesa di approvazione (solo admin)
 router.get('/pending-artisans', verifyToken, checkRole('admin'), async (req, res) => {
     try {
@@ -290,6 +461,33 @@ router.get('/pending-artisans', verifyToken, checkRole('admin'), async (req, res
     }
 });
 
+/**
+ * @swagger
+ * /users/{id}:
+ *   get:
+ *     summary: Ottieni un utente specifico (solo admin o utente stesso)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID dell'utente
+ *     responses:
+ *       200:
+ *         description: Dettaglio utente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       403:
+ *         description: Non hai i permessi per visualizzare questo profilo
+ *       404:
+ *         description: Utente non trovato
+ */
 // GET /users/:id - Ottieni un utente specifico
 // Un utente può vedere solo il proprio profilo, admin può vedere tutti
 router.get('/:id', verifyToken, async (req, res) => {
@@ -318,6 +516,48 @@ router.get('/:id', verifyToken, async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /users/{id}:
+ *   put:
+ *     summary: Aggiorna un utente esistente (solo admin o utente stesso)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID dell'utente
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Utente aggiornato
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Nessun campo da aggiornare o dati non validi
+ *       403:
+ *         description: Non hai i permessi per modificare questo profilo
+ *       404:
+ *         description: Utente non trovato
+ */
 // PUT /users/:id - Aggiorna un utente esistente
 // Un utente può modificare solo il proprio profilo, admin può modificare tutti
 router.put('/:id', verifyToken, async (req, res) => {
@@ -411,6 +651,27 @@ router.put('/:id', verifyToken, async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /users/{id}:
+ *   delete:
+ *     summary: Elimina un utente (solo admin)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID dell'utente
+ *     responses:
+ *       204:
+ *         description: Utente eliminato
+ *       404:
+ *         description: Utente non trovato
+ */
 // DELETE /users/:id - Elimina un utente
 // Solo admin può eliminare gli utenti
 router.delete('/:id', verifyToken, checkRole('admin'), async (req, res) => {
@@ -432,6 +693,31 @@ router.delete('/:id', verifyToken, checkRole('admin'), async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /users/artisan-details:
+ *   post:
+ *     summary: Aggiorna dettagli artigiano (solo autenticato)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               bio:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Dettagli artigiano aggiornati
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ */
 // NUOVA ROTTA: POST /users/artisan-details
 router.post('/artisan-details', verifyToken, async (req, res, next) => {
     // Se la richiesta è multipart/form-data, passa al middleware multer (retrocompatibilità)
@@ -461,6 +747,29 @@ router.post('/artisan-details', verifyToken, async (req, res, next) => {
     res.status(400).json({ error: 'Upload immagini non più supportato qui. Usa le API /images/upload/profile e /images/upload/banner.' });
 });
 
+/**
+ * @swagger
+ * /users/{id}/approve:
+ *   put:
+ *     summary: Approva un artigiano (solo admin)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID dell'utente
+ *     responses:
+ *       200:
+ *         description: Utente approvato con successo
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ */
 // PUT /users/:id/approve - Approva un artigiano (solo admin)
 router.put('/:id/approve', verifyToken, checkRole('admin'), async (req, res) => {
     const userId = req.params.id;

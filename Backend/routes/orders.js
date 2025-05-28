@@ -6,6 +6,30 @@ require('dotenv').config();
 const Stripe = require('stripe');
 const stripe = Stripe("sk_test_51RQktnE3wYvtSR1Ne20OWPwX7VLwH6j9Bnpb06vv1e4eXZYEEbU4I1InNWFhlrWbdoJLa206P1gVml47ZX2JFw1W00X8h0VobE");
 
+/**
+ * @swagger
+ * /orders:
+ *   get:
+ *     summary: Ottieni tutti gli ordini (admin o per test, o per clientId)
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: clientId
+ *         schema:
+ *           type: integer
+ *         description: ID del cliente (opzionale, filtra per utente)
+ *     responses:
+ *       200:
+ *         description: Lista degli ordini
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ */
 // GET /orders - Ottieni tutti gli ordini (admin o per test)
 router.get('/', verifyToken, async (req, res) => {
     const clientId = req.query.clientId ? parseInt(req.query.clientId) : null;
@@ -39,6 +63,38 @@ router.get('/', verifyToken, async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /orders:
+ *   post:
+ *     summary: Crea un nuovo ordine
+ *     tags: [Orders]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - client_id
+ *               - total_price
+ *             properties:
+ *               client_id:
+ *                 type: integer
+ *               total_price:
+ *                 type: number
+ *               status:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Ordine creato
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: client_id e total_price sono obbligatori
+ */
 // POST /orders - Crea un nuovo ordine
 router.post('/', async (req, res) => {
     const { client_id, total_price, status } = req.body;
@@ -58,6 +114,35 @@ router.post('/', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /orders/checkout:
+ *   post:
+ *     summary: Checkout - crea ordine dal carrello dell'utente
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: integer
+ *               paymentIntentId:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Ordine creato dal carrello
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Carrello vuoto o pagamento non valido
+ */
 // POST /orders/checkout - Checkout: crea ordine dal carrello dell'utente
 router.post('/checkout', verifyToken, async (req, res) => {
     const connection = await db.getConnection();
@@ -136,6 +221,31 @@ router.post('/checkout', verifyToken, async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /orders/by-artisan/{artisanId}:
+ *   get:
+ *     summary: Ottieni tutti gli ordini relativi ai prodotti di un artigiano
+ *     tags: [Orders]
+ *     parameters:
+ *       - in: path
+ *         name: artisanId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID dell'artigiano
+ *     responses:
+ *       200:
+ *         description: Lista degli ordini per artigiano
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *       400:
+ *         description: ID artigiano non valido
+ */
 // GET /orders/by-artisan/:artisanId - Ottieni tutti gli ordini relativi ai prodotti di un artigiano
 router.get('/by-artisan/:artisanId', async (req, res) => {
     const artisanId = parseInt(req.params.artisanId);
@@ -160,6 +270,31 @@ router.get('/by-artisan/:artisanId', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /orders/stats/sales:
+ *   get:
+ *     summary: Vendite mensili per artigiano
+ *     tags: [Orders]
+ *     parameters:
+ *       - in: query
+ *         name: artisanId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID dell'artigiano
+ *     responses:
+ *       200:
+ *         description: Statistiche di vendita mensili
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *       400:
+ *         description: ID artigiano non valido
+ */
 // GET /orders/stats/sales?artisanId=... - Vendite mensili per artigiano
 router.get('/stats/sales', async (req, res) => {
     const artisanId = parseInt(req.query.artisanId);
@@ -183,6 +318,31 @@ router.get('/stats/sales', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /orders/stats/orders:
+ *   get:
+ *     summary: Numero ordini mensili per artigiano
+ *     tags: [Orders]
+ *     parameters:
+ *       - in: query
+ *         name: artisanId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID dell'artigiano
+ *     responses:
+ *       200:
+ *         description: Statistiche numero ordini mensili
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *       400:
+ *         description: ID artigiano non valido
+ */
 // GET /orders/stats/orders?artisanId=... - Numero ordini mensili per artigiano
 router.get('/stats/orders', async (req, res) => {
     const artisanId = parseInt(req.query.artisanId);
@@ -206,6 +366,31 @@ router.get('/stats/orders', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /orders/{orderId}/items:
+ *   get:
+ *     summary: Ottieni tutti gli order_items di un ordine specifico
+ *     tags: [Orders]
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID dell'ordine
+ *     responses:
+ *       200:
+ *         description: Lista degli order_items
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *       400:
+ *         description: ID ordine non valido
+ */
 // GET /orders/:orderId/items - Ottieni tutti gli order_items di un ordine specifico
 router.get('/:orderId/items', async (req, res) => {
     const orderId = parseInt(req.params.orderId);
@@ -226,6 +411,79 @@ router.get('/:orderId/items', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /orders/by-artisan/{artisanId}/filtered:
+ *   get:
+ *     summary: Ordini con filtri e paginazione per artigiano
+ *     tags: [Orders]
+ *     parameters:
+ *       - in: path
+ *         name: artisanId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID dell'artigiano
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Numero della pagina
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Numero di ordini per pagina
+ *       - in: query
+ *         name: minPrice
+ *         schema:
+ *           type: number
+ *         description: Prezzo minimo
+ *       - in: query
+ *         name: maxPrice
+ *         schema:
+ *           type: number
+ *         description: Prezzo massimo
+ *       - in: query
+ *         name: startDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Data inizio
+ *       - in: query
+ *         name: endDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Data fine
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *         description: Stato ordine
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *         description: Ordinamento (ascendente o discendente)
+ *     responses:
+ *       200:
+ *         description: Lista ordini filtrati
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 orders:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 pagination:
+ *                   type: object
+ *       400:
+ *         description: ID artigiano non valido
+ */
 // GET /orders/by-artisan/:artisanId/filtered - Ordini con filtri e paginazione
 router.get('/by-artisan/:artisanId/filtered', async (req, res) => {
     const artisanId = parseInt(req.params.artisanId);
@@ -289,6 +547,33 @@ router.get('/by-artisan/:artisanId/filtered', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /orders/{orderId}:
+ *   delete:
+ *     summary: Elimina un ordine e i suoi order_items
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID dell'ordine
+ *     responses:
+ *       200:
+ *         description: Ordine eliminato
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: ID ordine non valido
+ *       404:
+ *         description: Ordine non trovato
+ */
 // DELETE /orders/:orderId - Elimina un ordine e i suoi order_items
 router.delete('/:orderId', verifyToken, async (req, res) => {
     const orderId = parseInt(req.params.orderId);
@@ -336,6 +621,44 @@ router.delete('/:orderId', verifyToken, async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /orders/{orderId}:
+ *   put:
+ *     summary: Aggiorna lo stato di un ordine
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID dell'ordine
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - status
+ *             properties:
+ *               status:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Stato ordine aggiornato
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: ID ordine o stato non valido
+ *       404:
+ *         description: Ordine non trovato
+ */
 // PUT /orders/:orderId - Aggiorna lo stato di un ordine
 router.put('/:orderId', verifyToken, async (req, res) => {
     const orderId = parseInt(req.params.orderId);
@@ -446,6 +769,33 @@ router.put('/:orderId', verifyToken, async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /orders/create-payment-intent:
+ *   post:
+ *     summary: Crea una PaymentIntent Stripe
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: PaymentIntent creata
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Carrello vuoto o non trovato
+ */
 // POST /orders/create-payment-intent - Crea una PaymentIntent Stripe
 router.post('/create-payment-intent', verifyToken, async (req, res) => {
     try {

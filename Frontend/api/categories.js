@@ -1,5 +1,16 @@
+/*
+  categories.js
+  -----------------------------
+  Questo modulo fornisce un'API client-side per la gestione delle categorie nell'applicazione ArtigianatoShop.
+  - Tutte le chiamate sono indirizzate alle API REST del backend tramite fetchWithAuth, che gestisce token e headers.
+  - Le funzioni di CategoriesAPI permettono: recupero di tutte le categorie, dell'albero categorie, di una singola categoria, creazione, aggiornamento e cancellazione (queste ultime solo per admin).
+  - Le scelte tecniche privilegiano la modularità e la separazione delle responsabilità: la logica di gestione categorie è centralizzata qui.
+  - Tutte le chiamate sono protette da error handling robusto e restituiscono dati già pronti per l'uso nei componenti frontend.
+  - Le rotte e i payload sono allineati con la documentazione Swagger del backend.
+  - Ogni funzione è documentata inline per chiarire parametri, comportamento e possibili errori.
+*/
+
 import { fetchWithAuth } from '../js/services/fetchWithAuth.js';
-// Utilizziamo l'URL di base delle API dell'applicazione
 import { getApiUrl } from './config.js';
 import { authService } from '../js/services/authService.js';
 
@@ -9,8 +20,9 @@ const API_URL = getApiUrl();
  */
 const CategoriesAPI = {
     /**
-     * Ottiene tutte le categorie
-     * @returns {Promise} Promise con i dati delle categorie
+     * Ottiene tutte le categorie.
+     * @returns {Promise<object>} Promise con i dati delle categorie.
+     * @throws {Error} Se la richiesta fallisce.
      */
     getCategories: async () => {
         try {
@@ -34,8 +46,9 @@ const CategoriesAPI = {
     },
     
     /**
-     * Ottiene l'albero delle categorie
-     * @returns {Promise} Promise con l'albero delle categorie
+     * Ottiene l'albero delle categorie.
+     * @returns {Promise<object>} Promise con l'albero delle categorie.
+     * @throws {Error} Se la richiesta fallisce.
      */
     getCategoryTree: async () => {
         try {
@@ -59,9 +72,10 @@ const CategoriesAPI = {
     },
     
     /**
-     * Ottiene una singola categoria tramite ID
-     * @param {number|string} id - ID della categoria
-     * @returns {Promise} Promise con i dati della categoria
+     * Ottiene una singola categoria tramite ID.
+     * @param {number|string} id - ID della categoria.
+     * @returns {Promise<object>} Promise con i dati della categoria.
+     * @throws {Error} Se la richiesta fallisce.
      */
     getCategory: async (id) => {
         try {
@@ -85,9 +99,10 @@ const CategoriesAPI = {
     },
     
     /**
-     * Crea una nuova categoria (richiede autenticazione admin)
-     * @param {Object} categoryData - Dati della categoria da creare (name, description, dad_id)
-     * @returns {Promise} Promise con i dati della categoria creata
+     * Crea una nuova categoria (richiede autenticazione admin).
+     * @param {Object} categoryData - Dati della categoria da creare (name, description, dad_id).
+     * @returns {Promise<object>} Promise con i dati della categoria creata.
+     * @throws {Error} Se l'utente non è autenticato o la richiesta fallisce.
      */
     createCategory: async (categoryData) => {
         const token = authService.getToken();
@@ -119,10 +134,11 @@ const CategoriesAPI = {
     },
     
     /**
-     * Aggiorna una categoria esistente (richiede autenticazione admin)
-     * @param {number|string} id - ID della categoria
-     * @param {Object} categoryData - Dati della categoria da aggiornare (name, description, dad_id)
-     * @returns {Promise} Promise con i dati della categoria aggiornata
+     * Aggiorna una categoria esistente (richiede autenticazione admin).
+     * @param {number|string} id - ID della categoria.
+     * @param {Object} categoryData - Dati della categoria da aggiornare (name, description, dad_id).
+     * @returns {Promise<object>} Promise con i dati della categoria aggiornata.
+     * @throws {Error} Se l'utente non è autenticato o la richiesta fallisce.
      */
     updateCategory: async (id, categoryData) => {
         const token = authService.getToken();
@@ -154,9 +170,10 @@ const CategoriesAPI = {
     },
     
     /**
-     * Elimina una categoria (richiede autenticazione admin)
-     * @param {number|string} id - ID della categoria da eliminare
-     * @returns {Promise<boolean>} Promise con esito dell'operazione
+     * Elimina una categoria (richiede autenticazione admin).
+     * @param {number|string} id - ID della categoria da eliminare.
+     * @returns {Promise<boolean>} Promise con esito dell'operazione.
+     * @throws {Error} Se l'utente non è autenticato o la richiesta fallisce.
      */
     deleteCategory: async (id) => {
         const token = authService.getToken();
