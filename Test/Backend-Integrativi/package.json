@@ -1,0 +1,29 @@
+{
+  "name": "ecommerce-backend-integration-tests",
+  "version": "1.0.0",
+  "description": "Test integrativi per l'API del backend e-commerce",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha tests/**/*.test.js --timeout 10000",
+    "test:watch": "mocha tests/**/*.test.js --watch --timeout 10000"
+  },
+  "keywords": [
+    "test",
+    "integration",
+    "api",
+    "ecommerce"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "bcrypt": "^5.1.1",
+    "chai": "^4.3.10",
+    "chai-http": "^4.4.0",
+    "dotenv": "^16.3.1",
+    "jsonwebtoken": "^9.0.2",
+    "mocha": "^10.2.0",
+    "mysql2": "^3.6.3",
+    "supertest": "^6.3.3"
+  }
+} 

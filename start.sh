@@ -1,8 +1,3 @@
-#!/bin/bash
-
-# Crea la directory Media se non esiste
-mkdir -p Media
-
 # Avvia i container Docker
 docker-compose up -d
 

@@ -1,0 +1,23 @@
+{
+  "name": "ecommerce-backend-unit-tests",
+  "version": "1.0.0",
+  "description": "Test unitari per il backend e-commerce",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha tests/**/*.test.js --timeout 5000",
+    "test:watch": "mocha tests/**/*.test.js --watch --timeout 5000"
+  },
+  "keywords": [
+    "test",
+    "unit",
+    "backend",
+    "ecommerce"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chai": "^4.3.10",
+    "mocha": "^10.2.0",
+    "sinon": "^15.0.1"
+  }
+} 

@@ -14,6 +14,22 @@ services:
       - mariadbdata:/var/lib/mysql      
       - ./Backend/db.sql:/docker-entrypoint-initdb.d/db.sql
 
+  # Database di test
+  db-test:
+    image: mariadb:11
+    container_name: mariadb-test-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: test_password
+      MYSQL_DATABASE: test_db
+      MYSQL_USER: test_user
+      MYSQL_PASSWORD: test_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mariadbtest:/var/lib/mysql
+      - ./Backend/db.sql:/docker-entrypoint-initdb.d/db.sql
+
   backend:
     build: ./Backend
     container_name: node-backend
@@ -38,6 +54,55 @@ services:
     working_dir: /usr/src/app
     command: npm run dev
 
+  # Servizio di test integrativi
+  test-integrativi:
+    build: 
+      context: .
+      dockerfile: ./Test/Backend-Integrativi/Dockerfile
+    ports:
+      - "3016:3016"
+    depends_on:
+      - db-test
+    environment:
+      PORT: 3016
+      DB_HOST: db-test
+      DB_USER: test_user
+      DB_PASSWORD: test_password
+      DB_NAME: test_db
+      DB_PORT: 3306
+      JWT_SECRET: test_secret_key
+      NODE_ENV: test
+    volumes:
+      # - ./Backend:/usr/src/app/Backend  # RIMOSSO per evitare problemi con node_modules
+      - ./Test/Backend-Integrativi:/usr/src/app/Test/Backend-Integrativi
+      - ./Media-Test:/usr/src/app/Media-Test
+
+  # Servizio di test unitari del backend
+  test-unitari:
+    build:
+      context: .
+      dockerfile: ./Test/Backend-Unitari/Dockerfile
+    depends_on:
+      - backend
+    environment:
+      NODE_ENV: test
+    volumes:
+      - ./Backend:/usr/src/app/Backend
+      - ./Test/Backend-Unitari:/usr/src/app/Test/Backend-Unitari
+
+  # Servizio di test del frontend
+  test-frontend:
+    build:
+      context: .
+      dockerfile: ./Test/Frontend/Dockerfile
+    depends_on:
+      - frontend
+    environment:
+      NODE_ENV: test
+    volumes:
+      - ./Frontend:/usr/src/app/Frontend
+      - ./Test/Frontend:/usr/src/app/Test/Frontend
+
   frontend:
     build: ./Frontend
     container_name: node-frontend
@@ -60,33 +125,6 @@ services:
       # Volume condiviso per le immagini pubbliche
       - ./Media:/usr/share/nginx/html/Media
       
-  test:
-    build: 
-      context: ./Test
-      dockerfile: Dockerfile
-    container_name: test-suite
-    depends_on:
-      - backend
-      - frontend
-      - db
-    environment:
-      # Variabili d'ambiente per i test
-      DB_HOST: db
-      DB_USER: ukiui5tx8fkytjk
-      DB_PASSWORD: usf6FFdMfLXgAGqORnmR8
-      DB_NAME: bhhcfb8lkdjzm7yexzpq
-      DB_PORT: 3306
-      JWT_SECRET: ecommerce_artisan_platform_secret_key
-      BACKEND_URL: http://backend:3015
-      FRONTEND_URL: http://frontend:80
-    volumes:
-      - ./Test:/app/Test
-      - ./Backend:/app/Backend
-      - ./Frontend:/app/Frontend
-      - ./reports:/app/Test/reports
-      - /app/Test/node_modules
-    # Per default non avvia i test, li avvieremo manualmente o tramite CI
-    command: tail -f /dev/null
-
 volumes:
-  mariadbdata: 
+  mariadbdata:
+  mariadbtest:
