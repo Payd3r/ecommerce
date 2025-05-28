@@ -4,7 +4,7 @@
   "description": "Test per il frontend e-commerce",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --json --outputFile=.jest-results.json && node generate-test-report.js && del .jest-results.json",
     "test:watch": "jest --watch"
   },
   "keywords": [

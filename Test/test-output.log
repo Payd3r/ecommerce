@@ -1,0 +1,67 @@
+===== REPORT TEST FRONTEND =====
+
+Test completati in circa 3.50s
+Test suite: 7 passate, 0 fallite, 7 totali
+Test: 43 passati, 0 falliti, 43 totali
+
+DETTAGLI TEST SUITE:
+-------------------
+
+PASS tests\app.test.js
+  ✓ App > dovrebbe inizializzare il router e i componenti quando viene caricato il DOM (0.01s)
+  ✓ App > dovrebbe controllare lo stato di autenticazione e aggiornare il profilo (0.00s)
+  ✓ App > dovrebbe gestire errori di autenticazione (0.03s)
+  ✓ App > dovrebbe registrare il listener per auth:change (0.00s)
+
+PASS tests\router.test.js
+  ✓ Router > navigate > dovrebbe navigare correttamente a una rotta pubblica (0.02s)
+  ✓ Router > navigate > dovrebbe navigare correttamente a una rotta dinamica (0.01s)
+  ✓ Router > navigate > dovrebbe reindirizzare al login se l'utente non è autenticato per una rotta protetta (0.00s)
+  ✓ Router > navigate > dovrebbe permettere l'accesso a una rotta protetta se l'utente è autenticato (0.00s)
+  ✓ Router > navigate > dovrebbe reindirizzare alla home se l'utente non ha il ruolo richiesto (0.00s)
+  ✓ Router > navigate > dovrebbe gestire errori durante la navigazione (0.00s)
+  ✓ Router > navigate > dovrebbe navigare alla rotta 404 se la rotta non esiste (0.00s)
+  ✓ Router > navigateToDashboard > dovrebbe reindirizzare alla dashboard admin per un utente admin (0.00s)
+  ✓ Router > navigateToDashboard > dovrebbe reindirizzare alla dashboard artigiano per un utente artigiano (0.00s)
+  ✓ Router > navigateToDashboard > dovrebbe reindirizzare alla home per un utente client (0.00s)
+  ✓ Router > navigateToDashboard > dovrebbe reindirizzare alla home se l'utente non è loggato (0.00s)
+
+PASS tests\integration.test.js
+  ✓ Integrazione Frontend > flusso completo: login, navigazione, visualizzazione prodotti e checkout (0.02s)
+  ✓ Integrazione Frontend > flusso per utente artigiano: login, accesso dashboard e gestione prodotti (0.00s)
+
+PASS tests\authService.test.js
+  ✓ AuthService > login > dovrebbe effettuare il login con successo e salvare i dati di autenticazione (0.02s)
+  ✓ AuthService > login > dovrebbe gestire errori durante il login (0.02s)
+  ✓ AuthService > logout > dovrebbe eliminare i dati di autenticazione dal localStorage (0.00s)
+  ✓ AuthService > getProfile > dovrebbe recuperare il profilo utente e aggiornare i dati nel localStorage (0.00s)
+  ✓ AuthService > getProfile > dovrebbe lanciare un errore se l'utente non è autenticato (0.00s)
+  ✓ AuthService > isAuthenticated > dovrebbe restituire true se è presente un token (0.00s)
+  ✓ AuthService > isAuthenticated > dovrebbe restituire false se non è presente un token (0.00s)
+  ✓ AuthService > hasRole > dovrebbe restituire true se l'utente ha il ruolo specificato (0.00s)
+  ✓ AuthService > hasRole > dovrebbe restituire true se l'utente ha uno dei ruoli specificati nell'array (0.00s)
+  ✓ AuthService > hasRole > dovrebbe restituire false se l'utente non ha il ruolo specificato (0.00s)
+  ✓ AuthService > hasRole > dovrebbe restituire false se non c'è un utente loggato (0.00s)
+
+PASS tests\example.test.js
+  ✓ Test Frontend di Base > dovrebbe passare un test di esempio (0.01s)
+  ✓ Test Frontend di Base > dovrebbe concatenare stringhe (0.00s)
+  ✓ Test Frontend di Base > dovrebbe eseguire semplici operazioni matematiche (0.00s)
+  ✓ Test Frontend di Base > dovrebbe manipolare array (0.00s)
+  ✓ Test Frontend di Base > dovrebbe manipolare oggetti (0.01s)
+
+PASS tests\fetchWithAuth.test.js
+  ✓ fetchWithAuth > dovrebbe chiamare fetch con i parametri corretti (0.02s)
+  ✓ fetchWithAuth > dovrebbe gestire correttamente una risposta con status 401 (0.04s)
+  ✓ fetchWithAuth > dovrebbe restituire la risposta per status code diversi da 401 (0.01s)
+  ✓ fetchWithAuth > dovrebbe gestire correttamente errori di rete (0.01s)
+
+PASS tests\api.test.js
+  ✓ ApiService > login > dovrebbe effettuare il login con successo (0.02s)
+  ✓ ApiService > login > dovrebbe gestire errori durante il login (0.03s)
+  ✓ ApiService > getProfile > dovrebbe recuperare il profilo utente (0.01s)
+  ✓ ApiService > getProfile > dovrebbe gestire errori durante il recupero del profilo (0.01s)
+  ✓ ApiService > getAddress > dovrebbe recuperare l'indirizzo dell'utente (0.00s)
+  ✓ ApiService > saveAddress > dovrebbe salvare l'indirizzo dell'utente (0.00s)
+
+TUTTI I TEST SONO PASSATI! 🎉
