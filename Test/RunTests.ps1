@@ -45,11 +45,24 @@ function Run-Test {
         }
         
         # Esegui il container con docker-compose run
-        $cmd = "docker-compose run --rm $ServiceName 2>&1 | Tee-Object -FilePath `"$PSScriptRoot\$LogPath`""
+        $cmd = "docker-compose run --rm $ServiceName | Out-String"
         Write-Host "Comando: $cmd" -ForegroundColor Gray
         
-        # Esegui il comando
-        Invoke-Expression $cmd
+        # Esegui il comando e filtra l'output
+        $output = Invoke-Expression $cmd
+        
+        # Filtra il messaggio "Container xyz Running" e altri messaggi di sistema
+        $filteredOutput = $output -replace "(?m)^\s*Container\s+[^\s]+\s+Running\s*$", "" `
+                                   -replace "(?m)^In riga:[0-9]+ car:[0-9]+", "" `
+                                   -replace "(?m)^\s*\+\s+[^\n]+", "" `
+                                   -replace "(?m)^\s*\+\s+CategoryInfo[^\n]+", "" `
+                                   -replace "(?m)^\s*\+\s+FullyQualifiedErrorId[^\n]+", ""
+        
+        # Salva l'output filtrato nel file di log
+        $filteredOutput | Out-File -FilePath "$PSScriptRoot\$LogPath" -Force
+        
+        # Mostra l'output filtrato a schermo
+        $filteredOutput
         
         # Verifica se il log è stato creato
         if (Test-Path "$PSScriptRoot\$LogPath") {

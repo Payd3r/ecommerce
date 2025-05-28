@@ -4,13 +4,13 @@
 
 echo "Avvio dei test del frontend..."
 
-# Attendi che il servizio frontend sia pronto
-echo "Attesa dell'avvio del servizio frontend..."
-sleep 5
+# Installa le dipendenze di test
+cd /usr/src/app/Test/Frontend
+npm install jest --no-save
 
 # Esegui i test
 echo "Esecuzione dei test del frontend..."
-npm run test --prefix /usr/src/app/Test/Frontend
+./node_modules/.bin/jest --runInBand
 
 # Codice di uscita
 exit $? 

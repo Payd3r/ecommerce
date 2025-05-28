@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  backend-unit-tests:
+    build:
+      context: ../..
+      dockerfile: Test/Backend-Unitari/Dockerfile
+    volumes:
+      - ../../Backend:/usr/src/app/Backend
+      - ./:/usr/src/app/Test/Backend-Unitari
+      - /usr/src/app/Test/Backend-Unitari/node_modules
+    environment:
+      - NODE_ENV=test
+    command: sh -c "cd /usr/src/app/Test/Backend-Unitari && npm test" 
