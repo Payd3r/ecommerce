@@ -4,13 +4,15 @@ import { showBootstrapToast } from '../../components/Toast.js';
 import { router } from '../../router.js';
 
 /**
- * Carica la pagina degli artigiani con sidebar filtri
+ * Carica la pagina degli artigiani con sidebar filtri.
+ * Gestisce la ricerca, la paginazione, il rendering delle card artigiano e la navigazione allo shop.
+ * @returns {Object} - Oggetto con i metodi del componente (render, mount)
  */
 export async function loadArtisanPage() {
     const pageElement = document.createElement('div');
     pageElement.className = 'artisan-page';
 
-    // Stato locale
+    // Stato locale della pagina (artigiani, paginazione, ricerca)
     let state = {
         artisans: [],
         page: 1,
@@ -19,7 +21,7 @@ export async function loadArtisanPage() {
         search: ''
     };
 
-    // HTML struttura
+    // HTML struttura principale (header, sidebar filtri, lista artigiani, paginazione)
     pageElement.innerHTML = `
         <div class="container py-4 artisan-page">
             <div class="d-flex align-items-center justify-content-between mb-0 mb-md-2">
@@ -54,7 +56,11 @@ export async function loadArtisanPage() {
         </div>
     `;
 
-    // Funzione per renderizzare le card degli artigiani
+    /**
+     * Renderizza le card degli artigiani nella lista principale.
+     * Gestisce anche la navigazione allo shop e gli stili custom.
+     * @param {Array} artisans - Lista artigiani da mostrare
+     */
     function renderArtisans(artisans) {
         const list = pageElement.querySelector('#artisans-list');
         if (!artisans.length) {
@@ -151,7 +157,10 @@ export async function loadArtisanPage() {
         `;
     }
 
-    // Funzione per renderizzare la paginazione
+    /**
+     * Renderizza la paginazione in base al numero totale di pagine e alla pagina corrente.
+     * @param {Object} pagination - Oggetto con info paginazione
+     */
     function renderPagination(pagination) {
         const paginationEl = pageElement.querySelector('#artisans-pagination');
         if (!pagination || pagination.totalPages <= 1) {
@@ -165,7 +174,9 @@ export async function loadArtisanPage() {
         paginationEl.innerHTML = html;
     }
 
-    // Carica gli artigiani dal server
+    /**
+     * Carica gli artigiani dal server e aggiorna la lista e la paginazione.
+     */
     async function loadArtisans() {
         loader.show();
         try {
@@ -186,7 +197,9 @@ export async function loadArtisanPage() {
         }
     }
 
-    // Gestione filtri
+    /**
+     * Inizializza gli event listener per filtri, paginazione e toggle sidebar mobile.
+     */
     function mount() {
         const filterForm = pageElement.querySelector('#artisan-filter-form');
         const searchInput = pageElement.querySelector('#search-artisan');
@@ -233,6 +246,7 @@ export async function loadArtisanPage() {
     // Carica la prima pagina
     await loadArtisans();
 
+    // Ritorna i metodi principali del componente
     return {
         render: () => pageElement,
         mount

@@ -25,7 +25,7 @@ class Router {
     }
     
     /**
-     * Inizializza il router
+     * Inizializza il router e gestisce la rotta iniziale
      */
     init() {
         // Gestisce la rotta iniziale basata sull'URL
@@ -55,7 +55,7 @@ class Router {
     }
     
     /**
-     * Gestisce la navigazione
+     * Gestisce la navigazione tra le pagine
      * @param {string} path - Percorso della nuova rotta
      * @param {boolean} pushState - Se true, aggiunge la rotta alla history
      */
@@ -161,7 +161,7 @@ class Router {
     }
     
     /**
-     * Gestisce il click su un link
+     * Gestisce il click su un link interno
      * @param {Event} event - Evento click
      */
     handleLinkClick(event) {

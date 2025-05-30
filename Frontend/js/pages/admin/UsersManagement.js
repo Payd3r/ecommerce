@@ -2,11 +2,12 @@ import { showBootstrapToast } from '../../components/Toast.js';
 import UsersAPI from '../../../api/users.js';
 
 /**
- * Carica la dashboard dell'amministratore
- * @returns {Object} - Oggetto con i metodi del componente
+ * Carica la pagina di gestione utenti per l'amministratore.
+ * Inizializza la UI, gestisce filtri, tabella utenti, paginazione, modali e azioni su utenti e artigiani.
+ * @returns {Object} - Oggetto con i metodi del componente (render, mount, unmount)
  */
 export async function loadUsersManagementPage() {
-    // CSS mobile responsive
+    // CSS mobile responsive (iniettato una sola volta)
     if (!document.getElementById('users-management-mobile-style')) {
         const style = document.createElement('style');
         style.id = 'users-management-mobile-style';
@@ -62,8 +63,7 @@ export async function loadUsersManagementPage() {
     const pageElement = document.createElement('div');
     pageElement.className = 'admin-dashboard-page';
 
-
-    // Modifica il layout del titolo e aggiungi un pulsante per aggiungere utenti sulla destra
+    // Imposta l'HTML della pagina, inclusi header, filtri, tabella, modali
     pageElement.innerHTML = `
         <div class="container mt-4">
             <div class="row align-items-center">
@@ -265,7 +265,7 @@ export async function loadUsersManagementPage() {
     // Variabile per tenere traccia dell'utente da eliminare
     let userIdToDelete = null;
 
-    // Aggiungi una variabile per tenere traccia dei filtri correnti
+    // Stato filtri e paginazione
     let currentFilters = {
         name: '',
         email: '',
@@ -276,7 +276,11 @@ export async function loadUsersManagementPage() {
         orderDir: 'ASC'
     };
 
-    // Funzione per generare un badge colorato in base al ruolo
+    /**
+     * Restituisce il badge HTML per il ruolo dell'utente.
+     * @param {string} role - Ruolo utente
+     * @returns {string} - HTML del badge
+     */
     function getRoleBadge(role) {
         let badgeClass = '';
         switch (role) {
@@ -295,7 +299,11 @@ export async function loadUsersManagementPage() {
         }
     }
 
-    // Funzione per caricare e popolare la tabella degli utenti
+    /**
+     * Carica e popola la tabella degli utenti in base ai filtri correnti.
+     * Gestisce anche la paginazione e le azioni di modifica/eliminazione.
+     * @param {Object} params - Parametri opzionali per aggiornare i filtri/pagina
+     */
     async function loadUsersTable(params = {}) {
         try {
             // Unisci i parametri ricevuti con quelli correnti
@@ -429,7 +437,11 @@ export async function loadUsersManagementPage() {
         }
     }
 
-    // Semplifica drasticamente la paginazione rendendola più diretta
+    /**
+     * Renderizza la paginazione in base al numero totale di pagine e alla pagina corrente.
+     * Gestisce i bottoni di navigazione e il cambio pagina.
+     * @param {Object} pagination - Oggetto con info paginazione
+     */
     function createPagination(pagination) {
         const paginationContainer = document.getElementById('pagination-container');
         if (!paginationContainer) return;
@@ -497,7 +509,10 @@ export async function loadUsersManagementPage() {
         paginationContainer.appendChild(btnGroup);
     }
 
-    // Rendi le funzioni editUser e deleteUser accessibili globalmente
+    /**
+     * Mostra il modal di modifica utente e popola i campi con i dati correnti.
+     * @param {number} userId - ID utente da modificare
+     */
     window.editUser = async function (userId) {
         try {
             const user = await UsersAPI.getUser(userId);
@@ -512,6 +527,10 @@ export async function loadUsersManagementPage() {
         }
     };
 
+    /**
+     * Mostra il modal di conferma eliminazione utente.
+     * @param {number} userId - ID utente da eliminare
+     */
     window.deleteUser = function (userId) {
         userIdToDelete = userId;
         const deleteUserModal = new bootstrap.Modal(document.getElementById('deleteUserModal'));
@@ -524,7 +543,9 @@ export async function loadUsersManagementPage() {
         showBootstrapToast('Dashboard amministratore caricata con successo', 'Info', 'info');
     }
 
-    // Funzione per caricare e popolare la tabella degli artigiani da approvare
+    /**
+     * Carica e popola la tabella degli artigiani da approvare.
+     */
     async function loadPendingArtisansTable() {
         const tableBody = document.getElementById('pending-artisans-table-body');
         if (!tableBody) return;
@@ -605,7 +626,7 @@ export async function loadUsersManagementPage() {
     }
 
     /**
-     * Inizializza gli event listener
+     * Inizializza gli event listener principali della pagina (filtri, bottoni, modali, ordinamento, ecc).
      */
     function mount() {
         // Invece carico direttamente la tabella una sola volta all'avvio
@@ -784,12 +805,13 @@ export async function loadUsersManagementPage() {
     }
 
     /**
-     * Rimuove gli event listener
+     * Rimuove gli event listener (placeholder per eventuale cleanup futuro).
      */
     function unmount() {
         // Nessun event listener da rimuovere
     }
 
+    // Ritorna i metodi principali del componente
     return {
         render: () => pageElement,
         mount,

@@ -35,19 +35,15 @@ import { loadBecameArtisanPage } from './pages/artisan/BecameArtisan.js';
 import { loadManageOrdersPage } from './pages/artisan/manageOrders.js';
 import { loadManageProductsPage } from './pages/artisan/manageProducts.js';
 
-
 // Classe principale dell'applicazione
 class App {
     constructor() {
         // Verifica lo stato di autenticazione all'avvio
         this.checkAuthState();
-
         // Inizializza i componenti fissi
         this.initComponents();
-
         // Configura le route
         this.setupRoutes();
-
         // Inizializza il router
         router.init();
     }
@@ -58,8 +54,7 @@ class App {
     initComponents() {
         navbar.render();
         footer.render();
-
-        // Gestisce l'evento di cambio di autenticazione
+        // Aggiorna la navbar quando cambia lo stato di autenticazione
         document.addEventListener('auth:change', () => {
             navbar.render();
         });
@@ -67,13 +62,13 @@ class App {
 
     /**
      * Verifica lo stato di autenticazione all'avvio e aggiorna il profilo
+     * Se il token non è valido, effettua il logout e mostra un messaggio
      */
     async checkAuthState() {
         if (authService.isAuthenticated()) {
             try {
                 // Aggiorna i dati del profilo
                 await authService.getProfile();
-
                 // Notifica il cambio di autenticazione
                 document.dispatchEvent(new CustomEvent('auth:change'));
             } catch (error) {
@@ -88,7 +83,7 @@ class App {
     }
 
     /**
-     * Configura le route dell'applicazione
+     * Configura tutte le route dell'applicazione
      */
     setupRoutes() {
         // Route pubbliche
@@ -135,7 +130,6 @@ class App {
             title: 'Gestione Prodotti - ArtigianatoShop'
         });
 
-        
         // Route protette per admin
         router.register('/admin/products-management', loadProductsManagementPage, {
             requireAuth: true,
@@ -168,11 +162,14 @@ class App {
             title: 'Gestione Segnalazioni - ArtigianatoShop'
         });
 
+        // Route 404
         router.register('404', loadNotFoundPage, { title: 'Pagina non trovata - ArtigianatoShop' });
     }
 }
 
 // Avvia l'applicazione quando il DOM è completamente caricato
+// Inizializza l'istanza principale App
+// (il costruttore si occupa di tutto il ciclo di bootstrap)
 document.addEventListener('DOMContentLoaded', () => {
     const app = new App();
 });

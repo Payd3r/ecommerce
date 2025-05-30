@@ -6,7 +6,13 @@ import { showAddProductModal } from '../artisan/modals/addProduct.js';
 import { showEditProductModal } from '../artisan/modals/editProduct.js';
 import { router } from '../../router.js';
 
+/**
+ * Carica la pagina di gestione prodotti per l'amministratore.
+ * Inizializza la UI, gestisce filtri, categorie, artigiani, tabella prodotti, paginazione e azioni.
+ * @returns {Object} - Oggetto con i metodi del componente (render, mount, unmount)
+ */
 export async function loadProductsManagementPage() {
+    // Crea l'elemento principale della pagina
     const pageElement = document.createElement('div');
     pageElement.className = 'container py-4';
 
@@ -41,7 +47,10 @@ export async function loadProductsManagementPage() {
         artisans = [];
     }
 
-    // Carica prodotti
+    /**
+     * Carica i prodotti dal server e aggiorna la tabella e la paginazione.
+     * @param {Object} params - Parametri opzionali per aggiornare i filtri/pagina
+     */
     async function fetchProducts(params = {}) {
         currentFilters = { ...currentFilters, ...params };
         try {
@@ -55,7 +64,11 @@ export async function loadProductsManagementPage() {
         }
     }
 
-    // Funzione di utilità per formattare la data
+    /**
+     * Funzione di utilità per formattare la data in formato italiano.
+     * @param {string} dateStr - Data in formato stringa
+     * @returns {string} - Data formattata
+     */
     function formatDateIT(dateStr) {
         if (!dateStr) return '-';
         const date = new Date(dateStr);
@@ -67,7 +80,10 @@ export async function loadProductsManagementPage() {
         return `${giorno} ${mese} ${anno}`;
     }
 
-    // Funzione per renderizzare la tabella
+    /**
+     * Renderizza la tabella dei prodotti filtrati.
+     * Aggiunge i listener per modifica prodotto e tooltip immagini.
+     */
     function renderTable() {
         console.log('renderTable chiamata, prodotti:', filteredProducts);
         // Prendi SEMPRE il riferimento attuale dal DOM
@@ -140,7 +156,11 @@ export async function loadProductsManagementPage() {
         });
     }
 
-    // Funzione per renderizzare la paginazione
+    /**
+     * Renderizza la paginazione in base al numero totale di pagine e alla pagina corrente.
+     * Gestisce i bottoni di navigazione e il cambio pagina.
+     * @param {Object} pagination - Oggetto con info paginazione
+     */
     function renderPagination(pagination) {
         const totalPages = pagination.totalPages || 1;
         const current = pagination.currentPage || 1;
@@ -202,7 +222,9 @@ export async function loadProductsManagementPage() {
         paginationEl.appendChild(btnGroup);
     }
 
-    // Funzione per azzerare i filtri e refreshare la tabella
+    /**
+     * Azzeramento filtri e refresh tabella prodotti.
+     */
     async function resetFiltersAndRefresh() {
         console.log('resetFiltersAndRefresh');
         currentFilters = {
@@ -325,7 +347,13 @@ export async function loadProductsManagementPage() {
         router.navigate('/admin/dashboard');
     });
 
-    // TREE CATEGORIE (come Products.js)
+    /**
+     * Renderizza l'albero delle categorie per il filtro.
+     * Gestisce la selezione/deselezione ricorsiva e la UI di espansione/collapse.
+     * @param {Array} categories - Albero categorie
+     * @param {number} level - Livello profondità (default 1)
+     * @returns {HTMLElement} - Ul HTML
+     */
     function renderCategoryTree(categories, level = 1) {
         const ul = document.createElement('ul');
         ul.className = 'list-unstyled mb-0' + (level === 1 ? ' show' : '');
@@ -353,6 +381,10 @@ export async function loadProductsManagementPage() {
         });
         return ul;
     }
+    /**
+     * Popola il filtro categorie con l'albero.
+     * @param {Array} categories - Albero categorie
+     */
     function populateCategoryTree(categories) {
         const treeContainer = pageElement.querySelector('#category-tree');
         if (!treeContainer) return;
@@ -429,7 +461,10 @@ export async function loadProductsManagementPage() {
     }
     populateCategoryTree(categories);
 
-    // Popola filtro artigiano
+    /**
+     * Popola il filtro artigiano con la lista artigiani.
+     * @param {Array} artisans - Lista artigiani
+     */
     function populateArtisanFilter(artisans) {
         const artisanSelect = pageElement.querySelector('#artisan');
         if (!artisanSelect) return;
@@ -441,7 +476,12 @@ export async function loadProductsManagementPage() {
     }
     populateArtisanFilter(artisans);
 
-    // Funzione ricorsiva per ottenere tutti gli ID delle categorie selezionate e dei loro figli
+    /**
+     * Funzione ricorsiva per ottenere tutti gli ID delle categorie selezionate e dei loro figli.
+     * @param {Array} selectedIds - ID categorie selezionate
+     * @param {Array} categories - Albero categorie
+     * @returns {Array} - Tutti gli ID selezionati (inclusi figli)
+     */
     function getAllCategoryIds(selectedIds, categories) {
         let allIds = new Set();
         function traverse(nodes) {
@@ -550,7 +590,11 @@ export async function loadProductsManagementPage() {
     // Prima renderizzazione
     fetchProducts(currentFilters);
 
-    // Funzione per appiattire l'albero delle categorie
+    /**
+     * Funzione per appiattire l'albero delle categorie (id e nome).
+     * @param {Array} categories - Albero categorie
+     * @returns {Array} - Lista piatta di categorie
+     */
     function flattenCategories(categories) {
         let result = [];
         for (const cat of categories) {
@@ -562,6 +606,7 @@ export async function loadProductsManagementPage() {
         return result;
     }
 
+    // Ritorna i metodi principali del componente
     return {
         render: () => pageElement,
         mount: () => { /* vuoto, non serve più qui */ },

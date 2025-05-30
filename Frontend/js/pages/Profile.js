@@ -9,7 +9,7 @@ import { countries } from '../assets.geo.js';
 
 /**
  * Carica la pagina profilo dell'utente
- * @returns {Object} - Oggetto con i metodi del componente
+ * @returns {Object} Oggetto con i metodi del componente
  */
 export async function loadProfilePage() {
     // Crea l'elemento principale della pagina
@@ -199,8 +199,8 @@ export async function loadProfilePage() {
 
     /**
      * Converte il ruolo in un'etichetta leggibile
-     * @param {string} role - Ruolo dell'utente
-     * @returns {string} - Etichetta leggibile
+     * @param {string} role Ruolo dell'utente
+     * @returns {string} Etichetta leggibile
      */
     function getRoleLabel(role) {
         const labels = {
@@ -208,13 +208,12 @@ export async function loadProfilePage() {
             artisan: 'Artigiano',
             admin: 'Amministratore'
         };
-
         return labels[role] || role;
     }
 
     /**
      * Gestisce l'aggiornamento del profilo
-     * @param {Event} event - Evento submit
+     * @param {Event} event Evento submit
      */
     async function handleProfileUpdate(event) {
         event.preventDefault();
@@ -269,52 +268,41 @@ export async function loadProfilePage() {
 
     /**
      * Gestisce il cambio della password
-     * @param {Event} event - Evento submit
+     * @param {Event} event Evento submit
      */
     async function handlePasswordChange(event) {
         event.preventDefault();
-
         const form = event.target;
         const currentPassword = form.currentPassword.value;
         const newPassword = form.newPassword.value;
         const confirmPassword = form.confirmPassword.value;
-
         // Validazione base
         if (!currentPassword || !newPassword || !confirmPassword) {
             showBootstrapToast('Compila tutti i campi', 'Errore', 'error');
             return;
         }
-
         if (newPassword !== confirmPassword) {
             showBootstrapToast('Le nuove password non corrispondono', 'Errore', 'error');
             return;
         }
-
         if (newPassword.length < 6) {
             showBootstrapToast('La nuova password deve contenere almeno 6 caratteri', 'Errore', 'error');
             return;
         }
-
         try {
             // Disabilita il form durante la richiesta
             const submitBtn = form.querySelector('button[type="submit"]');
             const btnText = submitBtn.querySelector('.btn-text');
-
             submitBtn.disabled = true;
             btnText.innerHTML = '<span class="btn-loader"></span> Aggiornamento...';
-
             // Mostra il loader
             loader.show();
-
             // In un'implementazione reale, qui cambieremmo la password
             // await changePassword({ currentPassword, newPassword });
-
             // Simulazione della chiamata API
             await new Promise(resolve => setTimeout(resolve, 1000));
-
             // Mostra messaggio di successo
             showBootstrapToast('Password aggiornata con successo', 'Successo', 'success');
-
             // Resetta il form
             form.reset();
         } catch (error) {
@@ -323,10 +311,8 @@ export async function loadProfilePage() {
             // Ripristina il form
             const submitBtn = form.querySelector('button[type="submit"]');
             const btnText = submitBtn.querySelector('.btn-text');
-
             submitBtn.disabled = false;
             btnText.textContent = 'Cambia password';
-
             // Nasconde il loader
             loader.hide();
         }
@@ -350,45 +336,37 @@ export async function loadProfilePage() {
         if (confirm('Sei sicuro di voler eliminare il tuo account? Questa azione non può essere annullata.')) {
             // In un'implementazione reale, qui elimineremmo l'account
             // await deleteAccount();
-
             // Esegue il logout
             authService.logout();
-
             // Invia evento di cambio autenticazione
             document.dispatchEvent(new CustomEvent('auth:change'));
-
             // Reindirizza alla home
             router.navigateToHome();
-
             // Mostra messaggio di successo
             showBootstrapToast('Account eliminato con successo', 'Successo', 'success');
         }
     }
 
     /**
-     * Inizializza gli event listener
+     * Inizializza gli event listener della pagina profilo
      */
     function mount() {
         const profileForm = document.getElementById('profile-form');
         if (profileForm) {
             profileForm.addEventListener('submit', handleProfileUpdate);
         }
-
         const passwordForm = document.getElementById('password-form');
         if (passwordForm) {
             passwordForm.addEventListener('submit', handlePasswordChange);
         }
-
         const logoutBtn = document.getElementById('logout-btn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', handleLogout);
         }
-
         const deleteAccountBtn = document.getElementById('delete-account-btn');
         if (deleteAccountBtn) {
             deleteAccountBtn.addEventListener('click', handleDeleteAccount);
         }
-
         // Gestione upload foto profilo
         const publicInfoForm = document.getElementById('public-info-form');
         const profileImageInput = document.getElementById('profileImageInput');
@@ -586,25 +564,21 @@ export async function loadProfilePage() {
     }
 
     /**
-     * Rimuove gli event listener
+     * Rimuove gli event listener della pagina profilo
      */
     function unmount() {
         const profileForm = document.getElementById('profile-form');
         if (profileForm) {
             profileForm.removeEventListener('submit', handleProfileUpdate);
         }
-
         const passwordForm = document.getElementById('password-form');
         if (passwordForm) {
             passwordForm.removeEventListener('submit', handlePasswordChange);
         }
-
         const logoutBtn = document.getElementById('logout-btn');
         if (logoutBtn) {
             logoutBtn.removeEventListener('click', handleLogout);
         }
-
-
         const deleteAccountBtn = document.getElementById('delete-account-btn');
         if (deleteAccountBtn) {
             deleteAccountBtn.removeEventListener('click', handleDeleteAccount);

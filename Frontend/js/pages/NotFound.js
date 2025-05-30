@@ -1,13 +1,13 @@
 /**
  * Carica la pagina 404 (Non trovata)
- * @returns {Object} - Oggetto con i metodi del componente
+ * @returns {Object} Oggetto con i metodi del componente
  */
 export async function loadNotFoundPage() {
     // Crea l'elemento principale della pagina
     const pageElement = document.createElement('div');
     pageElement.className = 'not-found-page';
     
-    // Costruisce il contenuto della pagina
+    // Costruisce il contenuto della pagina 404
     pageElement.innerHTML = `
         <div class="container text-center">
             <div class="error-container">

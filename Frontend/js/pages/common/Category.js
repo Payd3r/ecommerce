@@ -4,7 +4,9 @@ import { showBootstrapToast } from '../../components/Toast.js';
 import { router } from '../../router.js';
 
 /**
- * Carica la pagina delle categorie con visualizzazione ad accordion
+ * Carica la pagina delle categorie con visualizzazione ad accordion.
+ * Gestisce il caricamento delle categorie, il rendering ad albero e l'espansione/chiusura dei nodi.
+ * @returns {Object} - Oggetto con i metodi del componente (render, mount)
  */
 export async function loadCategoryPage() {
     const pageElement = document.createElement('div');
@@ -26,7 +28,10 @@ export async function loadCategoryPage() {
         </div>
     `;
 
-    // Funzione per renderizzare l'albero delle categorie (visualizzazione ad albero con immagini)
+    /**
+     * Renderizza l'albero delle categorie (accordion ad albero con immagini e descrizioni).
+     * @param {Array} categories - Albero categorie da visualizzare
+     */
     function renderCategoryTree(categories) {
         const container = pageElement.querySelector('.col-12.col-md-8');
         if (!categories.length) {
@@ -36,7 +41,13 @@ export async function loadCategoryPage() {
         container.innerHTML = renderCategoryNodes(categories);
     }
 
-    // Ricorsiva: genera HTML per ogni nodo e figli (accordion per i nodi con figli)
+    /**
+     * Funzione ricorsiva che genera l'HTML per ogni nodo e figli (accordion per i nodi con figli).
+     * @param {Array} nodes - Lista delle categorie/nodi
+     * @param {number} level - Livello di profondità nell'albero (per padding)
+     * @param {string} parentKey - Chiave univoca per l'accordion
+     * @returns {string} - HTML dell'albero categorie
+     */
     function renderCategoryNodes(nodes, level = 0, parentKey = '') {
         return `<ul class="list-group list-group-flush">
             ${nodes.map((cat, idx) => {
@@ -57,8 +68,9 @@ export async function loadCategoryPage() {
         </ul>`;
     }
 
-    
-    // Carica le categorie
+    /**
+     * Carica le categorie dal server e aggiorna la UI.
+     */
     async function loadCategories() {
         loader.show();
         try {
@@ -71,7 +83,9 @@ export async function loadCategoryPage() {
         }
     }
 
-    // Dopo il caricamento delle categorie
+    /**
+     * Inizializza gli event listener per l'espansione/chiusura dei nodi e la navigazione.
+     */
     function mount() {
         pageElement.addEventListener('click', (e) => {
             // Espandi/chiudi accordion
@@ -101,6 +115,7 @@ export async function loadCategoryPage() {
 
     await loadCategories();
 
+    // Ritorna i metodi principali del componente
     return {
         render: () => pageElement,
         mount

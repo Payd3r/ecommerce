@@ -2,11 +2,18 @@ import { getProduct, updateProduct } from '../../../../api/products.js';
 import { showBootstrapToast } from '../../../components/Toast.js';
 import { uploadProductImages, deleteProductImages } from '../../../../api/images.js';
 
+/**
+ * Mostra un modal per modificare un prodotto esistente.
+ * Gestisce caricamento dati, immagini, categoria, validazione e invio del form.
+ * @param {number} productId - ID del prodotto da modificare
+ * @param {Array} categories - Albero categorie per la selezione
+ * @param {Function} onSuccess - Callback da chiamare dopo successo
+ */
 export async function showEditProductModal(productId, categories, onSuccess) {
     // Rimuovi eventuale modal precedente
     const existing = document.getElementById('editProductModal');
     if (existing) existing.remove();
-  console.log('showEditProductModal', productId, categories);
+    console.log('showEditProductModal', productId, categories);
     // Carica i dati del prodotto
     let product;
     try {
@@ -16,7 +23,7 @@ export async function showEditProductModal(productId, categories, onSuccess) {
         return;
     }
 
-    // Stato immagini
+    // Stato immagini: immagini esistenti e nuove
     let existingImages = (product.images || []).map(img => ({ ...img, toDelete: false }));
     let newImages = [];
 
@@ -88,6 +95,10 @@ export async function showEditProductModal(productId, categories, onSuccess) {
     const fileInput = modal.querySelector('#productImages');
     const previewList = modal.querySelector('#imagePreviewList');
 
+    /**
+     * Renderizza le anteprime delle immagini esistenti e nuove.
+     * Permette la rimozione (logica) delle immagini esistenti e la rimozione delle nuove.
+     */
     function renderPreviews() {
         previewList.innerHTML = '';
         // Immagini già esistenti
@@ -142,7 +153,14 @@ export async function showEditProductModal(productId, categories, onSuccess) {
 
     renderPreviews();
 
-    // Dopo aver inserito il modal nel DOM, renderizza il tree checkbox categorie (selezione singola, struttura ad albero, caret e indentazione come Products.js)
+    /**
+     * Renderizza l'albero categorie a selezione singola (checkbox) per il modal.
+     * Gestisce caret, indentazione e selezione esclusiva.
+     * @param {Array} categories - Albero categorie
+     * @param {string|null} selectedId - ID categoria selezionata
+     * @param {number} level - Livello profondità (default 1)
+     * @returns {string} - HTML dell'albero
+     */
     function renderCategoryTreeSingleCheckbox(categories, selectedId, level = 1) {
         function renderTree(nodes, level = 1) {
             let html = '<ul class="list-unstyled mb-0' + (level === 1 ? ' show' : '') + '">';

@@ -6,7 +6,9 @@ import { showBootstrapToast } from '../../components/Toast.js';
 import { uploadProfileImage, uploadBannerImage } from '../../../api/images.js';
 
 /**
- * Pagina per diventare artigiano
+ * Pagina per diventare artigiano.
+ * Gestisce la visualizzazione del form, la validazione, l'upload immagini e l'invio dati.
+ * @returns {Object} - Oggetto con i metodi del componente (render, mount, unmount)
  */
 export async function loadBecameArtisanPage() {
     const user = authService.getUser();
@@ -89,6 +91,11 @@ export async function loadBecameArtisanPage() {
         </div>
     `;
 
+    /**
+     * Gestisce la submit del form per diventare artigiano.
+     * Valida i dati, aggiorna nome, bio, immagini e aggiorna localStorage.
+     * @param {Event} event - Evento submit
+     */
     async function handleSubmit(event) {
         event.preventDefault();
         const form = event.target;
@@ -167,6 +174,13 @@ export async function loadBecameArtisanPage() {
         }
     }
 
+    /**
+     * Gestisce l'anteprima e la rimozione delle immagini profilo/banner.
+     * @param {HTMLInputElement} fileInput - Input file
+     * @param {HTMLImageElement} previewImg - Immagine anteprima
+     * @param {HTMLElement} previewContainer - Container anteprima
+     * @param {HTMLElement} removeBtn - Bottone rimuovi
+     */
     function setupImagePreview(fileInput, previewImg, previewContainer, removeBtn) {
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
@@ -210,7 +224,9 @@ export async function loadBecameArtisanPage() {
         }
     }
 
-
+    /**
+     * Inizializza gli event listener e le anteprime immagini.
+     */
     function mount() {
         const form = document.getElementById('became-artisan-form');
         const checkbox = document.getElementById('confirm-artisan');
@@ -262,6 +278,9 @@ export async function loadBecameArtisanPage() {
         }
     }
 
+    /**
+     * Rimuove gli event listener (placeholder per eventuale cleanup futuro).
+     */
     function unmount() {
         const form = document.getElementById('became-artisan-form');
         if (form) {
@@ -271,6 +290,7 @@ export async function loadBecameArtisanPage() {
         // ma dato che la pagina viene distrutta e ricreata, non è strettamente indispensabile.
     }
 
+    // Ritorna i metodi principali del componente
     return {
         render: () => pageElement,
         mount,

@@ -5,15 +5,18 @@ import { router } from '../../router.js';
 import { getAddressByUserId } from '../../../api/orders.js';
 
 /**
- * Carica la pagina di gestione ordini per l'amministratore
- * @returns {Object} - Oggetto con i metodi del componente
+ * Carica la pagina di gestione ordini per l'amministratore.
+ * Inizializza la UI, gestisce filtri, ordinamento, paginazione, refresh, modali e azioni sugli ordini.
+ * @returns {Object} - Oggetto con i metodi del componente (render, mount, unmount)
  */
 export async function loadOrdersManagementPage() {
+    // Crea l'elemento principale della pagina
     const pageElement = document.createElement('div');
     pageElement.className = 'admin-dashboard-page';
 
     let sortCreatedOrder = 'DESC';
 
+    // Imposta l'HTML della pagina, inclusi header, filtri, tabella, modali
     pageElement.innerHTML = `
         <div class="container mt-4">
             <div class="row mb-4 align-items-center">
@@ -217,6 +220,11 @@ export async function loadOrdersManagementPage() {
         orderDir: 'DESC'
     };
 
+    /**
+     * Restituisce il badge HTML per lo stato dell'ordine.
+     * @param {string} status - Stato dell'ordine
+     * @returns {string} - HTML del badge
+     */
     function getStatusBadge(status) {
         switch (status) {
             case 'pending': return '<span class="badge bg-secondary">In attesa</span>';
@@ -228,6 +236,11 @@ export async function loadOrdersManagementPage() {
         }
     }
 
+    /**
+     * Renderizza la paginazione in base al numero totale di pagine e alla pagina corrente.
+     * Gestisce i bottoni di navigazione e il cambio pagina.
+     * @param {Object} pagination - Oggetto con info paginazione
+     */
     function renderPagination(pagination) {
         const paginationContainer = document.getElementById('pagination-container');
         paginationContainer.innerHTML = '';
@@ -290,6 +303,11 @@ export async function loadOrdersManagementPage() {
         paginationContainer.appendChild(btnGroup);
     }
 
+    /**
+     * Carica e renderizza la tabella degli ordini in base ai filtri correnti.
+     * Applica filtri, ordinamento e paginazione lato client.
+     * @param {Object} params - Parametri opzionali per aggiornare i filtri/pagina
+     */
     async function loadOrdersTable(params = {}) {
         currentFilters = { ...currentFilters, ...params };
         try {
@@ -380,18 +398,30 @@ export async function loadOrdersManagementPage() {
         }
     }
 
-    // Funzioni globali per azioni
+    // Funzioni globali per azioni sugli ordini (elimina, cambia stato, dettagli)
+    /**
+     * Mostra il modal di conferma eliminazione ordine.
+     * @param {number} orderId - ID ordine da eliminare
+     */
     window.deleteOrder = function (orderId) {
         orderIdToDelete = orderId;
         const deleteOrderModal = new bootstrap.Modal(document.getElementById('deleteOrderModal'));
         deleteOrderModal.show();
     };
+    /**
+     * Mostra il modal per cambiare lo stato dell'ordine.
+     * @param {number} orderId - ID ordine da modificare
+     */
     window.changeOrderStatus = function (orderId) {
         orderIdToChangeStatus = orderId;
         document.getElementById('change-status-order-id').value = orderId;
         const changeStatusModal = new bootstrap.Modal(document.getElementById('changeStatusModal'));
         changeStatusModal.show();
     };
+    /**
+     * Mostra il modal dettagli ordine, inclusi prodotti e indirizzo spedizione.
+     * @param {number} orderId - ID ordine da visualizzare
+     */
     window.viewOrderDetails = async function (orderId) {
         window._lastOrderDetailsId = orderId; // salva id per riapertura
         try {
@@ -484,6 +514,10 @@ export async function loadOrdersManagementPage() {
         }
     };
 
+    /**
+     * Funzione di mount: aggiunge i listener ai bottoni principali, filtri, refresh, ordinamento e modali.
+     * Inizializza la tabella e la paginazione.
+     */
     function mount() {
         loadOrdersTable();
         const backBtn = document.getElementById('back-btn');
@@ -644,8 +678,12 @@ export async function loadOrdersManagementPage() {
         }
     }
 
+    /**
+     * Funzione di unmount: placeholder per eventuale cleanup futuro.
+     */
     function unmount() { }
 
+    // Ritorna i metodi principali del componente
     return {
         render: () => pageElement,
         mount,

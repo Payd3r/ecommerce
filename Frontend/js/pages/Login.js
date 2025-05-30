@@ -6,7 +6,7 @@ import { loader } from '../components/Loader.js';
 
 /**
  * Carica la pagina di login
- * @returns {Object} - Oggetto con i metodi del componente
+ * @returns {Object} Oggetto con i metodi del componente
  */
 export async function loadLoginPage() {
     // Estrae il parametro di redirect dall'URL se presente
@@ -17,10 +17,9 @@ export async function loadLoginPage() {
     const pageElement = document.createElement('div');
     pageElement.className = 'auth-page login-page';
     
-    // Se l'utente è già autenticato, reindirizza
+    // Se l'utente è già autenticato, reindirizza subito
     if (authService.isAuthenticated()) {
         setTimeout(() => router.navigateToDashboard(), 0);
-        
         // Mostra un messaggio di reindirizzamento
         pageElement.innerHTML = `
             <div class="container">
@@ -30,7 +29,6 @@ export async function loadLoginPage() {
                 </div>
             </div>
         `;
-        
         return {
             render: () => pageElement
         };
@@ -70,7 +68,7 @@ export async function loadLoginPage() {
     
     /**
      * Gestisce il submit del form di login
-     * @param {Event} event - Evento submit
+     * @param {Event} event Evento submit
      */
     async function handleLoginSubmit(event) {
         event.preventDefault();
@@ -124,7 +122,7 @@ export async function loadLoginPage() {
     }
     
     /**
-     * Inizializza gli event listener
+     * Inizializza gli event listener della pagina login
      */
     function mount() {
         const form = document.getElementById('login-form');
@@ -134,7 +132,7 @@ export async function loadLoginPage() {
     }
     
     /**
-     * Rimuove gli event listener
+     * Rimuove gli event listener della pagina login
      */
     function unmount() {
         const form = document.getElementById('login-form');

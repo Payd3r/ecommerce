@@ -1,7 +1,13 @@
 import { getOrdersByArtisan, getOrderItems, deleteOrder, updateOrderStatus, getAddressByUserId } from '../../../api/orders.js';
 import { authService } from '../../services/authService.js';
 
+/**
+ * Carica la pagina di gestione ordini per l'artigiano.
+ * Inizializza la UI, gestisce filtri, tabella ordini, paginazione, modali e azioni sugli ordini.
+ * @returns {Object} - Oggetto con i metodi del componente (render, mount, unmount)
+ */
 export async function loadManageOrdersPage() {
+    // Crea l'elemento principale della pagina
     const pageElement = document.createElement('div');
     pageElement.className = 'admin-dashboard-page';
 
@@ -24,7 +30,7 @@ export async function loadManageOrdersPage() {
         customer: '',
     };
 
-    // Stati disponibili
+    // Stati disponibili per gli ordini
     const statusOptions = [
         { value: 'pending', label: 'In attesa' },
         { value: 'processing', label: 'In lavorazione' },
@@ -33,7 +39,7 @@ export async function loadManageOrdersPage() {
         { value: 'cancelled', label: 'Annullato' }
     ];
 
-    // HTML struttura principale
+    // HTML struttura principale (header, filtri, tabella, modali)
     pageElement.innerHTML = `
         <div class="container mt-4">
             <div class="row align-items-center mb-0 mb-md-2">
@@ -205,7 +211,7 @@ export async function loadManageOrdersPage() {
             </div>
         </div>`;
 
-    // Carica ordini
+    // Carica ordini dell'artigiano loggato
     const user = authService.getUser();
     async function reloadOrders() {
         try {
@@ -223,6 +229,11 @@ export async function loadManageOrdersPage() {
         filteredOrders = [];
     }
 
+    /**
+     * Restituisce il badge HTML per lo stato dell'ordine.
+     * @param {string} status - Stato dell'ordine
+     * @returns {string} - HTML del badge
+     */
     function getStatusBadge(status) {
         switch (status) {
             case 'pending': return '<span class="badge bg-secondary">In attesa</span>';
@@ -234,6 +245,11 @@ export async function loadManageOrdersPage() {
         }
     }
 
+    /**
+     * Renderizza la paginazione in base al numero totale di pagine e alla pagina corrente.
+     * Gestisce i bottoni di navigazione e il cambio pagina.
+     * @param {Object} pagination - Oggetto con info paginazione
+     */
     function renderPagination(pagination) {
         const paginationContainer = pageElement.querySelector('#pagination-container');
         if (!paginationContainer) return;
@@ -301,6 +317,9 @@ export async function loadManageOrdersPage() {
         paginationContainer.appendChild(btnGroup);
     }
 
+    /**
+     * Applica i filtri agli ordini e aggiorna la tabella.
+     */
     function applyFilters() {
         filteredOrders = orders.filter(o => {
             const price = parseFloat(o.total_price);
@@ -322,6 +341,9 @@ export async function loadManageOrdersPage() {
         renderTable();
     }
 
+    /**
+     * Renderizza la tabella degli ordini filtrati e paginati.
+     */
     function renderTable() {
         const start = (currentPage - 1) * pageSize;
         const end = start + pageSize;
@@ -366,7 +388,11 @@ export async function loadManageOrdersPage() {
         renderPagination({ totalPages, currentPage });
     }
 
-    // Visualizza dettagli ordine (mostra solo prodotti dell'artigiano loggato)
+    /**
+     * Mostra il modal dettagli ordine, inclusi prodotti dell'artigiano e indirizzo spedizione.
+     * Gestisce anche le azioni di accetta/rifiuta/spedisci/elimina ordine.
+     * @param {number} orderId - ID ordine da visualizzare
+     */
     async function viewOrderDetails(orderId) {
         window._lastOrderDetailsId = orderId;
         const tableBody = pageElement.querySelector('#order-details-table-body');
@@ -486,12 +512,20 @@ export async function loadManageOrdersPage() {
         modal.show();
     }
 
+    /**
+     * Mostra il modal di conferma eliminazione ordine.
+     * @param {number} orderId - ID ordine da eliminare
+     */
     function showDeleteOrderModal(orderId) {
         orderIdToDelete = orderId;
         const deleteOrderModal = new bootstrap.Modal(pageElement.querySelector('#deleteOrderModal'));
         deleteOrderModal.show();
     }
     
+    /**
+     * Mostra il modal per cambiare lo stato dell'ordine.
+     * @param {number} orderId - ID ordine da modificare
+     */
     function changeOrderStatus(orderId) {
         orderIdToChangeStatus = orderId;
         pageElement.querySelector('#change-status-order-id').value = orderId;
@@ -644,7 +678,12 @@ export async function loadManageOrdersPage() {
         applyFilters();
     };
 
-    // Funzione toast Bootstrap (se non già presente)
+    /**
+     * Funzione toast Bootstrap (se non già presente).
+     * @param {string} message - Messaggio da mostrare
+     * @param {string} title - Titolo toast
+     * @param {string} type - Tipo (info, success, danger, ecc.)
+     */
     function showBootstrapToast(message, title = '', type = 'info') {
         let toastContainer = document.getElementById('toast-container');
         if (!toastContainer) {
@@ -677,6 +716,7 @@ export async function loadManageOrdersPage() {
         }, 4000);
     }
 
+    // Ritorna i metodi principali del componente
     return {
         render: () => pageElement,
         mount: () => {},
