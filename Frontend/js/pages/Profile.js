@@ -212,6 +212,9 @@ export async function loadProfilePage() {
         return labels[role] || role;
     }
 
+    // Variabili per le select geografiche, visibili a tutta la funzione
+    let statoSelect, provinciaSelect, cittaSelect;
+
     /**
      * Gestisce l'aggiornamento del profilo
      * @param {Event} event - Evento submit
@@ -227,8 +230,29 @@ export async function loadProfilePage() {
         const via = form.via.value.trim();
         const numero_civico = form.numero_civico.value.trim();
         const cap = form.cap.value.trim();
+        // Prendi nickname/email dai rispettivi input (se presenti)
+        const nicknameInput = document.getElementById('nickname');
+        const emailInput = document.getElementById('email');
+        const nickname = nicknameInput ? nicknameInput.value.trim() : user.nickname;
+        const email = emailInput ? emailInput.value.trim() : user.email;
         if (!name || !surname) {
             showBootstrapToast('Nome e cognome sono obbligatori', 'Errore', 'error');
+            return;
+        }
+        // Validazione select: devono essere tra le opzioni
+        function isValidOption(select, value) {
+            return Array.from(select.options).some(opt => opt.value === value);
+        }
+        if (!isValidOption(statoSelect, stato)) {
+            showBootstrapToast('Seleziona uno stato valido', 'Errore', 'error');
+            return;
+        }
+        if (!isValidOption(provinciaSelect, provincia)) {
+            showBootstrapToast('Seleziona una provincia valida', 'Errore', 'error');
+            return;
+        }
+        if (!isValidOption(cittaSelect, citta)) {
+            showBootstrapToast('Seleziona una città valida', 'Errore', 'error');
             return;
         }
         try {
@@ -237,10 +261,13 @@ export async function loadProfilePage() {
             submitBtn.disabled = true;
             btnText.innerHTML = '<span class="btn-loader"></span> Aggiornamento...';
             loader.show();
-            // Aggiorna profilo utente solo se il nome è cambiato
-            if (name !== user.name || surname !== user.surname) {
-                await ApiService.updateProfile({ name, surname });
-                const updatedUser = { ...user, name, surname };
+            // Aggiorna nickname/email solo se sono cambiati
+            let updateProfilePayload = {};
+            if (nickname !== user.nickname) updateProfilePayload.nickname = nickname;
+            if (email !== user.email) updateProfilePayload.email = email;
+            if (Object.keys(updateProfilePayload).length > 0) {
+                await ApiService.updateProfile(updateProfilePayload);
+                const updatedUser = { ...user, ...updateProfilePayload };
                 localStorage.setItem('auth_user', JSON.stringify(updatedUser));
             }
             // Aggiorna/crea indirizzo sempre
@@ -513,9 +540,9 @@ export async function loadProfilePage() {
         }
 
         // --- POPOLAMENTO SELECT GEOGRAFICHE ---
-        const statoSelect = document.getElementById('stato');
-        const provinciaSelect = document.getElementById('provincia');
-        const cittaSelect = document.getElementById('citta');
+        statoSelect = document.getElementById('stato');
+        provinciaSelect = document.getElementById('provincia');
+        cittaSelect = document.getElementById('citta');
         // Popola stati
         countries.forEach(country => {
             const opt = document.createElement('option');
@@ -523,22 +550,40 @@ export async function loadProfilePage() {
             opt.textContent = country.name;
             statoSelect.appendChild(opt);
         });
-        // Seleziona stato salvato
-        if (address.stato) statoSelect.value = address.stato;
+        // Seleziona stato salvato o aggiungi se mancante
+        if (address.stato) {
+            let found = Array.from(statoSelect.options).some(opt => opt.value === address.stato);
+            if (!found) {
+                const opt = document.createElement('option');
+                opt.value = address.stato;
+                opt.textContent = address.stato + ' (non più disponibile)';
+                statoSelect.appendChild(opt);
+            }
+            statoSelect.value = address.stato;
+        }
         // Popola province in base allo stato
         function updateProvinceSelect() {
             provinciaSelect.innerHTML = '<option value="">Seleziona provincia</option>';
             cittaSelect.innerHTML = '<option value="">Seleziona città</option>';
             const selectedCountry = countries.find(c => c.name === statoSelect.value);
+            let provinceNames = [];
             if (selectedCountry) {
                 selectedCountry.provinces.forEach(prov => {
                     const opt = document.createElement('option');
                     opt.value = prov.name;
                     opt.textContent = prov.name;
                     provinciaSelect.appendChild(opt);
+                    provinceNames.push(prov.name);
                 });
             }
-            if (address.provincia && selectedCountry && selectedCountry.provinces.some(p => p.name === address.provincia)) {
+            // Se la provincia salvata non è tra le opzioni, aggiungila
+            if (address.provincia && !provinceNames.includes(address.provincia)) {
+                const opt = document.createElement('option');
+                opt.value = address.provincia;
+                opt.textContent = address.provincia + ' (non più disponibile)';
+                provinciaSelect.appendChild(opt);
+            }
+            if (address.provincia) {
                 provinciaSelect.value = address.provincia;
                 updateCitySelect();
             }
@@ -548,15 +593,24 @@ export async function loadProfilePage() {
             cittaSelect.innerHTML = '<option value="">Seleziona città</option>';
             const selectedCountry = countries.find(c => c.name === statoSelect.value);
             const selectedProvince = selectedCountry ? selectedCountry.provinces.find(p => p.name === provinciaSelect.value) : null;
+            let cityNames = [];
             if (selectedProvince) {
                 selectedProvince.cities.forEach(city => {
                     const opt = document.createElement('option');
                     opt.value = city;
                     opt.textContent = city;
                     cittaSelect.appendChild(opt);
+                    cityNames.push(city);
                 });
             }
-            if (address.citta && selectedProvince && selectedProvince.cities.includes(address.citta)) {
+            // Se la città salvata non è tra le opzioni, aggiungila
+            if (address.citta && !cityNames.includes(address.citta)) {
+                const opt = document.createElement('option');
+                opt.value = address.citta;
+                opt.textContent = address.citta + ' (non più disponibile)';
+                cittaSelect.appendChild(opt);
+            }
+            if (address.citta) {
                 cittaSelect.value = address.citta;
             }
         }

@@ -5,6 +5,7 @@ import { authService } from '../../services/authService.js';
 import { ApiService } from '../../../api/auth.js';
 import { router } from '../../router.js';
 import { createPaymentIntent } from '../../../api/orders.js';
+import { countries } from '../../assets.geo.js';
 
 export async function loadCheckoutPage() {
     const pageElement = document.createElement('div');
@@ -89,15 +90,15 @@ export async function loadCheckoutPage() {
                 <div class="row g-3">
                     <div class="col-md-4">
                         <label for="stato" class="form-label">Stato</label>
-                        <input type="text" class="form-control" id="stato" name="stato" value="${deliveryInfo.stato}" required>
+                        <select id="stato" name="stato" class="form-select" required></select>
                     </div>
                     <div class="col-md-4">
                         <label for="provincia" class="form-label">Provincia</label>
-                        <input type="text" class="form-control" id="provincia" name="provincia" value="${deliveryInfo.provincia}" required>
+                        <select id="provincia" name="provincia" class="form-select" required></select>
                     </div>
                     <div class="col-md-4">
                         <label for="city" class="form-label">Città</label>
-                        <input type="text" class="form-control" id="city" name="city" value="${deliveryInfo.city}" required>
+                        <select id="city" name="city" class="form-select" required></select>
                     </div>
                     <div class="col-md-6">
                         <label for="address" class="form-label">Indirizzo (via e numero civico)</label>
@@ -164,6 +165,86 @@ export async function loadCheckoutPage() {
                 showBootstrapToast('Nome e/o cognome aggiornati', 'Info', 'info');
             }
         });
+        // --- POPOLAMENTO SELECT GEOGRAFICHE ---
+        const statoSelect = pageElement.querySelector('#stato');
+        const provinciaSelect = pageElement.querySelector('#provincia');
+        const citySelect = pageElement.querySelector('#city');
+        // Popola stati
+        countries.forEach(country => {
+            const opt = document.createElement('option');
+            opt.value = country.name;
+            opt.textContent = country.name;
+            statoSelect.appendChild(opt);
+        });
+        // Seleziona stato salvato o aggiungi se mancante
+        if (deliveryInfo.stato) {
+            let found = Array.from(statoSelect.options).some(opt => opt.value === deliveryInfo.stato);
+            if (!found) {
+                const opt = document.createElement('option');
+                opt.value = deliveryInfo.stato;
+                opt.textContent = deliveryInfo.stato + ' (non più disponibile)';
+                statoSelect.appendChild(opt);
+            }
+            statoSelect.value = deliveryInfo.stato;
+        }
+        // Popola province in base allo stato
+        function updateProvinceSelect() {
+            provinciaSelect.innerHTML = '<option value="">Seleziona provincia</option>';
+            citySelect.innerHTML = '<option value="">Seleziona città</option>';
+            const selectedCountry = countries.find(c => c.name === statoSelect.value);
+            let provinceNames = [];
+            if (selectedCountry) {
+                selectedCountry.provinces.forEach(prov => {
+                    const opt = document.createElement('option');
+                    opt.value = prov.name;
+                    opt.textContent = prov.name;
+                    provinciaSelect.appendChild(opt);
+                    provinceNames.push(prov.name);
+                });
+            }
+            // Se la provincia salvata non è tra le opzioni, aggiungila
+            if (deliveryInfo.provincia && !provinceNames.includes(deliveryInfo.provincia)) {
+                const opt = document.createElement('option');
+                opt.value = deliveryInfo.provincia;
+                opt.textContent = deliveryInfo.provincia + ' (non più disponibile)';
+                provinciaSelect.appendChild(opt);
+            }
+            if (deliveryInfo.provincia) {
+                provinciaSelect.value = deliveryInfo.provincia;
+                updateCitySelect();
+            }
+        }
+        // Popola città in base alla provincia
+        function updateCitySelect() {
+            citySelect.innerHTML = '<option value="">Seleziona città</option>';
+            const selectedCountry = countries.find(c => c.name === statoSelect.value);
+            const selectedProvince = selectedCountry ? selectedCountry.provinces.find(p => p.name === provinciaSelect.value) : null;
+            let cityNames = [];
+            if (selectedProvince) {
+                selectedProvince.cities.forEach(city => {
+                    const opt = document.createElement('option');
+                    opt.value = city;
+                    opt.textContent = city;
+                    citySelect.appendChild(opt);
+                    cityNames.push(city);
+                });
+            }
+            // Se la città salvata non è tra le opzioni, aggiungila
+            if (deliveryInfo.city && !cityNames.includes(deliveryInfo.city)) {
+                const opt = document.createElement('option');
+                opt.value = deliveryInfo.city;
+                opt.textContent = deliveryInfo.city + ' (non più disponibile)';
+                citySelect.appendChild(opt);
+            }
+            if (deliveryInfo.city) {
+                citySelect.value = deliveryInfo.city;
+            }
+        }
+        statoSelect.addEventListener('change', updateProvinceSelect);
+        provinciaSelect.addEventListener('change', updateCitySelect);
+        // Inizializza province e città se già presenti
+        updateProvinceSelect();
+        // --- FINE POPOLAMENTO SELECT ---
         // Submit del form di consegna
         const form = pageElement.querySelector('#delivery-form');
         form.addEventListener('submit', async (e) => {
@@ -179,6 +260,22 @@ export async function loadCheckoutPage() {
                 numero_civico = match[2] ? match[2].trim() : '';
             } else {
                 via = addressField;
+            }
+            // Validazione select: devono essere tra le opzioni
+            function isValidOption(select, value) {
+                return Array.from(select.options).some(opt => opt.value === value);
+            }
+            if (!isValidOption(statoSelect, fd.get('stato'))) {
+                showBootstrapToast('Seleziona uno stato valido', 'Errore', 'error');
+                return;
+            }
+            if (!isValidOption(provinciaSelect, fd.get('provincia'))) {
+                showBootstrapToast('Seleziona una provincia valida', 'Errore', 'error');
+                return;
+            }
+            if (!isValidOption(citySelect, fd.get('city'))) {
+                showBootstrapToast('Seleziona una città valida', 'Errore', 'error');
+                return;
             }
             try {
                 await ApiService.saveAddress({
