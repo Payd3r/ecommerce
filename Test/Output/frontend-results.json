@@ -1,0 +1,351 @@
+{
+  "testType": "frontend",
+  "timestamp": "2025-06-03T21:45:27.361Z",
+  "summary": {
+    "numTotalTests": 43,
+    "numPassedTests": 43,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numSkippedTests": 0,
+    "success": true,
+    "duration": 0
+  },
+  "testResults": [
+    {
+      "name": "/usr/src/app/Test/Frontend/tests/router.test.js",
+      "status": "passed",
+      "message": "",
+      "duration": 837,
+      "numFailingTests": 0,
+      "numPassingTests": 0,
+      "numPendingTests": 0,
+      "assertionResults": [
+        {
+          "title": "dovrebbe navigare correttamente a una rotta pubblica",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 14
+        },
+        {
+          "title": "dovrebbe navigare correttamente a una rotta dinamica",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 4
+        },
+        {
+          "title": "dovrebbe reindirizzare al login se l'utente non è autenticato per una rotta protetta",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 8
+        },
+        {
+          "title": "dovrebbe permettere l'accesso a una rotta protetta se l'utente è autenticato",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 3
+        },
+        {
+          "title": "dovrebbe reindirizzare alla home se l'utente non ha il ruolo richiesto",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 4
+        },
+        {
+          "title": "dovrebbe gestire errori durante la navigazione",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 3
+        },
+        {
+          "title": "dovrebbe navigare alla rotta 404 se la rotta non esiste",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 4
+        },
+        {
+          "title": "dovrebbe reindirizzare alla dashboard admin per un utente admin",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 4
+        },
+        {
+          "title": "dovrebbe reindirizzare alla dashboard artigiano per un utente artigiano",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 5
+        },
+        {
+          "title": "dovrebbe reindirizzare alla home per un utente client",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 3
+        },
+        {
+          "title": "dovrebbe reindirizzare alla home se l'utente non è loggato",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 2
+        }
+      ]
+    },
+    {
+      "name": "/usr/src/app/Test/Frontend/tests/integration.test.js",
+      "status": "passed",
+      "message": "",
+      "duration": 222,
+      "numFailingTests": 0,
+      "numPassingTests": 0,
+      "numPendingTests": 0,
+      "assertionResults": [
+        {
+          "title": "flusso completo: login, navigazione, visualizzazione prodotti e checkout",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 5
+        },
+        {
+          "title": "flusso per utente artigiano: login, accesso dashboard e gestione prodotti",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 5
+        }
+      ]
+    },
+    {
+      "name": "/usr/src/app/Test/Frontend/tests/api.test.js",
+      "status": "passed",
+      "message": "",
+      "duration": 142,
+      "numFailingTests": 0,
+      "numPassingTests": 0,
+      "numPendingTests": 0,
+      "assertionResults": [
+        {
+          "title": "dovrebbe effettuare il login con successo",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 3
+        },
+        {
+          "title": "dovrebbe gestire errori durante il login",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 15
+        },
+        {
+          "title": "dovrebbe recuperare il profilo utente",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 8
+        },
+        {
+          "title": "dovrebbe gestire errori durante il recupero del profilo",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 5
+        },
+        {
+          "title": "dovrebbe recuperare l'indirizzo dell'utente",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 3
+        },
+        {
+          "title": "dovrebbe salvare l'indirizzo dell'utente",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 3
+        }
+      ]
+    },
+    {
+      "name": "/usr/src/app/Test/Frontend/tests/authService.test.js",
+      "status": "passed",
+      "message": "",
+      "duration": 138,
+      "numFailingTests": 0,
+      "numPassingTests": 0,
+      "numPendingTests": 0,
+      "assertionResults": [
+        {
+          "title": "dovrebbe effettuare il login con successo e salvare i dati di autenticazione",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 3
+        },
+        {
+          "title": "dovrebbe gestire errori durante il login",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 11
+        },
+        {
+          "title": "dovrebbe eliminare i dati di autenticazione dal localStorage",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 2
+        },
+        {
+          "title": "dovrebbe recuperare il profilo utente e aggiornare i dati nel localStorage",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 2
+        },
+        {
+          "title": "dovrebbe lanciare un errore se l'utente non è autenticato",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 2
+        },
+        {
+          "title": "dovrebbe restituire true se è presente un token",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 2
+        },
+        {
+          "title": "dovrebbe restituire false se non è presente un token",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 3
+        },
+        {
+          "title": "dovrebbe restituire true se l'utente ha il ruolo specificato",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 1
+        },
+        {
+          "title": "dovrebbe restituire true se l'utente ha uno dei ruoli specificati nell'array",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 1
+        },
+        {
+          "title": "dovrebbe restituire false se l'utente non ha il ruolo specificato",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 1
+        },
+        {
+          "title": "dovrebbe restituire false se non c'è un utente loggato",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 1
+        }
+      ]
+    },
+    {
+      "name": "/usr/src/app/Test/Frontend/tests/app.test.js",
+      "status": "passed",
+      "message": "",
+      "duration": 104,
+      "numFailingTests": 0,
+      "numPassingTests": 0,
+      "numPendingTests": 0,
+      "assertionResults": [
+        {
+          "title": "dovrebbe inizializzare il router e i componenti quando viene caricato il DOM",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 2
+        },
+        {
+          "title": "dovrebbe controllare lo stato di autenticazione e aggiornare il profilo",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 4
+        },
+        {
+          "title": "dovrebbe gestire errori di autenticazione",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 9
+        },
+        {
+          "title": "dovrebbe registrare il listener per auth:change",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 1
+        }
+      ]
+    },
+    {
+      "name": "/usr/src/app/Test/Frontend/tests/fetchWithAuth.test.js",
+      "status": "passed",
+      "message": "",
+      "duration": 90,
+      "numFailingTests": 0,
+      "numPassingTests": 0,
+      "numPendingTests": 0,
+      "assertionResults": [
+        {
+          "title": "dovrebbe chiamare fetch con i parametri corretti",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 1
+        },
+        {
+          "title": "dovrebbe gestire correttamente una risposta con status 401",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 5
+        },
+        {
+          "title": "dovrebbe restituire la risposta per status code diversi da 401",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 1
+        },
+        {
+          "title": "dovrebbe gestire correttamente errori di rete",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 2
+        }
+      ]
+    },
+    {
+      "name": "/usr/src/app/Test/Frontend/tests/example.test.js",
+      "status": "passed",
+      "message": "",
+      "duration": 79,
+      "numFailingTests": 0,
+      "numPassingTests": 0,
+      "numPendingTests": 0,
+      "assertionResults": [
+        {
+          "title": "dovrebbe passare un test di esempio",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 1
+        },
+        {
+          "title": "dovrebbe concatenare stringhe",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 1
+        },
+        {
+          "title": "dovrebbe eseguire semplici operazioni matematiche",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 1
+        },
+        {
+          "title": "dovrebbe manipolare array",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 2
+        },
+        {
+          "title": "dovrebbe manipolare oggetti",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 1
+        }
+      ]
+    }
+  ],
+  "coverage": null
+}

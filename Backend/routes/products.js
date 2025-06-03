@@ -16,7 +16,6 @@ router.get('/', async (req, res) => {
         const minPrice = parseFloat(req.query.minPrice) || 0;
         const maxPrice = parseFloat(req.query.maxPrice) || Number.MAX_SAFE_INTEGER;
 
-        // Costruisci la query di base
         let query = `
             SELECT p.*, u.name as artisan_name, c.name as category_name 
             FROM products p
@@ -28,13 +27,13 @@ router.get('/', async (req, res) => {
         const queryParams = [minPrice, maxPrice];
         const countParams = [minPrice, maxPrice];
 
-        // Aggiungi filtri se presenti
         if (search) {
             query += ' AND p.name LIKE ?';
             countQuery += ' AND name LIKE ?';
             queryParams.push(`%${search}%`);
             countParams.push(`%${search}%`);
         }
+
         let categories = req.query['category[]'];
         if (categories) {
             if (!Array.isArray(categories)) {
@@ -47,6 +46,7 @@ router.get('/', async (req, res) => {
                 countParams.push(...categories);
             }
         }
+
         if (artisan) {
             query += ' AND p.artisan_id = ?';
             countQuery += ' AND artisan_id = ?';
@@ -54,15 +54,12 @@ router.get('/', async (req, res) => {
             countParams.push(artisan);
         }
 
-        // Aggiungi ordinamento e paginazione
         query += ' ORDER BY p.created_at DESC LIMIT ? OFFSET ?';
         queryParams.push(limit, offset);
 
-        // Esegui le query
         const [products] = await db.query(query, queryParams);
         const [totalCount] = await db.query(countQuery, countParams);
 
-        // Recupera la prima immagine per ogni prodotto
         const productIds = products.map(p => p.id);
         let imagesMap = {};
         if (productIds.length > 0) {
@@ -74,12 +71,12 @@ router.get('/', async (req, res) => {
                 imagesMap[img.product_id] = img;
             });
         }
+
         const productsWithImage = products.map(p => ({
             ...p,
             image: imagesMap[p.id] || null
         }));
 
-        // Calcola la paginazione
         const total = totalCount[0].total;
         const totalPages = Math.ceil(total / limit);
         const hasNextPage = page < totalPages;
@@ -127,7 +124,14 @@ router.get('/:id', async (req, res) => {
         // Restituisci il prodotto con le immagini
         res.json({
             ...product[0],
+<<<<<<< Updated upstream
             images
+=======
+            price: Number(product[0].price),
+            discount: Number(product[0].discount || 0),
+            stock: Number(product[0].stock || 0),
+            images: images.map(img => ({ ...img, url: toPublicImageUrl(img.url) }))
+>>>>>>> Stashed changes
         });
     } catch (error) {
         console.error('Errore nel recupero del prodotto:', error);
@@ -161,7 +165,12 @@ router.post('/', verifyToken, checkRole('artisan'), async (req, res) => {
             [result.insertId]
         );
 
-        res.status(201).json(newProduct[0]);
+        res.status(201).json({
+            ...newProduct[0],
+            price: Number(newProduct[0].price),
+            discount: Number(newProduct[0].discount || 0),
+            stock: Number(newProduct[0].stock || 0)
+        });
     } catch (error) {
         console.error('Errore nella creazione del prodotto:', error);
         res.status(500).json({ error: 'Errore nella creazione del prodotto' });
@@ -174,17 +183,25 @@ router.put('/:id', verifyToken, checkRole('artisan'), async (req, res) => {
     const productId = req.params.id;
     const artisan_id = req.user.id;
 
-    // Validazione
     if (!name || !price) {
         return res.status(400).json({ error: 'Nome e prezzo sono obbligatori' });
     }
 
     try {
+<<<<<<< Updated upstream
         // Verifica che il prodotto esista e appartenga all'artigiano
         const [product] = await db.query(
             'SELECT * FROM products WHERE id = ? AND artisan_id = ?',
             [productId, artisan_id]
         );
+=======
+        let product;
+        if (user.role === 'admin') {
+            [product] = await db.query('SELECT * FROM products WHERE id = ?', [productId]);
+        } else {
+            [product] = await db.query('SELECT * FROM products WHERE id = ? AND artisan_id = ?', [productId, user.id]);
+        }
+>>>>>>> Stashed changes
 
         if (product.length === 0) {
             return res.status(404).json({ 
@@ -192,6 +209,7 @@ router.put('/:id', verifyToken, checkRole('artisan'), async (req, res) => {
             });
         }
 
+<<<<<<< Updated upstream
         // Aggiorna il prodotto
         await db.query(
             `UPDATE products 
@@ -199,6 +217,23 @@ router.put('/:id', verifyToken, checkRole('artisan'), async (req, res) => {
              WHERE id = ? AND artisan_id = ?`,
             [name, description, price, stock, category_id, productId, artisan_id]
         );
+=======
+        if (user.role === 'admin') {
+            await db.query(
+                `UPDATE products 
+                 SET name = ?, description = ?, price = ?, discount = ?, stock = ?, category_id = ?
+                 WHERE id = ?`,
+                [name, description, price, req.body.discount || 0, stock, category_id, productId]
+            );
+        } else {
+            await db.query(
+                `UPDATE products 
+                 SET name = ?, description = ?, price = ?, discount = ?, stock = ?, category_id = ?
+                 WHERE id = ? AND artisan_id = ?`,
+                [name, description, price, req.body.discount || 0, stock, category_id, productId, user.id]
+            );
+        }
+>>>>>>> Stashed changes
 
         const [updatedProduct] = await db.query(
             `SELECT p.*, u.name as artisan_name, c.name as category_name 
@@ -209,13 +244,44 @@ router.put('/:id', verifyToken, checkRole('artisan'), async (req, res) => {
             [productId]
         );
 
-        res.json(updatedProduct[0]);
+        res.json({
+            ...updatedProduct[0],
+            price: Number(updatedProduct[0].price),
+            discount: Number(updatedProduct[0].discount || 0),
+            stock: Number(updatedProduct[0].stock || 0)
+        });
     } catch (error) {
         console.error('Errore nell\'aggiornamento del prodotto:', error);
         res.status(500).json({ error: 'Errore nell\'aggiornamento del prodotto' });
     }
 });
 
+<<<<<<< Updated upstream
+=======
+/**
+ * @swagger
+ * /products/{id}:
+ *   delete:
+ *     summary: Elimina un prodotto (solo l'artigiano proprietario)
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del prodotto
+ *     responses:
+ *       200:
+ *         description: Prodotto eliminato
+ *       401:
+ *         description: Non autorizzato
+ *       404:
+ *         description: Prodotto non trovato o permessi insufficienti
+ */
+>>>>>>> Stashed changes
 // DELETE /products/:id - Elimina un prodotto (solo l'artigiano proprietario)
 router.delete('/:id', verifyToken, checkRole('artisan'), async (req, res) => {
     const productId = req.params.id;
@@ -236,7 +302,7 @@ router.delete('/:id', verifyToken, checkRole('artisan'), async (req, res) => {
 
         // Elimina il prodotto
         await db.query('DELETE FROM products WHERE id = ? AND artisan_id = ?', [productId, artisan_id]);
-        res.status(204).send();
+        res.status(200).json({ message: 'Prodotto eliminato con successo' });
     } catch (error) {
         console.error('Errore nell\'eliminazione del prodotto:', error);
         res.status(500).json({ error: 'Errore nell\'eliminazione del prodotto' });

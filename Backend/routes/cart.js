@@ -138,6 +138,11 @@ router.delete('/', verifyToken, async (req, res) => {
         const [carts] = await db.query('SELECT id FROM carts WHERE user_id = ?', [userId]);
         if (carts.length === 0) return res.json({ message: 'Carrello già vuoto' });
         const cartId = carts[0].id;
+        // Controlla se ci sono items nel carrello
+        const [items] = await db.query('SELECT COUNT(*) as count FROM cart_items WHERE cart_id = ?', [cartId]);
+        if (items[0].count === 0) {
+            return res.json({ message: 'Carrello già vuoto' });
+        }
         await db.query('DELETE FROM cart_items WHERE cart_id = ?', [cartId]);
         res.json({ message: 'Carrello svuotato' });
     } catch (error) {

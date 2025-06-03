@@ -1,15 +1,7 @@
-const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const db = require('../models/db'); // Utilizzo il pool di connessioni del progetto
 require('dotenv').config();
-
-// Configurazione connessione al database
-const dbConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'ecommerce'
-};
 
 /**
  * Registra un nuovo utente
@@ -28,16 +20,13 @@ async function registerUser(userData) {
   }
 
   try {
-    const connection = await mysql.createConnection(dbConfig);
-    
     // Verifica se l'email esiste gia
-    const [existingUsers] = await connection.execute(
+    const [existingUsers] = await db.query(
       'SELECT id FROM users WHERE email = ?', 
       [email]
     );
     
     if (existingUsers.length > 0) {
-      await connection.end();
       throw new Error('Email gia registrata');
     }
     
@@ -46,12 +35,10 @@ async function registerUser(userData) {
     const passwordHash = await bcrypt.hash(password, saltRounds);
     
     // Inserimento nuovo utente
-    const [result] = await connection.execute(
+    const [result] = await db.query(
       'INSERT INTO users (email, password_hash, name, role) VALUES (?, ?, ?, ?)',
       [email, passwordHash, name, role]
     );
-    
-    await connection.end();
     
     return {
       id: result.insertId,
@@ -76,15 +63,11 @@ async function loginUser(email, password) {
   }
   
   try {
-    const connection = await mysql.createConnection(dbConfig);
-    
     // Cerca l'utente con l'email specificata
-    const [users] = await connection.execute(
+    const [users] = await db.query(
       'SELECT id, email, password_hash, name, role FROM users WHERE email = ?',
       [email]
     );
-    
-    await connection.end();
     
     if (users.length === 0) {
       throw new Error('Credenziali non valide');

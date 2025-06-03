@@ -1,34 +1,48 @@
 services:
   db:
     image: mariadb:11
-    container_name: mariadb-db
+    container_name: ecommerce-db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: usf6FFdMfLXgAGqORnmR8
-      MYSQL_DATABASE: bhhcfb8lkdjzm7yexzpq
-      MYSQL_USER: ukiui5tx8fkytjk
-      MYSQL_PASSWORD: usf6FFdMfLXgAGqORnmR8
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: ecommerce_db
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: 1234
     ports:
       - "3306:3306"
     volumes:
-      - mariadbdata:/var/lib/mysql      
+      - mariadbdata:/var/lib/mysql
       - ./Backend/db.sql:/docker-entrypoint-initdb.d/db.sql
+<<<<<<< Updated upstream
 
   backend:
     build: ./Backend
     container_name: node-backend
     restart: always
+=======
+    healthcheck:
+      test: ["CMD", "mariadb", "-h", "localhost", "-u", "admin", "-p1234", "-e", "SELECT 1"]
+      timeout: 20s
+      retries: 10
+
+  # Production backend API
+  backend:
+    build: ./Backend
+    container_name: ecommerce-backend
+>>>>>>> Stashed changes
     ports:
       - "3015:3015"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       PORT: 3015
       DB_HOST: db
-      DB_USER: ukiui5tx8fkytjk
-      DB_PASSWORD: usf6FFdMfLXgAGqORnmR8
-      DB_NAME: bhhcfb8lkdjzm7yexzpq
+      DB_USER: admin
+      DB_PASSWORD: 1234
+      DB_NAME: ecommerce_db
       DB_PORT: 3306
+<<<<<<< Updated upstream
       JWT_SECRET: ecommerce_artisan_platform_secret_key
     volumes:
       - ./Backend:/usr/src/app
@@ -51,3 +65,41 @@ services:
 
 volumes:
   mariadbdata: 
+=======
+      JWT_SECRET: ecommerce_secret_key_2024
+    volumes:
+      - shared_media:/usr/src/app/Media
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3015/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Production frontend server
+  frontend:
+    build: ./Frontend
+    container_name: ecommerce-frontend
+    ports:
+      - "3010:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      REACT_APP_API_URL: http://localhost:3015
+
+  # Image server
+  imageserver:
+    image: nginx:alpine
+    container_name: ecommerce-imageserver
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      - shared_media:/usr/share/nginx/html/Media
+    depends_on:
+      - backend
+
+volumes:
+  mariadbdata:    # Production data persistence
+  shared_media:   # Shared media storage between backend and imageserver
+>>>>>>> Stashed changes

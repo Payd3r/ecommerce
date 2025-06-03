@@ -17,8 +17,16 @@ router.post('/register', async (req, res) => {
       email: req.body.email,
       password: req.body.password,
       name: req.body.name,
-      role: req.body.role || 'client' // Default a client se non specificato
+      role: req.body.role || 'client'
     };
+    
+    // Validazione del ruolo
+    if (userData.role && !['client', 'artisan', 'admin'].includes(userData.role)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Ruolo non valido'
+      });
+    }
     
     const newUser = await registerUser(userData);
     
@@ -172,4 +180,63 @@ router.put('/profile', verifyToken, async (req, res) => {
   }
 });
 
+<<<<<<< Updated upstream
+=======
+/**
+ * @swagger
+ * /auth/artisan/bio:
+ *   put:
+ *     summary: Aggiorna la bio dell'artigiano
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - bio
+ *             properties:
+ *               bio:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Bio aggiornata
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Bio obbligatoria
+ */
+// PUT /auth/artisan/bio
+router.put('/artisan/bio', verifyToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'artisan') {
+      return res.status(403).json({ 
+        success: false,
+        error: 'Solo gli artigiani possono aggiornare la bio' 
+      });
+    }
+    const { bio } = req.body;
+    if (!bio) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Bio obbligatoria' 
+      });
+    }
+    await db.query('UPDATE extended_users SET bio = ? WHERE id_users = ?', [bio, req.user.id]);
+    res.json({ success: true, message: 'Bio aggiornata' });
+  } catch (error) {
+    console.error('Errore aggiornamento bio:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Errore aggiornamento bio' 
+    });
+  }
+});
+
+>>>>>>> Stashed changes
 module.exports = router;
