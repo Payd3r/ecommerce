@@ -1,3 +1,15 @@
+/*
+  users.js
+  -----------------------------
+  Questo modulo fornisce un'API client-side per la gestione degli utenti nell'applicazione ArtigianatoShop.
+  - Tutte le chiamate sono indirizzate alle API REST del backend tramite fetchWithAuth, che gestisce token e headers.
+  - Le funzioni di UsersAPI permettono: gestione profilo, password, eliminazione account, gestione utenti e artigiani, approvazione, conteggi, dettagli artigiano e altro.
+  - Le scelte tecniche privilegiano la modularità e la separazione delle responsabilità: la logica di gestione utenti è centralizzata qui.
+  - Tutte le chiamate sono protette da error handling robusto e restituiscono dati già pronti per l'uso nei componenti frontend.
+  - Le rotte e i payload sono allineati con la documentazione Swagger del backend.
+  - Ogni funzione è documentata inline per chiarire parametri, comportamento e possibili errori.
+*/
+
 import { fetchWithAuth } from '../js/services/fetchWithAuth.js';
 import { getApiUrl } from './config.js';
 import { authService } from '../js/services/authService.js';
@@ -191,7 +203,13 @@ const UsersAPI = {
             throw error;
         }
     },
-    // Funzione per ottenere tutti gli utenti con filtri e paginazione
+
+    /**
+     * Ottiene tutti gli utenti con filtri e paginazione.
+     * @param {Object} params - Parametri di filtro e paginazione (page, limit, name, email, role, orderBy, orderDir).
+     * @returns {Promise<object>} Promise con la lista degli utenti.
+     * @throws {Error} Se la richiesta fallisce o l'utente non è autenticato.
+     */
     getUsers: async (params = {}) => {
         const queryParams = new URLSearchParams();
 
@@ -228,9 +246,10 @@ const UsersAPI = {
     },
 
     /**
-     * Crea un nuovo utente
-     * @param {Object} userData - Dati del nuovo utente (name, email, role)
-     * @returns {Promise} Promise con i dati dell'utente creato
+     * Crea un nuovo utente.
+     * @param {Object} userData - Dati del nuovo utente (name, email, role).
+     * @returns {Promise<object>} Promise con i dati dell'utente creato.
+     * @throws {Error} Se la richiesta fallisce o l'utente non è autenticato.
      */
     createUser: async (userData) => {
         const token = authService.getToken();
@@ -262,9 +281,10 @@ const UsersAPI = {
     },
 
     /**
-     * Ottiene un utente tramite ID
-     * @param {number|string} userId - ID dell'utente da recuperare
-     * @returns {Promise} Promise con i dati dell'utente
+     * Ottiene un utente tramite ID.
+     * @param {number|string} userId - ID dell'utente da recuperare.
+     * @returns {Promise<object>} Promise con i dati dell'utente.
+     * @throws {Error} Se la richiesta fallisce o l'utente non è autenticato.
      */
     getUser: async (userId) => {
         const token = authService.getToken();
@@ -291,10 +311,11 @@ const UsersAPI = {
     },
 
     /**
-     * Aggiorna un utente tramite ID
-     * @param {number|string} userId - ID dell'utente da aggiornare
-     * @param {Object} userData - Dati da aggiornare (name, email, role)
-     * @returns {Promise} Promise con i dati aggiornati dell'utente
+     * Aggiorna un utente tramite ID.
+     * @param {number|string} userId - ID dell'utente da aggiornare.
+     * @param {Object} userData - Dati da aggiornare (name, email, role).
+     * @returns {Promise<object>} Promise con i dati aggiornati dell'utente.
+     * @throws {Error} Se la richiesta fallisce o l'utente non è autenticato.
      */
     updateUser: async (userId, userData) => {
         const token = authService.getToken();
@@ -333,9 +354,10 @@ const UsersAPI = {
     },
 
     /**
-     * Elimina un utente tramite ID
-     * @param {number|string} userId - ID dell'utente da eliminare
-     * @returns {Promise} Promise risolta se eliminazione avvenuta con successo
+     * Elimina un utente tramite ID.
+     * @param {number|string} userId - ID dell'utente da eliminare.
+     * @returns {Promise<boolean>} Promise risolta se eliminazione avvenuta con successo.
+     * @throws {Error} Se la richiesta fallisce o l'utente non è autenticato.
      */
     deleteUser: async (userId) => {
         const token = authService.getToken();
@@ -363,8 +385,9 @@ const UsersAPI = {
     },
 
     /**
-     * Ottiene i conteggi utenti per ruolo (client, artisan, admin, totale)
-     * @returns {Promise<Object>} Oggetto con counts: { clients, artisans, admins, total }
+     * Ottiene i conteggi utenti per ruolo (client, artisan, admin, totale).
+     * @returns {Promise<Object>} Oggetto con counts: { clients, artisans, admins, total }.
+     * @throws {Error} Se la richiesta fallisce o l'utente non è autenticato.
      */
     getCounts: async () => {
         const token = authService.getToken();
@@ -393,7 +416,8 @@ const UsersAPI = {
     /**
      * Aggiorna i dettagli specifici dell'artigiano (solo bio e dati testuali, NON immagini).
      * @param {Object} artisanData - Oggetto contenente bio (e altri dati testuali).
-     * @returns {Promise} Promise con i dati aggiornati.
+     * @returns {Promise<object>} Promise con i dati aggiornati.
+     * @throws {Error} Se la richiesta fallisce o l'utente non è autenticato.
      */
     updateArtisanDetails: async (artisanData) => {
         const token = authService.getToken();
@@ -423,9 +447,10 @@ const UsersAPI = {
     },
 
     /**
-     * Ottiene gli artigiani in attesa di approvazione (pending)
-     * @param {Object} params - Parametri opzionali (limit)
-     * @returns {Promise} Promise con la lista degli utenti pending
+     * Ottiene gli artigiani in attesa di approvazione (pending).
+     * @param {Object} params - Parametri opzionali (limit).
+     * @returns {Promise<object>} Promise con la lista degli utenti pending.
+     * @throws {Error} Se la richiesta fallisce o l'utente non è autenticato.
      */
     getPendingArtisans: async (params = {}) => {
         const token = authService.getToken();
@@ -455,9 +480,10 @@ const UsersAPI = {
     },
 
     /**
-     * Approva un artigiano (cambia ruolo e imposta approved=1)
-     * @param {number|string} userId - ID dell'utente da approvare
-     * @returns {Promise} Promise con esito
+     * Approva un artigiano (cambia ruolo e imposta approved=1).
+     * @param {number|string} userId - ID dell'utente da approvare.
+     * @returns {Promise<object>} Promise con esito.
+     * @throws {Error} Se la richiesta fallisce o l'utente non è autenticato.
      */
     approveArtisan: async (userId) => {
         const token = authService.getToken();

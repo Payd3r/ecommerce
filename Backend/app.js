@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 const path = require('path');
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
 
 const app = express();
 const port = process.env.PORT || 3015;
@@ -18,6 +20,26 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve la cartella Media come statica
 // app.use('/Media', express.static(path.resolve(__dirname, 'Media'))); // ora servito da imageserver
+
+// Swagger setup
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Artigianato Online API',
+      version: '1.0.0',
+      description: 'Documentazione delle API di Artigianato Online',
+    },
+    servers: [
+      {
+        url: 'http://localhost:' + port,
+      },
+    ],
+  },
+  apis: ['./routes/*.js'], // Percorso ai file delle route per i commenti JSDoc
+};
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes base
 app.get('/', (req, res) => {

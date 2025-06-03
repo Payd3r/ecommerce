@@ -4,15 +4,17 @@ import { loader } from '../../components/Loader.js';
 import { showBootstrapToast } from '../../components/Toast.js';
 
 /**
- * Carica la pagina dello shop di un artigiano
+ * Carica la pagina dello shop di un artigiano.
+ * Gestisce il caricamento dati artigiano, prodotti, paginazione e rendering della UI.
  * @param {Object} params - Parametri della route (deve contenere id)
+ * @returns {Object} - Oggetto con i metodi del componente (render, mount)
  */
 export async function loadArtisanShopPage(params) {
     const artisanId = params.id;
     const pageElement = document.createElement('div');
     pageElement.className = 'artisan-shop-page';
 
-    // Stato locale
+    // Stato locale della pagina (artigiano, prodotti, paginazione)
     let state = {
         artisan: null,
         products: [],
@@ -22,7 +24,7 @@ export async function loadArtisanShopPage(params) {
         pagination: null
     };
 
-    // Struttura base
+    // Struttura base della pagina (header, info artigiano, lista prodotti, paginazione)
     pageElement.innerHTML = `
         <div class="container py-4 artisan-shop-page">
             <div class="row">
@@ -102,7 +104,11 @@ export async function loadArtisanShopPage(params) {
         </style>
     `;
 
-    // Renderizza i prodotti
+    /**
+     * Renderizza la lista dei prodotti dell'artigiano.
+     * Gestisce badge sconto, badge stock basso, prezzo scontato e link dettagli.
+     * @param {Array} products - Lista prodotti da mostrare
+     */
     function renderProducts(products) {
         const list = pageElement.querySelector('#products-list');
         if (!products.length) {
@@ -160,7 +166,10 @@ export async function loadArtisanShopPage(params) {
         }).join('');
     }
 
-    // Renderizza la paginazione
+    /**
+     * Renderizza la paginazione in base al numero totale di pagine e alla pagina corrente.
+     * @param {Object} pagination - Oggetto con info paginazione
+     */
     function renderPagination(pagination) {
         const paginationEl = pageElement.querySelector('#products-pagination');
         if (!pagination || pagination.totalPages <= 1) {
@@ -174,7 +183,9 @@ export async function loadArtisanShopPage(params) {
         paginationEl.innerHTML = html;
     }
 
-    // Carica i dati dell'artigiano
+    /**
+     * Carica i dati dell'artigiano dal server e aggiorna la UI.
+     */
     async function loadArtisan() {
         try {
             const data = await UsersAPI.getArtisans({ id: artisanId });
@@ -211,7 +222,9 @@ export async function loadArtisanShopPage(params) {
         }
     }
 
-    // Carica i prodotti dell'artigiano
+    /**
+     * Carica i prodotti dell'artigiano dal server e aggiorna la lista e la paginazione.
+     */
     async function loadProducts() {
         loader.show();
         try {
@@ -228,7 +241,9 @@ export async function loadArtisanShopPage(params) {
         }
     }
 
-    // Gestione paginazione
+    /**
+     * Inizializza gli event listener per la paginazione e il bottone back.
+     */
     function mount() {
         const pagination = pageElement.querySelector('#products-pagination');
         pagination.addEventListener('click', e => {
@@ -255,10 +270,11 @@ export async function loadArtisanShopPage(params) {
         }
     }
 
-    // Carica dati
+    // Carica dati iniziali
     await loadArtisan();
     await loadProducts();
 
+    // Ritorna i metodi principali del componente
     return {
         render: () => pageElement,
         mount

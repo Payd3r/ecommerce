@@ -7,11 +7,17 @@ import { router } from '../../router.js';
 import { createPaymentIntent } from '../../../api/orders.js';
 import { countries } from '../../assets.geo.js';
 
+/**
+ * Carica la pagina di checkout.
+ * Gestisce la precompilazione dati, il riepilogo carrello, la validazione, il salvataggio indirizzo,
+ * l'integrazione Stripe e la creazione ordine.
+ * @returns {Object} - Oggetto con i metodi del componente (render, mount, unmount)
+ */
 export async function loadCheckoutPage() {
     const pageElement = document.createElement('div');
     pageElement.className = 'checkout-page';
     
-    // Stato per i dati del form
+    // Stato per i dati del form (indirizzo, profilo, carrello)
     let deliveryInfo = {
         stato: '',
         provincia: '',
@@ -46,7 +52,7 @@ export async function loadCheckoutPage() {
         deliveryInfo.phone = userProfile.phone || '';
     } catch {}
 
-    // Carica carrello
+    // Carica carrello e calcola totale
     try {
         const data = await CartAPI.getCart();
         cartItems = data.items || [];
@@ -151,6 +157,10 @@ export async function loadCheckoutPage() {
         </div>
     `;
 
+    /**
+     * Inizializza gli event listener per i form, la validazione, il salvataggio indirizzo,
+     * l'integrazione Stripe e la creazione ordine.
+     */
     function mount() {
         // Gestione submit user-form (aggiorna nome se modificato)
         const userForm = pageElement.querySelector('#user-form');
@@ -377,6 +387,7 @@ export async function loadCheckoutPage() {
         });
     }
 
+    // Ritorna i metodi principali del componente
     return {
         render: () => pageElement,
         mount,

@@ -1,5 +1,11 @@
 import { getProduct } from '../../../../api/products.js';
 
+/**
+ * Mostra un modal di sola visualizzazione dei dettagli di un prodotto.
+ * Gestisce il caricamento dati, la visualizzazione immagini (anche carosello), dettagli e chiusura.
+ * @param {number} productId - ID del prodotto da visualizzare
+ * @param {Array} categories - Albero categorie (non usato qui, ma mantenuto per coerenza API)
+ */
 export async function showViewProductModal(productId, categories) {
     // Rimuovi eventuale modal precedente
     const existing = document.getElementById('viewProductModal');
@@ -17,7 +23,12 @@ export async function showViewProductModal(productId, categories) {
     // Immagini prodotto
     const images = product.images && product.images.length > 0 ? product.images : [];
 
-    // Carousel immagini se più di una
+    /**
+     * Genera l'HTML per la visualizzazione delle immagini:
+     * - Carosello se più di una
+     * - Immagine singola
+     * - Placeholder se nessuna
+     */
     let imagesHtml = '';
     let thumbsHtml = '';
     if (images.length > 1) {
@@ -51,7 +62,7 @@ export async function showViewProductModal(productId, categories) {
         imagesHtml = `<div class="d-flex align-items-center justify-content-center bg-light rounded mb-3" style="height:200px;"><i class="bi bi-image fs-1 text-secondary"></i></div>`;
     }
 
-    // Categorie mappa
+    // Nome categoria
     const categoryName = product.category_name || '-';
 
     // Modal HTML
@@ -100,7 +111,9 @@ export async function showViewProductModal(productId, categories) {
     const bsModal = new bootstrap.Modal(modal);
     bsModal.show();
 
-    // Gestione thumbs: click su anteprima per cambiare immagine nel carosello
+    /**
+     * Gestione thumbs: click su anteprima per cambiare immagine nel carosello.
+     */
     if (images.length > 1) {
         setTimeout(() => {
             const thumbs = modal.querySelectorAll('#productImagesThumbs .thumb-img');

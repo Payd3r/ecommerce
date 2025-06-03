@@ -2,6 +2,38 @@ const express = require('express');
 const router = express.Router();
 const db = require('../models/db');
 
+/**
+ * @swagger
+ * /issues:
+ *   get:
+ *     summary: Restituisce le segnalazioni con paginazione
+ *     tags: [Issues]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Numero della pagina
+ *       - in: query
+ *         name: pageSize
+ *         schema:
+ *           type: integer
+ *         description: Numero di segnalazioni per pagina
+ *     responses:
+ *       200:
+ *         description: Lista delle segnalazioni
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 issues:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 total:
+ *                   type: integer
+ */
 // GET /api/issues - restituisce le segnalazioni con paginazione
 router.get('/', async (req, res) => {
   try {
@@ -28,6 +60,47 @@ router.get('/', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /issues:
+ *   post:
+ *     summary: Crea una nuova segnalazione
+ *     tags: [Issues]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id_client
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *               created_at:
+ *                 type: string
+ *                 format: date-time
+ *               id_client:
+ *                 type: integer
+ *               admin_note:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Segnalazione creata
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *       400:
+ *         description: id_client obbligatorio
+ */
 // POST /api/issues - crea una nuova segnalazione
 router.post('/', async (req, res) => {
   try {
@@ -48,6 +121,48 @@ router.post('/', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /issues/{id}:
+ *   put:
+ *     summary: Aggiorna una segnalazione
+ *     tags: [Issues]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID della segnalazione
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *               created_at:
+ *                 type: string
+ *                 format: date-time
+ *               admin_note:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Segnalazione aggiornata
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ */
 // PUT /api/issues/:id - aggiorna una segnalazione
 router.put('/:id', async (req, res) => {
   try {

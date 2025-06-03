@@ -5,7 +5,13 @@ import { showAddProductModal } from './modals/addProduct.js';
 import { showEditProductModal } from './modals/editProduct.js';
 import { showViewProductModal } from './modals/viewProduct.js';
 
+/**
+ * Carica la pagina di gestione prodotti per l'artigiano.
+ * Inizializza la UI, gestisce filtri, categorie, tabella prodotti, paginazione e azioni.
+ * @returns {Object} - Oggetto con i metodi del componente (render, mount, unmount)
+ */
 export async function loadManageProductsPage() {
+    // Crea l'elemento principale della pagina
     const pageElement = document.createElement('div');
     pageElement.className = 'container py-4 products-page';
 
@@ -31,7 +37,9 @@ export async function loadManageProductsPage() {
         categories = [];
     }
 
-    // Carica prodotti
+    /**
+     * Carica i prodotti dal server e aggiorna la tabella e la paginazione.
+     */
     async function fetchProducts() {
         console.log('fetchProducts chiamata');
         const params = {
@@ -59,7 +67,10 @@ export async function loadManageProductsPage() {
         }
     }
 
-    // Funzione per renderizzare la tabella
+    /**
+     * Renderizza la tabella dei prodotti filtrati.
+     * Aggiunge i listener per visualizza, modifica, elimina e tooltip immagini.
+     */
     function renderTable() {
         console.log('renderTable chiamata, prodotti:', filteredProducts);
         const tableBody = document.querySelector('#products-table-body');
@@ -182,7 +193,10 @@ export async function loadManageProductsPage() {
         });
     }
 
-    // Funzione per renderizzare la paginazione
+    /**
+     * Renderizza la paginazione in base al numero totale di pagine e alla pagina corrente.
+     * Gestisce i bottoni di navigazione e il cambio pagina.
+     */
     function renderPagination() {
         const totalPages = Math.ceil(filteredProducts.length / pageSize) || 1;
         const paginationEl = pageElement.querySelector('#products-pagination');
@@ -251,7 +265,9 @@ export async function loadManageProductsPage() {
         paginationEl.appendChild(btnGroup);
     }
 
-    // Funzione per azzerare i filtri e refreshare la tabella
+    /**
+     * Azzeramento filtri e refresh tabella prodotti.
+     */
     async function resetFiltersAndRefresh() {
         console.log('resetFiltersAndRefresh');
         filter = { search: '', category: '', minPrice: '', maxPrice: '' };
@@ -462,7 +478,13 @@ export async function loadManageProductsPage() {
         };
     }
 
-    // --- Funzioni per albero categorie (devono essere qui per accedere a pageElement) ---
+    /**
+     * Renderizza l'albero delle categorie per il filtro.
+     * Gestisce la selezione/deselezione ricorsiva e la UI di espansione/collapse.
+     * @param {Array} categories - Albero categorie
+     * @param {number} level - Livello profondità (default 1)
+     * @returns {HTMLElement} - Ul HTML
+     */
     function renderCategoryTree(categories, level = 1) {
         const ul = document.createElement('ul');
         ul.className = 'list-unstyled mb-0' + (level === 1 ? ' show' : '');
@@ -491,6 +513,10 @@ export async function loadManageProductsPage() {
         return ul;
     }
 
+    /**
+     * Popola il filtro categorie con l'albero.
+     * @param {Array} categories - Albero categorie
+     */
     function populateCategoryTree(categories) {
         const treeContainer = pageElement.querySelector('#category-tree');
         if (!treeContainer) return;
@@ -550,6 +576,7 @@ export async function loadManageProductsPage() {
     // Dopo aver creato l'HTML, popola l'albero categorie
     populateCategoryTree(categories);
 
+    // Ritorna i metodi principali del componente
     return {
         render: () => pageElement,
         mount: () => {

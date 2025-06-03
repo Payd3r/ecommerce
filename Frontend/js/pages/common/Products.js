@@ -4,10 +4,9 @@ import CategoriesAPI from '../../../api/categories.js';
 import UsersAPI from '../../../api/users.js';
 import { showBootstrapToast } from '../../components/Toast.js';
 
-
 /**
  * Carica la pagina Prodotti
- * @returns {Object} - Oggetto con i metodi del componente
+ * @returns {Object} Oggetto con i metodi del componente
  */
 export async function loadProductsPage(params = {}) {
     // Stato della pagina
@@ -36,7 +35,10 @@ export async function loadProductsPage(params = {}) {
         state.filters.category = params.category;
     }
 
-    // Leggi il parametro category dalla query string (es: #/products?category=5)
+    /**
+     * Legge il parametro category dalla query string (es: #/products?category=5)
+     * @returns {string} id categoria dalla query oppure stringa vuota
+     */
     function getCategoryFromQuery() {
         const hash = window.location.hash;
         const query = hash.split('?')[1];
@@ -125,7 +127,9 @@ export async function loadProductsPage(params = {}) {
         </div>
     `;
 
-    // Carica dati iniziali
+    /**
+     * Carica i dati iniziali della pagina prodotti (categorie, artigiani, prodotti)
+     */
     async function loadProductsData() {
         try {
             state.loading = true;
@@ -134,11 +138,10 @@ export async function loadProductsPage(params = {}) {
             const categoriesRes = await CategoriesAPI.getCategoryTree();
             state.categories = categoriesRes || [];
             populateCategoryTree(state.categories);
-            // Carica artigiani se autenticato
+            // Carica artigiani
             const artisansRes = await UsersAPI.getArtisans();
             state.artisans = artisansRes.data || [];
             populateArtisanFilter(state.artisans);
-
             // Carica prodotti
             await loadProducts();
         } catch (error) {
@@ -149,6 +152,9 @@ export async function loadProductsPage(params = {}) {
         }
     }
 
+    /**
+     * Carica i prodotti in base ai filtri e alla paginazione
+     */
     async function loadProducts() {
         try {
             state.loading = true;
@@ -158,6 +164,7 @@ export async function loadProductsPage(params = {}) {
                 limit: state.pagination.limit,
                 ...state.filters
             };
+            // Rimuove i parametri vuoti
             Object.keys(params).forEach(key => {
                 if (params[key] === '' || params[key] === null || params[key] === undefined) {
                     delete params[key];
@@ -190,6 +197,10 @@ export async function loadProductsPage(params = {}) {
         }
     }
 
+    /**
+     * Mostra o nasconde il loader per i prodotti
+     * @param {boolean} show Se true mostra il loader, altrimenti lo nasconde
+     */
     function toggleProductsLoader(show) {
         const productsContainer = document.getElementById('products-container');
         if (!productsContainer) return;
@@ -202,7 +213,12 @@ export async function loadProductsPage(params = {}) {
         }
     }
 
-    // Funzione per generare il tree delle categorie con struttura annidata (children)
+    /**
+     * Genera il tree delle categorie con struttura annidata (children)
+     * @param {Array} categories Lista categorie
+     * @param {number} level Livello di profondità (default 1)
+     * @returns {HTMLElement} Albero categorie
+     */
     function renderCategoryTree(categories, level = 1) {
         const ul = document.createElement('ul');
         ul.className = 'list-unstyled mb-0' + (level === 1 ? ' show' : '');
@@ -231,7 +247,10 @@ export async function loadProductsPage(params = {}) {
         return ul;
     }
 
-    // Popola il filtro categorie con il tree (con collapse e selezione ricorsiva)
+    /**
+     * Popola il filtro categorie con il tree (con collapse e selezione ricorsiva)
+     * @param {Array} categories Lista categorie
+     */
     function populateCategoryTree(categories) {
         const treeContainer = document.getElementById('category-tree');
         if (!treeContainer) return;
@@ -242,11 +261,6 @@ export async function loadProductsPage(params = {}) {
         }
         const tree = renderCategoryTree(categories);
         treeContainer.appendChild(tree);
-        // Stile per il bordo sinistro delle sottocategorie, linea sotto la checkbox, caret visibile e padding corretto
-        const style = document.createElement('style');
-        style.textContent = ``;
-        treeContainer.appendChild(style);
-
         // Gestione collapse/expand icona caret SOLO JS custom
         treeContainer.querySelectorAll('.category-collapse-btn').forEach(btn => {
             btn.addEventListener('click', function (e) {
@@ -265,7 +279,6 @@ export async function loadProductsPage(params = {}) {
                 btn.setAttribute('aria-expanded', String(!isOpen));
             });
         });
-
         // Selezione/deselezione ricorsiva figli e selezione padre se tutti i figli sono selezionati
         treeContainer.querySelectorAll('input[type="checkbox"][name="category[]"]').forEach(checkbox => {
             checkbox.addEventListener('change', function () {
@@ -278,7 +291,6 @@ export async function loadProductsPage(params = {}) {
                 updateParentCheckbox(li);
             });
         });
-
         // Funzione per aggiornare la selezione dei padri
         function updateParentCheckbox(li) {
             const parentUl = li.parentElement.closest('ul');
@@ -297,6 +309,10 @@ export async function loadProductsPage(params = {}) {
         }
     }
 
+    /**
+     * Popola il filtro artigiano
+     * @param {Array} artisans Lista artigiani
+     */
     function populateArtisanFilter(artisans) {
         const artisanSelect = document.getElementById('artisan');
         if (!artisanSelect) return;
@@ -307,6 +323,10 @@ export async function loadProductsPage(params = {}) {
         artisanSelect.innerHTML = optionsHtml;
     }
 
+    /**
+     * Renderizza la griglia dei prodotti
+     * @param {Array} products Lista prodotti
+     */
     function renderProducts(products) {
         const productsContainer = document.getElementById('products-container');
         if (!productsContainer) return;
@@ -364,6 +384,10 @@ export async function loadProductsPage(params = {}) {
         productsContainer.innerHTML = html;
     }
 
+    /**
+     * Renderizza la paginazione dei prodotti
+     * @param {Object} pagination Stato della paginazione
+     */
     function renderPagination(pagination) {
         const paginationElement = document.getElementById('pagination');
         const pageNumbersElement = document.getElementById('page-numbers');
@@ -407,6 +431,10 @@ export async function loadProductsPage(params = {}) {
         pageNumbersElement.innerHTML = pageNumbersHtml;
     }
 
+    /**
+     * Gestisce il cambio pagina
+     * @param {number} page Numero pagina da caricare
+     */
     function handlePageChange(page) {
         if (page < 1 || page > state.pagination.totalPages || page === state.pagination.page) {
             return;
@@ -419,6 +447,10 @@ export async function loadProductsPage(params = {}) {
         }
     }
 
+    /**
+     * Gestisce l'invio del form dei filtri
+     * @param {Event} event Evento submit
+     */
     function handleFilterSubmit(event) {
         console.log('[Products.js] handleFilterSubmit chiamato');
         event.preventDefault();
@@ -441,6 +473,9 @@ export async function loadProductsPage(params = {}) {
         }
     }
 
+    /**
+     * Gestisce il reset dei filtri
+     */
     function handleFilterReset() {
         state.filters = {
             search: '',
@@ -462,6 +497,9 @@ export async function loadProductsPage(params = {}) {
         }
     }
 
+    /**
+     * Monta la pagina e tutti gli event listener
+     */
     function mount() {
         console.log('[Products.js] mount chiamato');
         loadProductsData();
@@ -512,6 +550,9 @@ export async function loadProductsPage(params = {}) {
         }
     }
 
+    /**
+     * Smonta la pagina e rimuove tutti gli event listener
+     */
     function unmount() {
         const filtersForm = document.getElementById('filters-form');
         if (filtersForm) {

@@ -1,4 +1,9 @@
 // Pagina Contatti
+/**
+ * Carica la pagina dei contatti.
+ * Mostra indirizzo, email, telefono e una mappa della posizione.
+ * @returns {Object} - Oggetto con i metodi del componente (render, mount)
+ */
 export function loadContactsPage() {
     const page = document.createElement('div');
     page.className = 'contacts-page';

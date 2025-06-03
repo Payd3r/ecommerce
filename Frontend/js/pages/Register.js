@@ -6,17 +6,16 @@ import { loader } from '../components/Loader.js';
 
 /**
  * Carica la pagina di registrazione
- * @returns {Object} - Oggetto con i metodi del componente
+ * @returns {Object} Oggetto con i metodi del componente
  */
 export async function loadRegisterPage() {
     // Crea l'elemento principale della pagina
     const pageElement = document.createElement('div');
     pageElement.className = 'auth-page register-page';
     
-    // Se l'utente è già autenticato, reindirizza
+    // Se l'utente è già autenticato, reindirizza subito
     if (authService.isAuthenticated()) {
         setTimeout(() => router.navigateToDashboard(), 0);
-        
         // Mostra un messaggio di reindirizzamento
         pageElement.innerHTML = `
             <div class="container">
@@ -26,7 +25,6 @@ export async function loadRegisterPage() {
                 </div>
             </div>
         `;
-        
         return {
             render: () => pageElement
         };
@@ -75,7 +73,7 @@ export async function loadRegisterPage() {
     
     /**
      * Gestisce il submit del form di registrazione
-     * @param {Event} event - Evento submit
+     * @param {Event} event Evento submit
      */
     async function handleRegisterSubmit(event) {
         event.preventDefault();
@@ -131,11 +129,9 @@ export async function loadRegisterPage() {
             } else {
                 showBootstrapToast('Errore durante la registrazione: ' + error.message, 'Errore', 'error');
             }
-            
             // Ripristina il form
             const submitBtn = form.querySelector('button[type="submit"]');
             const btnText = submitBtn.querySelector('.btn-text');
-            
             submitBtn.disabled = false;
             btnText.textContent = 'Crea account';
         } finally {
@@ -145,7 +141,7 @@ export async function loadRegisterPage() {
     }
     
     /**
-     * Inizializza gli event listener
+     * Inizializza gli event listener della pagina registrazione
      */
     function mount() {
         const form = document.getElementById('register-form');
@@ -155,7 +151,7 @@ export async function loadRegisterPage() {
     }
     
     /**
-     * Rimuove gli event listener
+     * Rimuove gli event listener della pagina registrazione
      */
     function unmount() {
         const form = document.getElementById('register-form');

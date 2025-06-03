@@ -6,11 +6,12 @@ import UsersAPI from '../../../api/users.js';
 import { showBootstrapToast } from '../../components/Toast.js';
 
 /**
- * Carica la pagina Home
- * @returns {Object} - Oggetto con i metodi del componente
+ * Carica la pagina Home (loader e controller della Home)
+ * Crea e restituisce il componente principale della pagina Home, con i metodi per il ciclo di vita mount/unmount.
+ * @returns {Object} Oggetto con i metodi del componente: render, mount, unmount
  */
 export async function loadHomePage() {
-    // Stato della pagina
+    // Stato della pagina: prodotti, categorie, artigiani, paginazione, caricamento
     const state = {
         products: [],
         categories: [],
@@ -94,12 +95,13 @@ export async function loadHomePage() {
     `;
 
     /**
-     * Carica i dati per la home page
+     * Carica tutti i dati necessari per la home page (categorie, artigiani, prodotti, best seller)
+     * Mostra un loader durante le operazioni asincrone e gestisce eventuali errori.
      */
     async function loadHomeData() {
         try {
             state.loading = true;
-            toggleProductsLoader(true);
+            toggleProductsLoader(true); // Mostra il loader durante il caricamento
 
             // Carica le categorie
             const categoriesRes = await CategoriesAPI.getCategories();
@@ -142,7 +144,8 @@ export async function loadHomePage() {
     }
 
     /**
-     * Carica i prodotti con i filtri e la paginazione corrente
+     * Carica i prodotti in base ai filtri e alla paginazione corrente
+     * Aggiorna lo stato e renderizza le sezioni dei prodotti.
      */
     async function loadProducts() {
         try {
@@ -191,8 +194,8 @@ export async function loadHomePage() {
     }
 
     /**
-     * Mostra/nasconde il loader per i prodotti
-     * @param {boolean} show - Se true, mostra il loader, altrimenti lo nasconde
+     * Mostra o nasconde il loader per i prodotti
+     * @param {boolean} show Se true mostra il loader, altrimenti lo nasconde
      */
     function toggleProductsLoader(show) {
         const productsContainer = document.getElementById('products-container');
@@ -209,7 +212,8 @@ export async function loadHomePage() {
 
     /**
      * Visualizza le categorie in evidenza
-     * @param {Array} categories - Lista delle categorie da visualizzare
+     * Renderizza il carosello delle categorie con icone uniche e pulsanti di scorrimento.
+     * @param {Array} categories Lista delle categorie da visualizzare
      */
     function renderFeaturedCategories(categories) {
         const categoriesContainer = document.getElementById('featured-categories');
@@ -287,7 +291,8 @@ export async function loadHomePage() {
 
     /**
      * Visualizza i prodotti
-     * @param {Array} products - Lista dei prodotti da visualizzare
+     * Renderizza la griglia principale dei prodotti (non usata per le sezioni principali della Home, ma per il rendering generico dei prodotti)
+     * @param {Array} products Lista dei prodotti da visualizzare
      */
     function renderProducts(products) {
         const productsContainer = document.getElementById('products-container');
@@ -330,7 +335,8 @@ export async function loadHomePage() {
 
     /**
      * Renderizza la paginazione
-     * @param {Object} pagination - Stato della paginazione
+     * Mostra i controlli di paginazione per la sezione prodotti.
+     * @param {Object} pagination Stato della paginazione
      */
     function renderPagination(pagination) {
         const paginationElement = document.getElementById('pagination');
@@ -392,7 +398,8 @@ export async function loadHomePage() {
 
     /**
      * Gestisce il cambio di pagina
-     * @param {number} page - Numero di pagina
+     * Gestisce gli eventi di cambio pagina per la paginazione.
+     * @param {number} page Numero della pagina
      */
     function handlePageChange(page) {
         if (page < 1 || page > state.pagination.totalPages || page === state.pagination.page) {
@@ -411,7 +418,8 @@ export async function loadHomePage() {
 
     /**
      * Gestisce l'invio del form dei filtri
-     * @param {Event} event - Evento submit
+     * Aggiorna lo stato e ricarica i prodotti in base ai filtri.
+     * @param {Event} event Evento submit
      */
     function handleFilterSubmit(event) {
         event.preventDefault();
@@ -435,6 +443,7 @@ export async function loadHomePage() {
 
     /**
      * Gestisce il reset dei filtri
+     * Reimposta tutti i filtri e ricarica i prodotti.
      */
     function handleFilterReset() {
         // Resetta i filtri
@@ -461,6 +470,7 @@ export async function loadHomePage() {
 
     /**
      * Gestisce il toggle dei filtri
+     * Mostra o nasconde il contenitore dei filtri.
      */
     function handleToggleFilters() {
         const filtersContainer = document.getElementById('filters-container');
@@ -478,7 +488,7 @@ export async function loadHomePage() {
     }
 
     /**
-     * Inizializza gli event listener
+     * Inizializza tutti gli event listener per filtri, paginazione e controlli UI.
      */
     function mount() {
         // Carica i dati iniziali
@@ -533,7 +543,7 @@ export async function loadHomePage() {
     }
 
     /**
-     * Rimuove gli event listener
+     * Rimuove tutti gli event listener per evitare memory leak.
      */
     function unmount() {
         // Rimuovi event listener per i filtri
@@ -584,7 +594,12 @@ export async function loadHomePage() {
         }
     }
 
-    // Funzione di utilità per mischiare un array
+    /**
+     * Mischia un array (algoritmo di Fisher-Yates)
+     * Utilità per randomizzare l'ordine dei prodotti.
+     * @param {Array} array Array da mischiare
+     * @returns {Array} Array mischiato
+     */
     function shuffleArray(array) {
         const arr = array.slice();
         for (let i = arr.length - 1; i > 0; i--) {
@@ -594,7 +609,12 @@ export async function loadHomePage() {
         return arr;
     }
 
-    // Renderizza una sezione prodotti (max 10, 2 righe da 5)
+    /**
+     * Renderizza una sezione prodotti (max 10, 2 righe da 5)
+     * Mostra una sezione di prodotti (ultimi arrivi o prodotti in evidenza) con badge e logica prezzi.
+     * @param {Array} products Lista prodotti
+     * @param {string} containerId ID del container DOM
+     */
     function renderProductSection(products, containerId) {
         const container = document.getElementById(containerId);
         if (!container) return;
@@ -666,7 +686,11 @@ export async function loadHomePage() {
         container.innerHTML = html;
     }
 
-    // Carosello artigiani della settimana
+    /**
+     * Carosello artigiani della settimana
+     * Mostra il carosello degli artigiani con logica di scroll e stili personalizzati.
+     * @param {Array} artisans Lista artigiani
+     */
     function renderArtisansCarousel(artisans) {
         const container = document.getElementById('artisans-carousel');
         if (!container) return;
@@ -766,6 +790,7 @@ export async function loadHomePage() {
         }
     }
 
+    // Restituisce l'interfaccia del componente Home
     return {
         render: () => pageElement,
         mount,

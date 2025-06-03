@@ -2,6 +2,12 @@ import { createProduct } from '../../../../api/products.js';
 import { showBootstrapToast } from '../../../components/Toast.js';
 import { uploadProductImages } from '../../../../api/images.js';
 
+/**
+ * Mostra un modal per aggiungere un nuovo prodotto.
+ * Gestisce la selezione immagini, la scelta della categoria (albero), la validazione e l'invio del form.
+ * @param {Array} categories - Albero categorie per la selezione
+ * @param {Function} onSuccess - Callback da chiamare dopo successo
+ */
 export function showAddProductModal(categories, onSuccess) {
     // Rimuovi eventuale modal precedente
     const existing = document.getElementById('addProductModal');
@@ -80,6 +86,10 @@ export function showAddProductModal(categories, onSuccess) {
     const fileInput = modal.querySelector('#productImages');
     const previewList = modal.querySelector('#imagePreviewList');
 
+    /**
+     * Renderizza le anteprime delle immagini selezionate.
+     * Permette la rimozione di una o più immagini.
+     */
     function renderPreviews() {
         previewList.innerHTML = '';
         selectedImages.forEach((file, idx) => {
@@ -113,7 +123,14 @@ export function showAddProductModal(categories, onSuccess) {
         fileInput.value = '';
     });
 
-    // Dopo aver inserito il modal nel DOM, renderizza il tree checkbox categorie (selezione singola, struttura ad albero, caret e indentazione come Products.js)
+    /**
+     * Renderizza l'albero categorie a selezione singola (checkbox) per il modal.
+     * Gestisce caret, indentazione e selezione esclusiva.
+     * @param {Array} categories - Albero categorie
+     * @param {string|null} selectedId - ID categoria selezionata
+     * @param {number} level - Livello profondità (default 1)
+     * @returns {string} - HTML dell'albero
+     */
     function renderCategoryTreeSingleCheckbox(categories, selectedId, level = 1) {
         function renderTree(nodes, level = 1) {
             let html = '<ul class="list-unstyled mb-0' + (level === 1 ? ' show' : '') + '">';

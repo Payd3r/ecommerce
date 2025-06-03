@@ -5,6 +5,63 @@ const db = require('../models/db');
 const { verifyToken, checkRole } = require('../middleware/auth');
 const { toPublicImageUrl } = require('../services/imageUrl');
 
+/**
+ * @swagger
+ * /products:
+ *   get:
+ *     summary: Ottieni tutti i prodotti con paginazione e filtri
+ *     tags: [Products]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Numero della pagina
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Numero di prodotti per pagina
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Testo da cercare nel nome del prodotto
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: integer
+ *         description: ID della categoria
+ *       - in: query
+ *         name: artisan
+ *         schema:
+ *           type: integer
+ *         description: ID dell'artigiano
+ *       - in: query
+ *         name: minPrice
+ *         schema:
+ *           type: number
+ *         description: Prezzo minimo
+ *       - in: query
+ *         name: maxPrice
+ *         schema:
+ *           type: number
+ *         description: Prezzo massimo
+ *     responses:
+ *       200:
+ *         description: Lista dei prodotti con paginazione
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 products:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 pagination:
+ *                   type: object
+ */
 // GET /products - Ottieni tutti i prodotti con paginazione e filtri
 router.get('/', async (req, res) => {
     try {
@@ -106,6 +163,31 @@ router.get('/', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /products/best-sellers:
+ *   get:
+ *     summary: Ottieni i prodotti più acquistati
+ *     tags: [Products]
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Numero massimo di prodotti da restituire
+ *     responses:
+ *       200:
+ *         description: Lista dei prodotti più acquistati
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 products:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ */
 // GET /products/best-sellers - Prodotti più acquistati
 router.get('/best-sellers', async (req, res) => {
     try {
@@ -151,6 +233,55 @@ router.get('/best-sellers', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /products/{id}:
+ *   get:
+ *     summary: Ottieni un prodotto specifico
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del prodotto
+ *     responses:
+ *       200:
+ *         description: Dettaglio del prodotto
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                 name:
+ *                   type: string
+ *                 description:
+ *                   type: string
+ *                 price:
+ *                   type: number
+ *                 stock:
+ *                   type: integer
+ *                 category_id:
+ *                   type: integer
+ *                 artisan_id:
+ *                   type: integer
+ *                 images:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       url:
+ *                         type: string
+ *                       alt_text:
+ *                         type: string
+ *       404:
+ *         description: Prodotto non trovato
+ */
 // GET /products/:id - Ottieni un prodotto specifico
 router.get('/:id', async (req, res) => {
     try {
@@ -184,6 +315,46 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /products:
+ *   post:
+ *     summary: Crea un nuovo prodotto (solo artigiani)
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - price
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               price:
+ *                 type: number
+ *               stock:
+ *                 type: integer
+ *               category_id:
+ *                 type: integer
+ *     responses:
+ *       201:
+ *         description: Prodotto creato
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Nome e prezzo sono obbligatori
+ *       401:
+ *         description: Non autorizzato
+ */
 // POST /products - Crea un nuovo prodotto (solo artigiani)
 router.post('/', verifyToken, checkRole('artisan'), async (req, res) => {
     const { name, description, price, stock, category_id } = req.body;
@@ -217,6 +388,55 @@ router.post('/', verifyToken, checkRole('artisan'), async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /products/{id}:
+ *   put:
+ *     summary: Aggiorna un prodotto (admin o artigiano proprietario)
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del prodotto
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - price
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               price:
+ *                 type: number
+ *               stock:
+ *                 type: integer
+ *               category_id:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Prodotto aggiornato
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Nome e prezzo sono obbligatori
+ *       401:
+ *         description: Non autorizzato
+ *       404:
+ *         description: Prodotto non trovato o permessi insufficienti
+ */
 // PUT /products/:id - Aggiorna un prodotto (admin o artigiano proprietario)
 router.put('/:id', verifyToken, checkRole('artisan', 'admin'), async (req, res) => {
     const { name, description, price, stock, category_id } = req.body;
@@ -277,6 +497,29 @@ router.put('/:id', verifyToken, checkRole('artisan', 'admin'), async (req, res) 
     }
 });
 
+/**
+ * @swagger
+ * /products/{id}:
+ *   delete:
+ *     summary: Elimina un prodotto (solo l'artigiano proprietario)
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del prodotto
+ *     responses:
+ *       204:
+ *         description: Prodotto eliminato
+ *       401:
+ *         description: Non autorizzato
+ *       404:
+ *         description: Prodotto non trovato o permessi insufficienti
+ */
 // DELETE /products/:id - Elimina un prodotto (solo l'artigiano proprietario)
 router.delete('/:id', verifyToken, checkRole('artisan'), async (req, res) => {
     const productId = req.params.id;
@@ -304,6 +547,61 @@ router.delete('/:id', verifyToken, checkRole('artisan'), async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /products/by-artisan/{id}:
+ *   get:
+ *     summary: Ottieni tutti i prodotti di un artigiano specifico
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID dell'artigiano
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Numero della pagina
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Numero di prodotti per pagina
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Testo da cercare nel nome del prodotto
+ *       - in: query
+ *         name: minPrice
+ *         schema:
+ *           type: number
+ *         description: Prezzo minimo
+ *       - in: query
+ *         name: maxPrice
+ *         schema:
+ *           type: number
+ *         description: Prezzo massimo
+ *     responses:
+ *       200:
+ *         description: Lista dei prodotti dell'artigiano
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 products:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 pagination:
+ *                   type: object
+ *       400:
+ *         description: ID artigiano non valido
+ */
 // GET /products/by-artisan/:id - Ottieni tutti i prodotti di un artigiano specifico (pubblico)
 router.get('/by-artisan/:id', async (req, res) => {
     try {

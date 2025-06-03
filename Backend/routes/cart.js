@@ -4,6 +4,28 @@ const db = require('../models/db'); // Assicurati che sia la tua connessione al 
 const { verifyToken } = require('../middleware/auth');
 const { toPublicImageUrl } = require('../services/imageUrl');
 
+/**
+ * @swagger
+ * /cart:
+ *   post:
+ *     summary: Crea un carrello per l'utente autenticato (se non esiste)
+ *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       201:
+ *         description: Carrello creato
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       200:
+ *         description: Carrello già esistente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ */
 // 1. Crea carrello (se non esiste)
 router.post('/', verifyToken, async (req, res) => {
     try {
@@ -20,6 +42,38 @@ router.post('/', verifyToken, async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /cart/items:
+ *   post:
+ *     summary: Aggiungi prodotto al carrello o aggiorna quantità
+ *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - product_id
+ *               - quantity
+ *             properties:
+ *               product_id:
+ *                 type: integer
+ *               quantity:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Prodotto aggiunto/aggiornato nel carrello
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Dati non validi
+ */
 // 2. Aggiungi prodotto al carrello (o aggiorna quantità)
 router.post('/items', verifyToken, async (req, res) => {
     try {
@@ -52,6 +106,22 @@ router.post('/items', verifyToken, async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /cart:
+ *   get:
+ *     summary: Ottieni il carrello dell'utente autenticato
+ *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Carrello dell'utente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ */
 // 3. Ottieni carrello
 router.get('/', verifyToken, async (req, res) => {
     try {
@@ -91,6 +161,44 @@ router.get('/', verifyToken, async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /cart/items/{item_id}:
+ *   put:
+ *     summary: Modifica la quantità di un prodotto nel carrello
+ *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: item_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID dell'item nel carrello
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - quantity
+ *             properties:
+ *               quantity:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Quantità aggiornata
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Quantità non valida
+ *       404:
+ *         description: Item non trovato
+ */
 // 4. Modifica quantità prodotto
 router.put('/items/:item_id', verifyToken, async (req, res) => {
     try {
@@ -114,6 +222,31 @@ router.put('/items/:item_id', verifyToken, async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /cart/items/{item_id}:
+ *   delete:
+ *     summary: Rimuovi un prodotto dal carrello
+ *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: item_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID dell'item nel carrello
+ *     responses:
+ *       200:
+ *         description: Prodotto rimosso dal carrello
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       404:
+ *         description: Item non trovato
+ */
 // 5. Rimuovi prodotto dal carrello
 router.delete('/items/:item_id', verifyToken, async (req, res) => {
     try {
@@ -133,6 +266,22 @@ router.delete('/items/:item_id', verifyToken, async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /cart:
+ *   delete:
+ *     summary: Svuota il carrello dell'utente autenticato
+ *     tags: [Cart]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Carrello svuotato
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ */
 // 6. Svuota carrello
 router.delete('/', verifyToken, async (req, res) => {
     try {

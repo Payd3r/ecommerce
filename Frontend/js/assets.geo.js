@@ -1,3 +1,7 @@
+/**
+ * Elenco di paesi, province/regioni e città per la selezione geografica nei form
+ * @type {Array<{code: string, name: string, provinces: Array<{code: string, name: string, cities: string[]}>}>}
+ */
 export const countries = [
     {
       code: 'IT',
@@ -124,7 +128,7 @@ export const countries = [
         { code: 'ARA', name: 'Alvernia-Rodano-Alpi (Auvergne-Rhône-Alpes)', cities: ['Lione (Lyon)', 'Grenoble', 'Saint-Étienne', 'Clermont-Ferrand', 'Annecy', 'Chambéry'] },
         { code: 'BFC', name: 'Borgogna-Franca Contea (Bourgogne-Franche-Comté)', cities: ['Digione (Dijon)', 'Besançon', 'Chalon-sur-Saône', 'Nevers', 'Auxerre'] },
         { code: 'BRE', name: 'Bretagna (Bretagne)', cities: ['Rennes', 'Brest', 'Quimper', 'Lorient', 'Vannes'] },
-        { code: 'CVL', name: 'Centro-Valle della Loira (Centre-Val de Loire)', cities: ['Orléans', 'Tours', 'Bourges', 'Blois', 'Chartres'] },
+        { code: 'CVL', name: 'Centro-Val della Loira (Centre-Val de Loire)', cities: ['Orléans', 'Tours', 'Bourges', 'Blois', 'Chartres'] },
         { code: 'COR', name: 'Corsica (Corse)', cities: ['Ajaccio', 'Bastia', 'Porto-Vecchio', 'Corte'] }, // Collettività territoriale unica
         { code: 'GES', name: 'Grand Est', cities: ['Strasburgo (Strasbourg)', 'Reims', 'Metz', 'Mulhouse', 'Nancy', 'Colmar'] },
         { code: 'HDF', name: 'Alta Francia (Hauts-de-France)', cities: ['Lilla (Lille)', 'Amiens', 'Roubaix', 'Tourcoing', 'Dunkerque', 'Calais'] },

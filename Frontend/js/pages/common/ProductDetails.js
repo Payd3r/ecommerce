@@ -7,8 +7,8 @@ import { router } from '../../router.js';
 
 /**
  * Carica la pagina di dettaglio prodotto
- * @param {Object} params - Parametri della route (deve contenere id)
- * @returns {Object}
+ * @param {Object} params Parametri della route (deve contenere id)
+ * @returns {Object} Oggetto con metodi render e mount
  */
 export async function loadProductDetailsPage(params = {}) {
     const productId = params.id;
@@ -46,6 +46,9 @@ export async function loadProductDetailsPage(params = {}) {
 
     let images = [];
 
+    /**
+     * Carica i dati del prodotto e aggiorna la UI
+     */
     async function loadProduct() {
         try {
             const product = await getProduct(productId);
@@ -74,6 +77,7 @@ export async function loadProductDetailsPage(params = {}) {
                 <button class="btn btn-primary w-100" id="add-to-cart-btn" ${!isLogged ? 'disabled' : ''}>Aggiungi al carrello</button>
                 ${!isLogged ? '<div class="text-danger text-center mt-2 small">Devi essere loggato per aggiungere al carrello</div>' : ''}
             `;
+            // Gestione aggiunta al carrello solo se loggato
             if (isLogged) {
                 const addBtn = document.getElementById('add-to-cart-btn');
                 if (addBtn) {
@@ -97,6 +101,10 @@ export async function loadProductDetailsPage(params = {}) {
         }
     }
 
+    /**
+     * Renderizza lo slider immagini e le anteprime
+     * @param {number} idx Indice dell'immagine da mostrare come principale
+     */
     function renderSlider(idx) {
         currentIndex = idx;
         const mainImage = document.getElementById('slider-main-image');
@@ -128,7 +136,7 @@ export async function loadProductDetailsPage(params = {}) {
             mainImage.innerHTML = `<div style="font-size: 5rem; color: #bbb;">🖼️</div>`;
             thumbs.innerHTML = '';
         }
-        // Eventi anteprime
+        // Eventi click sulle anteprime
         thumbs.querySelectorAll('.thumb-img').forEach(thumb => {
             thumb.addEventListener('click', function() {
                 const idx = parseInt(this.getAttribute('data-idx'));
@@ -137,6 +145,9 @@ export async function loadProductDetailsPage(params = {}) {
         });
     }
 
+    /**
+     * Monta la pagina e gli event listener
+     */
     function mount() {
         loadProduct();
         const backBtn = document.getElementById('back-btn');

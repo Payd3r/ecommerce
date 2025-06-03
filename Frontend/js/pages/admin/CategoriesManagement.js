@@ -5,10 +5,14 @@ import { uploadCategoryImages } from '../../../api/images.js';
 import { getApiUrl } from '../../../api/config.js';
 
 /**
- * Carica la dashboard dell'amministratore
- * @returns {Object} - Oggetto con i metodi del componente
+ * Carica la dashboard dell'amministratore per la gestione delle categorie.
+ * Inizializza la pagina, gestisce la paginazione, il rendering dell'albero categorie,
+ * la visualizzazione delle modali per aggiunta/modifica/spostamento/eliminazione categorie,
+ * e la gestione degli eventi principali.
+ * @returns {Object} - Oggetto con i metodi del componente (render, mount, unmount)
  */
 export async function loadCategoriesManagementPage() {
+    // Crea l'elemento principale della pagina
     const pageElement = document.createElement('div');
     pageElement.className = 'categories-management-page';
 
@@ -18,6 +22,7 @@ export async function loadCategoriesManagementPage() {
     const pageSize = 10;
     let totalPages = 1;
 
+    // Imposta l'HTML della pagina, inclusi header, bottoni e contenitori
     pageElement.innerHTML = `
         <div class="container pb-5 mt-4">
             <div class="row">
@@ -68,7 +73,11 @@ export async function loadCategoriesManagementPage() {
         </style>
     `;
 
-    // Funzione per renderizzare l'albero delle categorie con controlli admin
+    /**
+     * Renderizza l'albero delle categorie all'interno del contenitore.
+     * Se non ci sono categorie, mostra un messaggio.
+     * @param {Array} categories - Lista delle categorie da visualizzare
+     */
     function renderCategoriesTree(categories) {
         const treeContainer = pageElement.querySelector('#categoriesTree');
         if (!categories.length) {
@@ -78,7 +87,12 @@ export async function loadCategoriesManagementPage() {
         treeContainer.innerHTML = renderCategoryNodes(categories);
     }
 
-    // Ricorsiva: genera HTML per ogni nodo e figli
+    /**
+     * Funzione ricorsiva che genera l'HTML per ogni nodo categoria e i suoi figli.
+     * @param {Array} nodes - Lista delle categorie/nodi
+     * @param {number} level - Livello di profondità nell'albero (per padding)
+     * @returns {string} - HTML dell'albero categorie
+     */
     function renderCategoryNodes(nodes, level = 0) {
         return `<ul class="list-group list-group-flush">
             ${nodes.map(cat => `
@@ -98,7 +112,10 @@ export async function loadCategoriesManagementPage() {
         </ul>`;
     }
 
-    // Funzione per creare la paginazione
+    /**
+     * Renderizza la paginazione in base al numero di pagine totali e alla pagina corrente.
+     * Gestisce i bottoni di navigazione e il cambio pagina.
+     */
     function renderPagination() {
         const paginationEl = pageElement.querySelector('#categories-pagination');
         paginationEl.innerHTML = '';
@@ -161,7 +178,13 @@ export async function loadCategoriesManagementPage() {
         paginationEl.appendChild(btnGroup);
     }
 
-    // Funzione per paginare le categorie
+    /**
+     * Restituisce un oggetto con le categorie della pagina corrente e il numero totale di pagine.
+     * @param {Array} categories - Tutte le categorie
+     * @param {number} page - Pagina corrente
+     * @param {number} size - Numero di elementi per pagina
+     * @returns {Object} - { categories, totalPages }
+     */
     function paginateCategories(categories, page, size) {
         const startIndex = (page - 1) * size;
         const endIndex = startIndex + size;
@@ -171,7 +194,10 @@ export async function loadCategoriesManagementPage() {
         };
     }
 
-    // Carica e mostra l'albero categorie con paginazione
+    /**
+     * Carica tutte le categorie dall'API e aggiorna la visualizzazione paginata.
+     * Gestisce eventuali errori di caricamento.
+     */
     async function loadAndRenderCategories() {
         try {
             allCategories = await UsersAPI.getCategoryTree();
@@ -181,7 +207,9 @@ export async function loadCategoriesManagementPage() {
         }
     }
 
-    // Renderizza le categorie paginate
+    /**
+     * Renderizza le categorie della pagina corrente e aggiorna la paginazione.
+     */
     function loadAndRenderPaginatedCategories() {
         const paginatedData = paginateCategories(allCategories, currentPage, pageSize);
         totalPages = paginatedData.totalPages;
@@ -189,7 +217,11 @@ export async function loadCategoriesManagementPage() {
         renderPagination();
     }
 
-    // Mostra modale per aggiunta/modifica/spostamento categoria
+    /**
+     * Mostra una modale per aggiungere, modificare o spostare una categoria.
+     * Gestisce anche l'upload e l'anteprima dell'immagine, e la selezione della categoria padre.
+     * @param {Object} options - { mode, category, parentId, allCategories }
+     */
     function showCategoryModal({ mode, category = {}, parentId = null, allCategories = [] }) {
         const modalContainer = pageElement.querySelector('#categoryModalContainer');
         let title = '';
@@ -322,8 +354,13 @@ export async function loadCategoriesManagementPage() {
         };
     }
 
-    // Event delegation per i bottoni
+    // Event delegation per i bottoni dell'albero categorie e azioni principali
     let pendingDeleteId = null;
+    /**
+     * Gestisce le azioni sui bottoni dell'albero categorie (aggiungi, modifica, sposta, elimina).
+     * Mostra le relative modali o esegue le azioni richieste.
+     * @param {Event} e - Evento click
+     */
     async function handleTreeActions(e) {
         const btn = e.target.closest('button');
         if (!btn) return;
@@ -352,7 +389,10 @@ export async function loadCategoriesManagementPage() {
         }
     }
 
-    // Modal di conferma eliminazione
+    /**
+     * Mostra una modale di conferma per l'eliminazione di una categoria.
+     * Gestisce la conferma o l'annullamento dell'operazione.
+     */
     function showDeleteModal() {
         const modalContainer = pageElement.querySelector('#categoryModalContainer');
         modalContainer.innerHTML = `
@@ -393,7 +433,10 @@ export async function loadCategoriesManagementPage() {
         };
     }
 
-    // Mount
+    /**
+     * Funzione di mount: aggiunge i listener ai bottoni principali e carica le categorie.
+     * Gestisce sia la versione desktop che mobile dei bottoni.
+     */
     async function mount() {
         const backBtn = document.getElementById('back-btn');
         if (backBtn) {
@@ -419,10 +462,14 @@ export async function loadCategoriesManagementPage() {
         pageElement.addEventListener('click', handleTreeActions);
     }
 
+    /**
+     * Funzione di unmount: placeholder per eventuale cleanup (non usata qui).
+     */
     function unmount() {
         // Nessun event listener da rimuovere
     }
 
+    // Ritorna i metodi principali del componente
     return {
         render: () => pageElement,
         mount,

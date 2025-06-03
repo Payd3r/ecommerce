@@ -3,6 +3,22 @@ const router = express.Router();
 const db = require('../models/db');
 const { toPublicImageUrl } = require('../services/imageUrl');
 
+/**
+ * @swagger
+ * /categories/tree:
+ *   get:
+ *     summary: Ottieni l'albero completo delle categorie
+ *     tags: [Categories]
+ *     responses:
+ *       200:
+ *         description: Albero delle categorie
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ */
 // Funzione di utilità per costruire l'albero delle categorie
 const buildCategoryTree = async (categories, parentId = 1) => {
     const tree = [];
@@ -49,6 +65,22 @@ router.get('/tree', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /categories:
+ *   get:
+ *     summary: Ottieni tutte le categorie
+ *     tags: [Categories]
+ *     responses:
+ *       200:
+ *         description: Lista delle categorie
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ */
 // GET /categories - Ottieni tutte le categorie
 router.get('/', async (req, res) => {
     try {
@@ -105,6 +137,29 @@ router.get('/', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /categories/{id}:
+ *   get:
+ *     summary: Ottieni una categoria specifica
+ *     tags: [Categories]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID della categoria
+ *     responses:
+ *       200:
+ *         description: Categoria trovata
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       404:
+ *         description: Categoria non trovata
+ */
 // GET /categories/:id - Ottieni una categoria specifica
 router.get('/:id', async (req, res) => {
     try {
@@ -121,7 +176,38 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-
+/**
+ * @swagger
+ * /categories:
+ *   post:
+ *     summary: Crea una nuova categoria
+ *     tags: [Categories]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - dad_id
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               dad_id:
+ *                 type: integer
+ *     responses:
+ *       201:
+ *         description: Categoria creata
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Nome e categoria padre sono obbligatori
+ */
 // POST /categories - Crea una nuova categoria
 router.post('/', async (req, res) => {
     const { name, description, dad_id } = req.body;
@@ -146,6 +232,47 @@ router.post('/', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /categories/{id}:
+ *   put:
+ *     summary: Aggiorna una categoria esistente
+ *     tags: [Categories]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID della categoria
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - dad_id
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               dad_id:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Categoria aggiornata
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Nome e categoria padre sono obbligatori o categoria non valida
+ *       404:
+ *         description: Categoria non trovata
+ */
 // PUT /categories/:id - Aggiorna una categoria esistente
 router.put('/:id', async (req, res) => {
     const { name, description, dad_id } = req.body;
@@ -182,6 +309,27 @@ router.put('/:id', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /categories/{id}:
+ *   delete:
+ *     summary: Elimina una categoria
+ *     tags: [Categories]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID della categoria
+ *     responses:
+ *       204:
+ *         description: Categoria eliminata
+ *       400:
+ *         description: "Impossibile eliminare la categoria: contiene sottocategorie e/o prodotti associati"
+ *       404:
+ *         description: Categoria non trovata
+ */
 // DELETE /categories/:id - Elimina una categoria
 router.delete('/:id', async (req, res) => {
     const categoryId = req.params.id;

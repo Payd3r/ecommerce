@@ -6,10 +6,13 @@ import UsersAPI from '../../../api/users.js';
 import { showBootstrapToast } from '../../components/Toast.js';
 
 /**
- * Carica la dashboard dell'artigiano
- * @returns {Object} - Oggetto con i metodi del componente
+ * Carica la dashboard dell'artigiano.
+ * Recupera e mostra le statistiche principali, le tabelle degli ultimi ordini e prodotti,
+ * e i grafici di andamento vendite e ordini.
+ * @returns {Object} - Oggetto con i metodi del componente (render, mount, unmount)
  */
 export async function loadArtisanDashboardPage() {
+    // Crea l'elemento principale della pagina dashboard
     const pageElement = document.createElement('div');
     pageElement.className = 'container py-4';
 
@@ -21,7 +24,13 @@ export async function loadArtisanDashboardPage() {
     let notifications = [];
     let clientNames = {};
 
-    // Carica dati reali
+    /**
+     * Carica i dati reali per la dashboard:
+     * - Prodotti dell'artigiano
+     * - Ordini ricevuti
+     * - Statistiche vendite e ordini mensili
+     * Gestisce eventuali errori mostrando un toast.
+     */
     try {
         const [productsRes, ordersRes, salesStatsRes, ordersStatsRes] = await Promise.all([
             getProductsByArtisan(user.id, { limit: 8 }),
@@ -61,7 +70,7 @@ export async function loadArtisanDashboardPage() {
         }
     }));
 
-    // HTML
+    // HTML della dashboard: statistiche, tabelle ordini/prodotti, grafici
     pageElement.innerHTML = `
         <div class="mb-4">
             <h1 class="page-title">Dashboard Artigiano</h1>
@@ -201,7 +210,11 @@ export async function loadArtisanDashboardPage() {
         </div>
     `;
 
-    // Badge stato ordine/prodotto come admin
+    /**
+     * Restituisce il badge HTML per lo stato dell'ordine.
+     * @param {string} status - Stato dell'ordine
+     * @returns {string} - HTML del badge
+     */
     function getOrderStatusBadge(status) {
         switch (status) {
             case 'pending': return '<span class="badge bg-warning">In attesa</span>';
@@ -213,23 +226,38 @@ export async function loadArtisanDashboardPage() {
             default: return `<span class="badge bg-secondary">${status}</span>`;
         }
     }
+    /**
+     * Restituisce il badge HTML per lo stato del prodotto (disponibile/non disponibile).
+     * @param {number} stock - Quantità disponibile
+     * @returns {string} - HTML del badge
+     */
     function getProductStatusBadge(stock) {
         if (stock > 0) return '<span class="badge bg-success">Disponibile</span>';
         return '<span class="badge bg-danger">Non disponibile</span>';
     }
-
-    // Nuova funzione: restituisce un pallino colorato usando solo classi Bootstrap
+    /**
+     * Restituisce un pallino colorato per lo stato del prodotto.
+     * @param {number} stock - Quantità disponibile
+     * @returns {string} - HTML del pallino
+     */
     function getProductStatusDot(stock) {
         const color = stock > 0 ? 'bg-success' : 'bg-danger';
         const title = stock > 0 ? 'Disponibile' : 'Non disponibile';
         return `<span class="d-inline-block rounded-circle ${color}" style="width: 14px; height: 14px;" title="${title}"></span>`;
     }
-    // Nuova funzione: tronca il nome a maxLength caratteri
+    /**
+     * Tronca il nome a maxLength caratteri.
+     * @param {string} name - Nome da troncare
+     * @param {number} maxLength - Lunghezza massima
+     * @returns {string} - Nome troncato
+     */
     function truncateName(name, maxLength) {
         return name.length > maxLength ? name.slice(0, maxLength) + '…' : name;
     }
 
-    // Grafici Chart.js
+    /**
+     * Inizializza i grafici Chart.js per vendite e ordini mensili.
+     */
     setTimeout(() => {
         if (window.Chart) {
             // Vendite
@@ -293,6 +321,7 @@ export async function loadArtisanDashboardPage() {
         }
     }, 200);
 
+    // Ritorna i metodi principali del componente
     return {
         render: () => pageElement,
         mount: () => {},

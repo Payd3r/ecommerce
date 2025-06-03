@@ -2,7 +2,14 @@
 import { showIssueModal } from './modals/issues_modal.js';
 import { updateIssue } from '../../../api/issues.js';
 import { router } from '../../router.js';
+
+/**
+ * Carica la pagina di gestione delle segnalazioni (issues) per l'amministratore.
+ * Inizializza la UI, gestisce filtri, ordinamento, paginazione, refresh e modale dettagli.
+ * @returns {Object} - Oggetto con i metodi del componente (render, mount, unmount)
+ */
 export async function loadIssuesManagementPage() {
+    // Crea l'elemento principale della pagina
     const pageElement = document.createElement('div');
     pageElement.className = 'issues-management-page';
     pageElement.innerHTML = `
@@ -80,7 +87,7 @@ export async function loadIssuesManagementPage() {
         </div>
     `;
 
-    // Stato locale
+    // Stato locale per le segnalazioni e la paginazione
     let issues = [];
     let filteredIssues = [];
     let totalIssues = 0;
@@ -95,7 +102,11 @@ export async function loadIssuesManagementPage() {
         pageSize: 10
     };
 
-    // Carica segnalazioni dal server
+    /**
+     * Carica le segnalazioni dal server e aggiorna lo stato locale.
+     * Applica i filtri correnti e aggiorna la paginazione.
+     * @param {Object} params - Parametri opzionali per aggiornare i filtri/pagina
+     */
     async function fetchIssues(params = {}) {
         currentFilters = { ...currentFilters, ...params };
         try {
@@ -115,7 +126,11 @@ export async function loadIssuesManagementPage() {
         }
     }
 
-    // Applica i filtri (frontend)
+    /**
+     * Applica i filtri frontend alle segnalazioni caricate.
+     * Aggiorna la tabella e la paginazione.
+     * @param {boolean} resetPage - Se true, resetta la pagina a 1
+     */
     function applyFilters(resetPage = true) {
         const form = document.getElementById('issues-filters-form');
         const title = form.title.value.trim().toLowerCase();
@@ -136,7 +151,9 @@ export async function loadIssuesManagementPage() {
         renderPagination(Math.ceil(filteredIssues.length / currentFilters.pageSize) || 1);
     }
 
-    // Reset filtri
+    /**
+     * Reset dei filtri: azzera i valori e mostra tutte le segnalazioni.
+     */
     function resetFilters() {
         const form = document.getElementById('issues-filters-form');
         form.reset();
@@ -146,7 +163,10 @@ export async function loadIssuesManagementPage() {
         renderPagination(Math.ceil(filteredIssues.length / currentFilters.pageSize) || 1);
     }
 
-    // Renderizza la tabella
+    /**
+     * Renderizza la tabella delle segnalazioni filtrate e ordinate.
+     * Mostra solo la pagina corrente.
+     */
     function renderTable() {
         const tableBody = document.getElementById('issues-table-body');
         tableBody.innerHTML = '';
@@ -199,7 +219,11 @@ export async function loadIssuesManagementPage() {
         }
     }
 
-    // Badge stato
+    /**
+     * Restituisce il badge HTML per lo stato della segnalazione.
+     * @param {string} status - Stato della segnalazione
+     * @returns {string} - HTML del badge
+     */
     function renderStatusBadge(status) {
         switch (status) {
             case 'open': return '<span class="badge bg-warning text-dark">Aperta</span>';
@@ -210,7 +234,11 @@ export async function loadIssuesManagementPage() {
         }
     }
 
-    // Renderizza la paginazione
+    /**
+     * Renderizza la paginazione in base al numero totale di pagine e alla pagina corrente.
+     * Gestisce i bottoni di navigazione e il cambio pagina.
+     * @param {number} totalPages - Numero totale di pagine
+     */
     function renderPagination(totalPages) {
         const paginationContainer = document.getElementById('pagination-container');
         if (!paginationContainer) return;
@@ -266,7 +294,10 @@ export async function loadIssuesManagementPage() {
         paginationContainer.appendChild(btnGroup);
     }
 
-    // Eventi
+    /**
+     * Funzione di mount: aggiunge i listener ai bottoni principali, filtri, ordinamento e refresh.
+     * Inizializza la tabella e la paginazione.
+     */
     function mount() {
         const backBtn = document.getElementById('back-btn');
         if (backBtn) backBtn.addEventListener('click', () => {
@@ -331,11 +362,18 @@ export async function loadIssuesManagementPage() {
         fetchIssues();
     }
 
+    /**
+     * Funzione di unmount: placeholder per eventuale cleanup futuro.
+     */
     function unmount() {
         // Eventuali cleanup futuri
     }
 
-    // Funzione per mostrare il modal dettagli/modifica
+    /**
+     * Funzione globale per mostrare il modal dettagli/modifica di una segnalazione.
+     * Aggiorna la segnalazione lato backend e localmente.
+     * @param {number} issueId - ID della segnalazione
+     */
     window.viewIssueDetails = function (issueId) {
         const issue = issues.find(i => i.id_issue == issueId);
         if (!issue) return;
@@ -354,6 +392,7 @@ export async function loadIssuesManagementPage() {
         });
     };
 
+    // Ritorna i metodi principali del componente
     return {
         render: () => pageElement,
         mount,

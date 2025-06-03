@@ -1,19 +1,26 @@
 import { authService } from '../../services/authService.js';
 import * as OrdersAPI from '../../../api/orders.js';
 import { router } from '../../router.js';
+
 /**
- * Pagina "I miei ordini" per utenti client
+ * Carica la pagina "I miei ordini" per l'utente client autenticato.
+ * Crea e restituisce il componente con la tabella ordini, i dettagli e le azioni disponibili.
+ * @returns {Object} Oggetto con i metodi: render, mount, unmount
  */
 export async function loadClientOrdersPage() {
+    // Crea l'elemento principale della pagina
     const pageElement = document.createElement('div');
     pageElement.className = 'container py-4';
 
+    // Recupera l'utente autenticato
     const user = authService.getUser();
     if (!user) {
+        // Mostra messaggio se non autenticato
         pageElement.innerHTML = `<div class="alert alert-danger mt-4">Devi essere autenticato per visualizzare i tuoi ordini.</div>`;
         return { render: () => pageElement, mount: () => { }, unmount: () => { } };
     }
 
+    // Struttura HTML della pagina
     pageElement.innerHTML = `
         <div class="row align-items-center">
             <div class="col-12 text-start">
@@ -82,6 +89,10 @@ export async function loadClientOrdersPage() {
         </div>
     `;
 
+    /**
+     * Carica e visualizza la lista degli ordini dell'utente.
+     * Mostra un messaggio se non ci sono ordini.
+     */
     async function loadOrders() {
         const tableBody = pageElement.querySelector('#orders-table-body');
         const noOrdersMsg = pageElement.querySelector('#no-orders-message');
@@ -108,6 +119,7 @@ export async function loadClientOrdersPage() {
                         </button>
                     </td>
                 `;
+                // Aggiunge l'evento per visualizzare i dettagli dell'ordine
                 row.querySelector('button').addEventListener('click', () => viewOrderDetails(order.id));
                 tableBody.appendChild(row);
             });
@@ -116,6 +128,11 @@ export async function loadClientOrdersPage() {
         }
     }
 
+    /**
+     * Restituisce il badge HTML per lo stato dell'ordine.
+     * @param {string} status Stato dell'ordine
+     * @returns {string} HTML del badge
+     */
     function getStatusBadge(status) {
         switch (status) {
             case 'pending': return '<span class="badge bg-secondary">In attesa</span>';
@@ -127,6 +144,11 @@ export async function loadClientOrdersPage() {
         }
     }
 
+    /**
+     * Visualizza il dettaglio di un ordine in un modal.
+     * Mostra i prodotti, i dettagli di spedizione e permette di segnare come ricevuto.
+     * @param {number} orderId ID dell'ordine da visualizzare
+     */
     async function viewOrderDetails(orderId) {
         const tableBody = pageElement.querySelector('#order-details-table-body');
         tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Caricamento...</td></tr>';
@@ -153,7 +175,7 @@ export async function loadClientOrdersPage() {
                     tableBody.innerHTML += row;
                 });
             }
-            // Mostra info spedizione
+            // Mostra le informazioni di spedizione se presenti
             const addressHtml = order && order.via ? `
                 <div class="mt-4">
                     <h6 class="fw-bold">Informazioni di spedizione</h6>
@@ -176,7 +198,7 @@ export async function loadClientOrdersPage() {
             tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Errore nel caricamento dei dettagli ordine</td></tr>';
         }
         const modal = new bootstrap.Modal(pageElement.querySelector('#orderDetailsModal'));
-        // Bottone "Segna come ricevuto" se stato shipped
+        // Bottone "Segna come ricevuto" se lo stato è "spedito"
         let actionsContainer = pageElement.querySelector('#order-details-actions');
         if (!actionsContainer) {
             actionsContainer = document.createElement('div');
@@ -198,12 +220,13 @@ export async function loadClientOrdersPage() {
         modal.show();
     }
 
-    // Eventi
+    // Eventi: aggiorna lista ordini
     pageElement.querySelector('#refresh-orders-btn').onclick = loadOrders;
 
-    // Prima renderizzazione
+    // Prima renderizzazione della lista ordini
     await loadOrders();
 
+    // Restituisce l'interfaccia del componente pagina ordini
     return {
         render: () => pageElement,
         mount: () => {

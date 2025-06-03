@@ -7,15 +7,19 @@ import { getOrders } from '../../../api/orders.js';
 import { getIssues } from '../../../api/issues.js';
 
 /**
- * Carica la dashboard dell'amministratore
- * @returns {Object} - Oggetto con i metodi del componente
+ * Carica la dashboard dell'amministratore.
+ * Recupera e mostra le statistiche principali, le tabelle degli ultimi utenti, ordini, prodotti e segnalazioni.
+ * Gestisce la visualizzazione e l'eventuale errore di caricamento dati.
+ * @returns {Object} - Oggetto con i metodi del componente (render, mount, unmount)
  */
 export async function loadAdminDashboardPage() {
+    // Crea l'elemento principale della pagina dashboard
     const pageElement = document.createElement('div');
     pageElement.className = 'container py-4';
 
+    // Recupera l'utente loggato
     const user = authService.getUser();
-    // Statistiche
+    // Variabili per le statistiche e dati tabellari
     let artisansCount = 0;
     let clientsCount = 0;
     let adminsCount = 0;
@@ -28,7 +32,14 @@ export async function loadAdminDashboardPage() {
     let ordersRes = { orders: [] };
     let issues = [];
 
-    // Carica dati reali
+    /**
+     * Carica i dati reali per la dashboard:
+     * - Statistiche utenti
+     * - Ultimi utenti
+     * - Prodotti e ordini
+     * - Segnalazioni
+     * Gestisce eventuali errori mostrando un toast.
+     */
     try {
         const counts = await UsersAPI.getCounts();
         artisansCount = counts.artisans || 0;
@@ -75,7 +86,8 @@ export async function loadAdminDashboardPage() {
         ordersRes = { orders: [] };
         issues = [];
     }
-    console.log(productsRes);
+
+    // Imposta l'HTML della dashboard: statistiche, tabelle utenti, ordini, prodotti, segnalazioni
     pageElement.innerHTML = `
         <div class="mb-4">
             <h1 class="display-5">Dashboard Amministratore</h1>
@@ -314,24 +326,7 @@ export async function loadAdminDashboardPage() {
         document.head.appendChild(style);
     }
 
-    // CSS responsive per colonna prezzo molto stretta su mobile
-    if (!document.getElementById('dashboard-mobile-extra-style')) {
-        const style = document.createElement('style');
-        style.id = 'dashboard-mobile-extra-style';
-        style.innerHTML = `
-        @media (max-width: 767.98px) {
-            .price-col {
-                width: 1%;
-                white-space: nowrap;
-                padding-left: 0.2rem !important;
-                padding-right: 0.2rem !important;
-                text-align: right;
-            }
-        }
-        `;
-        document.head.appendChild(style);
-    }
-
+    // Ritorna i metodi principali del componente
     return {
         render: () => pageElement,
         mount: () => { },
@@ -339,7 +334,13 @@ export async function loadAdminDashboardPage() {
     };
 }
 
-// Funzione per formattare la data in '25 feb 2025' su desktop e '25 feb' su mobile
+/**
+ * Funzione di utilità per formattare la data in formato italiano:
+ * - Su desktop: '25 feb 2025'
+ * - Su mobile: '25 feb'
+ * @param {string} dateStr - Data in formato stringa
+ * @returns {string} - HTML con la data formattata
+ */
 function formatDateIT(dateStr) {
     if (!dateStr) return '-';
     const date = new Date(dateStr);

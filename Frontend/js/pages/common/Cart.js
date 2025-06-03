@@ -3,7 +3,11 @@ import { showBootstrapToast } from '../../components/Toast.js';
 import { authService } from '../../services/authService.js';
 import { router } from '../../router.js';
 
-
+/**
+ * Carica la pagina del carrello utente.
+ * Gestisce il rendering dei prodotti, la modifica delle quantità, la rimozione e il checkout.
+ * @returns {Object} - Oggetto con i metodi del componente (render, mount)
+ */
 export async function loadCartPage() {
     const pageElement = document.createElement('div');
     pageElement.className = 'cart-page';
@@ -22,6 +26,10 @@ export async function loadCartPage() {
         </div>
     `;
 
+    /**
+     * Renderizza il contenuto del carrello (tabella prodotti, totale, messaggi vuoto/errore).
+     * Gestisce anche l'abilitazione/disabilitazione del checkout.
+     */
     async function renderCart() {
         const cartContent = document.getElementById('cart-content');
         try {
@@ -111,6 +119,11 @@ export async function loadCartPage() {
         }
     }
 
+    /**
+     * Aggiorna la quantità di un prodotto nel carrello e aggiorna la UI.
+     * @param {string} itemId - ID dell'item da aggiornare
+     * @param {number} newQty - Nuova quantità
+     */
     async function updateQuantity(itemId, newQty) {
         try {
             await CartAPI.updateItem(itemId, newQty);
@@ -121,6 +134,10 @@ export async function loadCartPage() {
         }
     }
 
+    /**
+     * Rimuove un prodotto dal carrello e aggiorna la UI.
+     * @param {string} itemId - ID dell'item da rimuovere
+     */
     async function removeItem(itemId) {
         try {
             await CartAPI.removeItem(itemId);
@@ -131,6 +148,9 @@ export async function loadCartPage() {
         }
     }
 
+    /**
+     * Inizializza gli event listener per la pagina carrello (quantità, rimozione, checkout).
+     */
     function mount() {
         renderCart();
         // Event delegation per bottoni quantità e rimozione

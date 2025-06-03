@@ -1,5 +1,10 @@
 import { authService } from '../../services/authService.js';
 
+/**
+ * Carica la pagina delle segnalazioni utente (help issue).
+ * Gestisce la visualizzazione, i filtri, la paginazione, l'invio e la visualizzazione dettagli delle segnalazioni.
+ * @returns {HTMLElement} - Elemento pagina pronto per il rendering
+ */
 export function loadHelpIssuePage() {
     const page = document.createElement('div');
     page.className = 'container pb-5';
@@ -163,7 +168,11 @@ export function loadHelpIssuePage() {
         let filteredUserIssues = [];
         let currentPage = 1;
         const PAGE_SIZE = 5;
-        // Carica e mostra le issue dell'utente
+        /**
+         * Carica e mostra le segnalazioni dell'utente loggato.
+         * Applica i filtri e aggiorna la tabella e la paginazione.
+         * @param {number} page - Pagina corrente
+         */
         async function loadUserIssues(page = 1) {
             const user = authService.getUser();
             if (!user || (!user.id && !user.id_user)) return;
@@ -183,6 +192,10 @@ export function loadHelpIssuePage() {
             renderUserIssuesTable();
             renderUserIssuesPagination();
         }
+        /**
+         * Applica i filtri frontend alle segnalazioni caricate.
+         * Aggiorna la tabella e la paginazione.
+         */
         function applyUserIssuesFilters() {
             const form = document.getElementById('user-issues-filters-form');
             const title = form.title.value.trim().toLowerCase();
@@ -199,6 +212,9 @@ export function loadHelpIssuePage() {
             renderUserIssuesTable();
             renderUserIssuesPagination();
         }
+        /**
+         * Reset dei filtri: azzera i valori e mostra tutte le segnalazioni.
+         */
         function resetUserIssuesFilters() {
             const form = document.getElementById('user-issues-filters-form');
             form.reset();
@@ -207,6 +223,9 @@ export function loadHelpIssuePage() {
             renderUserIssuesTable();
             renderUserIssuesPagination();
         }
+        /**
+         * Renderizza la tabella delle segnalazioni filtrate e paginata.
+         */
         function renderUserIssuesTable() {
             const tableBody = document.getElementById('user-issues-table-body');
             if (!tableBody) return;
@@ -242,6 +261,9 @@ export function loadHelpIssuePage() {
                 });
             });
         }
+        /**
+         * Renderizza la paginazione delle segnalazioni utente.
+         */
         function renderUserIssuesPagination() {
             const pagContainer = document.getElementById('user-issues-pagination');
             if (!pagContainer) return;
@@ -299,6 +321,11 @@ export function loadHelpIssuePage() {
             }
             pagContainer.appendChild(btnGroup);
         }
+        /**
+         * Restituisce il badge HTML per lo stato della segnalazione.
+         * @param {string} status - Stato della segnalazione
+         * @returns {string} - HTML del badge
+         */
         function renderStatusBadge(status) {
             switch (status) {
                 case 'open': return '<span class="badge bg-warning">Aperta</span>';
@@ -308,12 +335,21 @@ export function loadHelpIssuePage() {
                 default: return `<span class="badge bg-secondary">${status}</span>`;
             }
         }
+        /**
+         * Formatta la data in formato italiano.
+         * @param {string} dateString - Data in formato stringa
+         * @returns {string} - Data formattata
+         */
         function formatDate(dateString) {
             if (!dateString) return '-';
             const date = new Date(dateString);
             const mesi = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'];
             return `${date.getDate()} ${mesi[date.getMonth()]} ${date.getFullYear()}`;
         }
+        /**
+         * Mostra un modal con i dettagli della segnalazione selezionata.
+         * @param {Object} issue - Oggetto segnalazione
+         */
         function showUserIssueDetails(issue) {
             const modal = document.createElement('div');
             modal.className = 'modal fade';

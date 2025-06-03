@@ -3,6 +3,24 @@ const router = express.Router();
 const db = require('../models/db'); // Assicurati che sia la tua connessione al DB
 const { verifyToken } = require('../middleware/auth');
 
+/**
+ * @swagger
+ * /address/me:
+ *   get:
+ *     summary: Ottieni indirizzo dell'utente loggato
+ *     tags: [Address]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Indirizzo dell'utente loggato
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       500:
+ *         description: Errore nel recupero indirizzo
+ */
 // GET /address/me - Ottieni indirizzo dell'utente loggato
 router.get('/me', verifyToken, async (req, res) => {
   try {
@@ -15,6 +33,58 @@ router.get('/me', verifyToken, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /address:
+ *   post:
+ *     summary: Crea o aggiorna indirizzo dell'utente loggato
+ *     tags: [Address]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - stato
+ *               - citta
+ *               - provincia
+ *               - via
+ *               - cap
+ *               - numero_civico
+ *               - name
+ *               - surname
+ *             properties:
+ *               stato:
+ *                 type: string
+ *               citta:
+ *                 type: string
+ *               provincia:
+ *                 type: string
+ *               via:
+ *                 type: string
+ *               cap:
+ *                 type: string
+ *               numero_civico:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *               surname:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Indirizzo creato o aggiornato
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       400:
+ *         description: Tutti i campi sono obbligatori
+ *       500:
+ *         description: Errore nel salvataggio indirizzo
+ */
 // POST /address - Crea o aggiorna indirizzo dell'utente loggato
 router.post('/', verifyToken, async (req, res) => {
   try {
@@ -46,6 +116,33 @@ router.post('/', verifyToken, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /address/user/{userId}:
+ *   get:
+ *     summary: Ottieni indirizzo di un utente specifico (solo admin o artigiano)
+ *     tags: [Address]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID dell'utente
+ *     responses:
+ *       200:
+ *         description: Indirizzo dell'utente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *       403:
+ *         description: Non autorizzato
+ *       500:
+ *         description: Errore nel recupero indirizzo
+ */
 // GET /address/user/:userId - Solo per admin o artigiano
 router.get('/user/:userId', verifyToken, async (req, res) => {
   try {

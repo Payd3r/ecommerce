@@ -11,17 +11,16 @@ const USER_KEY = 'auth_user';
 class AuthService {
     /**
      * Effettua il login dell'utente
-     * @param {string} email - Email dell'utente
-     * @param {string} password - Password dell'utente
-     * @returns {Promise<Object>} - Dati dell'utente loggato
+     * @param {string} email Email dell'utente
+     * @param {string} password Password dell'utente
+     * @returns {Promise<Object>} Dati dell'utente loggato
      */
     async login(email, password) {
         try {
             const response = await ApiService.login(email, password);
             console.log(response);
-            // Salvo i dati di autenticazione nel localStorage
+            // Salva i dati di autenticazione nel localStorage
             this.saveAuthData(response.token, response.user);
-            
             return response.user;
         } catch (error) {
             console.error('Errore durante il login:', error);
@@ -31,19 +30,17 @@ class AuthService {
     
     /**
      * Registra un nuovo utente
-     * @param {string} name - Nome dell'utente
-     * @param {string} email - Email dell'utente
-     * @param {string} password - Password dell'utente
-     * @param {string} role - Ruolo dell'utente (client, artisan)
-     * @returns {Promise<Object>} - Dati dell'utente registrato
+     * @param {string} name Nome dell'utente
+     * @param {string} email Email dell'utente
+     * @param {string} password Password dell'utente
+     * @param {string} role Ruolo dell'utente (client, artisan)
+     * @returns {Promise<Object>} Dati dell'utente registrato
      */
     async register(name, email, password, role) {
         try {
             const response = await ApiService.register(name, email, password, role);
-            
-            // Salvo i dati di autenticazione nel localStorage
+            // Salva i dati di autenticazione nel localStorage
             this.saveAuthData(response.token, response.user);
-            
             return response.user;
         } catch (error) {
             console.error('Errore durante la registrazione:', error);
@@ -61,20 +58,17 @@ class AuthService {
     
     /**
      * Recupera il profilo utente dal server
-     * @returns {Promise<Object>} - Dati del profilo utente
+     * @returns {Promise<Object>} Dati del profilo utente
      */
     async getProfile() {
         try {
-            // Se l'utente non è autenticato, lancio un errore
+            // Se l'utente non è autenticato, lancia un errore
             if (!this.isAuthenticated()) {
                 throw new Error('Utente non autenticato');
             }
-            
             const userData = await ApiService.getProfile();
-            
-            // Aggiorno i dati utente nel localStorage
+            // Aggiorna i dati utente nel localStorage
             this.updateUserData(userData);
-            
             return userData;
         } catch (error) {
             console.error('Errore durante il recupero del profilo:', error);
@@ -84,7 +78,7 @@ class AuthService {
     
     /**
      * Verifica se l'utente è autenticato
-     * @returns {boolean} - true se l'utente è autenticato, false altrimenti
+     * @returns {boolean} true se l'utente è autenticato, false altrimenti
      */
     isAuthenticated() {
         return !!this.getToken();
@@ -92,7 +86,7 @@ class AuthService {
     
     /**
      * Recupera il token dal localStorage
-     * @returns {string|null} - Token JWT o null se non presente
+     * @returns {string|null} Token JWT o null se non presente
      */
     getToken() {
         return localStorage.getItem(TOKEN_KEY);
@@ -100,7 +94,7 @@ class AuthService {
     
     /**
      * Recupera i dati dell'utente dal localStorage
-     * @returns {Object|null} - Dati utente o null se non presente
+     * @returns {Object|null} Dati utente o null se non presente
      */
     getUser() {
         const userData = localStorage.getItem(USER_KEY);
@@ -109,25 +103,22 @@ class AuthService {
     
     /**
      * Verifica se l'utente corrente ha un determinato ruolo
-     * @param {string|string[]} role - Ruolo o array di ruoli da verificare
-     * @returns {boolean} - true se l'utente ha il ruolo, false altrimenti
+     * @param {string|string[]} role Ruolo o array di ruoli da verificare
+     * @returns {boolean} true se l'utente ha il ruolo, false altrimenti
      */
     hasRole(role) {
         const user = this.getUser();
-        
         if (!user) return false;
-        
         if (Array.isArray(role)) {
             return role.includes(user.role);
         }
-        
         return user.role === role;
     }
     
     /**
      * Salva i dati di autenticazione nel localStorage
-     * @param {string} token - Token JWT
-     * @param {Object} user - Dati utente
+     * @param {string} token Token JWT
+     * @param {Object} user Dati utente
      * @private
      */
     saveAuthData(token, user) {
@@ -142,7 +133,7 @@ class AuthService {
     
     /**
      * Aggiorna i dati utente nel localStorage
-     * @param {Object} userData - Nuovi dati utente
+     * @param {Object} userData Nuovi dati utente
      * @private
      */
     updateUserData(userData) {

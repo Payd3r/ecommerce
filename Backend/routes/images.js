@@ -56,6 +56,47 @@ async function handleImageUpload({ files, type, id }) {
     return savedFiles;
 }
 
+/**
+ * @swagger
+ * /images/upload/product:
+ *   post:
+ *     summary: Carica immagini per un prodotto
+ *     tags: [Images]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *               - images
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 description: ID del prodotto
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *     responses:
+ *       200:
+ *         description: Immagini caricate con successo
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 files:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       400:
+ *         description: id prodotto obbligatorio o nessuna immagine inviata
+ */
 // Upload immagini prodotto
 router.post('/upload/product', upload.array('images', 10), async (req, res) => {
     try {
@@ -75,6 +116,47 @@ router.post('/upload/product', upload.array('images', 10), async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /images/upload/category:
+ *   post:
+ *     summary: Carica immagine per una categoria (sovrascrive la precedente)
+ *     tags: [Images]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *               - images
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 description: ID della categoria
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *     responses:
+ *       200:
+ *         description: Immagine caricata con successo
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 files:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       400:
+ *         description: id categoria obbligatorio o nessuna immagine inviata
+ */
 // Upload immagini categoria
 router.post('/upload/category', upload.array('images', 10), async (req, res) => {
     try {
@@ -113,6 +195,45 @@ router.post('/upload/category', upload.array('images', 10), async (req, res) => 
     }
 });
 
+/**
+ * @swagger
+ * /images/upload/profile:
+ *   post:
+ *     summary: Carica immagine profilo utente (sovrascrive la precedente)
+ *     tags: [Images]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *               - image
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 description: ID dell'utente
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Immagine profilo caricata con successo
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 files:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       400:
+ *         description: id utente obbligatorio o nessuna immagine inviata
+ */
 // Upload immagine profilo (una sola)
 router.post('/upload/profile', upload.single('image'), async (req, res) => {
     try {
@@ -143,6 +264,43 @@ router.post('/upload/profile', upload.single('image'), async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /images/upload/banner:
+ *   post:
+ *     summary: Carica banner artigiano (sovrascrive il precedente)
+ *     tags: [Images]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *               - banner
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 description: ID dell'utente
+ *               banner:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Banner caricato con successo
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 url:
+ *                   type: string
+ *       400:
+ *         description: id utente obbligatorio o nessun file inviato
+ */
 // Upload banner artigiano (una sola)
 router.post('/upload/banner', upload.single('banner'), async (req, res) => {
     try {
@@ -186,6 +344,45 @@ router.post('/upload/banner', upload.single('banner'), async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /images/product/{productId}:
+ *   delete:
+ *     summary: Elimina immagini specifiche di un prodotto
+ *     tags: [Images]
+ *     parameters:
+ *       - in: path
+ *         name: productId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID del prodotto
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - imageIds
+ *             properties:
+ *               imageIds:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *     responses:
+ *       200:
+ *         description: Immagini eliminate con successo
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *       400:
+ *         description: imageIds obbligatorio
+ */
 // Elimina immagini specifiche di un prodotto
 router.delete('/product/:productId', async (req, res) => {
     try {
