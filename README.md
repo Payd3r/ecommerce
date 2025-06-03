@@ -97,6 +97,26 @@ Per ambienti di produzione, si consiglia di modificarle e gestirle tramite secre
 
 ---
 
+## Credenziali di Test e Pagamenti
+
+Per testare le funzionalità della piattaforma sono disponibili i seguenti account di esempio:
+
+- **Account Artigiano**:  
+  Email: `enrico@example.com`  
+  Password: `1234`
+- **Account Admin**:  
+  Email: `luca@gmail.com`  
+  Password: `1234`
+- **Account Cliente**:  
+  Email: `antonio@example.com`  
+  Password: `1234`
+
+Per testare i pagamenti con carta, utilizzare le carte di test fornite da Stripe.  
+Consulta la documentazione ufficiale per i numeri di carta e i casi d'uso:
+- [Carte di test Stripe e scenari di pagamento](https://docs.stripe.com/testing?locale=it-IT)
+
+---
+
 ## Documentazione delle API
 
 - **Swagger**:  
