@@ -24,7 +24,7 @@ COPY ./Backend-Integrativi/run-tests.sh /usr/src/app/
 RUN chmod +x /usr/src/app/run-tests.sh
 
 # Porta per i test
-EXPOSE 3016
+EXPOSE 3015
 
 # Comando predefinito: esegue i test
 CMD ["/usr/src/app/run-tests.sh"] 

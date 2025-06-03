@@ -1,6 +1,6 @@
 {
   "testType": "backend-integrativi",
-  "timestamp": "2025-06-03T20:00:21.859Z",
+  "timestamp": "2025-06-03T20:24:04.954Z",
   "summary": {
     "numTotalTests": 89,
     "numPassedTests": 66,
@@ -8,14 +8,14 @@
     "numPendingTests": 0,
     "numSkippedTests": 0,
     "success": false,
-    "duration": 7099
+    "duration": 5158
   },
   "testResults": [
     {
       "name": "orders.integration.test.js",
       "status": "failed",
-      "message": "\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mOrders Integration Tests › PUT /orders/:orderId › dovrebbe restituire item di un ordine specifico\u001b[39m\u001b[22m\n\n    AxiosError: Request failed with status code 400\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 372 |\u001b[39m     it(\u001b[32m'dovrebbe restituire item di un ordine specifico'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m 373 |\u001b[39m       \u001b[36mif\u001b[39m (testOrder \u001b[33m&&\u001b[39m testOrder\u001b[33m.\u001b[39mid) {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 374 |\u001b[39m         \u001b[36mconst\u001b[39m response \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m axios\u001b[33m.\u001b[39mput(\u001b[32m`${API_BASE_URL}/orders/${testOrder.id}`\u001b[39m\u001b[33m,\u001b[39m {}\u001b[33m,\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 375 |\u001b[39m           headers\u001b[33m:\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m 376 |\u001b[39m             \u001b[32m'Authorization'\u001b[39m\u001b[33m:\u001b[39m \u001b[32m`Bearer ${authTokens.client}`\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 377 |\u001b[39m           }\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat settle (\u001b[22m\u001b[2mnode_modules/axios/lib/core/settle.js\u001b[2m:19:12)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat IncomingMessage.handleStreamEnd (\u001b[22m\u001b[2mnode_modules/axios/lib/adapters/http.js\u001b[2m:599:11)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Axios.request (\u001b[22m\u001b[2mnode_modules/axios/lib/core/Axios.js\u001b[2m:45:41)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.<anonymous> (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/orders.integration.test.js\u001b[39m\u001b[0m\u001b[2m:374:26)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mOrders Integration Tests › POST /orders/create-payment-intent › dovrebbe creare payment intent per checkout\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeDefined\u001b[2m()\u001b[22m\n\n    Received: \u001b[31mundefined\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 475 |\u001b[39m       expect(response\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m200\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 476 |\u001b[39m       expect(response\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39mclientSecret)\u001b[33m.\u001b[39mtoBeDefined()\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 477 |\u001b[39m       expect(response\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39mamount)\u001b[33m.\u001b[39mtoBeDefined()\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 478 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 479 |\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 480 |\u001b[39m     it(\u001b[32m'dovrebbe rifiutare payment intent senza autenticazione'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.toBeDefined (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/orders.integration.test.js\u001b[39m\u001b[0m\u001b[2m:477:36)\u001b[22m\u001b[2m\u001b[22m\n",
-      "duration": 3528,
+      "message": "  ● Orders Integration Tests › PUT /orders/:orderId › dovrebbe restituire item di un ordine specifico\n\n    AxiosError: Request failed with status code 400\n\n      372 |     it('dovrebbe restituire item di un ordine specifico', async () => {\n      373 |       if (testOrder && testOrder.id) {\n    > 374 |         const response = await axios.put(`${API_BASE_URL}/orders/${testOrder.id}`, {}, {\n          |                          ^\n      375 |           headers: {\n      376 |             'Authorization': `Bearer ${authTokens.client}`\n      377 |           }\n\n      at settle (node_modules/axios/lib/core/settle.js:19:12)\n      at IncomingMessage.handleStreamEnd (node_modules/axios/lib/adapters/http.js:599:11)\n      at Axios.request (node_modules/axios/lib/core/Axios.js:45:41)\n      at Object.<anonymous> (tests/orders.integration.test.js:374:26)\n\n  ● Orders Integration Tests › POST /orders/create-payment-intent › dovrebbe creare payment intent per checkout\n\n    expect(received).toBeDefined()\n\n    Received: undefined\n\n      475 |       expect(response.status).toBe(200);\n      476 |       expect(response.data.clientSecret).toBeDefined();\n    > 477 |       expect(response.data.amount).toBeDefined();\n          |                                    ^\n      478 |     });\n      479 |\n      480 |     it('dovrebbe rifiutare payment intent senza autenticazione', async () => {\n\n      at Object.toBeDefined (tests/orders.integration.test.js:477:36)\n",
+      "duration": 2595,
       "numFailingTests": 2,
       "numPassingTests": 24,
       "numPendingTests": 0,
@@ -24,109 +24,109 @@
           "title": "dovrebbe creare un nuovo ordine",
           "status": "passed",
           "failureMessages": [],
-          "duration": 50
+          "duration": 42
         },
         {
           "title": "dovrebbe rifiutare creazione ordine con dati mancanti",
           "status": "passed",
           "failureMessages": [],
-          "duration": 15
+          "duration": 9
         },
         {
           "title": "dovrebbe usare status default \"pending\" se non specificato",
           "status": "passed",
           "failureMessages": [],
-          "duration": 42
+          "duration": 30
         },
         {
           "title": "dovrebbe creare ordine dal carrello con checkout",
           "status": "passed",
           "failureMessages": [],
-          "duration": 66
+          "duration": 98
         },
         {
           "title": "dovrebbe rifiutare checkout senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 33
+          "duration": 23
         },
         {
           "title": "dovrebbe rifiutare checkout con carrello vuoto",
           "status": "passed",
           "failureMessages": [],
-          "duration": 57
+          "duration": 40
         },
         {
           "title": "dovrebbe restituire tutti gli ordini per admin",
           "status": "passed",
           "failureMessages": [],
-          "duration": 23
+          "duration": 14
         },
         {
           "title": "dovrebbe restituire ordini specifici del cliente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 41
+          "duration": 37
         },
         {
           "title": "dovrebbe rifiutare accesso a ordini di altri clienti",
           "status": "passed",
           "failureMessages": [],
-          "duration": 153
+          "duration": 104
         },
         {
           "title": "dovrebbe rifiutare accesso senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 17
+          "duration": 8
         },
         {
           "title": "dovrebbe restituire ordini per prodotti di un artigiano",
           "status": "passed",
           "failureMessages": [],
-          "duration": 15
+          "duration": 9
         },
         {
           "title": "dovrebbe rifiutare ID artigiano non valido",
           "status": "passed",
           "failureMessages": [],
-          "duration": 14
+          "duration": 6
         },
         {
           "title": "dovrebbe restituire array vuoto per artigiano senza ordini",
           "status": "passed",
           "failureMessages": [],
-          "duration": 16
+          "duration": 8
         },
         {
           "title": "dovrebbe restituire statistiche vendite mensili per artigiano",
           "status": "passed",
           "failureMessages": [],
-          "duration": 15
+          "duration": 9
         },
         {
           "title": "dovrebbe rifiutare richiesta senza artisanId",
           "status": "passed",
           "failureMessages": [],
-          "duration": 12
+          "duration": 7
         },
         {
           "title": "dovrebbe rifiutare artisanId non valido",
           "status": "passed",
           "failureMessages": [],
-          "duration": 16
+          "duration": 6
         },
         {
           "title": "dovrebbe restituire statistiche ordini mensili per artigiano",
           "status": "passed",
           "failureMessages": [],
-          "duration": 13
+          "duration": 9
         },
         {
           "title": "dovrebbe rifiutare richiesta senza artisanId",
           "status": "passed",
           "failureMessages": [],
-          "duration": 10
+          "duration": 7
         },
         {
           "title": "dovrebbe restituire item di un ordine specifico",
@@ -134,59 +134,59 @@
           "failureMessages": [
             "AxiosError: Request failed with status code 400\n    at settle (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/settle.js:19:12)\n    at IncomingMessage.handleStreamEnd (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/adapters/http.js:599:11)\n    at IncomingMessage.emit (node:events:536:35)\n    at endReadableNT (node:internal/streams/readable:1698:12)\n    at processTicksAndRejections (node:internal/process/task_queues:82:21)\n    at Axios.request (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/Axios.js:45:41)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Object.<anonymous> (/usr/src/app/Test/Backend-Integrativi/tests/orders.integration.test.js:374:26)"
           ],
-          "duration": 16
+          "duration": 11
         },
         {
           "title": "dovrebbe rifiutare accesso senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 11
+          "duration": 7
         },
         {
           "title": "dovrebbe eliminare ordine come admin",
           "status": "passed",
           "failureMessages": [],
-          "duration": 41
+          "duration": 40
         },
         {
           "title": "dovrebbe rifiutare eliminazione senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 14
+          "duration": 8
         },
         {
           "title": "dovrebbe rifiutare eliminazione ordine inesistente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 18
+          "duration": 9
         },
         {
           "title": "dovrebbe creare payment intent per checkout",
           "status": "failed",
           "failureMessages": [
-            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeDefined\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mundefined\u001b[39m\n    at Object.toBeDefined (/usr/src/app/Test/Backend-Integrativi/tests/orders.integration.test.js:477:36)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+            "Error: expect(received).toBeDefined()\n\nReceived: undefined\n    at Object.toBeDefined (/usr/src/app/Test/Backend-Integrativi/tests/orders.integration.test.js:477:36)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
           ],
-          "duration": 721
+          "duration": 531
         },
         {
           "title": "dovrebbe rifiutare payment intent senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 27
+          "duration": 24
         },
         {
           "title": "dovrebbe rifiutare payment intent con carrello vuoto",
           "status": "passed",
           "failureMessages": [],
-          "duration": 48
+          "duration": 34
         }
       ]
     },
     {
       "name": "cart.integration.test.js",
       "status": "failed",
-      "message": "\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mCart Integration Tests › POST /cart › dovrebbe creare un nuovo carrello\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n    Expected: \u001b[32m201\u001b[39m\n    Received: \u001b[31m200\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 52 |\u001b[39m       })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 53 |\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 54 |\u001b[39m       expect(response\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m201\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m    |\u001b[39m                               \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 55 |\u001b[39m       expect(response\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39mmessage)\u001b[33m.\u001b[39mtoContain(\u001b[32m'Carrello creato'\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 56 |\u001b[39m       expect(response\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39mcart_id)\u001b[33m.\u001b[39mtoBeDefined()\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 57 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.toBe (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/cart.integration.test.js\u001b[39m\u001b[0m\u001b[2m:54:31)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mCart Integration Tests › DELETE /cart › dovrebbe gestire svuotamento carrello già vuoto\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\n    Expected substring: \u001b[32m\"già vuoto\"\u001b[39m\n    Received string:    \u001b[31m\"Carrello svuotato\"\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 380 |\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 381 |\u001b[39m       expect(response\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m200\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 382 |\u001b[39m       expect(response\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39mmessage)\u001b[33m.\u001b[39mtoContain(\u001b[32m'già vuoto'\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                                     \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 383 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 384 |\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 385 |\u001b[39m     it(\u001b[32m'dovrebbe rifiutare svuotamento senza autenticazione'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.toContain (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/cart.integration.test.js\u001b[39m\u001b[0m\u001b[2m:382:37)\u001b[22m\u001b[2m\u001b[22m\n",
-      "duration": 1277,
+      "message": "  ● Cart Integration Tests › POST /cart › dovrebbe creare un nuovo carrello\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: 201\n    Received: 200\n\n      52 |       });\n      53 |\n    > 54 |       expect(response.status).toBe(201);\n         |                               ^\n      55 |       expect(response.data.message).toContain('Carrello creato');\n      56 |       expect(response.data.cart_id).toBeDefined();\n      57 |     });\n\n      at Object.toBe (tests/cart.integration.test.js:54:31)\n\n  ● Cart Integration Tests › DELETE /cart › dovrebbe gestire svuotamento carrello già vuoto\n\n    expect(received).toContain(expected) // indexOf\n\n    Expected substring: \"già vuoto\"\n    Received string:    \"Carrello svuotato\"\n\n      380 |\n      381 |       expect(response.status).toBe(200);\n    > 382 |       expect(response.data.message).toContain('già vuoto');\n          |                                     ^\n      383 |     });\n      384 |\n      385 |     it('dovrebbe rifiutare svuotamento senza autenticazione', async () => {\n\n      at Object.toContain (tests/cart.integration.test.js:382:37)\n",
+      "duration": 853,
       "numFailingTests": 2,
       "numPassingTests": 19,
       "numPendingTests": 0,
@@ -195,139 +195,139 @@
           "title": "dovrebbe creare un nuovo carrello",
           "status": "failed",
           "failureMessages": [
-            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m201\u001b[39m\nReceived: \u001b[31m200\u001b[39m\n    at Object.toBe (/usr/src/app/Test/Backend-Integrativi/tests/cart.integration.test.js:54:31)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+            "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 201\nReceived: 200\n    at Object.toBe (/usr/src/app/Test/Backend-Integrativi/tests/cart.integration.test.js:54:31)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
           ],
-          "duration": 18
+          "duration": 34
         },
         {
           "title": "dovrebbe riconoscere carrello già esistente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 13
+          "duration": 24
         },
         {
           "title": "dovrebbe rifiutare creazione carrello senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 20
+          "duration": 12
         },
         {
           "title": "dovrebbe aggiungere prodotto al carrello",
           "status": "passed",
           "failureMessages": [],
-          "duration": 20
+          "duration": 48
         },
         {
           "title": "dovrebbe aggiornare quantità prodotto già presente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 24
+          "duration": 43
         },
         {
           "title": "dovrebbe rifiutare aggiunta senza dati validi",
           "status": "passed",
           "failureMessages": [],
-          "duration": 20
+          "duration": 14
         },
         {
           "title": "dovrebbe rifiutare quantità non valida",
           "status": "passed",
           "failureMessages": [],
-          "duration": 23
+          "duration": 12
         },
         {
           "title": "dovrebbe rifiutare aggiunta senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 16
+          "duration": 8
         },
         {
           "title": "dovrebbe restituire carrello con prodotti",
           "status": "passed",
           "failureMessages": [],
-          "duration": 23
+          "duration": 15
         },
         {
           "title": "dovrebbe restituire carrello vuoto per nuovo utente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 119
+          "duration": 98
         },
         {
           "title": "dovrebbe rifiutare accesso carrello senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 11
+          "duration": 9
         },
         {
           "title": "dovrebbe aggiornare quantità prodotto nel carrello",
           "status": "passed",
           "failureMessages": [],
-          "duration": 29
+          "duration": 47
         },
         {
           "title": "dovrebbe rifiutare aggiornamento con quantità non valida",
           "status": "passed",
           "failureMessages": [],
-          "duration": 11
+          "duration": 9
         },
         {
           "title": "dovrebbe rifiutare aggiornamento item inesistente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 13
+          "duration": 9
         },
         {
           "title": "dovrebbe rifiutare aggiornamento senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 9
+          "duration": 8
         },
         {
           "title": "dovrebbe rimuovere prodotto dal carrello",
           "status": "passed",
           "failureMessages": [],
-          "duration": 54
+          "duration": 49
         },
         {
           "title": "dovrebbe rifiutare rimozione item inesistente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 19
+          "duration": 13
         },
         {
           "title": "dovrebbe rifiutare rimozione senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 14
+          "duration": 7
         },
         {
           "title": "dovrebbe svuotare il carrello",
           "status": "passed",
           "failureMessages": [],
-          "duration": 24
+          "duration": 20
         },
         {
           "title": "dovrebbe gestire svuotamento carrello già vuoto",
           "status": "failed",
           "failureMessages": [
-            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected substring: \u001b[32m\"già vuoto\"\u001b[39m\nReceived string:    \u001b[31m\"Carrello svuotato\"\u001b[39m\n    at Object.toContain (/usr/src/app/Test/Backend-Integrativi/tests/cart.integration.test.js:382:37)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+            "Error: expect(received).toContain(expected) // indexOf\n\nExpected substring: \"già vuoto\"\nReceived string:    \"Carrello svuotato\"\n    at Object.toContain (/usr/src/app/Test/Backend-Integrativi/tests/cart.integration.test.js:382:37)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
           ],
-          "duration": 15
+          "duration": 12
         },
         {
           "title": "dovrebbe rifiutare svuotamento senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 9
+          "duration": 7
         }
       ]
     },
     {
       "name": "products.integration.test.js",
       "status": "failed",
-      "message": "\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mProducts Integration Tests › POST /products › dovrebbe creare un nuovo prodotto come artigiano\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n    Expected: \u001b[32m25.99\u001b[39m\n    Received: \u001b[31m\"25.99\"\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 70 |\u001b[39m       expect(response\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m201\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 71 |\u001b[39m       expect(response\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39mname)\u001b[33m.\u001b[39mtoBe(productData\u001b[33m.\u001b[39mname)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 72 |\u001b[39m       expect(response\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39mprice)\u001b[33m.\u001b[39mtoBe(productData\u001b[33m.\u001b[39mprice)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m    |\u001b[39m                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 73 |\u001b[39m       expect(response\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39martisan_id)\u001b[33m.\u001b[39mtoBeDefined()\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 74 |\u001b[39m       \u001b[22m\n\u001b[2m     \u001b[90m 75 |\u001b[39m       testProduct \u001b[33m=\u001b[39m response\u001b[33m.\u001b[39mdata\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.toBe (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/products.integration.test.js\u001b[39m\u001b[0m\u001b[2m:72:35)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mProducts Integration Tests › GET /products › dovrebbe filtrare prodotti per categoria\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n    Expected: \u001b[32m99\u001b[39m\n    Received: \u001b[31m98\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 160 |\u001b[39m       \u001b[36mif\u001b[39m (response\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39mproducts\u001b[33m.\u001b[39mlength \u001b[33m>\u001b[39m \u001b[35m0\u001b[39m) {\u001b[22m\n\u001b[2m     \u001b[90m 161 |\u001b[39m         response\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39mproducts\u001b[33m.\u001b[39mforEach(product \u001b[33m=>\u001b[39m {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 162 |\u001b[39m           expect(product\u001b[33m.\u001b[39mcategory_id)\u001b[33m.\u001b[39mtoBe(testCategory\u001b[33m.\u001b[39mid)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 163 |\u001b[39m         })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 164 |\u001b[39m       }\u001b[22m\n\u001b[2m     \u001b[90m 165 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat toBe (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/products.integration.test.js\u001b[39m\u001b[0m\u001b[2m:162:39)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m          at Array.forEach (<anonymous>)\u001b[22m\n\u001b[2m      \u001b[2mat Object.forEach (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/products.integration.test.js\u001b[39m\u001b[0m\u001b[2m:161:32)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mProducts Integration Tests › GET /products/:id › dovrebbe restituire prodotto specifico con immagini\u001b[39m\u001b[22m\n\n    TypeError: Cannot read properties of undefined (reading 'id')\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 224 |\u001b[39m   describe(\u001b[32m'GET /products/:id'\u001b[39m\u001b[33m,\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m 225 |\u001b[39m     it(\u001b[32m'dovrebbe restituire prodotto specifico con immagini'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 226 |\u001b[39m       \u001b[36mconst\u001b[39m response \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m axios\u001b[33m.\u001b[39m\u001b[36mget\u001b[39m(\u001b[32m`${API_BASE_URL}/products/${testProduct.id}`\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                                                                                \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 227 |\u001b[39m       \u001b[22m\n\u001b[2m     \u001b[90m 228 |\u001b[39m       expect(response\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m200\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 229 |\u001b[39m       expect(response\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39mid)\u001b[33m.\u001b[39mtoBe(testProduct\u001b[33m.\u001b[39mid)\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.id (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/products.integration.test.js\u001b[39m\u001b[0m\u001b[2m:226:80)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mProducts Integration Tests › PUT /products/:id › dovrebbe aggiornare prodotto del proprio artigiano\u001b[39m\u001b[22m\n\n    TypeError: Cannot read properties of undefined (reading 'id')\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 254 |\u001b[39m       }\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 255 |\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 256 |\u001b[39m       \u001b[36mconst\u001b[39m response \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m axios\u001b[33m.\u001b[39mput(\u001b[32m`${API_BASE_URL}/products/${testProduct.id}`\u001b[39m\u001b[33m,\u001b[39m updateData\u001b[33m,\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                                                                                \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 257 |\u001b[39m         headers\u001b[33m:\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m 258 |\u001b[39m           \u001b[32m'Authorization'\u001b[39m\u001b[33m:\u001b[39m \u001b[32m`Bearer ${authTokens.artisan}`\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 259 |\u001b[39m         }\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.id (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/products.integration.test.js\u001b[39m\u001b[0m\u001b[2m:256:80)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mProducts Integration Tests › PUT /products/:id › dovrebbe rifiutare aggiornamento senza autenticazione\u001b[39m\u001b[22m\n\n    TypeError: Cannot read properties of undefined (reading 'status')\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 273 |\u001b[39m         fail(\u001b[32m'Dovrebbe lanciare errore senza autenticazione'\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 274 |\u001b[39m       } \u001b[36mcatch\u001b[39m (error) {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 275 |\u001b[39m         expect(error\u001b[33m.\u001b[39mresponse\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m401\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                               \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 276 |\u001b[39m       }\u001b[22m\n\u001b[2m     \u001b[90m 277 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 278 |\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.status (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/products.integration.test.js\u001b[39m\u001b[0m\u001b[2m:275:31)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mProducts Integration Tests › PUT /products/:id › dovrebbe rifiutare aggiornamento prodotto 404\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n    Expected: \u001b[32m404\u001b[39m\n    Received: \u001b[31m400\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 288 |\u001b[39m         fail(\u001b[32m'Dovrebbe lanciare errore per prodotto inesistente'\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 289 |\u001b[39m       } \u001b[36mcatch\u001b[39m (error) {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 290 |\u001b[39m         expect(error\u001b[33m.\u001b[39mresponse\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m404\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 291 |\u001b[39m       }\u001b[22m\n\u001b[2m     \u001b[90m 292 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 293 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.toBe (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/products.integration.test.js\u001b[39m\u001b[0m\u001b[2m:290:39)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mProducts Integration Tests › DELETE /products/:id › dovrebbe eliminare prodotto del proprio artigiano\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n    Expected: \u001b[32m200\u001b[39m\n    Received: \u001b[31m204\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 314 |\u001b[39m       })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 315 |\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 316 |\u001b[39m       expect(response\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m200\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                               \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 317 |\u001b[39m       expect(response\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39mmessage)\u001b[33m.\u001b[39mtoContain(\u001b[32m'eliminato'\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 318 |\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 319 |\u001b[39m       \u001b[90m// Verifica che il prodotto sia stato eliminato\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.toBe (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/products.integration.test.js\u001b[39m\u001b[0m\u001b[2m:316:31)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mProducts Integration Tests › DELETE /products/:id › dovrebbe rifiutare eliminazione senza autenticazione\u001b[39m\u001b[22m\n\n    TypeError: Cannot read properties of undefined (reading 'status')\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 331 |\u001b[39m         fail(\u001b[32m'Dovrebbe lanciare errore senza autenticazione'\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 332 |\u001b[39m       } \u001b[36mcatch\u001b[39m (error) {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 333 |\u001b[39m         expect(error\u001b[33m.\u001b[39mresponse\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m401\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                               \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 334 |\u001b[39m       }\u001b[22m\n\u001b[2m     \u001b[90m 335 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 336 |\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.status (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/products.integration.test.js\u001b[39m\u001b[0m\u001b[2m:333:31)\u001b[22m\u001b[2m\u001b[22m\n",
-      "duration": 841,
+      "message": "  ● Products Integration Tests › POST /products › dovrebbe creare un nuovo prodotto come artigiano\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: 25.99\n    Received: \"25.99\"\n\n      70 |       expect(response.status).toBe(201);\n      71 |       expect(response.data.name).toBe(productData.name);\n    > 72 |       expect(response.data.price).toBe(productData.price);\n         |                                   ^\n      73 |       expect(response.data.artisan_id).toBeDefined();\n      74 |       \n      75 |       testProduct = response.data;\n\n      at Object.toBe (tests/products.integration.test.js:72:35)\n\n  ● Products Integration Tests › GET /products › dovrebbe filtrare prodotti per categoria\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: 104\n    Received: 103\n\n      160 |       if (response.data.products.length > 0) {\n      161 |         response.data.products.forEach(product => {\n    > 162 |           expect(product.category_id).toBe(testCategory.id);\n          |                                       ^\n      163 |         });\n      164 |       }\n      165 |     });\n\n      at toBe (tests/products.integration.test.js:162:39)\n          at Array.forEach (<anonymous>)\n      at Object.forEach (tests/products.integration.test.js:161:32)\n\n  ● Products Integration Tests › GET /products/:id › dovrebbe restituire prodotto specifico con immagini\n\n    TypeError: Cannot read properties of undefined (reading 'id')\n\n      224 |   describe('GET /products/:id', () => {\n      225 |     it('dovrebbe restituire prodotto specifico con immagini', async () => {\n    > 226 |       const response = await axios.get(`${API_BASE_URL}/products/${testProduct.id}`);\n          |                                                                                ^\n      227 |       \n      228 |       expect(response.status).toBe(200);\n      229 |       expect(response.data.id).toBe(testProduct.id);\n\n      at Object.id (tests/products.integration.test.js:226:80)\n\n  ● Products Integration Tests › PUT /products/:id › dovrebbe aggiornare prodotto del proprio artigiano\n\n    TypeError: Cannot read properties of undefined (reading 'id')\n\n      254 |       };\n      255 |\n    > 256 |       const response = await axios.put(`${API_BASE_URL}/products/${testProduct.id}`, updateData, {\n          |                                                                                ^\n      257 |         headers: {\n      258 |           'Authorization': `Bearer ${authTokens.artisan}`\n      259 |         }\n\n      at Object.id (tests/products.integration.test.js:256:80)\n\n  ● Products Integration Tests › PUT /products/:id › dovrebbe rifiutare aggiornamento senza autenticazione\n\n    TypeError: Cannot read properties of undefined (reading 'status')\n\n      273 |         fail('Dovrebbe lanciare errore senza autenticazione');\n      274 |       } catch (error) {\n    > 275 |         expect(error.response.status).toBe(401);\n          |                               ^\n      276 |       }\n      277 |     });\n      278 |\n\n      at Object.status (tests/products.integration.test.js:275:31)\n\n  ● Products Integration Tests › PUT /products/:id › dovrebbe rifiutare aggiornamento prodotto 404\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: 404\n    Received: 400\n\n      288 |         fail('Dovrebbe lanciare errore per prodotto inesistente');\n      289 |       } catch (error) {\n    > 290 |         expect(error.response.status).toBe(404);\n          |                                       ^\n      291 |       }\n      292 |     });\n      293 |   });\n\n      at Object.toBe (tests/products.integration.test.js:290:39)\n\n  ● Products Integration Tests › DELETE /products/:id › dovrebbe eliminare prodotto del proprio artigiano\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: 200\n    Received: 204\n\n      314 |       });\n      315 |\n    > 316 |       expect(response.status).toBe(200);\n          |                               ^\n      317 |       expect(response.data.message).toContain('eliminato');\n      318 |\n      319 |       // Verifica che il prodotto sia stato eliminato\n\n      at Object.toBe (tests/products.integration.test.js:316:31)\n\n  ● Products Integration Tests › DELETE /products/:id › dovrebbe rifiutare eliminazione senza autenticazione\n\n    TypeError: Cannot read properties of undefined (reading 'status')\n\n      331 |         fail('Dovrebbe lanciare errore senza autenticazione');\n      332 |       } catch (error) {\n    > 333 |         expect(error.response.status).toBe(401);\n          |                               ^\n      334 |       }\n      335 |     });\n      336 |\n\n      at Object.status (tests/products.integration.test.js:333:31)\n",
+      "duration": 696,
       "numFailingTests": 8,
       "numPassingTests": 10,
       "numPendingTests": 0,
@@ -336,21 +336,21 @@
           "title": "dovrebbe creare un nuovo prodotto come artigiano",
           "status": "failed",
           "failureMessages": [
-            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m25.99\u001b[39m\nReceived: \u001b[31m\"25.99\"\u001b[39m\n    at Object.toBe (/usr/src/app/Test/Backend-Integrativi/tests/products.integration.test.js:72:35)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+            "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 25.99\nReceived: \"25.99\"\n    at Object.toBe (/usr/src/app/Test/Backend-Integrativi/tests/products.integration.test.js:72:35)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
           ],
-          "duration": 19
+          "duration": 34
         },
         {
           "title": "dovrebbe rifiutare creazione prodotto senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 9
+          "duration": 13
         },
         {
           "title": "dovrebbe rifiutare creazione prodotto da cliente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 104
+          "duration": 106
         },
         {
           "title": "dovrebbe rifiutare creazione prodotto con dati mancanti",
@@ -362,39 +362,39 @@
           "title": "dovrebbe restituire lista prodotti con paginazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 16
+          "duration": 11
         },
         {
           "title": "dovrebbe filtrare prodotti per categoria",
           "status": "failed",
           "failureMessages": [
-            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m99\u001b[39m\nReceived: \u001b[31m98\u001b[39m\n    at toBe (/usr/src/app/Test/Backend-Integrativi/tests/products.integration.test.js:162:39)\n    at Array.forEach (<anonymous>)\n    at Object.forEach (/usr/src/app/Test/Backend-Integrativi/tests/products.integration.test.js:161:32)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+            "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 104\nReceived: 103\n    at toBe (/usr/src/app/Test/Backend-Integrativi/tests/products.integration.test.js:162:39)\n    at Array.forEach (<anonymous>)\n    at Object.forEach (/usr/src/app/Test/Backend-Integrativi/tests/products.integration.test.js:161:32)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
           ],
-          "duration": 17
+          "duration": 16
         },
         {
           "title": "dovrebbe filtrare prodotti per prezzo",
           "status": "passed",
           "failureMessages": [],
-          "duration": 21
+          "duration": 13
         },
         {
           "title": "dovrebbe cercare prodotti per nome",
           "status": "passed",
           "failureMessages": [],
-          "duration": 17
+          "duration": 15
         },
         {
           "title": "dovrebbe restituire prodotti con informazioni complete",
           "status": "passed",
           "failureMessages": [],
-          "duration": 14
+          "duration": 11
         },
         {
           "title": "dovrebbe restituire prodotti più venduti",
           "status": "passed",
           "failureMessages": [],
-          "duration": 20
+          "duration": 12
         },
         {
           "title": "dovrebbe restituire prodotto specifico con immagini",
@@ -402,13 +402,13 @@
           "failureMessages": [
             "TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.id (/usr/src/app/Test/Backend-Integrativi/tests/products.integration.test.js:226:80)\n    at Promise.then.completed (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/utils.js:298:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/utils.js:231:10)\n    at _callCircusTest (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/run.js:316:40)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at _runTest (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/run.js:252:3)\n    at _runTestsForDescribeBlock (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/run.js:126:9)\n    at _runTestsForDescribeBlock (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/run.js:121:9)\n    at _runTestsForDescribeBlock (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/run.js:121:9)\n    at run (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/run.js:71:3)\n    at runAndTransformResultsToJestFormat (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)\n    at jestAdapter (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)\n    at runTestInternal (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-runner/build/runTest.js:367:16)\n    at runTest (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-runner/build/runTest.js:444:34)"
           ],
-          "duration": 2
+          "duration": 1
         },
         {
           "title": "dovrebbe restituire 404 per prodotto inesistente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 12
+          "duration": 11
         },
         {
           "title": "dovrebbe aggiornare prodotto del proprio artigiano",
@@ -416,7 +416,7 @@
           "failureMessages": [
             "TypeError: Cannot read properties of undefined (reading 'id')\n    at Object.id (/usr/src/app/Test/Backend-Integrativi/tests/products.integration.test.js:256:80)\n    at Promise.then.completed (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/utils.js:298:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/utils.js:231:10)\n    at _callCircusTest (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/run.js:316:40)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at _runTest (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/run.js:252:3)\n    at _runTestsForDescribeBlock (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/run.js:126:9)\n    at _runTestsForDescribeBlock (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/run.js:121:9)\n    at _runTestsForDescribeBlock (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/run.js:121:9)\n    at run (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/run.js:71:3)\n    at runAndTransformResultsToJestFormat (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)\n    at jestAdapter (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)\n    at runTestInternal (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-runner/build/runTest.js:367:16)\n    at runTest (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-runner/build/runTest.js:444:34)"
           ],
-          "duration": 2
+          "duration": 1
         },
         {
           "title": "dovrebbe rifiutare aggiornamento senza autenticazione",
@@ -424,23 +424,23 @@
           "failureMessages": [
             "TypeError: Cannot read properties of undefined (reading 'status')\n    at Object.status (/usr/src/app/Test/Backend-Integrativi/tests/products.integration.test.js:275:31)\n    at Promise.then.completed (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/utils.js:298:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/utils.js:231:10)\n    at _callCircusTest (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/run.js:316:40)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at _runTest (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/run.js:252:3)\n    at _runTestsForDescribeBlock (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/run.js:126:9)\n    at _runTestsForDescribeBlock (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/run.js:121:9)\n    at _runTestsForDescribeBlock (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/run.js:121:9)\n    at run (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/run.js:71:3)\n    at runAndTransformResultsToJestFormat (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)\n    at jestAdapter (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)\n    at runTestInternal (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-runner/build/runTest.js:367:16)\n    at runTest (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-runner/build/runTest.js:444:34)"
           ],
-          "duration": 3
+          "duration": 0
         },
         {
           "title": "dovrebbe rifiutare aggiornamento prodotto 404",
           "status": "failed",
           "failureMessages": [
-            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m404\u001b[39m\nReceived: \u001b[31m400\u001b[39m\n    at Object.toBe (/usr/src/app/Test/Backend-Integrativi/tests/products.integration.test.js:290:39)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+            "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 404\nReceived: 400\n    at Object.toBe (/usr/src/app/Test/Backend-Integrativi/tests/products.integration.test.js:290:39)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
           ],
-          "duration": 17
+          "duration": 8
         },
         {
           "title": "dovrebbe eliminare prodotto del proprio artigiano",
           "status": "failed",
           "failureMessages": [
-            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m200\u001b[39m\nReceived: \u001b[31m204\u001b[39m\n    at Object.toBe (/usr/src/app/Test/Backend-Integrativi/tests/products.integration.test.js:316:31)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+            "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 200\nReceived: 204\n    at Object.toBe (/usr/src/app/Test/Backend-Integrativi/tests/products.integration.test.js:316:31)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
           ],
-          "duration": 31
+          "duration": 30
         },
         {
           "title": "dovrebbe rifiutare eliminazione senza autenticazione",
@@ -448,21 +448,21 @@
           "failureMessages": [
             "TypeError: Cannot read properties of undefined (reading 'status')\n    at Object.status (/usr/src/app/Test/Backend-Integrativi/tests/products.integration.test.js:333:31)\n    at Promise.then.completed (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/utils.js:298:28)\n    at new Promise (<anonymous>)\n    at callAsyncCircusFn (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/utils.js:231:10)\n    at _callCircusTest (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/run.js:316:40)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at _runTest (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/run.js:252:3)\n    at _runTestsForDescribeBlock (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/run.js:126:9)\n    at _runTestsForDescribeBlock (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/run.js:121:9)\n    at _runTestsForDescribeBlock (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/run.js:121:9)\n    at run (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/run.js:71:3)\n    at runAndTransformResultsToJestFormat (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)\n    at jestAdapter (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)\n    at runTestInternal (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-runner/build/runTest.js:367:16)\n    at runTest (/usr/src/app/Test/Backend-Integrativi/node_modules/jest-runner/build/runTest.js:444:34)"
           ],
-          "duration": 3
+          "duration": 1
         },
         {
           "title": "dovrebbe rifiutare eliminazione prodotto inesistente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 16
+          "duration": 9
         }
       ]
     },
     {
       "name": "auth.integration.test.js",
       "status": "failed",
-      "message": "\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mAuth Integration Tests › POST /auth/register › dovrebbe registrare un nuovo cliente\u001b[39m\u001b[22m\n\n    AxiosError: Request failed with status code 400\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 34 |\u001b[39m   describe(\u001b[32m'POST /auth/register'\u001b[39m\u001b[33m,\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m 35 |\u001b[39m     it(\u001b[32m'dovrebbe registrare un nuovo cliente'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 36 |\u001b[39m       \u001b[36mconst\u001b[39m response \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m axios\u001b[33m.\u001b[39mpost(\u001b[32m`${API_BASE_URL}/auth/register`\u001b[39m\u001b[33m,\u001b[39m testUsers\u001b[33m.\u001b[39mclient)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 37 |\u001b[39m       \u001b[22m\n\u001b[2m     \u001b[90m 38 |\u001b[39m       expect(response\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m201\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 39 |\u001b[39m       expect(response\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39msuccess)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat settle (\u001b[22m\u001b[2mnode_modules/axios/lib/core/settle.js\u001b[2m:19:12)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat IncomingMessage.handleStreamEnd (\u001b[22m\u001b[2mnode_modules/axios/lib/adapters/http.js\u001b[2m:599:11)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Axios.request (\u001b[22m\u001b[2mnode_modules/axios/lib/core/Axios.js\u001b[2m:45:41)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.<anonymous> (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/auth.integration.test.js\u001b[39m\u001b[0m\u001b[2m:36:24)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mAuth Integration Tests › POST /auth/register › dovrebbe registrare un nuovo artigiano\u001b[39m\u001b[22m\n\n    AxiosError: Request failed with status code 400\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 46 |\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 47 |\u001b[39m     it(\u001b[32m'dovrebbe registrare un nuovo artigiano'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 48 |\u001b[39m       \u001b[36mconst\u001b[39m response \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m axios\u001b[33m.\u001b[39mpost(\u001b[32m`${API_BASE_URL}/auth/register`\u001b[39m\u001b[33m,\u001b[39m testUsers\u001b[33m.\u001b[39martisan)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 49 |\u001b[39m       \u001b[22m\n\u001b[2m     \u001b[90m 50 |\u001b[39m       expect(response\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m201\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 51 |\u001b[39m       expect(response\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39msuccess)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat settle (\u001b[22m\u001b[2mnode_modules/axios/lib/core/settle.js\u001b[2m:19:12)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat IncomingMessage.handleStreamEnd (\u001b[22m\u001b[2mnode_modules/axios/lib/adapters/http.js\u001b[2m:599:11)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Axios.request (\u001b[22m\u001b[2mnode_modules/axios/lib/core/Axios.js\u001b[2m:45:41)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.<anonymous> (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/auth.integration.test.js\u001b[39m\u001b[0m\u001b[2m:48:24)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mAuth Integration Tests › POST /auth/register › dovrebbe registrare un nuovo admin\u001b[39m\u001b[22m\n\n    AxiosError: Request failed with status code 400\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 56 |\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 57 |\u001b[39m     it(\u001b[32m'dovrebbe registrare un nuovo admin'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 58 |\u001b[39m       \u001b[36mconst\u001b[39m response \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m axios\u001b[33m.\u001b[39mpost(\u001b[32m`${API_BASE_URL}/auth/register`\u001b[39m\u001b[33m,\u001b[39m testUsers\u001b[33m.\u001b[39madmin)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 59 |\u001b[39m       \u001b[22m\n\u001b[2m     \u001b[90m 60 |\u001b[39m       expect(response\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m201\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 61 |\u001b[39m       expect(response\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39msuccess)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat settle (\u001b[22m\u001b[2mnode_modules/axios/lib/core/settle.js\u001b[2m:19:12)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat IncomingMessage.handleStreamEnd (\u001b[22m\u001b[2mnode_modules/axios/lib/adapters/http.js\u001b[2m:599:11)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Axios.request (\u001b[22m\u001b[2mnode_modules/axios/lib/core/Axios.js\u001b[2m:45:41)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.<anonymous> (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/auth.integration.test.js\u001b[39m\u001b[0m\u001b[2m:58:24)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mAuth Integration Tests › GET /auth/profile › dovrebbe restituire profilo utente con token valido\u001b[39m\u001b[22m\n\n    AxiosError: Request failed with status code 401\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 153 |\u001b[39m   describe(\u001b[32m'GET /auth/profile'\u001b[39m\u001b[33m,\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m 154 |\u001b[39m     it(\u001b[32m'dovrebbe restituire profilo utente con token valido'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 155 |\u001b[39m       \u001b[36mconst\u001b[39m response \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m axios\u001b[33m.\u001b[39m\u001b[36mget\u001b[39m(\u001b[32m`${API_BASE_URL}/auth/profile`\u001b[39m\u001b[33m,\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 156 |\u001b[39m         headers\u001b[33m:\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m 157 |\u001b[39m           \u001b[32m'Authorization'\u001b[39m\u001b[33m:\u001b[39m \u001b[32m`Bearer ${authTokens.client}`\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 158 |\u001b[39m         }\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat settle (\u001b[22m\u001b[2mnode_modules/axios/lib/core/settle.js\u001b[2m:19:12)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat IncomingMessage.handleStreamEnd (\u001b[22m\u001b[2mnode_modules/axios/lib/adapters/http.js\u001b[2m:599:11)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Axios.request (\u001b[22m\u001b[2mnode_modules/axios/lib/core/Axios.js\u001b[2m:45:41)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.<anonymous> (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/auth.integration.test.js\u001b[39m\u001b[0m\u001b[2m:155:24)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mAuth Integration Tests › GET /auth/profile › dovrebbe restituire profilo artigiano con dati extended_users\u001b[39m\u001b[22m\n\n    AxiosError: Request failed with status code 401\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 167 |\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 168 |\u001b[39m     it(\u001b[32m'dovrebbe restituire profilo artigiano con dati extended_users'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 169 |\u001b[39m       \u001b[36mconst\u001b[39m response \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m axios\u001b[33m.\u001b[39m\u001b[36mget\u001b[39m(\u001b[32m`${API_BASE_URL}/auth/profile`\u001b[39m\u001b[33m,\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 170 |\u001b[39m         headers\u001b[33m:\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m 171 |\u001b[39m           \u001b[32m'Authorization'\u001b[39m\u001b[33m:\u001b[39m \u001b[32m`Bearer ${authTokens.artisan}`\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 172 |\u001b[39m         }\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat settle (\u001b[22m\u001b[2mnode_modules/axios/lib/core/settle.js\u001b[2m:19:12)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat IncomingMessage.handleStreamEnd (\u001b[22m\u001b[2mnode_modules/axios/lib/adapters/http.js\u001b[2m:599:11)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Axios.request (\u001b[22m\u001b[2mnode_modules/axios/lib/core/Axios.js\u001b[2m:45:41)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.<anonymous> (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/auth.integration.test.js\u001b[39m\u001b[0m\u001b[2m:169:24)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mAuth Integration Tests › PUT /auth/profile › dovrebbe aggiornare nickname utente\u001b[39m\u001b[22m\n\n    AxiosError: Request failed with status code 401\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 204 |\u001b[39m     it(\u001b[32m'dovrebbe aggiornare nickname utente'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m 205 |\u001b[39m       \u001b[36mconst\u001b[39m newNickname \u001b[33m=\u001b[39m \u001b[32m'Updated Test Client'\u001b[39m\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 206 |\u001b[39m       \u001b[36mconst\u001b[39m response \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m axios\u001b[33m.\u001b[39mput(\u001b[32m`${API_BASE_URL}/auth/profile`\u001b[39m\u001b[33m,\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 207 |\u001b[39m         nickname\u001b[33m:\u001b[39m newNickname\u001b[22m\n\u001b[2m     \u001b[90m 208 |\u001b[39m       }\u001b[33m,\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m 209 |\u001b[39m         headers\u001b[33m:\u001b[39m {\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat settle (\u001b[22m\u001b[2mnode_modules/axios/lib/core/settle.js\u001b[2m:19:12)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat IncomingMessage.handleStreamEnd (\u001b[22m\u001b[2mnode_modules/axios/lib/adapters/http.js\u001b[2m:599:11)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Axios.request (\u001b[22m\u001b[2mnode_modules/axios/lib/core/Axios.js\u001b[2m:45:41)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.<anonymous> (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/auth.integration.test.js\u001b[39m\u001b[0m\u001b[2m:206:24)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mAuth Integration Tests › PUT /auth/profile › dovrebbe aggiornare email utente\u001b[39m\u001b[22m\n\n    AxiosError: Request failed with status code 401\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 219 |\u001b[39m     it(\u001b[32m'dovrebbe aggiornare email utente'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m 220 |\u001b[39m       \u001b[36mconst\u001b[39m newEmail \u001b[33m=\u001b[39m \u001b[32m'updated.client@integration.test'\u001b[39m\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 221 |\u001b[39m       \u001b[36mconst\u001b[39m response \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m axios\u001b[33m.\u001b[39mput(\u001b[32m`${API_BASE_URL}/auth/profile`\u001b[39m\u001b[33m,\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 222 |\u001b[39m         email\u001b[33m:\u001b[39m newEmail\u001b[22m\n\u001b[2m     \u001b[90m 223 |\u001b[39m       }\u001b[33m,\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m 224 |\u001b[39m         headers\u001b[33m:\u001b[39m {\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat settle (\u001b[22m\u001b[2mnode_modules/axios/lib/core/settle.js\u001b[2m:19:12)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat IncomingMessage.handleStreamEnd (\u001b[22m\u001b[2mnode_modules/axios/lib/adapters/http.js\u001b[2m:599:11)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Axios.request (\u001b[22m\u001b[2mnode_modules/axios/lib/core/Axios.js\u001b[2m:45:41)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.<anonymous> (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/auth.integration.test.js\u001b[39m\u001b[0m\u001b[2m:221:24)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mAuth Integration Tests › PUT /auth/profile › dovrebbe rifiutare aggiornamento senza dati\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n    Expected: \u001b[32m400\u001b[39m\n    Received: \u001b[31m401\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 244 |\u001b[39m         fail(\u001b[32m'Dovrebbe lanciare errore senza dati'\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 245 |\u001b[39m       } \u001b[36mcatch\u001b[39m (error) {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 246 |\u001b[39m         expect(error\u001b[33m.\u001b[39mresponse\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m400\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 247 |\u001b[39m       }\u001b[22m\n\u001b[2m     \u001b[90m 248 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 249 |\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.toBe (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/auth.integration.test.js\u001b[39m\u001b[0m\u001b[2m:246:39)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mAuth Integration Tests › PUT /auth/artisan/bio › dovrebbe aggiornare bio artigiano\u001b[39m\u001b[22m\n\n    AxiosError: Request failed with status code 401\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 263 |\u001b[39m     it(\u001b[32m'dovrebbe aggiornare bio artigiano'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m 264 |\u001b[39m       \u001b[36mconst\u001b[39m bio \u001b[33m=\u001b[39m \u001b[32m'Questa è la mia bio di test per l\\'artigiano'\u001b[39m\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 265 |\u001b[39m       \u001b[36mconst\u001b[39m response \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m axios\u001b[33m.\u001b[39mput(\u001b[32m`${API_BASE_URL}/auth/artisan/bio`\u001b[39m\u001b[33m,\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 266 |\u001b[39m         bio\u001b[33m:\u001b[39m bio\u001b[22m\n\u001b[2m     \u001b[90m 267 |\u001b[39m       }\u001b[33m,\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m 268 |\u001b[39m         headers\u001b[33m:\u001b[39m {\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat settle (\u001b[22m\u001b[2mnode_modules/axios/lib/core/settle.js\u001b[2m:19:12)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat IncomingMessage.handleStreamEnd (\u001b[22m\u001b[2mnode_modules/axios/lib/adapters/http.js\u001b[2m:599:11)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Axios.request (\u001b[22m\u001b[2mnode_modules/axios/lib/core/Axios.js\u001b[2m:45:41)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.<anonymous> (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/auth.integration.test.js\u001b[39m\u001b[0m\u001b[2m:265:24)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mAuth Integration Tests › PUT /auth/artisan/bio › dovrebbe rifiutare aggiornamento bio da non-artigiano\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n    Expected: \u001b[32m500\u001b[39m\n    Received: \u001b[31m401\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 286 |\u001b[39m         fail(\u001b[32m'Dovrebbe lanciare errore per non-artigiano'\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 287 |\u001b[39m       } \u001b[36mcatch\u001b[39m (error) {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 288 |\u001b[39m         expect(error\u001b[33m.\u001b[39mresponse\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m500\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 289 |\u001b[39m       }\u001b[22m\n\u001b[2m     \u001b[90m 290 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 291 |\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.toBe (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/auth.integration.test.js\u001b[39m\u001b[0m\u001b[2m:288:39)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mAuth Integration Tests › PUT /auth/artisan/bio › dovrebbe rifiutare aggiornamento bio senza bio\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n    Expected: \u001b[32m400\u001b[39m\n    Received: \u001b[31m401\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 299 |\u001b[39m         fail(\u001b[32m'Dovrebbe lanciare errore senza bio'\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 300 |\u001b[39m       } \u001b[36mcatch\u001b[39m (error) {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 301 |\u001b[39m         expect(error\u001b[33m.\u001b[39mresponse\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m400\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 302 |\u001b[39m       }\u001b[22m\n\u001b[2m     \u001b[90m 303 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 304 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.toBe (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/auth.integration.test.js\u001b[39m\u001b[0m\u001b[2m:301:39)\u001b[22m\u001b[2m\u001b[22m\n",
-      "duration": 909,
+      "message": "  ● Auth Integration Tests › POST /auth/register › dovrebbe registrare un nuovo cliente\n\n    AxiosError: Request failed with status code 400\n\n      34 |   describe('POST /auth/register', () => {\n      35 |     it('dovrebbe registrare un nuovo cliente', async () => {\n    > 36 |       const response = await axios.post(`${API_BASE_URL}/auth/register`, testUsers.client);\n         |                        ^\n      37 |       \n      38 |       expect(response.status).toBe(201);\n      39 |       expect(response.data.success).toBe(true);\n\n      at settle (node_modules/axios/lib/core/settle.js:19:12)\n      at IncomingMessage.handleStreamEnd (node_modules/axios/lib/adapters/http.js:599:11)\n      at Axios.request (node_modules/axios/lib/core/Axios.js:45:41)\n      at Object.<anonymous> (tests/auth.integration.test.js:36:24)\n\n  ● Auth Integration Tests › POST /auth/register › dovrebbe registrare un nuovo artigiano\n\n    AxiosError: Request failed with status code 400\n\n      46 |\n      47 |     it('dovrebbe registrare un nuovo artigiano', async () => {\n    > 48 |       const response = await axios.post(`${API_BASE_URL}/auth/register`, testUsers.artisan);\n         |                        ^\n      49 |       \n      50 |       expect(response.status).toBe(201);\n      51 |       expect(response.data.success).toBe(true);\n\n      at settle (node_modules/axios/lib/core/settle.js:19:12)\n      at IncomingMessage.handleStreamEnd (node_modules/axios/lib/adapters/http.js:599:11)\n      at Axios.request (node_modules/axios/lib/core/Axios.js:45:41)\n      at Object.<anonymous> (tests/auth.integration.test.js:48:24)\n\n  ● Auth Integration Tests › POST /auth/register › dovrebbe registrare un nuovo admin\n\n    AxiosError: Request failed with status code 400\n\n      56 |\n      57 |     it('dovrebbe registrare un nuovo admin', async () => {\n    > 58 |       const response = await axios.post(`${API_BASE_URL}/auth/register`, testUsers.admin);\n         |                        ^\n      59 |       \n      60 |       expect(response.status).toBe(201);\n      61 |       expect(response.data.success).toBe(true);\n\n      at settle (node_modules/axios/lib/core/settle.js:19:12)\n      at IncomingMessage.handleStreamEnd (node_modules/axios/lib/adapters/http.js:599:11)\n      at Axios.request (node_modules/axios/lib/core/Axios.js:45:41)\n      at Object.<anonymous> (tests/auth.integration.test.js:58:24)\n\n  ● Auth Integration Tests › GET /auth/profile › dovrebbe restituire profilo utente con token valido\n\n    AxiosError: Request failed with status code 401\n\n      153 |   describe('GET /auth/profile', () => {\n      154 |     it('dovrebbe restituire profilo utente con token valido', async () => {\n    > 155 |       const response = await axios.get(`${API_BASE_URL}/auth/profile`, {\n          |                        ^\n      156 |         headers: {\n      157 |           'Authorization': `Bearer ${authTokens.client}`\n      158 |         }\n\n      at settle (node_modules/axios/lib/core/settle.js:19:12)\n      at IncomingMessage.handleStreamEnd (node_modules/axios/lib/adapters/http.js:599:11)\n      at Axios.request (node_modules/axios/lib/core/Axios.js:45:41)\n      at Object.<anonymous> (tests/auth.integration.test.js:155:24)\n\n  ● Auth Integration Tests › GET /auth/profile › dovrebbe restituire profilo artigiano con dati extended_users\n\n    AxiosError: Request failed with status code 401\n\n      167 |\n      168 |     it('dovrebbe restituire profilo artigiano con dati extended_users', async () => {\n    > 169 |       const response = await axios.get(`${API_BASE_URL}/auth/profile`, {\n          |                        ^\n      170 |         headers: {\n      171 |           'Authorization': `Bearer ${authTokens.artisan}`\n      172 |         }\n\n      at settle (node_modules/axios/lib/core/settle.js:19:12)\n      at IncomingMessage.handleStreamEnd (node_modules/axios/lib/adapters/http.js:599:11)\n      at Axios.request (node_modules/axios/lib/core/Axios.js:45:41)\n      at Object.<anonymous> (tests/auth.integration.test.js:169:24)\n\n  ● Auth Integration Tests › PUT /auth/profile › dovrebbe aggiornare nickname utente\n\n    AxiosError: Request failed with status code 401\n\n      204 |     it('dovrebbe aggiornare nickname utente', async () => {\n      205 |       const newNickname = 'Updated Test Client';\n    > 206 |       const response = await axios.put(`${API_BASE_URL}/auth/profile`, {\n          |                        ^\n      207 |         nickname: newNickname\n      208 |       }, {\n      209 |         headers: {\n\n      at settle (node_modules/axios/lib/core/settle.js:19:12)\n      at IncomingMessage.handleStreamEnd (node_modules/axios/lib/adapters/http.js:599:11)\n      at Axios.request (node_modules/axios/lib/core/Axios.js:45:41)\n      at Object.<anonymous> (tests/auth.integration.test.js:206:24)\n\n  ● Auth Integration Tests › PUT /auth/profile › dovrebbe aggiornare email utente\n\n    AxiosError: Request failed with status code 401\n\n      219 |     it('dovrebbe aggiornare email utente', async () => {\n      220 |       const newEmail = 'updated.client@integration.test';\n    > 221 |       const response = await axios.put(`${API_BASE_URL}/auth/profile`, {\n          |                        ^\n      222 |         email: newEmail\n      223 |       }, {\n      224 |         headers: {\n\n      at settle (node_modules/axios/lib/core/settle.js:19:12)\n      at IncomingMessage.handleStreamEnd (node_modules/axios/lib/adapters/http.js:599:11)\n      at Axios.request (node_modules/axios/lib/core/Axios.js:45:41)\n      at Object.<anonymous> (tests/auth.integration.test.js:221:24)\n\n  ● Auth Integration Tests › PUT /auth/profile › dovrebbe rifiutare aggiornamento senza dati\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: 400\n    Received: 401\n\n      244 |         fail('Dovrebbe lanciare errore senza dati');\n      245 |       } catch (error) {\n    > 246 |         expect(error.response.status).toBe(400);\n          |                                       ^\n      247 |       }\n      248 |     });\n      249 |\n\n      at Object.toBe (tests/auth.integration.test.js:246:39)\n\n  ● Auth Integration Tests › PUT /auth/artisan/bio › dovrebbe aggiornare bio artigiano\n\n    AxiosError: Request failed with status code 401\n\n      263 |     it('dovrebbe aggiornare bio artigiano', async () => {\n      264 |       const bio = 'Questa è la mia bio di test per l\\'artigiano';\n    > 265 |       const response = await axios.put(`${API_BASE_URL}/auth/artisan/bio`, {\n          |                        ^\n      266 |         bio: bio\n      267 |       }, {\n      268 |         headers: {\n\n      at settle (node_modules/axios/lib/core/settle.js:19:12)\n      at IncomingMessage.handleStreamEnd (node_modules/axios/lib/adapters/http.js:599:11)\n      at Axios.request (node_modules/axios/lib/core/Axios.js:45:41)\n      at Object.<anonymous> (tests/auth.integration.test.js:265:24)\n\n  ● Auth Integration Tests › PUT /auth/artisan/bio › dovrebbe rifiutare aggiornamento bio da non-artigiano\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: 500\n    Received: 401\n\n      286 |         fail('Dovrebbe lanciare errore per non-artigiano');\n      287 |       } catch (error) {\n    > 288 |         expect(error.response.status).toBe(500);\n          |                                       ^\n      289 |       }\n      290 |     });\n      291 |\n\n      at Object.toBe (tests/auth.integration.test.js:288:39)\n\n  ● Auth Integration Tests › PUT /auth/artisan/bio › dovrebbe rifiutare aggiornamento bio senza bio\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: 400\n    Received: 401\n\n      299 |         fail('Dovrebbe lanciare errore senza bio');\n      300 |       } catch (error) {\n    > 301 |         expect(error.response.status).toBe(400);\n          |                                       ^\n      302 |       }\n      303 |     });\n      304 |   });\n\n      at Object.toBe (tests/auth.integration.test.js:301:39)\n",
+      "duration": 663,
       "numFailingTests": 11,
       "numPassingTests": 10,
       "numPendingTests": 0,
@@ -473,7 +473,7 @@
           "failureMessages": [
             "AxiosError: Request failed with status code 400\n    at settle (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/settle.js:19:12)\n    at IncomingMessage.handleStreamEnd (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/adapters/http.js:599:11)\n    at IncomingMessage.emit (node:events:536:35)\n    at endReadableNT (node:internal/streams/readable:1698:12)\n    at processTicksAndRejections (node:internal/process/task_queues:82:21)\n    at Axios.request (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/Axios.js:45:41)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Object.<anonymous> (/usr/src/app/Test/Backend-Integrativi/tests/auth.integration.test.js:36:24)"
           ],
-          "duration": 113
+          "duration": 115
         },
         {
           "title": "dovrebbe registrare un nuovo artigiano",
@@ -481,7 +481,7 @@
           "failureMessages": [
             "AxiosError: Request failed with status code 400\n    at settle (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/settle.js:19:12)\n    at IncomingMessage.handleStreamEnd (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/adapters/http.js:599:11)\n    at IncomingMessage.emit (node:events:536:35)\n    at endReadableNT (node:internal/streams/readable:1698:12)\n    at processTicksAndRejections (node:internal/process/task_queues:82:21)\n    at Axios.request (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/Axios.js:45:41)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Object.<anonymous> (/usr/src/app/Test/Backend-Integrativi/tests/auth.integration.test.js:48:24)"
           ],
-          "duration": 15
+          "duration": 22
         },
         {
           "title": "dovrebbe registrare un nuovo admin",
@@ -489,49 +489,49 @@
           "failureMessages": [
             "AxiosError: Request failed with status code 400\n    at settle (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/settle.js:19:12)\n    at IncomingMessage.handleStreamEnd (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/adapters/http.js:599:11)\n    at IncomingMessage.emit (node:events:536:35)\n    at endReadableNT (node:internal/streams/readable:1698:12)\n    at processTicksAndRejections (node:internal/process/task_queues:82:21)\n    at Axios.request (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/Axios.js:45:41)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Object.<anonymous> (/usr/src/app/Test/Backend-Integrativi/tests/auth.integration.test.js:58:24)"
           ],
-          "duration": 20
+          "duration": 16
         },
         {
           "title": "dovrebbe rifiutare registrazione con email duplicata",
           "status": "passed",
           "failureMessages": [],
-          "duration": 28
+          "duration": 21
         },
         {
           "title": "dovrebbe rifiutare registrazione con dati mancanti",
           "status": "passed",
           "failureMessages": [],
-          "duration": 16
+          "duration": 14
         },
         {
           "title": "dovrebbe rifiutare ruolo non valido",
           "status": "passed",
           "failureMessages": [],
-          "duration": 15
+          "duration": 12
         },
         {
           "title": "dovrebbe effettuare login con credenziali valide",
           "status": "passed",
           "failureMessages": [],
-          "duration": 81
+          "duration": 92
         },
         {
           "title": "dovrebbe rifiutare login con password errata",
           "status": "passed",
           "failureMessages": [],
-          "duration": 93
+          "duration": 84
         },
         {
           "title": "dovrebbe rifiutare login con email inesistente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 26
+          "duration": 20
         },
         {
           "title": "dovrebbe rifiutare login con dati mancanti",
           "status": "passed",
           "failureMessages": [],
-          "duration": 15
+          "duration": 13
         },
         {
           "title": "dovrebbe restituire profilo utente con token valido",
@@ -539,7 +539,7 @@
           "failureMessages": [
             "AxiosError: Request failed with status code 401\n    at settle (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/settle.js:19:12)\n    at IncomingMessage.handleStreamEnd (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/adapters/http.js:599:11)\n    at IncomingMessage.emit (node:events:536:35)\n    at endReadableNT (node:internal/streams/readable:1698:12)\n    at processTicksAndRejections (node:internal/process/task_queues:82:21)\n    at Axios.request (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/Axios.js:45:41)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Object.<anonymous> (/usr/src/app/Test/Backend-Integrativi/tests/auth.integration.test.js:155:24)"
           ],
-          "duration": 11
+          "duration": 10
         },
         {
           "title": "dovrebbe restituire profilo artigiano con dati extended_users",
@@ -547,19 +547,19 @@
           "failureMessages": [
             "AxiosError: Request failed with status code 401\n    at settle (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/settle.js:19:12)\n    at IncomingMessage.handleStreamEnd (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/adapters/http.js:599:11)\n    at IncomingMessage.emit (node:events:536:35)\n    at endReadableNT (node:internal/streams/readable:1698:12)\n    at processTicksAndRejections (node:internal/process/task_queues:82:21)\n    at Axios.request (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/Axios.js:45:41)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Object.<anonymous> (/usr/src/app/Test/Backend-Integrativi/tests/auth.integration.test.js:169:24)"
           ],
-          "duration": 12
+          "duration": 8
         },
         {
           "title": "dovrebbe rifiutare accesso senza token",
           "status": "passed",
           "failureMessages": [],
-          "duration": 11
+          "duration": 9
         },
         {
           "title": "dovrebbe rifiutare accesso con token non valido",
           "status": "passed",
           "failureMessages": [],
-          "duration": 11
+          "duration": 9
         },
         {
           "title": "dovrebbe aggiornare nickname utente",
@@ -567,7 +567,7 @@
           "failureMessages": [
             "AxiosError: Request failed with status code 401\n    at settle (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/settle.js:19:12)\n    at IncomingMessage.handleStreamEnd (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/adapters/http.js:599:11)\n    at IncomingMessage.emit (node:events:536:35)\n    at endReadableNT (node:internal/streams/readable:1698:12)\n    at processTicksAndRejections (node:internal/process/task_queues:82:21)\n    at Axios.request (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/Axios.js:45:41)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Object.<anonymous> (/usr/src/app/Test/Backend-Integrativi/tests/auth.integration.test.js:206:24)"
           ],
-          "duration": 12
+          "duration": 11
         },
         {
           "title": "dovrebbe aggiornare email utente",
@@ -575,21 +575,21 @@
           "failureMessages": [
             "AxiosError: Request failed with status code 401\n    at settle (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/settle.js:19:12)\n    at IncomingMessage.handleStreamEnd (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/adapters/http.js:599:11)\n    at IncomingMessage.emit (node:events:536:35)\n    at endReadableNT (node:internal/streams/readable:1698:12)\n    at processTicksAndRejections (node:internal/process/task_queues:82:21)\n    at Axios.request (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/Axios.js:45:41)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Object.<anonymous> (/usr/src/app/Test/Backend-Integrativi/tests/auth.integration.test.js:221:24)"
           ],
-          "duration": 11
+          "duration": 9
         },
         {
           "title": "dovrebbe rifiutare aggiornamento senza dati",
           "status": "failed",
           "failureMessages": [
-            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m400\u001b[39m\nReceived: \u001b[31m401\u001b[39m\n    at Object.toBe (/usr/src/app/Test/Backend-Integrativi/tests/auth.integration.test.js:246:39)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+            "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 400\nReceived: 401\n    at Object.toBe (/usr/src/app/Test/Backend-Integrativi/tests/auth.integration.test.js:246:39)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
           ],
-          "duration": 14
+          "duration": 10
         },
         {
           "title": "dovrebbe rifiutare aggiornamento senza token",
           "status": "passed",
           "failureMessages": [],
-          "duration": 17
+          "duration": 9
         },
         {
           "title": "dovrebbe aggiornare bio artigiano",
@@ -597,23 +597,23 @@
           "failureMessages": [
             "AxiosError: Request failed with status code 401\n    at settle (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/settle.js:19:12)\n    at IncomingMessage.handleStreamEnd (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/adapters/http.js:599:11)\n    at IncomingMessage.emit (node:events:536:35)\n    at endReadableNT (node:internal/streams/readable:1698:12)\n    at processTicksAndRejections (node:internal/process/task_queues:82:21)\n    at Axios.request (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/Axios.js:45:41)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Object.<anonymous> (/usr/src/app/Test/Backend-Integrativi/tests/auth.integration.test.js:265:24)"
           ],
-          "duration": 13
+          "duration": 10
         },
         {
           "title": "dovrebbe rifiutare aggiornamento bio da non-artigiano",
           "status": "failed",
           "failureMessages": [
-            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m500\u001b[39m\nReceived: \u001b[31m401\u001b[39m\n    at Object.toBe (/usr/src/app/Test/Backend-Integrativi/tests/auth.integration.test.js:288:39)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+            "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 500\nReceived: 401\n    at Object.toBe (/usr/src/app/Test/Backend-Integrativi/tests/auth.integration.test.js:288:39)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
           ],
-          "duration": 15
+          "duration": 9
         },
         {
           "title": "dovrebbe rifiutare aggiornamento bio senza bio",
           "status": "failed",
           "failureMessages": [
-            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m400\u001b[39m\nReceived: \u001b[31m401\u001b[39m\n    at Object.toBe (/usr/src/app/Test/Backend-Integrativi/tests/auth.integration.test.js:301:39)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+            "Error: expect(received).toBe(expected) // Object.is equality\n\nExpected: 400\nReceived: 401\n    at Object.toBe (/usr/src/app/Test/Backend-Integrativi/tests/auth.integration.test.js:301:39)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
           ],
-          "duration": 14
+          "duration": 11
         }
       ]
     },
@@ -621,7 +621,7 @@
       "name": "connection.test.js",
       "status": "passed",
       "message": "",
-      "duration": 192,
+      "duration": 135,
       "numFailingTests": 0,
       "numPassingTests": 1,
       "numPendingTests": 0,
@@ -630,7 +630,7 @@
           "title": "dovrebbe connettersi al backend",
           "status": "passed",
           "failureMessages": [],
-          "duration": 41
+          "duration": 18
         }
       ]
     },
@@ -638,7 +638,7 @@
       "name": "base.test.js",
       "status": "passed",
       "message": "",
-      "duration": 163,
+      "duration": 109,
       "numFailingTests": 0,
       "numPassingTests": 2,
       "numPendingTests": 0,
@@ -653,7 +653,7 @@
           "title": "dovrebbe supportare richieste HTTP",
           "status": "passed",
           "failureMessages": [],
-          "duration": 32
+          "duration": 21
         }
       ]
     }

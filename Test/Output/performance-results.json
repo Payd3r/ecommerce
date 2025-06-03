@@ -1,6 +1,6 @@
 {
   "testType": "performance",
-  "timestamp": "2025-06-03T19:15:10.367Z",
+  "timestamp": "2025-06-03T20:23:38.831Z",
   "summary": {
     "numTotalTests": 6,
     "numPassedTests": 6,
@@ -21,7 +21,7 @@
       "name": "/usr/src/app/Test/Performance/tests/api-performance.test.js",
       "status": "passed",
       "message": "",
-      "duration": 3077,
+      "duration": 2814,
       "numFailingTests": 0,
       "numPassingTests": 0,
       "numPendingTests": 0,
@@ -30,37 +30,37 @@
           "title": "GET /products - Response Time Test",
           "status": "passed",
           "failureMessages": [],
-          "duration": 158
+          "duration": 118
         },
         {
           "title": "GET /products/:id - Single Product Performance",
           "status": "passed",
           "failureMessages": [],
-          "duration": 445
+          "duration": 403
         },
         {
           "title": "GET /categories - Categories List Performance",
           "status": "passed",
           "failureMessages": [],
-          "duration": 98
+          "duration": 66
         },
         {
           "title": "POST /auth/login - Login Performance",
           "status": "passed",
           "failureMessages": [],
-          "duration": 232
+          "duration": 120
         },
         {
           "title": "Mixed API Load Test",
           "status": "passed",
           "failureMessages": [],
-          "duration": 756
+          "duration": 597
         },
         {
           "title": "Database Connection Pool Test",
           "status": "passed",
           "failureMessages": [],
-          "duration": 317
+          "duration": 327
         }
       ]
     }

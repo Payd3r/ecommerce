@@ -111,13 +111,13 @@ services:
     depends_on:
       - backend
     environment:
-      REACT_APP_API_URL: http://localhost:3016
+      REACT_APP_API_URL: http://localhost:3015
 
   # Production backend API
   backend:
     build: ./Backend
     ports:
-      - "3016:3015"
+      - "3015:3015"
     depends_on:
       - db
     environment:

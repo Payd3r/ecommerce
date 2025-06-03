@@ -1,7 +1,7 @@
 // Performance test configuration
 module.exports = {
   server: {
-    baseUrl: 'http://localhost:3016', // Backend locale nel container
+    baseUrl: 'http://localhost:3015', // Backend locale nel container
     timeout: 30000
   },
   
