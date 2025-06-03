@@ -14,12 +14,15 @@ services:
       - mariadbdata:/var/lib/mysql
       - ./Backend/db.sql:/docker-entrypoint-initdb.d/db.sql
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
   backend:
     build: ./Backend
     container_name: node-backend
     restart: always
 =======
+=======
+>>>>>>> Stashed changes
     healthcheck:
       test: ["CMD", "mariadb", "-h", "localhost", "-u", "admin", "-p1234", "-e", "SELECT 1"]
       timeout: 20s
@@ -29,6 +32,9 @@ services:
   backend:
     build: ./Backend
     container_name: ecommerce-backend
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     ports:
       - "3015:3015"
@@ -42,6 +48,7 @@ services:
       DB_PASSWORD: 1234
       DB_NAME: ecommerce_db
       DB_PORT: 3306
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
       JWT_SECRET: ecommerce_artisan_platform_secret_key
     volumes:
@@ -66,6 +73,8 @@ services:
 volumes:
   mariadbdata: 
 =======
+=======
+>>>>>>> Stashed changes
       JWT_SECRET: ecommerce_secret_key_2024
     volumes:
       - shared_media:/usr/src/app/Media
@@ -101,5 +110,9 @@ volumes:
 
 volumes:
   mariadbdata:    # Production data persistence
+<<<<<<< Updated upstream
+  shared_media:   # Shared media storage between backend and imageserver
+>>>>>>> Stashed changes
+=======
   shared_media:   # Shared media storage between backend and imageserver
 >>>>>>> Stashed changes

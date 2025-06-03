@@ -239,6 +239,9 @@ router.get('/:orderId/items', async (req, res) => {
  */
 // GET /orders/:orderId/items - Ottieni gli item di un ordine specifico
 router.get('/:orderId/items', verifyToken, async (req, res) => {
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     const orderId = parseInt(req.params.orderId);
     if (isNaN(orderId)) {
@@ -387,15 +390,21 @@ router.put('/:orderId', verifyToken, async (req, res) => {
     const orderId = parseInt(req.params.orderId);
     const { status } = req.body;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     if (isNaN(orderId) || !status) {
         return res.status(400).json({ error: 'ID ordine o stato non valido' });
 =======
+=======
+>>>>>>> Stashed changes
     
     console.log(`[PUT /orders/${orderId}] Request received. Status: ${status}, User: ${req.user.id}, Role: ${req.user.role}`);
     
     if (isNaN(orderId)) {
         console.log(`[PUT /orders/${orderId}] Invalid order ID`);
         return res.status(400).json({ error: 'ID ordine non valido', debug: { orderId, status, body: req.body } });
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     }
     

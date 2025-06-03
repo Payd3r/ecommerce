@@ -125,8 +125,11 @@ router.get('/:id', async (req, res) => {
         res.json({
             ...product[0],
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
             images
 =======
+=======
+>>>>>>> Stashed changes
             price: Number(product[0].price),
             discount: Number(product[0].discount || 0),
             stock: Number(product[0].stock || 0),
@@ -210,6 +213,7 @@ router.put('/:id', verifyToken, checkRole('artisan'), async (req, res) => {
         }
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         // Aggiorna il prodotto
         await db.query(
             `UPDATE products 
@@ -218,6 +222,8 @@ router.put('/:id', verifyToken, checkRole('artisan'), async (req, res) => {
             [name, description, price, stock, category_id, productId, artisan_id]
         );
 =======
+=======
+>>>>>>> Stashed changes
         if (user.role === 'admin') {
             await db.query(
                 `UPDATE products 

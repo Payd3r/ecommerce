@@ -8,6 +8,9 @@
 =======
     "test": "mocha --exit --timeout 10000",
     "test:unit": "NODE_ENV=test mocha --exit --timeout 10000",
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     "start": "node app.js",
     "dev": "nodemon app.js"
