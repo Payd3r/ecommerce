@@ -194,7 +194,7 @@ export async function loadManageProductsPage() {
         
         // Container per i bottoni
         const btnGroup = document.createElement('div');
-        btnGroup.className = 'btn-group';
+        btnGroup.className = 'btn-group py-2';
         
         // Bottone Precedente
         if (currentPage > 1) {
@@ -264,16 +264,25 @@ export async function loadManageProductsPage() {
     // HTML
     pageElement.innerHTML = `
         <div class="container pt-2 pb-5 products-page">
-            <div class="row align-items-center mb-0 mb-md-2">
-                <div class="col-12 mb-2">
-                    <button class="btn btn-outline-secondary" id="back-btn"><i class="bi bi-arrow-left"></i> Torna indietro</button>
+            <!-- DESKTOP: Titolo e sottotitolo allineati a sinistra -->
+            <div class="d-none d-md-block">
+                <div class="row mb-0 mb-md-2">
+                    <div class="col-12">
+                        <h1 class="page-title mb-1">Gestione Prodotti</h1>
+                        <div class="page-subtitle mb-3">Gestisci i tuoi prodotti artigianali, aggiungi nuovi articoli o modifica quelli esistenti.</div>
+                    </div>
                 </div>
-                <!-- Desktop: titolo e aggiungi prodotto sulla stessa riga -->
-                <div class="col-12 d-none d-md-flex align-items-center justify-content-between">
-                    <h1 class="page-title mb-0">Gestione Prodotti</h1>
-                    <a href="#" id="addProductBtn" class="btn btn-success">Aggiungi prodotto</a>
+                <div class="row align-items-center mb-4">
+                    <div class="col-6">
+                        <button class="btn btn-outline-secondary" id="back-btn"><i class="bi bi-arrow-left"></i> Torna indietro</button>
+                    </div>
+                    <div class="col-6 text-end">
+                        <a href="#" id="addProductBtn" class="btn btn-success">Aggiungi prodotto</a>
+                    </div>
                 </div>
-                <!-- Mobile: titolo su una riga, bottoni su riga sotto -->
+            </div>
+            <!-- MOBILE: tutto invariato -->
+            <div class="row d-md-none align-items-center mb-0 mb-md-2">
                 <div class="col-12 d-flex d-md-none flex-column gap-2">
                     <h1 class="page-title mb-2">Gestione Prodotti</h1>
                     <div class="d-flex gap-2">
@@ -284,9 +293,8 @@ export async function loadManageProductsPage() {
                     </div>
                 </div>
             </div>
-            <div class="page-subtitle mb-4">Gestisci i tuoi prodotti artigianali, aggiungi nuovi articoli o modifica quelli esistenti.</div>
             <div class="row pb-5 pt-2">
-                <aside class="col-12 col-md-4 mb-4 mb-md-0 filters-container" style="${window.innerWidth < 768 ? 'display:none;' : ''}">
+                <aside class="col-12 col-md-4 mb-4 mb-md-0" id="filters-container" style="${window.innerWidth < 768 ? 'display:none;' : ''}">
                     <div class="card shadow-sm border-0 p-3 position-relative me-0 me-md-3">
                         <button type="reset" class="btn btn-link text-secondary position-absolute top-0 end-0 mt-4 me-2 p-0" id="reset-filters" style="font-size:1rem;">Reset</button>
                         <h5 class="mb-3">Filtra i risultati</h5>
@@ -332,7 +340,7 @@ export async function loadManageProductsPage() {
                                 <tbody id="products-table-body"></tbody>
                             </table>
                         </div>
-                        <div class="card-footer">
+                        <div class="card-footer p-0 border-0">
                             <nav>
                                 <ul class="pagination justify-content-center mb-0" id="products-pagination"></ul>
                             </nav>
@@ -443,7 +451,7 @@ export async function loadManageProductsPage() {
     };
     // Bottone filtri mobile: mostra/nasconde i filtri
     const toggleFiltersBtn = pageElement.querySelector('#toggle-filters');
-    const filtersContainer = pageElement.querySelector('.filters-container');
+    const filtersContainer = pageElement.querySelector('#filters-container');
     if (toggleFiltersBtn && filtersContainer) {
         toggleFiltersBtn.onclick = () => {
             if (filtersContainer.style.display === 'none' || filtersContainer.style.display === '') {

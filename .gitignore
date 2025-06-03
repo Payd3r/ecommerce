@@ -1,3 +1,6 @@
 Media/*
 Test/node_modules/*
 Backend/node_modules/*
+Test/Backend-Integrativi/node_modules/*
+Test/Backend-Unitari/node_modules/*
+Test/Frontend/node_modules/*

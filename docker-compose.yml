@@ -1,4 +1,5 @@
 services:
+  # Production database - persistent data
   db:
     image: mariadb:11
     container_name: mariadb-db
@@ -13,52 +14,150 @@ services:
     volumes:
       - mariadbdata:/var/lib/mysql      
       - ./Backend/db.sql:/docker-entrypoint-initdb.d/db.sql
+    # healthcheck:
+    #   test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pusf6FFdMfLXgAGqORnmR8"]
+    #   timeout: 20s
+    #   retries: 10
 
+  # Test database - optimized for fast test execution
+  db-test:
+    image: mariadb:11
+    container_name: mariadb-test-db
+    environment:
+      MYSQL_ROOT_PASSWORD: test_password
+      MYSQL_DATABASE: test_db
+      MYSQL_USER: test_user
+      MYSQL_PASSWORD: test_password
+      # Performance tuning for tests - disable durability for speed
+      MYSQL_INNODB_FLUSH_LOG_AT_TRX_COMMIT: 0
+      MYSQL_INNODB_FLUSH_METHOD: O_DIRECT
+      MYSQL_INNODB_BUFFER_POOL_SIZE: 128M
+    ports:
+      - "3307:3306"
+    volumes:
+      - test_db_data:/var/lib/mysql
+      - ./Backend/db.sql:/docker-entrypoint-initdb.d/db.sql
+    # Use tmpfs for logs to reduce I/O
+    tmpfs:
+      - /tmp
+      - /var/log
+    healthcheck:
+      test: ["CMD", "mariadb", "-h", "localhost", "-u", "root", "-ptest_password", "-e", "SELECT 1"]
+      timeout: 20s
+      retries: 10
+
+  # Backend unit tests - isolated, no external dependencies
+  test-unitari:
+    build:
+      context: .
+      dockerfile: ./Test/Backend-Unitari/Dockerfile
+    environment:
+      NODE_ENV: test
+    volumes:
+      - ./Test/Output:/usr/src/app/Test/Output
+    working_dir: /usr/src/app/Test/Backend-Unitari
+
+  # Backend integration tests - requires test database and backend
+  test-integrativi:
+    build:
+      context: .
+      dockerfile: ./Test/Backend-Integrativi/Dockerfile
+    depends_on:
+      db-test:
+        condition: service_healthy
+      backend-test:
+        condition: service_healthy
+    environment:
+      NODE_ENV: test
+      API_BASE_URL: http://backend-test:3015
+    volumes:
+      - ./Test/Output:/usr/src/app/Test/Output
+    working_dir: /usr/src/app/Test/Backend-Integrativi
+    restart: "no"
+
+  # Frontend tests - DOM testing with jsdom
+  test-frontend:
+    build:
+      context: .
+      dockerfile: ./Test/Frontend/Dockerfile
+    environment:
+      NODE_ENV: test
+      REACT_APP_API_URL: http://backend-test:3015
+    volumes:
+      - ./Test/Output:/usr/src/app/Test/Output
+    working_dir: /usr/src/app/Test/Frontend
+    restart: "no"
+
+  # Performance tests - load testing and benchmarks
+  test-performance:
+    build:
+      context: .
+      dockerfile: ./Test/Performance/Dockerfile
+    depends_on:
+      - backend-test
+    environment:
+      NODE_ENV: test
+      API_BASE_URL: http://backend-test:3015
+    volumes:
+      - ./Test/Output:/usr/src/app/Test/Output
+    working_dir: /usr/src/app/Test/Performance
+    restart: "no"
+
+  # Production frontend server
+  frontend:
+    build: ./Frontend
+    ports:
+      - "3010:80"
+    depends_on:
+      - backend
+    environment:
+      REACT_APP_API_URL: http://localhost:3016
+
+  # Production backend API
   backend:
     build: ./Backend
-    container_name: node-backend
-    restart: always
     ports:
-      - "3015:3015"
+      - "3016:3015"
     depends_on:
       - db
     environment:
+      NODE_ENV: production
       PORT: 3015
       DB_HOST: db
       DB_USER: ukiui5tx8fkytjk
       DB_PASSWORD: usf6FFdMfLXgAGqORnmR8
       DB_NAME: bhhcfb8lkdjzm7yexzpq
       DB_PORT: 3306
-      JWT_SECRET: ecommerce_artisan_platform_secret_key
-    volumes:
-      - ./Backend:/usr/src/app
-      # Volume condiviso per le immagini caricate dagli utenti
-      - ./Media:/usr/src/app/Media
-      - /usr/src/app/node_modules
-    working_dir: /usr/src/app
-    command: npm run dev
+      JWT_SECRET: your_jwt_secret_key_here
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3015/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
-  frontend:
-    build: ./Frontend
-    container_name: node-frontend
-    restart: always
-    ports:
-      - "3010:80"
+  # Backend for tests - uses test database
+  backend-test:
+    build: ./Backend
     depends_on:
-      - backend
-    volumes:
-      - ./Frontend:/usr/share/nginx/html
-      # NON montare ./Media qui, le immagini pubbliche sono servite da imageserver
-
-  imageserver:
-    image: nginx:alpine
-    container_name: imageserver
-    restart: always
-    ports:
-      - "8080:80"
-    volumes:
-      # Volume condiviso per le immagini pubbliche
-      - ./Media:/usr/share/nginx/html/Media
+      db-test:
+        condition: service_healthy
+    environment:
+      NODE_ENV: test
+      PORT: 3015
+      DB_HOST: db-test
+      DB_USER: test_user
+      DB_PASSWORD: test_password
+      DB_NAME: test_db
+      DB_PORT: 3306
+      JWT_SECRET: test_secret_key
+    command: ["npm", "start"]
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3015/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: "no"  # Non riavviare automaticamente
 
 volumes:
-  mariadbdata: 
+  mariadbdata:    # Production data persistence
+  test_db_data:   # Test data persistence (session-scoped)

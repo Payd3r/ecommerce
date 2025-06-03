@@ -1,0 +1,69 @@
+{
+  "testType": "performance",
+  "timestamp": "2025-06-03T19:15:10.367Z",
+  "summary": {
+    "numTotalTests": 6,
+    "numPassedTests": 6,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numSkippedTests": 0,
+    "success": true,
+    "duration": 0
+  },
+  "performanceMetrics": {
+    "responseTimes": [],
+    "errorRates": [],
+    "throughput": [],
+    "summary": {}
+  },
+  "testResults": [
+    {
+      "name": "/usr/src/app/Test/Performance/tests/api-performance.test.js",
+      "status": "passed",
+      "message": "",
+      "duration": 3077,
+      "numFailingTests": 0,
+      "numPassingTests": 0,
+      "numPendingTests": 0,
+      "assertionResults": [
+        {
+          "title": "GET /products - Response Time Test",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 158
+        },
+        {
+          "title": "GET /products/:id - Single Product Performance",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 445
+        },
+        {
+          "title": "GET /categories - Categories List Performance",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 98
+        },
+        {
+          "title": "POST /auth/login - Login Performance",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 232
+        },
+        {
+          "title": "Mixed API Load Test",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 756
+        },
+        {
+          "title": "Database Connection Pool Test",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 317
+        }
+      ]
+    }
+  ],
+  "coverage": null
+}

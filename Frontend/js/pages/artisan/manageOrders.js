@@ -35,96 +35,110 @@ export async function loadManageOrdersPage() {
 
     // HTML struttura principale
     pageElement.innerHTML = `
-        <div class="container mt-4">
-            <div class="row align-items-center mb-0 mb-md-2">
-                <div class="col-12 mb-2">
-                    <button class="btn btn-outline-secondary" id="back-btn"><i class="bi bi-arrow-left"></i> Torna indietro</button>
+        <div class="container pt-2 pb-5 orders-page">
+            <!-- DESKTOP: Titolo e sottotitolo allineati a sinistra -->
+            <div class="d-none d-md-block">
+                <div class="row mb-0 mb-md-2">
+                    <div class="col-12">
+                        <h1 class="page-title mb-1">Gestione Ordini</h1>
+                        <div class="page-subtitle mb-3">Gestisci i tuoi ordini, aggiorna lo stato o consulta i dettagli.</div>
+                    </div>
                 </div>
-                <!-- Desktop: titolo e aggiorna lista sulla stessa riga -->
-                <div class="col-12 d-none d-md-flex align-items-center justify-content-between">
-                    <h1 class="page-title mb-0">Gestione Ordini</h1>
-                    <button id="refresh-orders-btn" class="btn btn-primary">Aggiorna Lista</button>
+                <div class="row align-items-center mb-4">
+                    <div class="col-6">
+                        <button class="btn btn-outline-secondary" id="back-btn"><i class="bi bi-arrow-left"></i> Torna indietro</button>
+                    </div>
+                    <div class="col-6 text-end">
+                        <button id="refresh-orders-btn" class="btn btn-primary">Aggiorna lista</button>
+                    </div>
                 </div>
-                <!-- Mobile: titolo su una riga, bottoni su riga sotto -->
-                <div class="col-12 d-flex d-md-none flex-column gap-2 mb-3">
+            </div>
+            <!-- MOBILE: tutto invariato -->
+            <div class="row d-md-none align-items-center mb-0 mb-md-2">
+                <div class="col-12 d-flex d-md-none flex-column gap-2">
                     <h1 class="page-title mb-2">Gestione Ordini</h1>
                     <div class="d-flex gap-2">
                         <button id="toggle-filters" class="btn btn-outline-primary flex-fill" type="button">
                             <i class="bi bi-funnel"></i> Filtri
                         </button>
-                        <button id="refresh-orders-btn-mobile" class="btn btn-primary flex-fill"><i class="bi bi-arrow-clockwise me-2"></i>Aggiorna Lista</button>
+                        <button id="refresh-orders-btn-mobile" class="btn btn-primary flex-fill"><i class="bi bi-arrow-clockwise me-2"></i>Aggiorna lista</button>
                     </div>
                 </div>
             </div>
-            <div class="row align-items-start">
-                <div class="col-md-4 pb-4" id="filters-card">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Filtri</h5>
-                            <form id="filters-form">
-                                <div class="form-group mb-3">
-                                    <label for="filter-customer">Cliente</label>
-                                    <input type="text" id="filter-customer" name="filter-customer" class="form-control" placeholder="Nome cliente">
-                                </div>
-                                <div class="form-group mb-3">
-                                    <label for="filter-status">Stato</label>
-                                    <select id="filter-status" name="filter-status" class="form-control">
-                                        <option value="">Tutti</option>
-                                        ${statusOptions.map(s => `<option value="${s.value}">${s.label}</option>`).join('')}
-                                    </select>
-                                </div>
-                                <div class="form-group mb-3">
-                                    <label>Data ordine</label>
-                                    <div class="d-flex gap-2">
-                                        <input type="date" id="filter-date-from" name="filter-date-from" class="form-control" placeholder="Da">
-                                        <input type="date" id="filter-date-to" name="filter-date-to" class="form-control" placeholder="A">
-                                    </div>
-                                </div>
-                                <div class="form-group mb-3">
-                                    <label>Totale ordine (€)</label>
-                                    <div class="d-flex gap-2">
-                                        <input type="number" step="0.01" min="0" id="filter-total-min" name="filter-total-min" class="form-control" placeholder="Min">
-                                        <input type="number" step="0.01" min="0" id="filter-total-max" name="filter-total-max" class="form-control" placeholder="Max">
-                                    </div>
-                                </div>
-                                <div class="form-group mb-3">
-                                    <label for="filter-sort">Ordinamento</label>
-                                    <select id="filter-sort" name="filter-sort" class="form-control">
-                                        <option value="desc">Dal più recente</option>
-                                        <option value="asc">Dal meno recente</option>
-                                    </select>
-                                </div>
-                                <div class="d-flex justify-content-between">
-                                    <button type="button" id="apply-filters-btn" class="btn btn-primary">Applica Filtri</button>
-                                    <button type="button" id="reset-filters-btn" class="btn btn-secondary">Reset Filtri</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-8 mb-5 pb-4">
-                    <div class="card h-100">
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">Ordini</h5>
-                            <div class="table-responsive flex-grow-1">
-                                <table class="table mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Cliente</th>
-                                            <th>Totale</th>
-                                            <th>Stato</th>
-                                            <th id="sort-created-col" style="cursor:pointer">Data <span id="sort-created-icon"></span></th>
-                                            <th>Azioni</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="orders-table-body"></tbody>
-                                </table>
+            <div class="row pb-5 pt-2">
+                <aside class="col-12 col-md-4 mb-4 mb-md-0" id="filters-container" style="${window.innerWidth < 768 ? 'display:none;' : ''}">
+                    <div class="card shadow-sm border-0 p-3 position-relative me-0 me-md-3">
+                        <button type="reset" class="btn btn-link text-secondary position-absolute top-0 end-0 mt-4 me-2 p-0" id="reset-filters-btn" style="font-size:1rem;">Reset</button>
+                        <h5 class="mb-3">Filtra gli ordini</h5>
+                        <form id="filters-form" class="filters-form">
+                            <div class="mb-3">
+                                <label for="filter-customer" class="form-label">Cliente</label>
+                                <input type="text" id="filter-customer" name="filter-customer" class="form-control" placeholder="Nome cliente">
                             </div>
-                            <div id="pagination-container" class="mt-3 d-flex justify-content-center"></div>
+                            <div class="mb-3">
+                                <label for="filter-status" class="form-label">Stato</label>
+                                <select id="filter-status" name="filter-status" class="form-control">
+                                    <option value="">Tutti</option>
+                                    ${statusOptions.map(s => `<option value="${s.value}">${s.label}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label for="filter-date-from" class="form-label">Da</label>
+                                    <input type="date" id="filter-date-from" name="filter-date-from" class="form-control" placeholder="Da">
+                                </div>
+                                <div class="col-6">
+                                    <label for="filter-date-to" class="form-label">A</label>
+                                    <input type="date" id="filter-date-to" name="filter-date-to" class="form-control" placeholder="A">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label for="filter-total-min" class="form-label">Totale min (€)</label>
+                                    <input type="number" step="0.01" min="0" id="filter-total-min" name="filter-total-min" class="form-control" placeholder="Min">
+                                </div>
+                                <div class="col-6">
+                                    <label for="filter-total-max" class="form-label">Totale max (€)</label>
+                                    <input type="number" step="0.01" min="0" id="filter-total-max" name="filter-total-max" class="form-control" placeholder="Max">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="filter-sort" class="form-label">Ordinamento</label>
+                                <select id="filter-sort" name="filter-sort" class="form-control">
+                                    <option value="desc">Dal più recente</option>
+                                    <option value="asc">Dal meno recente</option>
+                                </select>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <button type="button" id="apply-filters-btn" class="btn btn-primary w-100">Applica Filtri</button>
+                            </div>
+                        </form>
+                    </div>
+                </aside>
+                <main class="col-12 col-md-8">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-body p-0">
+                            <table class="table table-bordered align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Cliente</th>
+                                        <th>Totale</th>
+                                        <th>Stato</th>
+                                        <th id="sort-created-col" style="cursor:pointer">Data <span id="sort-created-icon"></span></th>
+                                        <th>Azioni</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orders-table-body"></tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer p-0 border-0">
+                            <nav>
+                                <ul class="pagination justify-content-center mb-0" id="pagination-container"></ul>
+                            </nav>
                         </div>
                     </div>
-                </div>
+                </main>
             </div>
         </div>`;
 
@@ -627,7 +641,7 @@ export async function loadManageOrdersPage() {
 
     // Bottone filtri mobile: mostra/nasconde i filtri
     const toggleFiltersBtn = pageElement.querySelector('#toggle-filters');
-    const filtersCard = pageElement.querySelector('#filters-card');
+    const filtersCard = pageElement.querySelector('#filters-container');
     if (toggleFiltersBtn && filtersCard) {
         toggleFiltersBtn.onclick = () => {
             if (filtersCard.style.display === 'none' || filtersCard.style.display === '') {

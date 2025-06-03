@@ -84,7 +84,7 @@ export async function loadCategoriesManagementPage() {
             ${nodes.map(cat => `
                 <li class="list-group-item d-flex align-items-center justify-content-between bg-light mb-1 rounded-3" style="padding-left: ${level * 32 + 32}px;">
                     <div class="d-flex align-items-center gap-2">
-                        ${cat.image ? `<img src=\"${getApiUrl()}${cat.image}\" alt=\"img\" style=\"width:40px; height:40px; object-fit:cover; border-radius:8px; border:1.5px solid #e0e0e0;\" />` : ''}
+                        ${cat.image ? `<img src=\"${cat.image}\" alt=\"img\" style=\"width:40px; height:40px; object-fit:cover; border-radius:8px; border:1.5px solid #e0e0e0;\" />` : ''}
                         <strong>${cat.name}</strong>
                         <span class="text-muted small ms-2">${cat.description || ''}</span>
                     </div>
@@ -245,7 +245,7 @@ export async function loadCategoriesManagementPage() {
                             <div id="categoryImagePreviewWrapper" class="mt-2">
                                 ${imageUrl ? `
                                     <div style=\"position:relative; display:inline-block;\">
-                                        <img src=\"${getApiUrl()}${imageUrl}\" alt=\"img\" style=\"width:80px; height:80px; object-fit:cover; border-radius:8px; border:1.5px solid #e0e0e0;\" />
+                                        <img src=\"${imageUrl}\" alt=\"img\" style=\"width:80px; height:80px; object-fit:cover; border-radius:8px; border:1.5px solid #e0e0e0;\" />
                                         <button type=\"button\" id=\"deleteCategoryImgBtn\" style=\"position:absolute; top:0; right:0; background:rgba(255,255,255,0.8); border:none; border-radius:50%;\"><i class=\"bi bi-x-lg\"></i></button>
                                     </div>
                                 ` : ''}

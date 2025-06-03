@@ -38,14 +38,14 @@ export async function loadCategoryPage() {
 
     // Ricorsiva: genera HTML per ogni nodo e figli (accordion per i nodi con figli)
     function renderCategoryNodes(nodes, level = 0, parentKey = '') {
-        return `<ul class="list-group list-group-flush">
+        return `<ul class="list-group list-group-flush mb-3">
             ${nodes.map((cat, idx) => {
                 const hasChildren = cat.children && cat.children.length > 0;
                 const nodeKey = parentKey + 'n' + cat.id;
                 return `
-                    <li class="list-group-item bg-light mb-3 rounded-3 p-0" style="padding-left: ${level * 16 + 16}px;">
+                    <li class="list-group-item bg-light rounded-3 p-0 ${hasChildren ? 'mb-3' : ''}" style="padding-left: ${level * 16 + 16}px;">
                         <div class="d-flex align-items-center gap-2 ${hasChildren ? 'category-accordion-header' : ''}" data-key="${nodeKey}" style="cursor: ${hasChildren ? 'pointer' : 'default'}; padding: 12px 16px;">
-                            ${cat.image ? `<img src=\"${cat.image}\" alt=\"img\" style=\"width:40px; height:40px; object-fit:cover; border-radius:8px; border:1.5px solid #e0e0e0;\" />` : ''}
+                            ${cat.image ? `<img src=\"${cat.image}\" alt=\"img\" style=\"margin-left:${level * 18}px; width:40px; height:40px; object-fit:cover; border-radius:8px; border:1.5px solid #e0e0e0;\" />` : ''}
                             <strong style=\"padding-left:${level * 18}px;\">${cat.name}</strong>
                             <span class="text-muted small ms-2 d-none d-md-inline">${cat.description || ''}</span>
                             ${hasChildren ? `<span class=\"ms-auto category-accordion-toggle\"><i class=\"bi bi-chevron-down\"></i></span>` : ''}
