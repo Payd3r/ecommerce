@@ -2,19 +2,19 @@ FROM node:20-alpine
 
 WORKDIR /usr/src/app
 
-# Installa Jest globalmente
-RUN npm install -g jest
+# Copia tutto il codice sorgente necessario
+COPY ./Frontend ./Frontend/
+COPY ./Test/Frontend ./Test/Frontend/
 
-# Installa le dipendenze per i test
-COPY ./Test/Frontend/package*.json ./Test/Frontend/
+# Installa le dipendenze di test
 WORKDIR /usr/src/app/Test/Frontend
 RUN npm install
 
-# Torna alla cartella principale
-WORKDIR /usr/src/app
+# Crea la cartella per i risultati dei test
+RUN mkdir -p /usr/src/app/Test/Output
 
-# Crea una cartella per il frontend
-RUN mkdir -p Frontend
+# Imposta i permessi corretti
+RUN chmod -R 777 /usr/src/app/Test/Output
 
-# Comando predefinito: esegui i test frontend
-CMD ["npm", "run", "test", "--prefix", "/usr/src/app/Test/Frontend"] 
+# Comando di default per eseguire i test
+CMD ["npm", "test"] 

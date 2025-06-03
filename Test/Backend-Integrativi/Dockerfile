@@ -2,41 +2,38 @@ FROM node:20-alpine
 
 WORKDIR /usr/src/app
 
-# Installa le dipendenze di build necessarie per bcrypt e bash
-RUN apk add --no-cache --virtual .gyp \
-    python3 \
-    make \
-    g++ \
-    bash
+# Copia solo i file di test necessari
+COPY ./Test/Backend-Integrativi ./Test/Backend-Integrativi/
+COPY ./Test/db-setup.js ./Test/db-setup.js
 
-# Copia solo i file package.json prima per sfruttare la cache di Docker
-COPY ./Backend/package*.json ./Backend/
-COPY ./Test/Backend-Integrativi/package*.json ./Test/Backend-Integrativi/
-
-# Installa le dipendenze
-WORKDIR /usr/src/app/Backend
+# Installa dipendenze di test
+WORKDIR /usr/src/app/Test/Backend-Integrativi  
 RUN npm install
+
+# Installa mysql2 per db-setup nella root
+WORKDIR /usr/src/app/Test
+RUN npm init -y && npm install mysql2
+
+# Crea cartella output con permessi
+RUN mkdir -p /usr/src/app/Test/Output && chmod -R 777 /usr/src/app/Test/Output
+
+# Installa netcat per health checks
+RUN apk add --no-cache netcat-openbsd
+
+# Crea script di avvio semplificato
+RUN echo '#!/bin/sh' > /usr/src/app/start-tests.sh && \
+    echo 'echo "Starting integration tests..."' >> /usr/src/app/start-tests.sh && \
+    echo 'echo "Waiting for database..."' >> /usr/src/app/start-tests.sh && \
+    echo 'until nc -z db-test 3306; do sleep 2; done' >> /usr/src/app/start-tests.sh && \
+    echo 'echo "Waiting for backend API..."' >> /usr/src/app/start-tests.sh && \
+    echo 'until nc -z backend-test 3015; do sleep 2; done' >> /usr/src/app/start-tests.sh && \
+    echo 'echo "Database and API ready, initializing..."' >> /usr/src/app/start-tests.sh && \
+    echo 'cd /usr/src/app/Test && node db-setup.js init' >> /usr/src/app/start-tests.sh && \
+    echo 'echo "Running tests..."' >> /usr/src/app/start-tests.sh && \
+    echo 'cd /usr/src/app/Test/Backend-Integrativi && npm test' >> /usr/src/app/start-tests.sh && \
+    echo 'echo "Tests completed"' >> /usr/src/app/start-tests.sh && \
+    chmod +x /usr/src/app/start-tests.sh
 
 WORKDIR /usr/src/app/Test/Backend-Integrativi
-RUN npm install
-# Installa anche chai e altre dipendenze di test se non sono nel package.json
-RUN npm install --save-dev chai mocha supertest
 
-# Torna alla cartella principale
-WORKDIR /usr/src/app
-
-# Cartella Media per test
-RUN mkdir -p Media-Test
-
-# Copia tutto il backend nella build finale
-COPY ./Backend /usr/src/app/Backend
-
-# Porta per i test
-EXPOSE 3016
-
-# Copia lo script di test e rendilo eseguibile
-COPY ./Test/Backend-Integrativi/run-tests.sh ./Test/Backend-Integrativi/
-RUN chmod +x ./Test/Backend-Integrativi/run-tests.sh
-
-# Comando predefinito: esegui i test direttamente con il percorso completo di mocha
-CMD ["bash", "/usr/src/app/Test/Backend-Integrativi/run-tests.sh"] 
+CMD ["/usr/src/app/start-tests.sh"] 

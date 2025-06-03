@@ -1,10 +1,10 @@
 require('dotenv').config();
 
 module.exports = {
-  // Configurazione del server di test
+  // Configurazione del server di test - usa backend di test
   server: {
-    port: process.env.PORT || 3016,
-    baseUrl: `http://localhost:${process.env.PORT || 3016}`
+    port: process.env.PORT || 3015,
+    baseUrl: `http://backend-test:3015` // Backend di test che usa il database di test
   },
   
   // Configurazione del database di test
@@ -12,7 +12,7 @@ module.exports = {
     host: process.env.DB_HOST || 'db-test',
     user: process.env.DB_USER || 'test_user',
     password: process.env.DB_PASSWORD || 'test_password',
-    database: process.env.DB_NAME || 'test_db',
+    name: process.env.DB_NAME || 'test_db',
     port: process.env.DB_PORT || 3306
   },
   

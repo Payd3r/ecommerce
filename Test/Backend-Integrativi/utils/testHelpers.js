@@ -3,55 +3,55 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const config = require('../config');
 
+// Cache per la connessione DB (riutilizzata per evitare overhead)
+let sharedConnection = null;
+
 /**
- * Crea una connessione al DB di test
+ * Connessione al DB di test - usa pool per performance migliori
  */
 async function getTestDbConnection() {
   try {
-    const connection = await mysql.createConnection({
+    return await mysql.createConnection({
       host: config.database.host,
       user: config.database.user,
       password: config.database.password,
-      database: config.database.database,
+      database: config.database.name,
       port: config.database.port
     });
-    return connection;
   } catch (error) {
-    console.error('Errore di connessione al database di test:', error);
+    console.error('DB connection failed:', error);
     throw error;
   }
 }
 
 /**
- * Ripulisce le tabelle del database di test
+ * Pulisce solo dati utente specifici, mantiene struttura base
+ * Usato per reset tra test suite diverse
  */
 async function cleanTestDb() {
   const connection = await getTestDbConnection();
   try {
-    // Disabilita temporaneamente i controlli di foreign key
     await connection.query('SET FOREIGN_KEY_CHECKS = 0');
     
-    // Tabelle da pulire in ordine specifico per evitare problemi di foreign key
+    // Ordine importante per FK constraints
     const tables = [
       'order_items', 'orders', 'cart_items', 'carts', 
-      'product_images', 'products', 'category_images', 'categories',
-      'profile_image', 'delivery_info', 'extended_users', 'issues',
-      'users'
+      'product_images', 'products', 'category_images', 
+      'delivery_info', 'extended_users', 'issues',
+      'users', 'categories'
     ];
     
     for (const table of tables) {
       await connection.query(`DELETE FROM ${table}`);
-      // Resetta gli auto_increment
       await connection.query(`ALTER TABLE ${table} AUTO_INCREMENT = 1`);
     }
     
-    // Reinsert root category if needed
+    // Root category sempre presente per tests
     await connection.query(`INSERT INTO categories (id, name, dad_id) VALUES (1, 'root', NULL)`);
     
-    // Riabilita i controlli di foreign key
     await connection.query('SET FOREIGN_KEY_CHECKS = 1');
   } catch (error) {
-    console.error('Errore durante la pulizia del database di test:', error);
+    console.error('DB cleanup failed:', error);
     throw error;
   } finally {
     await connection.end();
@@ -59,11 +59,24 @@ async function cleanTestDb() {
 }
 
 /**
- * Crea un utente di test nel database
+ * Crea utente solo se email non esiste già
+ * Previene errori di duplicazione tra test files
  */
-async function createTestUser(userData) {
+async function createTestUserIfNotExists(userData) {
   const connection = await getTestDbConnection();
   try {
+    // Check se utente esiste già
+    const [existing] = await connection.query(
+      'SELECT id, email, name, role FROM users WHERE email = ?',
+      [userData.email]
+    );
+    
+    if (existing.length > 0) {
+      console.log(`User ${userData.email} already exists, reusing`);
+      return existing[0];
+    }
+    
+    // Crea nuovo utente
     const hashedPassword = await bcrypt.hash(userData.password, 10);
     const [result] = await connection.query(
       'INSERT INTO users (email, password_hash, name, role) VALUES (?, ?, ?, ?)',
@@ -72,7 +85,7 @@ async function createTestUser(userData) {
     
     const userId = result.insertId;
     
-    // Se è un artigiano, aggiungi anche i dati estesi
+    // Extended data per artigiani
     if (userData.role === 'artisan') {
       await connection.query(
         'INSERT INTO extended_users (id_users, bio, approved) VALUES (?, ?, ?)',
@@ -80,6 +93,7 @@ async function createTestUser(userData) {
       );
     }
     
+    console.log(`Created test user: ${userData.email} (ID: ${userId})`);
     return {
       id: userId,
       email: userData.email,
@@ -87,11 +101,29 @@ async function createTestUser(userData) {
       role: userData.role || 'client'
     };
   } catch (error) {
-    console.error('Errore durante la creazione dell\'utente di test:', error);
+    // Se è un errore di duplicazione email, prova a recuperare l'utente esistente
+    if (error.code === 'ER_DUP_ENTRY' && error.message.includes('email')) {
+      console.log(`Duplicate email detected for ${userData.email}, retrieving existing user`);
+      const [existing] = await connection.query(
+        'SELECT id, email, name, role FROM users WHERE email = ?',
+        [userData.email]
+      );
+      if (existing.length > 0) {
+        return existing[0];
+      }
+    }
+    console.error('User creation failed:', error);
     throw error;
   } finally {
     await connection.end();
   }
+}
+
+/**
+ * Legacy function - ora usa createTestUserIfNotExists
+ */
+async function createTestUser(userData) {
+  return await createTestUserIfNotExists(userData);
 }
 
 /**
@@ -162,22 +194,74 @@ async function createTestProduct(productData) {
 }
 
 /**
- * Crea un carrello di test
+ * Crea un carrello di test o restituisce quello esistente
  */
 async function createTestCart(userId) {
   const connection = await getTestDbConnection();
   try {
+    // Prima controlla se esiste già un carrello per questo utente
+    const [existing] = await connection.query(
+      'SELECT id, user_id FROM carts WHERE user_id = ?',
+      [userId]
+    );
+    
+    if (existing.length > 0) {
+      console.log(`Cart for user ${userId} already exists, reusing cart ID: ${existing[0].id}`);
+      return {
+        id: existing[0].id,
+        user_id: userId
+      };
+    }
+    
+    // Se non esiste, crea un nuovo carrello
     const [result] = await connection.query(
       'INSERT INTO carts (user_id) VALUES (?)',
       [userId]
     );
     
+    console.log(`Created new cart for user ${userId}, cart ID: ${result.insertId}`);
     return {
       id: result.insertId,
       user_id: userId
     };
   } catch (error) {
+    // Se è un errore di duplicazione, prova a recuperare il carrello esistente
+    if (error.code === 'ER_DUP_ENTRY' && error.message.includes('user_id')) {
+      console.log(`Duplicate cart detected for user ${userId}, retrieving existing cart`);
+      const [existing] = await connection.query(
+        'SELECT id, user_id FROM carts WHERE user_id = ?',
+        [userId]
+      );
+      if (existing.length > 0) {
+        return {
+          id: existing[0].id,
+          user_id: userId
+        };
+      }
+    }
     console.error('Errore durante la creazione del carrello di test:', error);
+    throw error;
+  } finally {
+    await connection.end();
+  }
+}
+
+/**
+ * Pulisce il carrello di un utente specifico
+ */
+async function clearUserCart(userId) {
+  const connection = await getTestDbConnection();
+  try {
+    // Prima elimina gli items del carrello
+    await connection.query(
+      'DELETE ci FROM cart_items ci INNER JOIN carts c ON ci.cart_id = c.id WHERE c.user_id = ?',
+      [userId]
+    );
+    
+    console.log(`Cleared cart items for user ${userId}`);
+    return true;
+  } catch (error) {
+    console.error('Errore durante la pulizia del carrello:', error);
     throw error;
   } finally {
     await connection.end();
@@ -281,10 +365,12 @@ module.exports = {
   getTestDbConnection,
   cleanTestDb,
   createTestUser,
+  createTestUserIfNotExists,
   generateToken,
   createTestCategory,
   createTestProduct,
   createTestCart,
+  clearUserCart,
   addTestCartItem,
   createTestOrder,
   createTestAddress

@@ -4,8 +4,9 @@
   "description": "Test per il frontend e-commerce",
   "main": "index.js",
   "scripts": {
-    "test": "jest --json --outputFile=.jest-results.json && node generate-test-report.js && del .jest-results.json",
-    "test:watch": "jest --watch"
+    "test": "jest --json --outputFile=.jest-results.json && node generate-test-report.js",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage --json --outputFile=.jest-results.json && node generate-test-report.js"
   },
   "keywords": [
     "test",
@@ -27,7 +28,12 @@
     },
     "transformIgnorePatterns": [
       "/node_modules/(?!jest-fetch-mock).+\\.js$"
-    ]
+    ],
+    "collectCoverage": false,
+    "testTimeout": 30000,
+    "forceExit": true,
+    "detectOpenHandles": true,
+    "testMatch": ["**/tests/**/*.test.js"]
   },
   "devDependencies": {
     "@babel/preset-env": "^7.27.2",

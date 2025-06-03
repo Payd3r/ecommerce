@@ -1,22 +1,29 @@
 @echo off
-setlocal
+REM Script per eseguire i test su Windows
 
-REM Definisci il percorso allo script PowerShell
-set PS_SCRIPT=Test\RunTests.ps1
+SET TEST_TYPE=%1
+IF "%TEST_TYPE%"=="" SET TEST_TYPE=all
 
-REM Ottieni il primo parametro se presente
-set TEST_TYPE=%1
-if "%TEST_TYPE%"=="" set TEST_TYPE=all
-
-REM Controlla se il secondo parametro è "rebuild"
-set REBUILD=
-if /i "%2"=="rebuild" set REBUILD=-Rebuild
-
-REM Visualizza le informazioni sul test da eseguire
+echo 🚀 ===== E-commerce Test Runner =====
+echo.
+echo Test disponibili:
+echo   - unitari: Test unitari del backend
+echo   - integrativi: Test integrativi del backend  
+echo   - frontend: Test del frontend
+echo   - performance: Test di performance e load testing
+echo   - all: Tutti i test (default)
+echo.
 echo Esecuzione test: %TEST_TYPE%
-if defined REBUILD echo Con ricostruzione dei container
+echo.
 
-REM Esegui lo script PowerShell con i parametri
-powershell -ExecutionPolicy Bypass -File "%PS_SCRIPT%" -TestType %TEST_TYPE% %REBUILD%
+REM Vai alla cartella Test
+cd Test
 
-endlocal 
+REM Esegui i test con PowerShell
+powershell -Command ".\RunTests.ps1 -TestType %TEST_TYPE% -Rebuild"
+
+echo.
+echo 🎉 Test completati!
+echo 📁 Controlla i risultati JSON nella cartella Test\Output
+echo.
+pause 
