@@ -336,9 +336,25 @@ router.put('/profile', verifyToken, async (req, res) => {
 // PUT /auth/artisan/bio
 router.put('/artisan/bio', verifyToken, async (req, res) => {
   try {
+    // Controlla che l'utente sia un artigiano
+    if (req.user.role !== 'artisan') {
+      return res.status(403).json({ error: 'Solo gli artigiani possono aggiornare la bio' });
+    }
+    
     const { bio } = req.body;
     if (!bio) return res.status(400).json({ error: 'Bio obbligatoria' });
-    await db.query('UPDATE extended_users SET bio = ? WHERE id_users = ?', [bio, req.user.id]);
+    
+    // Verifica se esiste già un record in extended_users
+    const [existing] = await db.query('SELECT id FROM extended_users WHERE id_users = ?', [req.user.id]);
+    
+    if (existing.length === 0) {
+      // Crea un nuovo record
+      await db.query('INSERT INTO extended_users (id_users, bio) VALUES (?, ?)', [req.user.id, bio]);
+    } else {
+      // Aggiorna il record esistente
+      await db.query('UPDATE extended_users SET bio = ? WHERE id_users = ?', [bio, req.user.id]);
+    }
+    
     res.json({ success: true, message: 'Bio aggiornata' });
   } catch (error) {
     console.error('Errore aggiornamento bio:', error);

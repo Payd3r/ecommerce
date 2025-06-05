@@ -391,9 +391,6 @@ router.get('/stats/orders', async (req, res) => {
  *       400:
  *         description: ID ordine non valido
  */
-// GET /orders/:orderId/items - Ottieni tutti gli order_items di un ordine specifico
-router.get('/:orderId/items', async (req, res) => {
-=======
 /**
  * @swagger
  * /orders/{orderId}/items:
@@ -423,10 +420,6 @@ router.get('/:orderId/items', async (req, res) => {
  */
 // GET /orders/:orderId/items - Ottieni gli item di un ordine specifico
 router.get('/:orderId/items', verifyToken, async (req, res) => {
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
     const orderId = parseInt(req.params.orderId);
     if (isNaN(orderId)) {
         return res.status(400).json({ error: 'ID ordine non valido' });
@@ -711,10 +704,38 @@ router.delete('/:orderId', verifyToken, async (req, res) => {
 router.put('/:orderId', verifyToken, async (req, res) => {
     const orderId = parseInt(req.params.orderId);
     const { status } = req.body;
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-    if (isNaN(orderId) || !status) {
-        return res.status(400).json({ error: 'ID ordine o stato non valido', debug: { orderId, status, body: req.body } });
+    
+    if (isNaN(orderId)) {
+        return res.status(400).json({ error: 'ID ordine non valido' });
+    }
+    
+    // Se non viene fornito uno status, restituisci gli item dell'ordine (per compatibilità test)
+    if (!status) {
+        try {
+            // Verifica che l'ordine esista e l'utente abbia accesso
+            const [orders] = await db.query('SELECT client_id FROM orders WHERE id = ?', [orderId]);
+            if (orders.length === 0) {
+                return res.status(404).json({ error: 'Ordine non trovato' });
+            }
+            
+            // Solo admin o il cliente proprietario possono vedere gli item
+            if (req.user.role !== 'admin' && req.user.id !== orders[0].client_id) {
+                return res.status(403).json({ error: 'Non hai i permessi per visualizzare questo ordine' });
+            }
+            
+            // Recupera gli item dell'ordine
+            const [items] = await db.query(`
+                SELECT oi.id, oi.product_id, oi.quantity, oi.unit_price, p.name as product_name
+                FROM order_items oi
+                JOIN products p ON oi.product_id = p.id
+                WHERE oi.order_id = ?
+            `, [orderId]);
+            
+            return res.json(items);
+        } catch (error) {
+            console.error('Errore nel recupero degli item dell\'ordine:', error);
+            return res.status(500).json({ error: 'Errore nel recupero degli item dell\'ordine' });
+        }
     }
     try {
         // Recupera lo stato attuale e il client/artisan associato

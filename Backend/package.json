@@ -5,7 +5,6 @@
   "scripts": {
     "test": "mocha --exit --timeout 10000",
     "test:unit": "NODE_ENV=test mocha --exit --timeout 10000",
-    "test:integration": "NODE_ENV=test PORT=3015 mocha Backend-Integrativi/tests/**/*.test.js --exit --timeout 10000",
     "start": "node app.js",
     "dev": "nodemon app.js"
   },

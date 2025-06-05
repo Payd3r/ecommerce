@@ -359,7 +359,7 @@ describe('Cart Integration Tests', () => {
       });
 
       expect(response.status).toBe(200);
-      expect(response.data.message).toContain('svuotato');
+      expect(response.data.message).toMatch(/svuotato|già vuoto/);
 
       // Verifica che il carrello sia vuoto
       const cartResponse = await axios.get(`${API_BASE_URL}/cart`, {

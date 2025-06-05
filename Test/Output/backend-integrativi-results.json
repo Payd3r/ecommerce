@@ -1,0 +1,623 @@
+{
+  "testType": "backend-integrativi",
+  "timestamp": "2025-06-05T11:43:38.474Z",
+  "summary": {
+    "numTotalTests": 89,
+    "numPassedTests": 85,
+    "numFailedTests": 4,
+    "numPendingTests": 0,
+    "numSkippedTests": 0,
+    "success": false,
+    "duration": 4812
+  },
+  "testResults": [
+    {
+      "name": "orders.integration.test.js",
+      "status": "failed",
+      "message": "\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mOrders Integration Tests › PUT /orders/:orderId › dovrebbe restituire item di un ordine specifico\u001b[39m\u001b[22m\n\n    AxiosError: Request failed with status code 400\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 372 |\u001b[39m     it(\u001b[32m'dovrebbe restituire item di un ordine specifico'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m 373 |\u001b[39m       \u001b[36mif\u001b[39m (testOrder \u001b[33m&&\u001b[39m testOrder\u001b[33m.\u001b[39mid) {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 374 |\u001b[39m         \u001b[36mconst\u001b[39m response \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m axios\u001b[33m.\u001b[39mput(\u001b[32m`${API_BASE_URL}/orders/${testOrder.id}`\u001b[39m\u001b[33m,\u001b[39m {}\u001b[33m,\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 375 |\u001b[39m           headers\u001b[33m:\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m 376 |\u001b[39m             \u001b[32m'Authorization'\u001b[39m\u001b[33m:\u001b[39m \u001b[32m`Bearer ${authTokens.client}`\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 377 |\u001b[39m           }\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat settle (\u001b[22m\u001b[2mnode_modules/axios/lib/core/settle.js\u001b[2m:19:12)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat IncomingMessage.handleStreamEnd (\u001b[22m\u001b[2mnode_modules/axios/lib/adapters/http.js\u001b[2m:599:11)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Axios.request (\u001b[22m\u001b[2mnode_modules/axios/lib/core/Axios.js\u001b[2m:45:41)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.<anonymous> (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/orders.integration.test.js\u001b[39m\u001b[0m\u001b[2m:374:26)\u001b[22m\u001b[2m\u001b[22m\n",
+      "duration": 2404,
+      "numFailingTests": 1,
+      "numPassingTests": 25,
+      "numPendingTests": 0,
+      "assertionResults": [
+        {
+          "title": "dovrebbe creare un nuovo ordine",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 49
+        },
+        {
+          "title": "dovrebbe rifiutare creazione ordine con dati mancanti",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 79
+        },
+        {
+          "title": "dovrebbe usare status default \"pending\" se non specificato",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 33
+        },
+        {
+          "title": "dovrebbe creare ordine dal carrello con checkout",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 81
+        },
+        {
+          "title": "dovrebbe rifiutare checkout senza autenticazione",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 24
+        },
+        {
+          "title": "dovrebbe rifiutare checkout con carrello vuoto",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 43
+        },
+        {
+          "title": "dovrebbe restituire tutti gli ordini per admin",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 29
+        },
+        {
+          "title": "dovrebbe restituire ordini specifici del cliente",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 30
+        },
+        {
+          "title": "dovrebbe rifiutare accesso a ordini di altri clienti",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 93
+        },
+        {
+          "title": "dovrebbe rifiutare accesso senza autenticazione",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 8
+        },
+        {
+          "title": "dovrebbe restituire ordini per prodotti di un artigiano",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 9
+        },
+        {
+          "title": "dovrebbe rifiutare ID artigiano non valido",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 7
+        },
+        {
+          "title": "dovrebbe restituire array vuoto per artigiano senza ordini",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 9
+        },
+        {
+          "title": "dovrebbe restituire statistiche vendite mensili per artigiano",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 12
+        },
+        {
+          "title": "dovrebbe rifiutare richiesta senza artisanId",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 8
+        },
+        {
+          "title": "dovrebbe rifiutare artisanId non valido",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 8
+        },
+        {
+          "title": "dovrebbe restituire statistiche ordini mensili per artigiano",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 9
+        },
+        {
+          "title": "dovrebbe rifiutare richiesta senza artisanId",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 7
+        },
+        {
+          "title": "dovrebbe restituire item di un ordine specifico",
+          "status": "failed",
+          "failureMessages": [
+            "AxiosError: Request failed with status code 400\n    at settle (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/settle.js:19:12)\n    at IncomingMessage.handleStreamEnd (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/adapters/http.js:599:11)\n    at IncomingMessage.emit (node:events:536:35)\n    at endReadableNT (node:internal/streams/readable:1698:12)\n    at processTicksAndRejections (node:internal/process/task_queues:82:21)\n    at Axios.request (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/Axios.js:45:41)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Object.<anonymous> (/usr/src/app/Test/Backend-Integrativi/tests/orders.integration.test.js:374:26)"
+          ],
+          "duration": 12
+        },
+        {
+          "title": "dovrebbe rifiutare accesso senza autenticazione",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 8
+        },
+        {
+          "title": "dovrebbe eliminare ordine come admin",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 37
+        },
+        {
+          "title": "dovrebbe rifiutare eliminazione senza autenticazione",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 8
+        },
+        {
+          "title": "dovrebbe rifiutare eliminazione ordine inesistente",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 15
+        },
+        {
+          "title": "dovrebbe creare payment intent per checkout",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 506
+        },
+        {
+          "title": "dovrebbe rifiutare payment intent senza autenticazione",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 20
+        },
+        {
+          "title": "dovrebbe rifiutare payment intent con carrello vuoto",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 37
+        }
+      ]
+    },
+    {
+      "name": "cart.integration.test.js",
+      "status": "passed",
+      "message": "",
+      "duration": 718,
+      "numFailingTests": 0,
+      "numPassingTests": 21,
+      "numPendingTests": 0,
+      "assertionResults": [
+        {
+          "title": "dovrebbe creare un nuovo carrello",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 15
+        },
+        {
+          "title": "dovrebbe riconoscere carrello già esistente",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 12
+        },
+        {
+          "title": "dovrebbe rifiutare creazione carrello senza autenticazione",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 91
+        },
+        {
+          "title": "dovrebbe aggiungere prodotto al carrello",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 17
+        },
+        {
+          "title": "dovrebbe aggiornare quantità prodotto già presente",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 14
+        },
+        {
+          "title": "dovrebbe rifiutare aggiunta senza dati validi",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 10
+        },
+        {
+          "title": "dovrebbe rifiutare quantità non valida",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 12
+        },
+        {
+          "title": "dovrebbe rifiutare aggiunta senza autenticazione",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 14
+        },
+        {
+          "title": "dovrebbe restituire carrello con prodotti",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 17
+        },
+        {
+          "title": "dovrebbe restituire carrello vuoto per nuovo utente",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 94
+        },
+        {
+          "title": "dovrebbe rifiutare accesso carrello senza autenticazione",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 7
+        },
+        {
+          "title": "dovrebbe aggiornare quantità prodotto nel carrello",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 24
+        },
+        {
+          "title": "dovrebbe rifiutare aggiornamento con quantità non valida",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 10
+        },
+        {
+          "title": "dovrebbe rifiutare aggiornamento item inesistente",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 9
+        },
+        {
+          "title": "dovrebbe rifiutare aggiornamento senza autenticazione",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 8
+        },
+        {
+          "title": "dovrebbe rimuovere prodotto dal carrello",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 46
+        },
+        {
+          "title": "dovrebbe rifiutare rimozione item inesistente",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 11
+        },
+        {
+          "title": "dovrebbe rifiutare rimozione senza autenticazione",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 6
+        },
+        {
+          "title": "dovrebbe svuotare il carrello",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 20
+        },
+        {
+          "title": "dovrebbe gestire svuotamento carrello già vuoto",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 11
+        },
+        {
+          "title": "dovrebbe rifiutare svuotamento senza autenticazione",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 9
+        }
+      ]
+    },
+    {
+      "name": "products.integration.test.js",
+      "status": "failed",
+      "message": "\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mProducts Integration Tests › GET /products › dovrebbe filtrare prodotti per categoria\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n    Expected: \u001b[32m31\u001b[39m\n    Received: \u001b[31m28\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 160 |\u001b[39m       \u001b[36mif\u001b[39m (response\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39mproducts\u001b[33m.\u001b[39mlength \u001b[33m>\u001b[39m \u001b[35m0\u001b[39m) {\u001b[22m\n\u001b[2m     \u001b[90m 161 |\u001b[39m         response\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39mproducts\u001b[33m.\u001b[39mforEach(product \u001b[33m=>\u001b[39m {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 162 |\u001b[39m           expect(product\u001b[33m.\u001b[39mcategory_id)\u001b[33m.\u001b[39mtoBe(testCategory\u001b[33m.\u001b[39mid)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 163 |\u001b[39m         })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 164 |\u001b[39m       }\u001b[22m\n\u001b[2m     \u001b[90m 165 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat toBe (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/products.integration.test.js\u001b[39m\u001b[0m\u001b[2m:162:39)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m          at Array.forEach (<anonymous>)\u001b[22m\n\u001b[2m      \u001b[2mat Object.forEach (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/products.integration.test.js\u001b[39m\u001b[0m\u001b[2m:161:32)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mProducts Integration Tests › PUT /products/:id › dovrebbe rifiutare aggiornamento prodotto 404\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n    Expected: \u001b[32m404\u001b[39m\n    Received: \u001b[31m400\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 288 |\u001b[39m         fail(\u001b[32m'Dovrebbe lanciare errore per prodotto inesistente'\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 289 |\u001b[39m       } \u001b[36mcatch\u001b[39m (error) {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 290 |\u001b[39m         expect(error\u001b[33m.\u001b[39mresponse\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m404\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 291 |\u001b[39m       }\u001b[22m\n\u001b[2m     \u001b[90m 292 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 293 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.toBe (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/products.integration.test.js\u001b[39m\u001b[0m\u001b[2m:290:39)\u001b[22m\u001b[2m\u001b[22m\n",
+      "duration": 629,
+      "numFailingTests": 2,
+      "numPassingTests": 16,
+      "numPendingTests": 0,
+      "assertionResults": [
+        {
+          "title": "dovrebbe creare un nuovo prodotto come artigiano",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 19
+        },
+        {
+          "title": "dovrebbe rifiutare creazione prodotto senza autenticazione",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 84
+        },
+        {
+          "title": "dovrebbe rifiutare creazione prodotto da cliente",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 87
+        },
+        {
+          "title": "dovrebbe rifiutare creazione prodotto con dati mancanti",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 10
+        },
+        {
+          "title": "dovrebbe restituire lista prodotti con paginazione",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 11
+        },
+        {
+          "title": "dovrebbe filtrare prodotti per categoria",
+          "status": "failed",
+          "failureMessages": [
+            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m31\u001b[39m\nReceived: \u001b[31m28\u001b[39m\n    at toBe (/usr/src/app/Test/Backend-Integrativi/tests/products.integration.test.js:162:39)\n    at Array.forEach (<anonymous>)\n    at Object.forEach (/usr/src/app/Test/Backend-Integrativi/tests/products.integration.test.js:161:32)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+          ],
+          "duration": 13
+        },
+        {
+          "title": "dovrebbe filtrare prodotti per prezzo",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 14
+        },
+        {
+          "title": "dovrebbe cercare prodotti per nome",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 12
+        },
+        {
+          "title": "dovrebbe restituire prodotti con informazioni complete",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 12
+        },
+        {
+          "title": "dovrebbe restituire prodotti più venduti",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 11
+        },
+        {
+          "title": "dovrebbe restituire prodotto specifico con immagini",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 9
+        },
+        {
+          "title": "dovrebbe restituire 404 per prodotto inesistente",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 7
+        },
+        {
+          "title": "dovrebbe aggiornare prodotto del proprio artigiano",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 17
+        },
+        {
+          "title": "dovrebbe rifiutare aggiornamento senza autenticazione",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 7
+        },
+        {
+          "title": "dovrebbe rifiutare aggiornamento prodotto 404",
+          "status": "failed",
+          "failureMessages": [
+            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m404\u001b[39m\nReceived: \u001b[31m400\u001b[39m\n    at Object.toBe (/usr/src/app/Test/Backend-Integrativi/tests/products.integration.test.js:290:39)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+          ],
+          "duration": 10
+        },
+        {
+          "title": "dovrebbe eliminare prodotto del proprio artigiano",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 33
+        },
+        {
+          "title": "dovrebbe rifiutare eliminazione senza autenticazione",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 7
+        },
+        {
+          "title": "dovrebbe rifiutare eliminazione prodotto inesistente",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 9
+        }
+      ]
+    },
+    {
+      "name": "auth.integration.test.js",
+      "status": "failed",
+      "message": "\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mAuth Integration Tests › PUT /auth/artisan/bio › dovrebbe rifiutare aggiornamento bio da non-artigiano\u001b[39m\u001b[22m\n\n    TypeError: Cannot read properties of undefined (reading 'status')\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 286 |\u001b[39m         fail(\u001b[32m'Dovrebbe lanciare errore per non-artigiano'\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 287 |\u001b[39m       } \u001b[36mcatch\u001b[39m (error) {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 288 |\u001b[39m         expect(error\u001b[33m.\u001b[39mresponse\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m403\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                               \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 289 |\u001b[39m       }\u001b[22m\n\u001b[2m     \u001b[90m 290 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 291 |\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.status (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/auth.integration.test.js\u001b[39m\u001b[0m\u001b[2m:288:31)\u001b[22m\u001b[2m\u001b[22m\n",
+      "duration": 739,
+      "numFailingTests": 1,
+      "numPassingTests": 20,
+      "numPendingTests": 0,
+      "assertionResults": [
+        {
+          "title": "dovrebbe registrare un nuovo cliente",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 84
+        },
+        {
+          "title": "dovrebbe registrare un nuovo artigiano",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 69
+        },
+        {
+          "title": "dovrebbe registrare un nuovo admin",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 69
+        },
+        {
+          "title": "dovrebbe rifiutare registrazione con email duplicata",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 81
+        },
+        {
+          "title": "dovrebbe rifiutare registrazione con dati mancanti",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 10
+        },
+        {
+          "title": "dovrebbe rifiutare ruolo non valido",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 7
+        },
+        {
+          "title": "dovrebbe effettuare login con credenziali valide",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 65
+        },
+        {
+          "title": "dovrebbe rifiutare login con password errata",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 65
+        },
+        {
+          "title": "dovrebbe rifiutare login con email inesistente",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 14
+        },
+        {
+          "title": "dovrebbe rifiutare login con dati mancanti",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 9
+        },
+        {
+          "title": "dovrebbe restituire profilo utente con token valido",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 10
+        },
+        {
+          "title": "dovrebbe restituire profilo artigiano con dati extended_users",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 15
+        },
+        {
+          "title": "dovrebbe rifiutare accesso senza token",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 7
+        },
+        {
+          "title": "dovrebbe rifiutare accesso con token non valido",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 7
+        },
+        {
+          "title": "dovrebbe aggiornare nickname utente",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 15
+        },
+        {
+          "title": "dovrebbe aggiornare email utente",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 14
+        },
+        {
+          "title": "dovrebbe rifiutare aggiornamento senza dati",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 10
+        },
+        {
+          "title": "dovrebbe rifiutare aggiornamento senza token",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 6
+        },
+        {
+          "title": "dovrebbe aggiornare bio artigiano",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 10
+        },
+        {
+          "title": "dovrebbe rifiutare aggiornamento bio da non-artigiano",
+          "status": "failed",
+          "failureMessages": [
+            "TypeError: Cannot read properties of undefined (reading 'status')\n    at Object.status (/usr/src/app/Test/Backend-Integrativi/tests/auth.integration.test.js:288:31)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
+          ],
+          "duration": 10
+        },
+        {
+          "title": "dovrebbe rifiutare aggiornamento bio senza bio",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 11
+        }
+      ]
+    },
+    {
+      "name": "connection.test.js",
+      "status": "passed",
+      "message": "",
+      "duration": 108,
+      "numFailingTests": 0,
+      "numPassingTests": 1,
+      "numPendingTests": 0,
+      "assertionResults": [
+        {
+          "title": "dovrebbe connettersi al backend",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 18
+        }
+      ]
+    },
+    {
+      "name": "base.test.js",
+      "status": "passed",
+      "message": "",
+      "duration": 94,
+      "numFailingTests": 0,
+      "numPassingTests": 2,
+      "numPendingTests": 0,
+      "assertionResults": [
+        {
+          "title": "dovrebbe verificare che la configurazione di test funzioni correttamente",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 1
+        },
+        {
+          "title": "dovrebbe supportare richieste HTTP",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 17
+        }
+      ]
+    }
+  ]
+}
