@@ -137,6 +137,7 @@ services:
       - ./Frontend:/usr/src/app/Frontend:ro
       - ./Test:/usr/src/app/Test:ro
       - ./Monitoring:/usr/src/app/Monitoring:ro
+      - ./Monitoring/public:/usr/src/app/public
     environment:
       NODE_ENV: test
       PORT: 3017

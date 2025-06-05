@@ -388,3 +388,53 @@ docker-compose -f docker-compose-testing.yml logs -f [nome-test]
 # Accedi a un container per debug
 docker-compose exec [nome-servizio] /bin/bash
 ```
+
+# TODO: Estensione Dashboard - Gestione Dati & Test
+
+## Nuove feature richieste
+- Tab "Gestione Dati": backup, restore, import media
+- Tab "Test": esecuzione Jest con output live
+
+## File coinvolti
+- monitoring/public/index.html (navbar + tab)
+- monitoring/public/app.js (fetch / WS logiche)
+- Monitoring/server.js (nuove rotte + WS eventi)
+- scripts/backup.sh, scripts/restore.sh, scripts/import.sh
+- docker-compose.yml (verifica volumi)
+- test/backup.test.js, test/restore.test.js, test/import.test.js
+- README.md (questa sezione)
+
+## Note
+- I dettagli implementativi e i commenti saranno marcati con // NEW SECTION
+- Aggiornare questa sezione man mano che si procede
+
+## Nuove Tab nella Dashboard
+
+### Gestione Dati
+- **Crea Backup**: scarica un file ZIP della cartella Media (bottone "Backup").
+- **Ripristina Stato Iniziale**: ferma i container, elimina i volumi dati e ricrea l'ambiente pulito (bottone "Ripristina").
+- **Importa Backup**: carica uno ZIP e sovrascrive la cartella Media (form upload + bottone "Importa").
+- Notifiche toast per ogni operazione.
+
+### Test
+- **Esegui Test**: lancia `npm run test` (Jest) e mostra l'output live in un <pre> con badge di stato.
+
+## API Backend
+- `GET  /api/backup`              → download ZIP Media
+- `POST /api/restore-clean-build` → esegue restore.sh (down -v + up)
+- `POST /api/import-backup`       → upload ZIP, esegue import.sh
+- `POST /api/run-test`            → lancia Jest, output via WebSocket
+- WebSocket: eventi `type: tasks` per output test/import/restore
+
+## Script Shell
+- `scripts/backup.sh`   → crea backup Media in ./backups
+- `scripts/restore.sh`  → ferma, elimina volumi, ricrea ambiente
+- `scripts/import.sh`   → importa ZIP in Media
+
+## Test automatici
+- `Test/backup.test.js`, `Test/restore.test.js`, `Test/import.test.js`
+- Esegui con `npm test` dalla cartella Test (richiede `adm-zip`)
+
+## Note
+- Tutte le modifiche sono marcate con // NEW SECTION nei file.
+- Per domande o problemi, consultare i commenti nei file o aprire una issue.
