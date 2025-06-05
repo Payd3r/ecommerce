@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArtigianatoShop - Dashboard Monitoraggio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --dark-color: #34495e;
+            --light-color: #ecf0f1;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .metric-card-success {
+            background: linear-gradient(135deg, var(--success-color), #2ecc71);
+        }
+
+        .metric-card-warning {
+            background: linear-gradient(135deg, var(--warning-color), #e67e22);
+        }
+
+        .metric-card-danger {
+            background: linear-gradient(135deg, var(--danger-color), #c0392b);
+        }
+
+        .status-badge {
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 0.8rem;
+        }
+
+        .status-running {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .status-stopped {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .status-healthy {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+
+        .progress-custom {
+            height: 20px;
+            border-radius: 10px;
+        }
+
+        .container-item {
+            border-left: 4px solid var(--secondary-color);
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+            border-radius: 10px;
+        }
+
+        .footer {
+            background: var(--dark-color);
+            color: var(--light-color);
+            padding: 20px 0;
+            margin-top: 50px;
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+        }
+
+        .connection-online {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .connection-offline {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .refresh-icon {
+            transition: transform 0.5s ease;
+        }
+
+        .refresh-icon.spinning {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .table thead {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .tab-content {
+            padding: 20px;
+            background: white;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            background: none;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .nav-tabs .nav-link.active {
+            background: var(--primary-color);
+            color: white;
+            border-radius: 10px 10px 0 0;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Connection Status -->
+    <div id="connectionStatus" class="connection-status connection-offline">
+        <i class="fas fa-circle"></i> Disconnesso
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand text-white" href="#">
+                <i class="fas fa-chart-line me-2"></i>
+                ArtigianatoShop - Monitoraggio
+            </a>
+            <div class="navbar-nav ms-auto">
+                <button class="btn btn-outline-light btn-sm" onclick="refreshData()">
+                    <i id="refreshIcon" class="fas fa-sync-alt refresh-icon me-1"></i>
+                    Aggiorna
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card metric-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-server fa-2x mb-3"></i>
+                        <div class="metric-value" id="totalContainers">0</div>
+                        <div class="metric-label">Container Totali</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metric-card-success">
+                    <div class="card-body text-center">
+                        <i class="fas fa-play-circle fa-2x mb-3"></i>
+                        <div class="metric-value" id="runningContainers">0</div>
+                        <div class="metric-label">Container Attivi</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metric-card-warning">
+                    <div class="card-body text-center">
+                        <i class="fas fa-microchip fa-2x mb-3"></i>
+                        <div class="metric-value" id="cpuUsage">0%</div>
+                        <div class="metric-label">Utilizzo CPU</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metric-card-danger">
+                    <div class="card-body text-center">
+                        <i class="fas fa-memory fa-2x mb-3"></i>
+                        <div class="metric-value" id="memoryUsage">0%</div>
+                        <div class="metric-label">Utilizzo Memoria</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Last Update Info -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-clock me-2"></i>
+                    Ultimo aggiornamento: <span id="lastUpdate">Mai</span>
+                </div>
+            </div>
+        </div>
+        <!-- Tabs -->
+        <div class="card">
+            <ul class="nav nav-tabs" id="mainTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="containers-tab" data-bs-toggle="tab"
+                        data-bs-target="#containers" type="button" role="tab">
+                        <i class="fas fa-docker me-2"></i>Container Docker
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="system-tab" data-bs-toggle="tab" data-bs-target="#system" type="button"
+                        role="tab">
+                        <i class="fas fa-server me-2"></i>Sistema
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="storage-tab" data-bs-toggle="tab" data-bs-target="#storage"
+                        type="button" role="tab">
+                        <i class="fas fa-hdd me-2"></i>Storage
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="charts-tab" data-bs-toggle="tab" data-bs-target="#charts" type="button"
+                        role="tab">
+                        <i class="fas fa-chart-area me-2"></i>Grafici
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="mainTabContent">
+                <!-- Containers Tab -->
+                <div class="tab-pane fade show active" id="containers" role="tabpanel">
+                    <h5><i class="fas fa-docker me-2"></i>Container Docker</h5>
+                    <div id="containersList" class="mt-3">
+                        <!-- I container verranno inseriti qui dinamicamente -->
+                    </div>
+                </div>
+
+                <!-- System Tab -->
+                <div class="tab-pane fade" id="system" role="tabpanel">
+                    <h5><i class="fas fa-server me-2"></i>Informazioni Sistema</h5>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-microchip me-2"></i>Processore
+                                </div>
+                                <div class="card-body" id="cpuInfo">
+                                    <!-- Info CPU qui -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-memory me-2"></i>Memoria
+                                </div>
+                                <div class="card-body" id="memoryInfo">
+                                    <!-- Info memoria qui -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-list me-2"></i>Top Processi
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped" id="processesTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>PID</th>
+                                                    <th>Nome</th>
+                                                    <th>CPU %</th>
+                                                    <th>Memoria %</th>
+                                                    <th>Utente</th>
+                                                    <th>Stato</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Processi qui -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Storage Tab -->
+                <div class="tab-pane fade" id="storage" role="tabpanel">
+                    <h5><i class="fas fa-hdd me-2"></i>Utilizzo Storage</h5>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-folder me-2"></i>Cartella Media
+                                </div>
+                                <div class="card-body" id="mediaStorage">
+                                    <!-- Info Media qui -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="fas fa-project-diagram me-2"></i>Progetto
+                                </div>
+                                <div class="card-body" id="projectStorage">
+                                    <!-- Info progetto qui -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Tab -->
+                <div class="tab-pane fade" id="charts" role="tabpanel">
+                    <h5><i class="fas fa-chart-area me-2"></i>Grafici in Tempo Reale</h5>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Utilizzo CPU</div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="cpuChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Utilizzo Memoria</div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="memoryChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container text-center">
+            <div class="row">
+                <div class="col-12">
+                    <p class="mb-0">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Sistema di Monitoraggio ArtigianatoShop - Sviluppato per Tecnologie Innovative
+                    </p>
+                    <small class="text-muted">Luca Cattaneo 755083 - Andrea Mauri 755140</small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

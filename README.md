@@ -47,6 +47,7 @@ Il progetto è suddiviso in:
 3. **Accesso rapido**
    - Frontend: [http://localhost:3010](http://localhost:3010)
    - Documentazione API (Swagger): [http://localhost:3015/api-docs](http://localhost:3015/api-docs)
+   - **Dashboard Monitoraggio**: [http://localhost:3017](http://localhost:3017)
 
 ### Ambiente di Testing
 
@@ -181,6 +182,80 @@ Consulta la documentazione ufficiale per i numeri di carta e i casi d'uso:
 
 ---
 
+## Sistema di Monitoraggio e Integrazione Continua
+
+La piattaforma include un sistema completo di monitoraggio per soddisfare i requisiti di **integrazione continua e monitoraggio dell'applicazione in produzione**.
+
+### Dashboard di Monitoraggio
+
+- **Accesso**: [http://localhost:3017](http://localhost:3017)
+- **Funzionalità**:
+  - Monitoraggio stato container Docker in tempo reale
+  - Utilizzo CPU e memoria del sistema
+  - Occupazione spazio storage (cartella Media e progetto)
+  - Grafici in tempo reale con aggiornamenti automatici
+  - Top processi di sistema
+  - Statistiche di rete e I/O
+
+### Caratteristiche del Sistema di Monitoraggio
+
+1. **Dashboard Web Interattiva**
+   - Interfaccia moderna con Bootstrap 5
+   - Aggiornamenti in tempo reale tramite WebSocket
+   - Grafici dinamici con Chart.js
+   - Layout responsive per dispositivi mobili
+
+2. **Metriche Monitorate**
+   - **Container Docker**: Stato, utilizzo CPU/memoria per container, I/O di rete e disco
+   - **Sistema**: CPU, memoria, processi, informazioni hardware
+   - **Storage**: Dimensione cartella Media, utilizzo spazio totale progetto
+   - **Rete**: Traffico in ingresso/uscita per container
+
+3. **API REST**
+   - `/api/health` - Health check del servizio
+   - `/api/metrics` - Tutte le metriche
+   - `/api/metrics/docker` - Solo metriche Docker
+   - `/api/metrics/system` - Solo metriche sistema
+   - `/api/metrics/storage` - Solo metriche storage
+
+4. **Aggiornamenti Automatici**
+   - WebSocket per aggiornamenti real-time
+   - Fallback HTTP ogni 15 secondi
+   - Cronaca metriche ogni 10 secondi
+
+### Configurazione per Accesso Pubblico
+
+Per esporre il sistema su rete pubblica attraverso il router:
+
+1. **Port Forwarding sul Router**
+   ```
+   Porta Esterna -> Porta Interna (IP Locale)
+   3010 -> 3010  (Frontend)
+   3015 -> 3015  (Backend API)
+   3017 -> 3017  (Dashboard Monitoraggio)
+   8080 -> 8080  (Image Server)
+   ```
+
+2. **Sicurezza Consigliata**
+   - Configurare firewall per limitare accessi
+   - Utilizzare VPN per accesso amministrativo
+   - Implementare autenticazione per dashboard produzione
+   - Monitorare log di accesso
+
+3. **DNS e Domini**
+   - Configurare Dynamic DNS se IP pubblico dinamico
+   - Utilizzare reverse proxy (nginx) per gestione domini
+   - Certificati SSL per connessioni sicure
+
+### Integrazione con Testing
+
+Il sistema di monitoraggio è disponibile anche nell'ambiente di testing:
+- **Testing Environment**: [http://localhost:3018](http://localhost:3018)
+- Configurazione isolata per non interferire con produzione
+- Metriche specifiche per container di test
+
+---
+
 ## Documentazione delle API
 
 - **Swagger**:  
@@ -278,6 +353,7 @@ ecommerce/
 - **backend**: Porta 3015 - API REST
 - **db**: Porta 3306 - Database MariaDB
 - **imageserver**: Porta 8080 - Server per immagini statiche
+- **monitoring**: Porta 3017 - Dashboard di monitoraggio
 
 ### Testing (docker-compose-testing.yml)
 - **frontend-test**: Frontend per test
@@ -287,6 +363,7 @@ ecommerce/
 - **test-integrativi**: Container per test integrativi
 - **test-frontend**: Container per test frontend
 - **test-performance**: Container per test performance
+- **monitoring-test**: Porta 3018 - Dashboard monitoraggio per test
 
 ---
 

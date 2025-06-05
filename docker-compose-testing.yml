@@ -124,5 +124,25 @@ services:
     working_dir: /usr/src/app/Test/Performance
     restart: "no"
 
+  # Monitoring system per environment di test
+  monitoring-test:
+    build: ./Monitoring
+    container_name: ecommerce-monitoring-test
+    ports:
+      - "3018:3017"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./Media:/usr/src/app/Media:ro
+      - ./Backend:/usr/src/app/Backend:ro
+      - ./Frontend:/usr/src/app/Frontend:ro
+      - ./Test:/usr/src/app/Test:ro
+      - ./Monitoring:/usr/src/app/Monitoring:ro
+    environment:
+      NODE_ENV: test
+      PORT: 3017
+    depends_on:
+      - backend-test
+    restart: "no"
+
 volumes:
   test_db_data:   # Persistenza dati test (limitata alla sessione)
