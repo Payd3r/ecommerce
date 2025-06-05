@@ -6,6 +6,12 @@ RUN apk add --no-cache \
     netcat-openbsd \
     procps \
     htop \
+    docker-cli \
+    mariadb-client \
+    zip \
+    unzip \
+    bash \
+    coreutils \
     && rm -rf /var/cache/apk/*
 
 # Crea directory di lavoro
@@ -16,6 +22,7 @@ COPY package*.json ./
 
 # Installa le dipendenze Node.js
 RUN npm install --only=production && npm cache clean --force
+RUN npm install -g nodemon
 
 # Copia il codice sorgente
 COPY . .
@@ -39,4 +46,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 # USER nodejs
 
 # Comando di avvio
-CMD ["npm", "start"] 
+CMD ["nodemon", "server.js"] 

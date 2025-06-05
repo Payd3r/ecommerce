@@ -176,6 +176,20 @@
             color: white;
             border-radius: 10px 10px 0 0;
         }
+
+        .log-container {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #222;
+            color: #fff;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .container-expandable {
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -275,6 +289,21 @@
                     <button class="nav-link" id="charts-tab" data-bs-toggle="tab" data-bs-target="#charts" type="button"
                         role="tab">
                         <i class="fas fa-chart-area me-2"></i>Grafici
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="test-tab" data-bs-toggle="tab" data-bs-target="#test" type="button" role="tab">
+                        <i class="fas fa-vial me-2"></i>Test
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="data-tab" data-bs-toggle="tab" data-bs-target="#data" type="button" role="tab">
+                        <i class="fas fa-database me-2"></i>Gestione Dati
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="rollback-tab" data-bs-toggle="tab" data-bs-target="#rollback" type="button" role="tab">
+                        <i class="fas fa-undo me-2"></i>Rollback
                     </button>
                 </li>
             </ul>
@@ -395,6 +424,214 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                <!-- Test Tab -->
+                <div class="tab-pane fade" id="test" role="tabpanel">
+                    <h5><i class="fas fa-vial me-2"></i>Gestione Test</h5>
+                    
+                    <!-- Test Controls -->
+                    <div class="row mb-4">
+                        <div class="col-md-3 mb-2">
+                            <button class="btn btn-primary w-100" onclick="runTest('unitari')">
+                                <i class="fas fa-microscope me-1"></i>Test Unitari
+                            </button>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <button class="btn btn-info w-100" onclick="runTest('integrativi')">
+                                <i class="fas fa-puzzle-piece me-1"></i>Test Integrativi
+                            </button>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <button class="btn btn-success w-100" onclick="runTest('frontend')">
+                                <i class="fas fa-desktop me-1"></i>Test Frontend
+                            </button>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <button class="btn btn-warning w-100" onclick="runTest('performance')">
+                                <i class="fas fa-tachometer-alt me-1"></i>Test Performance
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <button class="btn btn-danger w-100" onclick="runTest('all')">
+                                <i class="fas fa-play-circle me-1"></i>Esegui Tutti i Test
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn btn-secondary w-100" onclick="dashboard.loadTestReports()">
+                                <i class="fas fa-sync me-1"></i>Aggiorna Report
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Test Status -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div id="testStatus"></div>
+                        </div>
+                    </div>
+
+
+
+                    <!-- Test Reports -->
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-file-download me-2"></i>Report Test Disponibili
+                        </div>
+                        <div class="card-body">
+                            <div id="testReportsAccordion" class="accordion">
+                                <!-- Gli accordion items verranno inseriti qui dinamicamente -->
+                                <div class="text-center text-muted p-3">Caricamento...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gestione Dati Tab -->
+                <div class="tab-pane fade" id="data" role="tabpanel">
+                    <h5><i class="fas fa-database me-2"></i>Gestione Dati</h5>
+                    
+                    <!-- Media Section -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <i class="fas fa-folder-open me-2"></i>Gestione Cartella Media
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 mb-2">
+                                    <button class="btn btn-primary w-100" onclick="exportMedia()">
+                                        <i class="fas fa-download me-1"></i>Export ZIP
+                                    </button>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <button class="btn btn-success w-100" onclick="document.getElementById('mediaImportFile').click()">
+                                        <i class="fas fa-upload me-1"></i>Import ZIP
+                                    </button>
+                                    <input type="file" id="mediaImportFile" accept=".zip" style="display:none" onchange="importMedia(this.files[0])">
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <button class="btn btn-warning w-100" onclick="backupMedia()">
+                                        <i class="fas fa-archive me-1"></i>Backup
+                                    </button>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <button class="btn btn-info w-100" onclick="restoreSafeMedia()">
+                                        <i class="fas fa-shield-alt me-1"></i>Versione Safe
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Media Backups List -->
+                            <div class="mt-3">
+                                <h6><i class="fas fa-list me-2"></i>Backup Disponibili</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Nome</th>
+                                                <th>Dimensione</th>
+                                                <th>Data</th>
+                                                <th>Azioni</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="mediaBackupsTable">
+                                            <tr>
+                                                <td colspan="4" class="text-center text-muted">Caricamento...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Database Section -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <i class="fas fa-database me-2"></i>Gestione Database
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 mb-2">
+                                    <button class="btn btn-primary w-100" onclick="exportDatabase()">
+                                        <i class="fas fa-download me-1"></i>Export SQL
+                                    </button>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <button class="btn btn-success w-100" onclick="document.getElementById('databaseImportFile').click()">
+                                        <i class="fas fa-upload me-1"></i>Import SQL
+                                    </button>
+                                    <input type="file" id="databaseImportFile" accept=".sql" style="display:none" onchange="importDatabase(this.files[0])">
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <button class="btn btn-warning w-100" onclick="backupDatabase()">
+                                        <i class="fas fa-archive me-1"></i>Backup
+                                    </button>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <button class="btn btn-info w-100" onclick="restoreSafeDatabase()">
+                                        <i class="fas fa-shield-alt me-1"></i>Versione Safe
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Database Backups List -->
+                            <div class="mt-3">
+                                <h6><i class="fas fa-list me-2"></i>Backup Disponibili</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Nome</th>
+                                                <th>Dimensione</th>
+                                                <th>Data</th>
+                                                <th>Azioni</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="databaseBackupsTable">
+                                            <tr>
+                                                <td colspan="4" class="text-center text-muted">Caricamento...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rollback Tab -->
+                <div class="tab-pane fade" id="rollback" role="tabpanel">
+                    <h5><i class="fas fa-undo me-2"></i>Rollback Sistema</h5>
+                    
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Attenzione!</strong> Questa operazione distruggerà tutti i container, immagini e volumi Docker, 
+                        poi ricreerà tutto da zero ripristinando le versioni safe di Media e Database.
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                            <h4>Rollback Completo</h4>
+                            <p class="text-muted mb-4">
+                                Questa operazione fermerà tutti i servizi, rimuoverà container e immagini, 
+                                e ripristinerà le versioni safe dei dati.
+                            </p>
+                            
+                            <button class="btn btn-danger btn-lg" onclick="performRollback()" id="rollbackBtn">
+                                <i class="fas fa-skull-crossbones me-2"></i>Esegui Rollback
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Rollback Status -->
+                    <div id="rollbackStatus"></div>
+                    
+                    <!-- Rollback Log -->
+                    <div class="card mt-4" id="rollbackLogContainer"></div>
                 </div>
             </div>
         </div>

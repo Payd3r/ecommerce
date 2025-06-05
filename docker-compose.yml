@@ -18,6 +18,7 @@ services:
     volumes:
       - mariadbdata:/var/lib/mysql
       - ./Backend/db.sql:/docker-entrypoint-initdb.d/db.sql
+
     healthcheck:
       test: ["CMD", "mariadb", "-h", "localhost", "-u", "admin", "-p1234", "-e", "SELECT 1;"]
       start_period: 30s
@@ -92,6 +93,9 @@ services:
       - ./Frontend:/usr/src/app/Frontend:ro
       - ./Test:/usr/src/app/Test:ro
       - ./Monitoring:/usr/src/app/Monitoring:ro
+      - ./Monitoring/public:/usr/src/app/public
+      - ./backups:/usr/src/app/backups
+
     environment:
       NODE_ENV: production
       PORT: 3017

@@ -1,90 +1,90 @@
 {
   "testType": "backend-integrativi",
-  "timestamp": "2025-06-05T11:50:23.968Z",
+  "timestamp": "2025-06-05T20:12:40.418Z",
   "summary": {
     "numTotalTests": 89,
-    "numPassedTests": 78,
-    "numFailedTests": 11,
+    "numPassedTests": 89,
+    "numFailedTests": 0,
     "numPendingTests": 0,
     "numSkippedTests": 0,
-    "success": false,
-    "duration": 4331
+    "success": true,
+    "duration": 4744
   },
   "testResults": [
     {
       "name": "orders.integration.test.js",
-      "status": "failed",
-      "message": "\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mOrders Integration Tests › PUT /orders/:orderId › dovrebbe restituire item di un ordine specifico\u001b[39m\u001b[22m\n\n    AxiosError: Request failed with status code 400\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 372 |\u001b[39m     it(\u001b[32m'dovrebbe restituire item di un ordine specifico'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m 373 |\u001b[39m       \u001b[36mif\u001b[39m (testOrder \u001b[33m&&\u001b[39m testOrder\u001b[33m.\u001b[39mid) {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 374 |\u001b[39m         \u001b[36mconst\u001b[39m response \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m axios\u001b[33m.\u001b[39mput(\u001b[32m`${API_BASE_URL}/orders/${testOrder.id}`\u001b[39m\u001b[33m,\u001b[39m {}\u001b[33m,\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 375 |\u001b[39m           headers\u001b[33m:\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m 376 |\u001b[39m             \u001b[32m'Authorization'\u001b[39m\u001b[33m:\u001b[39m \u001b[32m`Bearer ${authTokens.client}`\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 377 |\u001b[39m           }\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat settle (\u001b[22m\u001b[2mnode_modules/axios/lib/core/settle.js\u001b[2m:19:12)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat IncomingMessage.handleStreamEnd (\u001b[22m\u001b[2mnode_modules/axios/lib/adapters/http.js\u001b[2m:599:11)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Axios.request (\u001b[22m\u001b[2mnode_modules/axios/lib/core/Axios.js\u001b[2m:45:41)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.<anonymous> (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/orders.integration.test.js\u001b[39m\u001b[0m\u001b[2m:374:26)\u001b[22m\u001b[2m\u001b[22m\n",
-      "duration": 2040,
-      "numFailingTests": 1,
-      "numPassingTests": 25,
+      "status": "passed",
+      "message": "",
+      "duration": 2298,
+      "numFailingTests": 0,
+      "numPassingTests": 26,
       "numPendingTests": 0,
       "assertionResults": [
         {
           "title": "dovrebbe creare un nuovo ordine",
           "status": "passed",
           "failureMessages": [],
-          "duration": 23
+          "duration": 25
         },
         {
           "title": "dovrebbe rifiutare creazione ordine con dati mancanti",
           "status": "passed",
           "failureMessages": [],
-          "duration": 10
+          "duration": 12
         },
         {
           "title": "dovrebbe usare status default \"pending\" se non specificato",
           "status": "passed",
           "failureMessages": [],
-          "duration": 34
+          "duration": 27
         },
         {
           "title": "dovrebbe creare ordine dal carrello con checkout",
           "status": "passed",
           "failureMessages": [],
-          "duration": 65
+          "duration": 57
         },
         {
           "title": "dovrebbe rifiutare checkout senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 22
+          "duration": 24
         },
         {
           "title": "dovrebbe rifiutare checkout con carrello vuoto",
           "status": "passed",
           "failureMessages": [],
-          "duration": 39
+          "duration": 44
         },
         {
           "title": "dovrebbe restituire tutti gli ordini per admin",
           "status": "passed",
           "failureMessages": [],
-          "duration": 13
+          "duration": 16
         },
         {
           "title": "dovrebbe restituire ordini specifici del cliente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 23
+          "duration": 25
         },
         {
           "title": "dovrebbe rifiutare accesso a ordini di altri clienti",
           "status": "passed",
           "failureMessages": [],
-          "duration": 87
+          "duration": 99
         },
         {
           "title": "dovrebbe rifiutare accesso senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 9
+          "duration": 10
         },
         {
           "title": "dovrebbe restituire ordini per prodotti di un artigiano",
           "status": "passed",
           "failureMessages": [],
-          "duration": 7
+          "duration": 9
         },
         {
           "title": "dovrebbe rifiutare ID artigiano non valido",
@@ -96,13 +96,13 @@
           "title": "dovrebbe restituire array vuoto per artigiano senza ordini",
           "status": "passed",
           "failureMessages": [],
-          "duration": 7
+          "duration": 8
         },
         {
           "title": "dovrebbe restituire statistiche vendite mensili per artigiano",
           "status": "passed",
           "failureMessages": [],
-          "duration": 10
+          "duration": 9
         },
         {
           "title": "dovrebbe rifiutare richiesta senza artisanId",
@@ -114,7 +114,7 @@
           "title": "dovrebbe rifiutare artisanId non valido",
           "status": "passed",
           "failureMessages": [],
-          "duration": 9
+          "duration": 8
         },
         {
           "title": "dovrebbe restituire statistiche ordini mensili per artigiano",
@@ -126,27 +126,25 @@
           "title": "dovrebbe rifiutare richiesta senza artisanId",
           "status": "passed",
           "failureMessages": [],
-          "duration": 6
+          "duration": 7
         },
         {
           "title": "dovrebbe restituire item di un ordine specifico",
-          "status": "failed",
-          "failureMessages": [
-            "AxiosError: Request failed with status code 400\n    at settle (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/settle.js:19:12)\n    at IncomingMessage.handleStreamEnd (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/adapters/http.js:599:11)\n    at IncomingMessage.emit (node:events:536:35)\n    at endReadableNT (node:internal/streams/readable:1698:12)\n    at processTicksAndRejections (node:internal/process/task_queues:82:21)\n    at Axios.request (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/Axios.js:45:41)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Object.<anonymous> (/usr/src/app/Test/Backend-Integrativi/tests/orders.integration.test.js:374:26)"
-          ],
-          "duration": 10
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 12
         },
         {
           "title": "dovrebbe rifiutare accesso senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 7
+          "duration": 9
         },
         {
           "title": "dovrebbe eliminare ordine come admin",
           "status": "passed",
           "failureMessages": [],
-          "duration": 38
+          "duration": 37
         },
         {
           "title": "dovrebbe rifiutare eliminazione senza autenticazione",
@@ -158,193 +156,54 @@
           "title": "dovrebbe rifiutare eliminazione ordine inesistente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 10
+          "duration": 11
         },
         {
           "title": "dovrebbe creare payment intent per checkout",
           "status": "passed",
           "failureMessages": [],
-          "duration": 442
+          "duration": 453
         },
         {
           "title": "dovrebbe rifiutare payment intent senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 22
+          "duration": 23
         },
         {
           "title": "dovrebbe rifiutare payment intent con carrello vuoto",
           "status": "passed",
           "failureMessages": [],
-          "duration": 37
-        }
-      ]
-    },
-    {
-      "name": "cart.integration.test.js",
-      "status": "failed",
-      "message": "\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mCart Integration Tests › POST /cart › dovrebbe creare un nuovo carrello\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n    Expected: \u001b[32m201\u001b[39m\n    Received: \u001b[31m200\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 52 |\u001b[39m       })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 53 |\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 54 |\u001b[39m       expect(response\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m201\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m    |\u001b[39m                               \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 55 |\u001b[39m       expect(response\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39mmessage)\u001b[33m.\u001b[39mtoContain(\u001b[32m'Carrello creato'\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 56 |\u001b[39m       expect(response\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39mcart_id)\u001b[33m.\u001b[39mtoBeDefined()\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 57 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.toBe (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/cart.integration.test.js\u001b[39m\u001b[0m\u001b[2m:54:31)\u001b[22m\u001b[2m\u001b[22m\n",
-      "duration": 731,
-      "numFailingTests": 1,
-      "numPassingTests": 20,
-      "numPendingTests": 0,
-      "assertionResults": [
-        {
-          "title": "dovrebbe creare un nuovo carrello",
-          "status": "failed",
-          "failureMessages": [
-            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m201\u001b[39m\nReceived: \u001b[31m200\u001b[39m\n    at Object.toBe (/usr/src/app/Test/Backend-Integrativi/tests/cart.integration.test.js:54:31)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
-          ],
-          "duration": 11
-        },
-        {
-          "title": "dovrebbe riconoscere carrello già esistente",
-          "status": "passed",
-          "failureMessages": [],
-          "duration": 17
-        },
-        {
-          "title": "dovrebbe rifiutare creazione carrello senza autenticazione",
-          "status": "passed",
-          "failureMessages": [],
-          "duration": 14
-        },
-        {
-          "title": "dovrebbe aggiungere prodotto al carrello",
-          "status": "passed",
-          "failureMessages": [],
-          "duration": 14
-        },
-        {
-          "title": "dovrebbe aggiornare quantità prodotto già presente",
-          "status": "passed",
-          "failureMessages": [],
-          "duration": 14
-        },
-        {
-          "title": "dovrebbe rifiutare aggiunta senza dati validi",
-          "status": "passed",
-          "failureMessages": [],
-          "duration": 10
-        },
-        {
-          "title": "dovrebbe rifiutare quantità non valida",
-          "status": "passed",
-          "failureMessages": [],
-          "duration": 9
-        },
-        {
-          "title": "dovrebbe rifiutare aggiunta senza autenticazione",
-          "status": "passed",
-          "failureMessages": [],
-          "duration": 12
-        },
-        {
-          "title": "dovrebbe restituire carrello con prodotti",
-          "status": "passed",
-          "failureMessages": [],
-          "duration": 14
-        },
-        {
-          "title": "dovrebbe restituire carrello vuoto per nuovo utente",
-          "status": "passed",
-          "failureMessages": [],
-          "duration": 78
-        },
-        {
-          "title": "dovrebbe rifiutare accesso carrello senza autenticazione",
-          "status": "passed",
-          "failureMessages": [],
-          "duration": 8
-        },
-        {
-          "title": "dovrebbe aggiornare quantità prodotto nel carrello",
-          "status": "passed",
-          "failureMessages": [],
-          "duration": 26
-        },
-        {
-          "title": "dovrebbe rifiutare aggiornamento con quantità non valida",
-          "status": "passed",
-          "failureMessages": [],
-          "duration": 10
-        },
-        {
-          "title": "dovrebbe rifiutare aggiornamento item inesistente",
-          "status": "passed",
-          "failureMessages": [],
-          "duration": 11
-        },
-        {
-          "title": "dovrebbe rifiutare aggiornamento senza autenticazione",
-          "status": "passed",
-          "failureMessages": [],
-          "duration": 7
-        },
-        {
-          "title": "dovrebbe rimuovere prodotto dal carrello",
-          "status": "passed",
-          "failureMessages": [],
-          "duration": 50
-        },
-        {
-          "title": "dovrebbe rifiutare rimozione item inesistente",
-          "status": "passed",
-          "failureMessages": [],
-          "duration": 10
-        },
-        {
-          "title": "dovrebbe rifiutare rimozione senza autenticazione",
-          "status": "passed",
-          "failureMessages": [],
-          "duration": 8
-        },
-        {
-          "title": "dovrebbe svuotare il carrello",
-          "status": "passed",
-          "failureMessages": [],
-          "duration": 23
-        },
-        {
-          "title": "dovrebbe gestire svuotamento carrello già vuoto",
-          "status": "passed",
-          "failureMessages": [],
-          "duration": 18
-        },
-        {
-          "title": "dovrebbe rifiutare svuotamento senza autenticazione",
-          "status": "passed",
-          "failureMessages": [],
-          "duration": 16
+          "duration": 35
         }
       ]
     },
     {
       "name": "products.integration.test.js",
-      "status": "failed",
-      "message": "\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mProducts Integration Tests › GET /products › dovrebbe filtrare prodotti per categoria\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n    Expected: \u001b[32m32\u001b[39m\n    Received: \u001b[31mnull\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 160 |\u001b[39m       \u001b[36mif\u001b[39m (response\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39mproducts\u001b[33m.\u001b[39mlength \u001b[33m>\u001b[39m \u001b[35m0\u001b[39m) {\u001b[22m\n\u001b[2m     \u001b[90m 161 |\u001b[39m         response\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39mproducts\u001b[33m.\u001b[39mforEach(product \u001b[33m=>\u001b[39m {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 162 |\u001b[39m           expect(product\u001b[33m.\u001b[39mcategory_id)\u001b[33m.\u001b[39mtoBe(testCategory\u001b[33m.\u001b[39mid)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 163 |\u001b[39m         })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 164 |\u001b[39m       }\u001b[22m\n\u001b[2m     \u001b[90m 165 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat toBe (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/products.integration.test.js\u001b[39m\u001b[0m\u001b[2m:162:39)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m          at Array.forEach (<anonymous>)\u001b[22m\n\u001b[2m      \u001b[2mat Object.forEach (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/products.integration.test.js\u001b[39m\u001b[0m\u001b[2m:161:32)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mProducts Integration Tests › PUT /products/:id › dovrebbe rifiutare aggiornamento prodotto 404\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n    Expected: \u001b[32m404\u001b[39m\n    Received: \u001b[31m400\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 288 |\u001b[39m         fail(\u001b[32m'Dovrebbe lanciare errore per prodotto inesistente'\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 289 |\u001b[39m       } \u001b[36mcatch\u001b[39m (error) {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 290 |\u001b[39m         expect(error\u001b[33m.\u001b[39mresponse\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m404\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 291 |\u001b[39m       }\u001b[22m\n\u001b[2m     \u001b[90m 292 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 293 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.toBe (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/products.integration.test.js\u001b[39m\u001b[0m\u001b[2m:290:39)\u001b[22m\u001b[2m\u001b[22m\n",
-      "duration": 597,
-      "numFailingTests": 2,
-      "numPassingTests": 16,
+      "status": "passed",
+      "message": "",
+      "duration": 699,
+      "numFailingTests": 0,
+      "numPassingTests": 18,
       "numPendingTests": 0,
       "assertionResults": [
         {
           "title": "dovrebbe creare un nuovo prodotto come artigiano",
           "status": "passed",
           "failureMessages": [],
-          "duration": 14
+          "duration": 15
         },
         {
           "title": "dovrebbe rifiutare creazione prodotto senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 15
+          "duration": 12
         },
         {
           "title": "dovrebbe rifiutare creazione prodotto da cliente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 75
+          "duration": 92
         },
         {
           "title": "dovrebbe rifiutare creazione prodotto con dati mancanti",
@@ -356,77 +215,73 @@
           "title": "dovrebbe restituire lista prodotti con paginazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 13
-        },
-        {
-          "title": "dovrebbe filtrare prodotti per categoria",
-          "status": "failed",
-          "failureMessages": [
-            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m32\u001b[39m\nReceived: \u001b[31mnull\u001b[39m\n    at toBe (/usr/src/app/Test/Backend-Integrativi/tests/products.integration.test.js:162:39)\n    at Array.forEach (<anonymous>)\n    at Object.forEach (/usr/src/app/Test/Backend-Integrativi/tests/products.integration.test.js:161:32)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
-          ],
           "duration": 10
         },
         {
-          "title": "dovrebbe filtrare prodotti per prezzo",
-          "status": "passed",
-          "failureMessages": [],
-          "duration": 9
-        },
-        {
-          "title": "dovrebbe cercare prodotti per nome",
+          "title": "dovrebbe filtrare prodotti per categoria",
           "status": "passed",
           "failureMessages": [],
           "duration": 11
         },
         {
-          "title": "dovrebbe restituire prodotti con informazioni complete",
+          "title": "dovrebbe filtrare prodotti per prezzo",
           "status": "passed",
           "failureMessages": [],
           "duration": 10
+        },
+        {
+          "title": "dovrebbe cercare prodotti per nome",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 16
+        },
+        {
+          "title": "dovrebbe restituire prodotti con informazioni complete",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 17
         },
         {
           "title": "dovrebbe restituire prodotti più venduti",
           "status": "passed",
           "failureMessages": [],
-          "duration": 10
+          "duration": 15
         },
         {
           "title": "dovrebbe restituire prodotto specifico con immagini",
           "status": "passed",
           "failureMessages": [],
-          "duration": 9
+          "duration": 11
         },
         {
           "title": "dovrebbe restituire 404 per prodotto inesistente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 7
+          "duration": 12
         },
         {
           "title": "dovrebbe aggiornare prodotto del proprio artigiano",
           "status": "passed",
           "failureMessages": [],
-          "duration": 14
+          "duration": 17
         },
         {
           "title": "dovrebbe rifiutare aggiornamento senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 8
+          "duration": 10
         },
         {
           "title": "dovrebbe rifiutare aggiornamento prodotto 404",
-          "status": "failed",
-          "failureMessages": [
-            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m404\u001b[39m\nReceived: \u001b[31m400\u001b[39m\n    at Object.toBe (/usr/src/app/Test/Backend-Integrativi/tests/products.integration.test.js:290:39)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
-          ],
-          "duration": 10
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 13
         },
         {
           "title": "dovrebbe eliminare prodotto del proprio artigiano",
           "status": "passed",
           "failureMessages": [],
-          "duration": 32
+          "duration": 40
         },
         {
           "title": "dovrebbe rifiutare eliminazione senza autenticazione",
@@ -438,40 +293,173 @@
           "title": "dovrebbe rifiutare eliminazione prodotto inesistente",
           "status": "passed",
           "failureMessages": [],
+          "duration": 11
+        }
+      ]
+    },
+    {
+      "name": "cart.integration.test.js",
+      "status": "passed",
+      "message": "",
+      "duration": 681,
+      "numFailingTests": 0,
+      "numPassingTests": 21,
+      "numPendingTests": 0,
+      "assertionResults": [
+        {
+          "title": "dovrebbe creare un nuovo carrello",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 16
+        },
+        {
+          "title": "dovrebbe riconoscere carrello già esistente",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 13
+        },
+        {
+          "title": "dovrebbe rifiutare creazione carrello senza autenticazione",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 7
+        },
+        {
+          "title": "dovrebbe aggiungere prodotto al carrello",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 14
+        },
+        {
+          "title": "dovrebbe aggiornare quantità prodotto già presente",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 16
+        },
+        {
+          "title": "dovrebbe rifiutare aggiunta senza dati validi",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 18
+        },
+        {
+          "title": "dovrebbe rifiutare quantità non valida",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 13
+        },
+        {
+          "title": "dovrebbe rifiutare aggiunta senza autenticazione",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 10
+        },
+        {
+          "title": "dovrebbe restituire carrello con prodotti",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 13
+        },
+        {
+          "title": "dovrebbe restituire carrello vuoto per nuovo utente",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 86
+        },
+        {
+          "title": "dovrebbe rifiutare accesso carrello senza autenticazione",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 10
+        },
+        {
+          "title": "dovrebbe aggiornare quantità prodotto nel carrello",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 24
+        },
+        {
+          "title": "dovrebbe rifiutare aggiornamento con quantità non valida",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 11
+        },
+        {
+          "title": "dovrebbe rifiutare aggiornamento item inesistente",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 11
+        },
+        {
+          "title": "dovrebbe rifiutare aggiornamento senza autenticazione",
+          "status": "passed",
+          "failureMessages": [],
           "duration": 9
+        },
+        {
+          "title": "dovrebbe rimuovere prodotto dal carrello",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 42
+        },
+        {
+          "title": "dovrebbe rifiutare rimozione item inesistente",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 10
+        },
+        {
+          "title": "dovrebbe rifiutare rimozione senza autenticazione",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 7
+        },
+        {
+          "title": "dovrebbe svuotare il carrello",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 21
+        },
+        {
+          "title": "dovrebbe gestire svuotamento carrello già vuoto",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 11
+        },
+        {
+          "title": "dovrebbe rifiutare svuotamento senza autenticazione",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 7
         }
       ]
     },
     {
       "name": "auth.integration.test.js",
-      "status": "failed",
-      "message": "\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mAuth Integration Tests › POST /auth/register › dovrebbe registrare un nuovo artigiano\u001b[39m\u001b[22m\n\n    AxiosError: Request failed with status code 400\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 46 |\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 47 |\u001b[39m     it(\u001b[32m'dovrebbe registrare un nuovo artigiano'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 48 |\u001b[39m       \u001b[36mconst\u001b[39m response \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m axios\u001b[33m.\u001b[39mpost(\u001b[32m`${API_BASE_URL}/auth/register`\u001b[39m\u001b[33m,\u001b[39m testUsers\u001b[33m.\u001b[39martisan)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 49 |\u001b[39m       \u001b[22m\n\u001b[2m     \u001b[90m 50 |\u001b[39m       expect(response\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m201\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 51 |\u001b[39m       expect(response\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39msuccess)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat settle (\u001b[22m\u001b[2mnode_modules/axios/lib/core/settle.js\u001b[2m:19:12)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat IncomingMessage.handleStreamEnd (\u001b[22m\u001b[2mnode_modules/axios/lib/adapters/http.js\u001b[2m:599:11)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Axios.request (\u001b[22m\u001b[2mnode_modules/axios/lib/core/Axios.js\u001b[2m:45:41)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.<anonymous> (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/auth.integration.test.js\u001b[39m\u001b[0m\u001b[2m:48:24)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mAuth Integration Tests › POST /auth/register › dovrebbe registrare un nuovo admin\u001b[39m\u001b[22m\n\n    AxiosError: Request failed with status code 400\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 56 |\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 57 |\u001b[39m     it(\u001b[32m'dovrebbe registrare un nuovo admin'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 58 |\u001b[39m       \u001b[36mconst\u001b[39m response \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m axios\u001b[33m.\u001b[39mpost(\u001b[32m`${API_BASE_URL}/auth/register`\u001b[39m\u001b[33m,\u001b[39m testUsers\u001b[33m.\u001b[39madmin)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 59 |\u001b[39m       \u001b[22m\n\u001b[2m     \u001b[90m 60 |\u001b[39m       expect(response\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m201\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 61 |\u001b[39m       expect(response\u001b[33m.\u001b[39mdata\u001b[33m.\u001b[39msuccess)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat settle (\u001b[22m\u001b[2mnode_modules/axios/lib/core/settle.js\u001b[2m:19:12)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat IncomingMessage.handleStreamEnd (\u001b[22m\u001b[2mnode_modules/axios/lib/adapters/http.js\u001b[2m:599:11)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Axios.request (\u001b[22m\u001b[2mnode_modules/axios/lib/core/Axios.js\u001b[2m:45:41)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.<anonymous> (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/auth.integration.test.js\u001b[39m\u001b[0m\u001b[2m:58:24)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mAuth Integration Tests › GET /auth/profile › dovrebbe restituire profilo artigiano con dati extended_users\u001b[39m\u001b[22m\n\n    AxiosError: Request failed with status code 401\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 167 |\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 168 |\u001b[39m     it(\u001b[32m'dovrebbe restituire profilo artigiano con dati extended_users'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 169 |\u001b[39m       \u001b[36mconst\u001b[39m response \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m axios\u001b[33m.\u001b[39m\u001b[36mget\u001b[39m(\u001b[32m`${API_BASE_URL}/auth/profile`\u001b[39m\u001b[33m,\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 170 |\u001b[39m         headers\u001b[33m:\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m 171 |\u001b[39m           \u001b[32m'Authorization'\u001b[39m\u001b[33m:\u001b[39m \u001b[32m`Bearer ${authTokens.artisan}`\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 172 |\u001b[39m         }\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat settle (\u001b[22m\u001b[2mnode_modules/axios/lib/core/settle.js\u001b[2m:19:12)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat IncomingMessage.handleStreamEnd (\u001b[22m\u001b[2mnode_modules/axios/lib/adapters/http.js\u001b[2m:599:11)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Axios.request (\u001b[22m\u001b[2mnode_modules/axios/lib/core/Axios.js\u001b[2m:45:41)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.<anonymous> (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/auth.integration.test.js\u001b[39m\u001b[0m\u001b[2m:169:24)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mAuth Integration Tests › PUT /auth/profile › dovrebbe aggiornare email utente\u001b[39m\u001b[22m\n\n    AxiosError: Request failed with status code 500\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 219 |\u001b[39m     it(\u001b[32m'dovrebbe aggiornare email utente'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m 220 |\u001b[39m       \u001b[36mconst\u001b[39m newEmail \u001b[33m=\u001b[39m \u001b[32m'updated.client@integration.test'\u001b[39m\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 221 |\u001b[39m       \u001b[36mconst\u001b[39m response \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m axios\u001b[33m.\u001b[39mput(\u001b[32m`${API_BASE_URL}/auth/profile`\u001b[39m\u001b[33m,\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 222 |\u001b[39m         email\u001b[33m:\u001b[39m newEmail\u001b[22m\n\u001b[2m     \u001b[90m 223 |\u001b[39m       }\u001b[33m,\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m 224 |\u001b[39m         headers\u001b[33m:\u001b[39m {\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat settle (\u001b[22m\u001b[2mnode_modules/axios/lib/core/settle.js\u001b[2m:19:12)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat IncomingMessage.handleStreamEnd (\u001b[22m\u001b[2mnode_modules/axios/lib/adapters/http.js\u001b[2m:599:11)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Axios.request (\u001b[22m\u001b[2mnode_modules/axios/lib/core/Axios.js\u001b[2m:45:41)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.<anonymous> (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/auth.integration.test.js\u001b[39m\u001b[0m\u001b[2m:221:24)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mAuth Integration Tests › PUT /auth/artisan/bio › dovrebbe aggiornare bio artigiano\u001b[39m\u001b[22m\n\n    AxiosError: Request failed with status code 401\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 263 |\u001b[39m     it(\u001b[32m'dovrebbe aggiornare bio artigiano'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m 264 |\u001b[39m       \u001b[36mconst\u001b[39m bio \u001b[33m=\u001b[39m \u001b[32m'Questa è la mia bio di test per l\\'artigiano'\u001b[39m\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 265 |\u001b[39m       \u001b[36mconst\u001b[39m response \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m axios\u001b[33m.\u001b[39mput(\u001b[32m`${API_BASE_URL}/auth/artisan/bio`\u001b[39m\u001b[33m,\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 266 |\u001b[39m         bio\u001b[33m:\u001b[39m bio\u001b[22m\n\u001b[2m     \u001b[90m 267 |\u001b[39m       }\u001b[33m,\u001b[39m {\u001b[22m\n\u001b[2m     \u001b[90m 268 |\u001b[39m         headers\u001b[33m:\u001b[39m {\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat settle (\u001b[22m\u001b[2mnode_modules/axios/lib/core/settle.js\u001b[2m:19:12)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat IncomingMessage.handleStreamEnd (\u001b[22m\u001b[2mnode_modules/axios/lib/adapters/http.js\u001b[2m:599:11)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Axios.request (\u001b[22m\u001b[2mnode_modules/axios/lib/core/Axios.js\u001b[2m:45:41)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.<anonymous> (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/auth.integration.test.js\u001b[39m\u001b[0m\u001b[2m:265:24)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mAuth Integration Tests › PUT /auth/artisan/bio › dovrebbe rifiutare aggiornamento bio da non-artigiano\u001b[39m\u001b[22m\n\n    TypeError: Cannot read properties of undefined (reading 'status')\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 286 |\u001b[39m         fail(\u001b[32m'Dovrebbe lanciare errore per non-artigiano'\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 287 |\u001b[39m       } \u001b[36mcatch\u001b[39m (error) {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 288 |\u001b[39m         expect(error\u001b[33m.\u001b[39mresponse\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m403\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                               \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 289 |\u001b[39m       }\u001b[22m\n\u001b[2m     \u001b[90m 290 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 291 |\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.status (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/auth.integration.test.js\u001b[39m\u001b[0m\u001b[2m:288:31)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mAuth Integration Tests › PUT /auth/artisan/bio › dovrebbe rifiutare aggiornamento bio senza bio\u001b[39m\u001b[22m\n\n    \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\n    Expected: \u001b[32m400\u001b[39m\n    Received: \u001b[31m401\u001b[39m\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 299 |\u001b[39m         fail(\u001b[32m'Dovrebbe lanciare errore senza bio'\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 300 |\u001b[39m       } \u001b[36mcatch\u001b[39m (error) {\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 301 |\u001b[39m         expect(error\u001b[33m.\u001b[39mresponse\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(\u001b[35m400\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m     |\u001b[39m                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 302 |\u001b[39m       }\u001b[22m\n\u001b[2m     \u001b[90m 303 |\u001b[39m     })\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 304 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.toBe (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/auth.integration.test.js\u001b[39m\u001b[0m\u001b[2m:301:39)\u001b[22m\u001b[2m\u001b[22m\n",
-      "duration": 639,
-      "numFailingTests": 7,
-      "numPassingTests": 14,
+      "status": "passed",
+      "message": "",
+      "duration": 743,
+      "numFailingTests": 0,
+      "numPassingTests": 21,
       "numPendingTests": 0,
       "assertionResults": [
         {
           "title": "dovrebbe registrare un nuovo cliente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 72
+          "duration": 146
         },
         {
           "title": "dovrebbe registrare un nuovo artigiano",
-          "status": "failed",
-          "failureMessages": [
-            "AxiosError: Request failed with status code 400\n    at settle (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/settle.js:19:12)\n    at IncomingMessage.handleStreamEnd (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/adapters/http.js:599:11)\n    at IncomingMessage.emit (node:events:536:35)\n    at endReadableNT (node:internal/streams/readable:1698:12)\n    at processTicksAndRejections (node:internal/process/task_queues:82:21)\n    at Axios.request (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/Axios.js:45:41)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Object.<anonymous> (/usr/src/app/Test/Backend-Integrativi/tests/auth.integration.test.js:48:24)"
-          ],
+          "status": "passed",
+          "failureMessages": [],
           "duration": 79
         },
         {
           "title": "dovrebbe registrare un nuovo admin",
-          "status": "failed",
-          "failureMessages": [
-            "AxiosError: Request failed with status code 400\n    at settle (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/settle.js:19:12)\n    at IncomingMessage.handleStreamEnd (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/adapters/http.js:599:11)\n    at IncomingMessage.emit (node:events:536:35)\n    at endReadableNT (node:internal/streams/readable:1698:12)\n    at processTicksAndRejections (node:internal/process/task_queues:82:21)\n    at Axios.request (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/Axios.js:45:41)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Object.<anonymous> (/usr/src/app/Test/Backend-Integrativi/tests/auth.integration.test.js:58:24)"
-          ],
-          "duration": 10
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 69
         },
         {
           "title": "dovrebbe rifiutare registrazione con email duplicata",
@@ -483,113 +471,103 @@
           "title": "dovrebbe rifiutare registrazione con dati mancanti",
           "status": "passed",
           "failureMessages": [],
-          "duration": 8
+          "duration": 15
         },
         {
           "title": "dovrebbe rifiutare ruolo non valido",
           "status": "passed",
           "failureMessages": [],
-          "duration": 7
+          "duration": 11
         },
         {
           "title": "dovrebbe effettuare login con credenziali valide",
           "status": "passed",
           "failureMessages": [],
-          "duration": 66
+          "duration": 65
         },
         {
           "title": "dovrebbe rifiutare login con password errata",
           "status": "passed",
           "failureMessages": [],
-          "duration": 68
+          "duration": 70
         },
         {
           "title": "dovrebbe rifiutare login con email inesistente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 8
+          "duration": 10
         },
         {
           "title": "dovrebbe rifiutare login con dati mancanti",
           "status": "passed",
           "failureMessages": [],
-          "duration": 9
+          "duration": 8
         },
         {
           "title": "dovrebbe restituire profilo utente con token valido",
           "status": "passed",
           "failureMessages": [],
-          "duration": 11
+          "duration": 13
         },
         {
           "title": "dovrebbe restituire profilo artigiano con dati extended_users",
-          "status": "failed",
-          "failureMessages": [
-            "AxiosError: Request failed with status code 401\n    at settle (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/settle.js:19:12)\n    at IncomingMessage.handleStreamEnd (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/adapters/http.js:599:11)\n    at IncomingMessage.emit (node:events:536:35)\n    at endReadableNT (node:internal/streams/readable:1698:12)\n    at processTicksAndRejections (node:internal/process/task_queues:82:21)\n    at Axios.request (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/Axios.js:45:41)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Object.<anonymous> (/usr/src/app/Test/Backend-Integrativi/tests/auth.integration.test.js:169:24)"
-          ],
-          "duration": 7
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 15
         },
         {
           "title": "dovrebbe rifiutare accesso senza token",
           "status": "passed",
           "failureMessages": [],
-          "duration": 12
+          "duration": 10
         },
         {
           "title": "dovrebbe rifiutare accesso con token non valido",
           "status": "passed",
           "failureMessages": [],
-          "duration": 11
+          "duration": 8
         },
         {
           "title": "dovrebbe aggiornare nickname utente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 24
+          "duration": 10
         },
         {
           "title": "dovrebbe aggiornare email utente",
-          "status": "failed",
-          "failureMessages": [
-            "AxiosError: Request failed with status code 500\n    at settle (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/settle.js:19:12)\n    at IncomingMessage.handleStreamEnd (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/adapters/http.js:599:11)\n    at IncomingMessage.emit (node:events:536:35)\n    at endReadableNT (node:internal/streams/readable:1698:12)\n    at processTicksAndRejections (node:internal/process/task_queues:82:21)\n    at Axios.request (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/Axios.js:45:41)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Object.<anonymous> (/usr/src/app/Test/Backend-Integrativi/tests/auth.integration.test.js:221:24)"
-          ],
+          "status": "passed",
+          "failureMessages": [],
           "duration": 11
         },
         {
           "title": "dovrebbe rifiutare aggiornamento senza dati",
           "status": "passed",
           "failureMessages": [],
-          "duration": 10
+          "duration": 9
         },
         {
           "title": "dovrebbe rifiutare aggiornamento senza token",
           "status": "passed",
           "failureMessages": [],
-          "duration": 8
+          "duration": 9
         },
         {
           "title": "dovrebbe aggiornare bio artigiano",
-          "status": "failed",
-          "failureMessages": [
-            "AxiosError: Request failed with status code 401\n    at settle (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/settle.js:19:12)\n    at IncomingMessage.handleStreamEnd (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/adapters/http.js:599:11)\n    at IncomingMessage.emit (node:events:536:35)\n    at endReadableNT (node:internal/streams/readable:1698:12)\n    at processTicksAndRejections (node:internal/process/task_queues:82:21)\n    at Axios.request (/usr/src/app/Test/Backend-Integrativi/node_modules/axios/lib/core/Axios.js:45:41)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at Object.<anonymous> (/usr/src/app/Test/Backend-Integrativi/tests/auth.integration.test.js:265:24)"
-          ],
-          "duration": 12
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 14
         },
         {
           "title": "dovrebbe rifiutare aggiornamento bio da non-artigiano",
-          "status": "failed",
-          "failureMessages": [
-            "TypeError: Cannot read properties of undefined (reading 'status')\n    at Object.status (/usr/src/app/Test/Backend-Integrativi/tests/auth.integration.test.js:288:31)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
-          ],
-          "duration": 11
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 10
         },
         {
           "title": "dovrebbe rifiutare aggiornamento bio senza bio",
-          "status": "failed",
-          "failureMessages": [
-            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m400\u001b[39m\nReceived: \u001b[31m401\u001b[39m\n    at Object.toBe (/usr/src/app/Test/Backend-Integrativi/tests/auth.integration.test.js:301:39)\n    at processTicksAndRejections (node:internal/process/task_queues:95:5)"
-          ],
-          "duration": 8
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 9
         }
       ]
     },
@@ -597,7 +575,7 @@
       "name": "connection.test.js",
       "status": "passed",
       "message": "",
-      "duration": 118,
+      "duration": 124,
       "numFailingTests": 0,
       "numPassingTests": 1,
       "numPendingTests": 0,
@@ -614,7 +592,7 @@
       "name": "base.test.js",
       "status": "passed",
       "message": "",
-      "duration": 84,
+      "duration": 88,
       "numFailingTests": 0,
       "numPassingTests": 2,
       "numPendingTests": 0,
@@ -623,13 +601,13 @@
           "title": "dovrebbe verificare che la configurazione di test funzioni correttamente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 1
+          "duration": 2
         },
         {
           "title": "dovrebbe supportare richieste HTTP",
           "status": "passed",
           "failureMessages": [],
-          "duration": 17
+          "duration": 18
         }
       ]
     }
