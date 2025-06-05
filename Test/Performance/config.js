@@ -1,8 +1,8 @@
 // Performance test configuration
 module.exports = {
   server: {
-    baseUrl: 'http://localhost:3015', // Backend locale nel container
-    timeout: 30000
+    port: process.env.PORT || 3015,
+    baseUrl: `http://backend-test:3015` // Backend di test che usa il database di test
   },
   
   database: {

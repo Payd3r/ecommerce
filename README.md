@@ -23,13 +23,15 @@ Il progetto è suddiviso in:
 
 ## Configurazione e Avvio Locale (con Docker)
 
+### Ambiente di Produzione
+
 1. **Clona la repository**
    ```bash
    git clone <url-repo>
    cd ecommerce
    ```
 
-2. **Avvia tutti i servizi**
+2. **Avvia tutti i servizi di produzione**
    ```bash
    docker-compose up --build
    ```
@@ -39,12 +41,74 @@ Il progetto è suddiviso in:
    - Espone i servizi sulle seguenti porte:
      - **Frontend**: [http://localhost:3010](http://localhost:3010)
      - **Backend/API**: [http://localhost:3015](http://localhost:3015)
-     - **Swagger API Docs**: [http://localhost:3015/api-docs](http://localhost:3015/api-docs)
+     - **Database MariaDB**: porta 3306
      - **Image server**: [http://localhost:8080/Media](http://localhost:8080/Media)
 
 3. **Accesso rapido**
    - Frontend: [http://localhost:3010](http://localhost:3010)
    - Documentazione API (Swagger): [http://localhost:3015/api-docs](http://localhost:3015/api-docs)
+
+### Ambiente di Testing
+
+Il progetto include un sistema di testing completo con configurazione Docker separata per evitare conflitti con l'ambiente di produzione.
+
+#### Esecuzione dei Test
+
+**Opzione 1: Script automatico (consigliato)**
+```bash
+# Esegui tutti i test
+powershell -ExecutionPolicy Bypass -File ./run-tests.ps1
+
+# Esegui solo test specifici
+powershell -ExecutionPolicy Bypass -File ./run-tests.ps1 unitari
+powershell -ExecutionPolicy Bypass -File ./run-tests.ps1 integrativi
+powershell -ExecutionPolicy Bypass -File ./run-tests.ps1 frontend
+powershell -ExecutionPolicy Bypass -File ./run-tests.ps1 performance
+
+# Pulisci i container di test
+powershell -ExecutionPolicy Bypass -File ./run-tests.ps1 clean
+
+# Mostra aiuto
+powershell -ExecutionPolicy Bypass -File ./run-tests.ps1 help
+```
+
+**Opzione 2: Docker Compose manuale**
+```bash
+# Test unitari (non richiedono infrastruttura)
+docker-compose -f docker-compose-testing.yml run --rm test-unitari
+
+# Test integrativi (richiedono backend e database di test)
+docker-compose -f docker-compose-testing.yml up -d db-test backend-test
+docker-compose -f docker-compose-testing.yml run --rm test-integrativi
+
+# Test frontend
+docker-compose -f docker-compose-testing.yml run --rm test-frontend
+
+# Test performance
+docker-compose -f docker-compose-testing.yml run --rm test-performance
+
+# Pulizia
+docker-compose -f docker-compose-testing.yml down --volumes --remove-orphans
+```
+
+#### Tipi di Test Disponibili
+
+1. **Test Unitari**: Test isolati delle funzioni di business logic
+2. **Test Integrativi**: Test delle API REST con database di test
+3. **Test Frontend**: Test dei componenti e dell'interfaccia utente
+4. **Test Performance**: Load testing e benchmark delle API
+
+#### Risultati dei Test
+
+I risultati dei test vengono salvati nella cartella `./Test/Output/` in formato JSON e HTML per una facile consultazione.
+
+#### Configurazione Test
+
+L'ambiente di testing utilizza:
+- **Database di test**: MariaDB su porta 3307 con dati temporanei
+- **Backend di test**: Node.js configurato per l'ambiente di test
+- **Frontend di test**: Build ottimizzata per testing
+- **Configurazioni isolate**: Nessun conflitto con l'ambiente di produzione
 
 ---
 
@@ -143,7 +207,9 @@ Consulta la documentazione ufficiale per i numeri di carta e i casi d'uso:
 ```
 ecommerce/
 │
-├── docker-compose.yml
+├── docker-compose.yml           # Configurazione produzione
+├── docker-compose-testing.yml  # Configurazione testing
+├── run-tests.sh                # Script per eseguire i test
 ├── README.md
 ├── start.sh
 ├── .gitignore
@@ -193,31 +259,55 @@ ecommerce/
 │   │       └── authService.js
 │   └── api/
 │
-├── Media/                    # volume condiviso per immagini pubbliche
+├── Media/                       # Volume condiviso per immagini pubbliche
 │
-└── Test/
+└── Test/                        # Suite di test completa
+    ├── Backend-Unitari/         # Test unitari backend
+    ├── Backend-Integrativi/     # Test integrativi API
+    ├── Frontend/                # Test frontend
+    ├── Performance/             # Test di performance
+    └── Output/                  # Risultati dei test
 ```
 
 ---
 
-## Note Tecniche
+## Servizi Docker
 
-- **Frontend**:  
-  - Utilizza JS modulare (`/js/main.js`, `/js/router.js`, `/js/services/`)
-  - Bootstrap per la UI, Chart.js per grafici, Stripe.js per pagamenti
-  - Tutte le chiamate API sono documentate nei servizi JS
+### Produzione (docker-compose.yml)
+- **frontend**: Porta 3010 - Interfaccia utente
+- **backend**: Porta 3015 - API REST
+- **db**: Porta 3306 - Database MariaDB
+- **imageserver**: Porta 8080 - Server per immagini statiche
 
-- **Backend**:  
-  - Express.js, MariaDB/MySQL, JWT per autenticazione
-  - Documentazione API automatica con Swagger (commenti JSDoc nelle route)
-  - Gestione immagini tramite volume condiviso `/Media` e image server dedicato
-
-- **Database**:  
-  - Struttura e dati di esempio definiti in `/Backend/db.sql`
+### Testing (docker-compose-testing.yml)
+- **frontend-test**: Frontend per test
+- **backend-test**: Backend per test
+- **db-test**: Porta 3307 - Database di test MariaDB
+- **test-unitari**: Container per test unitari
+- **test-integrativi**: Container per test integrativi
+- **test-frontend**: Container per test frontend
+- **test-performance**: Container per test performance
 
 ---
 
-## Riferimenti e Approfondimenti
+## Troubleshooting
 
-- [Swagger UI - Documentazione API](http://localhost:3015/api-docs)
-- Commenti dettagliati nei file JS e nelle route Express
+### Problemi Comuni
+
+1. **Porte già in uso**: Modifica le porte nei file docker-compose se necessario
+2. **Permessi script**: Su sistemi Unix, rendi eseguibile lo script: `chmod +x run-tests.sh`
+3. **Container orfani**: Pulisci con `docker-compose down --volumes --remove-orphans`
+4. **Problemi di rete**: Verifica che Docker abbia accesso alla rete
+
+### Log e Debug
+
+```bash
+# Visualizza log dei servizi
+docker-compose logs -f [nome-servizio]
+
+# Visualizza log dei test
+docker-compose -f docker-compose-testing.yml logs -f [nome-test]
+
+# Accedi a un container per debug
+docker-compose exec [nome-servizio] /bin/bash
+```

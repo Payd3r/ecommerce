@@ -285,7 +285,7 @@ describe('Auth Integration Tests', () => {
         });
         fail('Dovrebbe lanciare errore per non-artigiano');
       } catch (error) {
-        expect(error.response.status).toBe(500);
+        expect(error.response.status).toBe(403);
       }
     });
 

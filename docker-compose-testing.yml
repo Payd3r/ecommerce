@@ -1,0 +1,121 @@
+services:
+  # Test database - ottimizzato per esecuzione veloce dei test
+  db-test:
+    image: mariadb:11
+    container_name: mariadb-test-db
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: ecommerce_test_db
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: 1234
+      # Ottimizzazione per test - disabilita durability per velocità
+      MYSQL_INNODB_FLUSH_LOG_AT_TRX_COMMIT: 0
+      MYSQL_INNODB_FLUSH_METHOD: O_DIRECT
+      MYSQL_INNODB_BUFFER_POOL_SIZE: 128M
+    ports:
+      - "3307:3306"
+    volumes:
+      - test_db_data:/var/lib/mysql
+      - ./Backend/db.sql:/docker-entrypoint-initdb.d/db.sql
+    # Utilizzo tmpfs per i log per ridurre I/O
+    tmpfs:
+      - /tmp
+      - /var/log
+    healthcheck:
+      test: ["CMD", "mariadb", "-h", "localhost", "-u", "admin", "-p1234", "-e", "SELECT 1"]
+      timeout: 20s
+      retries: 10
+
+  # Backend per test - utilizza database di test
+  backend-test:
+    build: ./Backend
+    depends_on:
+      db-test:
+        condition: service_healthy
+    environment:
+      NODE_ENV: test
+      PORT: 3015
+      DB_HOST: db-test
+      DB_USER: admin
+      DB_PASSWORD: 1234
+      DB_NAME: ecommerce_test_db
+      DB_PORT: 3306
+      JWT_SECRET: test_secret_key
+    command: ["npm", "start"]
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3015/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: "no"  # Non riavviare automaticamente
+
+  # Frontend per test
+  frontend-test:
+    build: ./Frontend
+    depends_on:
+      - backend-test
+    environment:
+      NODE_ENV: test
+      REACT_APP_API_URL: http://backend-test:3015
+    restart: "no"
+
+  # Test unitari backend - isolati, senza dipendenze esterne
+  test-unitari:
+    build:
+      context: .
+      dockerfile: ./Test/Backend-Unitari/Dockerfile
+    environment:
+      NODE_ENV: test
+    volumes:
+      - ./Test/Output:/usr/src/app/Test/Output
+    working_dir: /usr/src/app/Test/Backend-Unitari
+    restart: "no"
+
+  # Test integrativi backend - richiede database di test e backend
+  test-integrativi:
+    build:
+      context: .
+      dockerfile: ./Test/Backend-Integrativi/Dockerfile
+    depends_on:
+      db-test:
+        condition: service_healthy
+      backend-test:
+        condition: service_healthy
+    environment:
+      NODE_ENV: test
+      API_BASE_URL: http://backend-test:3015
+    volumes:
+      - ./Test/Output:/usr/src/app/Test/Output
+    working_dir: /usr/src/app/Test/Backend-Integrativi
+    restart: "no"
+
+  # Test frontend - testing DOM con jsdom
+  test-frontend:
+    build:
+      context: .
+      dockerfile: ./Test/Frontend/Dockerfile
+    environment:
+      NODE_ENV: test
+      REACT_APP_API_URL: http://backend-test:3015
+    volumes:
+      - ./Test/Output:/usr/src/app/Test/Output
+    working_dir: /usr/src/app/Test/Frontend
+    restart: "no"
+
+  # Test performance - load testing e benchmark
+  test-performance:
+    build:
+      context: .
+      dockerfile: ./Test/Performance/Dockerfile
+    depends_on:
+      - backend-test
+    environment:
+      NODE_ENV: test
+      API_BASE_URL: http://backend-test:3015
+    volumes:
+      - ./Test/Output:/usr/src/app/Test/Output
+    working_dir: /usr/src/app/Test/Performance
+    restart: "no"
+
+volumes:
+  test_db_data:   # Persistenza dati test (limitata alla sessione) 

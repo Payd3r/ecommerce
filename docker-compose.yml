@@ -2,142 +2,70 @@ services:
   # Production database - persistent data
   db:
     image: mariadb:11
-    container_name: mariadb-db
+    container_name: ecommerce-db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: usf6FFdMfLXgAGqORnmR8
-      MYSQL_DATABASE: bhhcfb8lkdjzm7yexzpq
-      MYSQL_USER: ukiui5tx8fkytjk
-      MYSQL_PASSWORD: usf6FFdMfLXgAGqORnmR8
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: ecommerce_db
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: 1234
     ports:
       - "3306:3306"
     volumes:
-      - mariadbdata:/var/lib/mysql      
+      - mariadbdata:/var/lib/mysql
       - ./Backend/db.sql:/docker-entrypoint-initdb.d/db.sql
-    # healthcheck:
-    #   test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pusf6FFdMfLXgAGqORnmR8"]
-    #   timeout: 20s
-    #   retries: 10
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
-  # Test database - optimized for fast test execution
-  db-test:
-    image: mariadb:11
-    container_name: mariadb-test-db
-    environment:
-      MYSQL_ROOT_PASSWORD: test_password
-      MYSQL_DATABASE: test_db
-      MYSQL_USER: test_user
-      MYSQL_PASSWORD: test_password
-      # Performance tuning for tests - disable durability for speed
-      MYSQL_INNODB_FLUSH_LOG_AT_TRX_COMMIT: 0
-      MYSQL_INNODB_FLUSH_METHOD: O_DIRECT
-      MYSQL_INNODB_BUFFER_POOL_SIZE: 128M
-    ports:
-      - "3307:3306"
-    volumes:
-      - test_db_data:/var/lib/mysql
-      - ./Backend/db.sql:/docker-entrypoint-initdb.d/db.sql
-    # Use tmpfs for logs to reduce I/O
-    tmpfs:
-      - /tmp
-      - /var/log
+  backend:
+    build: ./Backend
+    container_name: node-backend
+    restart: always
+=======
+=======
+>>>>>>> Stashed changes
     healthcheck:
-      test: ["CMD", "mariadb", "-h", "localhost", "-u", "root", "-ptest_password", "-e", "SELECT 1"]
+      test: ["CMD", "mariadb", "-h", "localhost", "-u", "admin", "-p1234", "-e", "SELECT 1"]
       timeout: 20s
       retries: 10
-
-  # Backend unit tests - isolated, no external dependencies
-  test-unitari:
-    build:
-      context: .
-      dockerfile: ./Test/Backend-Unitari/Dockerfile
-    environment:
-      NODE_ENV: test
-    volumes:
-      - ./Test/Output:/usr/src/app/Test/Output
-    working_dir: /usr/src/app/Test/Backend-Unitari
-
-  # Backend integration tests - requires test database and backend
-  test-integrativi:
-    build:
-      context: .
-      dockerfile: ./Test/Backend-Integrativi/Dockerfile
-    depends_on:
-      db-test:
-        condition: service_healthy
-      backend-test:
-        condition: service_healthy
-    environment:
-      NODE_ENV: test
-      API_BASE_URL: http://backend-test:3015
-    volumes:
-      - ./Test/Output:/usr/src/app/Test/Output
-    working_dir: /usr/src/app/Test/Backend-Integrativi
-    restart: "no"
-
-  # Frontend tests - DOM testing with jsdom
-  test-frontend:
-    build:
-      context: .
-      dockerfile: ./Test/Frontend/Dockerfile
-    environment:
-      NODE_ENV: test
-      REACT_APP_API_URL: http://backend-test:3015
-    volumes:
-      - ./Test/Output:/usr/src/app/Test/Output
-    working_dir: /usr/src/app/Test/Frontend
-    restart: "no"
-
-  # Performance tests - load testing and benchmarks
-  test-performance:
-    build:
-      context: .
-      dockerfile: ./Test/Performance/Dockerfile
-    depends_on:
-      - backend-test
-    environment:
-      NODE_ENV: test
-      API_BASE_URL: http://backend-test:3015
-    volumes:
-      - ./Test/Output:/usr/src/app/Test/Output
-    working_dir: /usr/src/app/Test/Performance
-    restart: "no"
-
-  # Production frontend server
-  frontend:
-    build: ./Frontend
-    ports:
-      - "3010:80"
-    depends_on:
-      - backend
-    environment:
-      REACT_APP_API_URL: http://localhost:3015
 
   # Production backend API
   backend:
     build: ./Backend
+    container_name: ecommerce-backend
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
     ports:
       - "3015:3015"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       NODE_ENV: production
       PORT: 3015
       DB_HOST: db
-      DB_USER: ukiui5tx8fkytjk
-      DB_PASSWORD: usf6FFdMfLXgAGqORnmR8
-      DB_NAME: bhhcfb8lkdjzm7yexzpq
+      DB_USER: admin
+      DB_PASSWORD: 1234
+      DB_NAME: ecommerce_db
       DB_PORT: 3306
-      JWT_SECRET: your_jwt_secret_key_here
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3015/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+      JWT_SECRET: ecommerce_artisan_platform_secret_key
+    volumes:
+      - ./Backend:/usr/src/app
+      - ./Media:/usr/src/app/Media
+      - /usr/src/app/node_modules
+    working_dir: /usr/src/app
+    command: npm run dev
 
-  # Backend for tests - uses test database
-  backend-test:
-    build: ./Backend
+  frontend:
+    build: ./Frontend
+    container_name: node-frontend
+    restart: always
+    ports:
+      - "3010:80"
     depends_on:
       db-test:
         condition: service_healthy
@@ -159,5 +87,48 @@ services:
     restart: "no"  # Non riavviare automaticamente
 
 volumes:
+  mariadbdata: 
+=======
+=======
+>>>>>>> Stashed changes
+      JWT_SECRET: ecommerce_secret_key_2024
+    volumes:
+      - shared_media:/usr/src/app/Media
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3015/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Production frontend server
+  frontend:
+    build: ./Frontend
+    container_name: ecommerce-frontend
+    ports:
+      - "3010:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      REACT_APP_API_URL: http://localhost:3015
+
+  # Image server
+  imageserver:
+    image: nginx:alpine
+    container_name: ecommerce-imageserver
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      - shared_media:/usr/share/nginx/html/Media
+    depends_on:
+      - backend
+
+volumes:
   mariadbdata:    # Production data persistence
-  test_db_data:   # Test data persistence (session-scoped)
+<<<<<<< Updated upstream
+  shared_media:   # Shared media storage between backend and imageserver
+>>>>>>> Stashed changes
+=======
+  shared_media:   # Shared media storage between backend and imageserver
+>>>>>>> Stashed changes
