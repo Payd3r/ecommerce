@@ -141,11 +141,11 @@ CREATE TABLE `delivery_info` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `delivery_info` (`id`, `user_id`, `name`, `surname`, `stato`, `citta`, `provincia`, `via`, `cap`, `numero_civico`) VALUES
-(4, 46, 'Antonio', 'Rossi', 'Italia', 'Milano', 'MI', 'Via Monte Napoleone', '20121', 12),
-(5, 47, 'Francesco', 'Bianchi', 'Italia', 'Torino', 'TO', 'Corso Francia', '10143', 85),
-(6, 48, 'Davide', 'Ferrari', 'Italia', 'Firenze', 'FI', 'Via dei Neri', '50122', 23),
-(7, 49, 'Giovanni', 'Romano', 'Italia', 'Napoli', 'NA', 'Via Toledo', '80134', 110),
-(8, 50, 'Andrea', 'Greco', 'Italia', 'Palermo', 'PA', 'Via Maqueda', '90133', 45);
+(4, 46, 'Antonio', 'Rossi', 'Italia', 'Milano', 'Milano', 'Via Monte Napoleone', '20121', 12),
+(5, 47, 'Francesco', 'Bianchi', 'Italia', 'Torino', 'Torino', 'Corso Francia', '10143', 85),
+(6, 48, 'Davide', 'Ferrari', 'Italia', 'Firenze', 'Firenze', 'Via dei Neri', '50122', 23),
+(7, 49, 'Giovanni', 'Romano', 'Italia', 'Napoli', 'Napoli', 'Via Toledo', '80134', 110),
+(8, 50, 'Andrea', 'Greco', 'Italia', 'Palermo', 'Palermo', 'Via Maqueda', '90133', 45);
 
 /*
 Tabella: extended_users

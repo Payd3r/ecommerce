@@ -138,7 +138,13 @@ export async function getMonthlyOrdersByArtisan(artisanId) {
  * @throws {Error} Se la richiesta fallisce.
  */
 export async function getOrderItems(orderId) {
-    const res = await fetch(`${API_URL}/orders/${orderId}/items`);
+    const token = authService.getToken();
+    if (!token) throw new Error('Token di accesso non trovato');
+    const res = await fetch(`${API_URL}/orders/${orderId}/items`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
     if (!res.ok) throw new Error('Errore nel recupero degli order items');
     return await res.json();
 }

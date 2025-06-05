@@ -315,7 +315,7 @@ export async function loadUsersManagementPage() {
             const limit = currentFilters.limit || 10;
             const orderBy = currentFilters.orderBy || 'created_at';
             const orderDir = currentFilters.orderDir || 'ASC';
-            
+
             // Crea un oggetto parametri pulito
             const apiParams = {
                 page: page,
@@ -329,10 +329,10 @@ export async function loadUsersManagementPage() {
                 orderBy,
                 orderDir
             };
-            
+
             // Chiamata API diretta senza usare state complicati
             const response = await UsersAPI.getUsers(apiParams);
-            
+
             // Ottieni gli utenti dalla risposta
             const users = response.users || [];
             const pagination = response.pagination || {};
@@ -342,24 +342,24 @@ export async function loadUsersManagementPage() {
             if (!tableBody) {
                 return;
             }
-            
+
             // IMPORTANTE: Svuota completamente la tabella prima di riempirla
             tableBody.innerHTML = '';
-            
+
             // Messaggio se non ci sono utenti
             if (!users || users.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Nessun utente trovato</td></tr>';
                 return;
             }
-            
+
             // Renderizza ogni utente ricevuto
             users.forEach((user, index) => {
                 // Crea una nuova riga per questo utente
                 const row = document.createElement('tr');
-                
+
                 // Variante mobile o desktop
                 const isMobile = window.innerWidth < 768;
-                
+
                 if (isMobile) {
                     // Versione mobile: solo nome, ruolo e azioni
                     row.innerHTML = `
@@ -397,36 +397,36 @@ export async function loadUsersManagementPage() {
                         </td>
                     `;
                 }
-                
+
                 // IMPORTANTE: Aggiungi la riga alla tabella
                 tableBody.appendChild(row);
             });
-            
+
             // Aggiungi event listener alle azioni
             document.querySelectorAll('.edit-user-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', function () {
                     const userId = this.getAttribute('data-user-id');
                     editUser(userId);
                 });
             });
-            
+
             document.querySelectorAll('.delete-user-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', function () {
                     const userId = this.getAttribute('data-user-id');
                     deleteUser(userId);
                 });
             });
-            
+
             // Renderizza la paginazione
             createPagination(pagination);
-            
+
         } catch (error) {
             if (error.message && error.message.includes('401')) {
                 window.history.back();
             } else {
                 // Notifica utente
                 showBootstrapToast('Errore nel caricamento degli utenti', 'Errore', 'danger');
-                
+                console.log("porco dio", error);
                 // Pulisci tabella con messaggio di errore
                 const tableBody = document.getElementById('users-table-body');
                 if (tableBody) {
@@ -444,66 +444,66 @@ export async function loadUsersManagementPage() {
     function createPagination(pagination) {
         const paginationContainer = document.getElementById('pagination-container');
         if (!paginationContainer) return;
-        
+
         paginationContainer.innerHTML = '';
-        
+
         const totalPages = pagination.totalPages || pagination.total_pages || 1;
         const currentPage = parseInt(pagination.currentPage || pagination.current_page || 1);
-        
+
         if (totalPages <= 1) return;
-        
+
         // APPROCCIO ULTRASEMPLIFICATO SENZA ELEMENTI HTML COMPLESSI
         // Creiamo semplici bottoni senza alcun collegamento al router
-        
+
         // Container per i bottoni
         const btnGroup = document.createElement('div');
         btnGroup.className = 'btn-group';
-        
+
         // Bottone Precedente
         if (currentPage > 1) {
             const prevBtn = document.createElement('button');
             prevBtn.type = 'button';
             prevBtn.className = 'btn btn-outline-primary';
             prevBtn.textContent = 'Precedente';
-            prevBtn.onclick = function() {
+            prevBtn.onclick = function () {
                 loadUsersTable({ ...currentFilters, page: currentPage - 1 });
             };
             btnGroup.appendChild(prevBtn);
         }
-        
+
         // Bottoni pagina (massimo 5)
         const maxButtons = 5;
         const startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
         const endPage = Math.min(totalPages, startPage + maxButtons - 1);
-        
+
         for (let i = startPage; i <= endPage; i++) {
             const pageBtn = document.createElement('button');
             pageBtn.type = 'button';
             pageBtn.className = `btn ${i === currentPage ? 'btn-primary' : 'btn-outline-primary'}`;
             pageBtn.textContent = i;
-            
+
             // Solo per le pagine diverse da quella corrente
             if (i !== currentPage) {
-                pageBtn.onclick = function() {
+                pageBtn.onclick = function () {
                     loadUsersTable({ ...currentFilters, page: i });
                 };
             }
-            
+
             btnGroup.appendChild(pageBtn);
         }
-        
+
         // Bottone Successivo
         if (currentPage < totalPages) {
             const nextBtn = document.createElement('button');
             nextBtn.type = 'button';
             nextBtn.className = 'btn btn-outline-primary';
             nextBtn.textContent = 'Successivo';
-            nextBtn.onclick = function() {
+            nextBtn.onclick = function () {
                 loadUsersTable({ ...currentFilters, page: currentPage + 1 });
             };
             btnGroup.appendChild(nextBtn);
         }
-        
+
         // Aggiungiamo i bottoni al container
         paginationContainer.appendChild(btnGroup);
     }
@@ -568,7 +568,7 @@ export async function loadUsersManagementPage() {
             });
             // Event listener per i bottoni Approva
             document.querySelectorAll('.approve-artisan-btn').forEach(btn => {
-                btn.addEventListener('click', async function() {
+                btn.addEventListener('click', async function () {
                     const userId = this.getAttribute('data-user-id');
                     // Recupera info utente
                     let userInfo = users.find(u => String(u.id) === String(userId));
@@ -631,7 +631,7 @@ export async function loadUsersManagementPage() {
         // Invece carico direttamente la tabella una sola volta all'avvio
         currentFilters.page = 1;
         loadUsersTable(currentFilters);
-        
+
         const backBtn = document.getElementById('back-btn');
         if (backBtn) {
             backBtn.addEventListener('click', () => {
@@ -816,4 +816,16 @@ export async function loadUsersManagementPage() {
         mount,
         unmount
     };
+}
+
+// Funzione di utilità per formattare la data in formato italiano (es. 01 gen 2024)
+function formatDateIT(dateStr) {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    if (isNaN(date)) return '-';
+    const mesi = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'];
+    const giorno = String(date.getDate()).padStart(2, '0');
+    const mese = mesi[date.getMonth()];
+    const anno = date.getFullYear();
+    return `${giorno} ${mese} ${anno}`;
 }

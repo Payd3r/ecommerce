@@ -18,4 +18,4 @@ COPY . .
 EXPOSE 3015
 
 # Comando per avviare l'applicazione
-CMD ["npm", "start"] 
+CMD ["npm", "run", "dev"] 

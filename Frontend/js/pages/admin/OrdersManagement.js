@@ -21,7 +21,7 @@ export async function loadOrdersManagementPage() {
         <div class="container mt-4">
             <div class="row mb-4 align-items-center">
                 <div class="col-12 text-center">
-                    <h1 class="display-5 fw-bold mb-2">Gestione Ordini</h1>
+                    <h1 class="display-5 fw-bold mb-2">Gestione Ordinii</h1>
                 </div>
             </div>
             <div class="row mb-4 align-items-center d-none d-md-flex">
