@@ -10,6 +10,9 @@ class CustomReporter {
   onRunComplete(contexts, aggregatedResults) {
     const { testResults, numTotalTests, numPassedTests, numFailedTests, numPendingTests, success, startTime } = aggregatedResults;
     
+    // Calcola success basandosi sui test effettivi, non su Jest success
+    const actualSuccess = numFailedTests === 0 && numTotalTests > 0;
+    
     const results = {
       testType: 'backend-integrativi',
       timestamp: new Date().toISOString(),
@@ -19,7 +22,7 @@ class CustomReporter {
         numFailedTests,
         numPendingTests,
         numSkippedTests: numTotalTests - numPassedTests - numFailedTests - numPendingTests,
-        success,
+        success: actualSuccess,
         duration: Date.now() - startTime
       },
       testResults: testResults.map(result => ({

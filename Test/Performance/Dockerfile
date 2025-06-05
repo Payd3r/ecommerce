@@ -28,7 +28,10 @@ RUN echo '#!/bin/sh' > /usr/src/app/start-performance.sh && \
     echo 'echo "Backend API ready"' >> /usr/src/app/start-performance.sh && \
     echo 'sleep 5' >> /usr/src/app/start-performance.sh && \
     echo 'echo "Running performance tests..."' >> /usr/src/app/start-performance.sh && \
-    echo 'cd /usr/src/app/Test/Performance && npm test' >> /usr/src/app/start-performance.sh && \
+    echo 'cd /usr/src/app/Test/Performance' >> /usr/src/app/start-performance.sh && \
+    echo 'npx jest --json --outputFile=.jest-results.json || true' >> /usr/src/app/start-performance.sh && \
+    echo 'echo "Jest completed, running report generator..."' >> /usr/src/app/start-performance.sh && \
+    echo 'node generate-test-report.js' >> /usr/src/app/start-performance.sh && \
     echo 'echo "Performance tests completed"' >> /usr/src/app/start-performance.sh && \
     chmod +x /usr/src/app/start-performance.sh
 

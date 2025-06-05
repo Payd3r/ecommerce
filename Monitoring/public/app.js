@@ -18,6 +18,11 @@ class MonitoringDashboard {
         this.initializeCharts();
         this.bindEvents();
         
+        // Carica i dati iniziali
+        this.loadTestReports();
+        this.loadMediaBackups();
+        this.loadDatabaseBackups();
+        
         // Fallback per aggiornamenti HTTP se WebSocket non funziona
         setInterval(() => {
             if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
@@ -454,135 +459,752 @@ class MonitoringDashboard {
     }
 
     bindEvents() {
-        // Refresh button
-        window.refreshData = () => {
-            const refreshIcon = document.getElementById('refreshIcon');
-            refreshIcon.classList.add('spinning');
-            this.fetchMetricsHTTP();
-            setTimeout(() => {
-                refreshIcon.classList.remove('spinning');
-            }, 1000);
-        };
-        // // NEW SECTION: Gestione Dati
-        const btnBackup = document.getElementById('btnBackup');
-        if (btnBackup) btnBackup.onclick = async () => {
-            btnBackup.disabled = true;
-            btnBackup.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Backup';
-            try {
-                const res = await fetch('/api/backup');
-                if (!res.ok) throw new Error('Errore backup');
-                const blob = await res.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = res.headers.get('Content-Disposition')?.split('filename=')[1] || 'media-backup.zip';
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                showDataToast('Backup completato!', 'success');
-            } catch (e) {
-                showDataToast('Errore backup', 'danger');
-            }
-            btnBackup.disabled = false;
-            btnBackup.innerHTML = '<i class="fas fa-download me-1"></i>Backup';
-        };
-        const btnRestore = document.getElementById('btnRestore');
-        if (btnRestore) btnRestore.onclick = async () => {
-            if (!confirm('Sei sicuro di voler ripristinare lo stato iniziale?')) return;
-            btnRestore.disabled = true;
-            btnRestore.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Ripristina';
-            try {
-                const res = await fetch('/api/restore-clean-build', { method: 'POST' });
-                if (!res.ok) throw new Error('Errore restore');
-                showDataToast('Ripristino completato!', 'success');
-            } catch (e) {
-                showDataToast('Errore ripristino', 'danger');
-            }
-            btnRestore.disabled = false;
-            btnRestore.innerHTML = '<i class="fas fa-undo me-1"></i>Ripristina';
-        };
-        const formImport = document.getElementById('formImport');
-        if (formImport) formImport.onsubmit = async (e) => {
-            e.preventDefault();
-            const input = document.getElementById('inputImport');
-            if (!input.files.length) return;
-            const btn = formImport.querySelector('button[type=submit]');
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Importa';
-            const fd = new FormData(formImport);
-            try {
-                const res = await fetch('/api/import-backup', { method: 'POST', body: fd });
-                if (!res.ok) throw new Error('Errore import');
-                showDataToast('Import completato!', 'success');
-            } catch (e) {
-                showDataToast('Errore import', 'danger');
-            }
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-upload me-1"></i>Importa';
-        };
-        function showDataToast(msg, type) {
-            const toast = document.getElementById('dataToast');
-            const toastMsg = document.getElementById('dataToastMsg');
-            toastMsg.textContent = msg;
-            toast.className = `toast align-items-center text-bg-${type} border-0 position-fixed bottom-0 end-0 m-4`;
-            toast.style.display = 'block';
-            setTimeout(() => { toast.style.display = 'none'; }, 4000);
-        }
-        // // NEW SECTION: Test
-        const btnRunTest = document.getElementById('btnRunTest');
-        const testOutput = document.getElementById('testOutput');
-        const testStatus = document.getElementById('testStatus');
-        if (btnRunTest) btnRunTest.onclick = async () => {
-            btnRunTest.disabled = true;
-            testOutput.textContent = '';
-            testStatus.textContent = '';
-            testStatus.className = 'badge ms-2';
-            try {
-                await fetch('/api/run-test', { method: 'POST' });
-            } catch (e) {
-                testOutput.textContent = 'Errore avvio test';
-                testStatus.textContent = 'Errore';
-                testStatus.className = 'badge bg-danger ms-2';
-                btnRunTest.disabled = false;
-            }
-        };
-        // WebSocket per output test/task
-        if (!window.taskWSBound) {
-            window.taskWSBound = true;
-            const origWS = this.ws;
-            const self = this;
-            this.ws.addEventListener('message', function(event) {
-                try {
-                    const data = JSON.parse(event.data);
-                    if (data.type === 'tasks' && data.data) {
-                        if (data.data.event === 'test') {
-                            if (data.data.stream) {
-                                testOutput.textContent += data.data.stream;
-                                testOutput.scrollTop = testOutput.scrollHeight;
-                            }
-                            if (data.data.status) {
-                                if (data.data.status === 'success') {
-                                    testStatus.textContent = 'Successo';
-                                    testStatus.className = 'badge bg-success ms-2';
-                                } else if (data.data.status === 'fail') {
-                                    testStatus.textContent = 'Fallito';
-                                    testStatus.className = 'badge bg-danger ms-2';
-                                }
-                                btnRunTest.disabled = false;
-                            }
-                        } else if (data.data.event === 'restore') {
-                            showDataToast('Ripristino completato!', 'success');
-                        } else if (data.data.event === 'import') {
-                            showDataToast('Import completato!', 'success');
-                        }
-                    }
-                } catch (e) {}
+        // Refresh manuale
+        const refreshBtn = document.getElementById('refreshBtn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => {
+                const icon = refreshBtn.querySelector('i');
+                icon.classList.add('spinning');
+                this.fetchMetricsHTTP();
+                setTimeout(() => icon.classList.remove('spinning'), 1000);
             });
         }
+
+        // === GESTIONE TAB ===
+        // Ricarica dati quando si cambia tab
+        document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
+            tab.addEventListener('shown.bs.tab', (e) => {
+                const targetId = e.target.getAttribute('data-bs-target');
+                if (targetId === '#data') {
+                    this.loadMediaBackups();
+                    this.loadDatabaseBackups();
+                } else if (targetId === '#test') {
+                    this.loadTestReports();
+                }
+            });
+        });
+
+        // === GESTIONE TEST ===
+        this.ws.addEventListener('message', (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                this.handleWebSocketMessage(data);
+            } catch (error) {
+                console.error('Errore parsing WebSocket:', error);
+            }
+        });
+    }
+
+    handleWebSocketMessage(data) {
+        switch (data.type) {
+            case 'test_start':
+                this.showTestFeedback(data.data.type, 'running');
+                break;
+            case 'test_log':
+                this.appendTestLog(data.data.text, data.data.type);
+                break;
+            case 'test_complete':
+                this.showTestFeedback(data.data.type, data.data.success ? 'success' : 'error');
+                this.loadTestReports(); // Aggiorna i report
+                break;
+            case 'rollback_start':
+                this.showRollbackFeedback('start');
+                break;
+            case 'rollback_log':
+                this.appendRollbackLog(data.data.text);
+                break;
+            case 'rollback_complete':
+                this.showRollbackFeedback(data.data.success ? 'success' : 'error');
+                break;
+        }
+    }
+
+    showTestFeedback(testType, status) {
+        const statusDiv = document.getElementById('testStatus');
+        if (!statusDiv) return;
+
+        let html = '';
+        let alertClass = '';
+        
+        switch (status) {
+            case 'running':
+                alertClass = 'alert-info';
+                html = `<i class="fas fa-spinner fa-spin"></i> Esecuzione ${testType} in corso...`;
+                break;
+            case 'success':
+                alertClass = 'alert-success';
+                html = `<i class="fas fa-check-circle"></i> ${testType} completato con successo!`;
+                break;
+            case 'error':
+                alertClass = 'alert-danger';
+                html = `<i class="fas fa-exclamation-circle"></i> Errore durante ${testType}`;
+                break;
+        }
+
+        statusDiv.innerHTML = `<div class="alert ${alertClass}">${html}</div>`;
+        
+        if (status !== 'running') {
+            setTimeout(() => {
+                statusDiv.innerHTML = '';
+            }, 5000);
+        }
+    }
+
+    appendTestLog(text, type) {
+        const logContainer = document.getElementById('testLogContainer');
+        if (!logContainer) return;
+
+        const logDiv = logContainer.querySelector('.log-container') || this.createLogContainer(logContainer);
+        const colorClass = type === 'stderr' ? 'text-danger' : 'text-light';
+        
+        logDiv.innerHTML += `<span class="${colorClass}">${text}</span>`;
+        logDiv.scrollTop = logDiv.scrollHeight;
+    }
+
+    createLogContainer(parent) {
+        const logDiv = document.createElement('div');
+        logDiv.className = 'log-container';
+        logDiv.style.maxHeight = '300px';
+        logDiv.style.overflowY = 'auto';
+        logDiv.style.backgroundColor = '#222';
+        logDiv.style.color = '#fff';
+        logDiv.style.padding = '10px';
+        logDiv.style.borderRadius = '5px';
+        logDiv.style.fontFamily = 'monospace';
+        logDiv.style.fontSize = '12px';
+        parent.appendChild(logDiv);
+        return logDiv;
+    }
+
+    showRollbackFeedback(status) {
+        const statusDiv = document.getElementById('rollbackStatus');
+        if (!statusDiv) return;
+
+        let html = '';
+        let alertClass = '';
+
+        switch (status) {
+            case 'start':
+                alertClass = 'alert-warning';
+                html = `<i class="fas fa-spinner fa-spin"></i> Rollback in corso... Questo potrebbe richiedere alcuni minuti.`;
+                break;
+            case 'success':
+                alertClass = 'alert-success';
+                html = `<i class="fas fa-check-circle"></i> Rollback completato con successo!`;
+                break;
+            case 'error':
+                alertClass = 'alert-danger';
+                html = `<i class="fas fa-exclamation-circle"></i> Errore durante il rollback`;
+                break;
+        }
+
+        statusDiv.innerHTML = `<div class="alert ${alertClass}">${html}</div>`;
+        
+        if (status !== 'start') {
+            setTimeout(() => {
+                statusDiv.innerHTML = '';
+            }, 10000);
+        }
+    }
+
+    appendRollbackLog(text) {
+        const logContainer = document.getElementById('rollbackLogContainer');
+        if (!logContainer) return;
+
+        const logDiv = logContainer.querySelector('.log-container') || this.createLogContainer(logContainer);
+        logDiv.innerHTML += `<span class="text-light">${text}</span>`;
+        logDiv.scrollTop = logDiv.scrollHeight;
+    }
+
+    async loadTestReports() {
+        try {
+            const response = await fetch('/api/test/reports');
+            const reports = await response.json();
+            
+            const accordionContainer = document.getElementById('testReportsAccordion');
+            if (!accordionContainer) return;
+
+            if (reports.length === 0) {
+                accordionContainer.innerHTML = '<div class="text-center text-muted p-3">Nessun report disponibile</div>';
+                return;
+            }
+
+            // Carica il contenuto di ogni report per l'accordion
+            const reportsWithContent = await Promise.all(reports.map(async (report) => {
+                try {
+                    const contentResponse = await fetch(`/api/test/report/${report.name}/content`);
+                    const content = await contentResponse.json();
+                    return { ...report, content };
+                } catch (error) {
+                    console.warn(`Errore caricamento contenuto ${report.name}:`, error);
+                    return { ...report, content: null };
+                }
+            }));
+
+            accordionContainer.innerHTML = reportsWithContent.map((report, index) => {
+                const reportId = `report-${index}`;
+                const testType = this.getTestTypeFromFilename(report.name);
+                const summary = this.extractTestSummary(report.content);
+                
+                return `
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading-${reportId}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#collapse-${reportId}" aria-expanded="false" 
+                                    aria-controls="collapse-${reportId}">
+                                <div class="d-flex justify-content-between align-items-center w-100 me-3">
+                                    <div>
+                                        <i class="fas fa-file-alt me-2"></i>
+                                        <strong>${report.name}</strong>
+                                        <span class="badge bg-${this.getTestTypeBadgeColor(testType)} ms-2">${testType}</span>
+                                    </div>
+                                    <div class="text-end">
+                                        <small class="text-muted">${this.formatFileSize(report.size)} • ${new Date(report.modified).toLocaleString('it-IT')}</small>
+                                    </div>
+                                </div>
+                            </button>
+                        </h2>
+                        <div id="collapse-${reportId}" class="accordion-collapse collapse" 
+                             aria-labelledby="heading-${reportId}" data-bs-parent="#testReportsAccordion">
+                            <div class="accordion-body">
+                                ${this.renderTestSummary(summary)}
+                                <div class="mt-3">
+                                    <a href="/api/test/report/${report.name}/download" class="btn btn-primary btn-sm" download>
+                                        <i class="fas fa-download me-1"></i> Scarica Report Completo
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        } catch (error) {
+            console.error('Errore caricamento report:', error);
+            const accordionContainer = document.getElementById('testReportsAccordion');
+            if (accordionContainer) {
+                accordionContainer.innerHTML = '<div class="text-center text-danger p-3">Errore caricamento report</div>';
+            }
+        }
+    }
+
+    getTestTypeFromFilename(filename) {
+        if (filename.includes('performance')) return 'Performance';
+        if (filename.includes('integrativi')) return 'Integrativi';
+        if (filename.includes('unitari')) return 'Unitari';
+        if (filename.includes('frontend')) return 'Frontend';
+        return 'Test';
+    }
+
+    getTestTypeBadgeColor(testType) {
+        switch (testType.toLowerCase()) {
+            case 'performance': return 'warning';
+            case 'integrativi': return 'info';
+            case 'unitari': return 'success';
+            case 'frontend': return 'primary';
+            default: return 'secondary';
+        }
+    }
+
+    extractTestSummary(content) {
+        if (!content) return null;
+        
+        try {
+            // Se è un JSON, estrai le informazioni principali
+            if (typeof content === 'object') {
+                return {
+                    totalTests: content.summary?.numTotalTests || content.numTotalTests || 0,
+                    passedTests: content.summary?.numPassedTests || content.numPassedTests || 0,
+                    failedTests: content.summary?.numFailedTests || content.numFailedTests || 0,
+                    duration: content.summary?.duration || 0,
+                    timestamp: content.timestamp || new Date().toISOString(),
+                    success: content.summary?.success || content.success || false,
+                    testType: content.testType || 'unknown'
+                };
+            }
+        } catch (error) {
+            console.warn('Errore parsing contenuto report:', error);
+        }
+        
+        return null;
+    }
+
+    renderTestSummary(summary) {
+        if (!summary) {
+            return '<div class="text-muted">Anteprima non disponibile</div>';
+        }
+
+        const successRate = summary.totalTests > 0 ? 
+            Math.round((summary.passedTests / summary.totalTests) * 100) : 0;
+        
+        const statusColor = summary.success ? 'success' : 'danger';
+        const statusIcon = summary.success ? 'check-circle' : 'times-circle';
+        
+        return `
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card border-${statusColor}">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="fas fa-${statusIcon} text-${statusColor} me-2"></i>
+                                Risultato Test
+                            </h6>
+                            <div class="d-flex justify-content-between">
+                                <span>Test Totali:</span>
+                                <strong>${summary.totalTests}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Test Passati:</span>
+                                <strong class="text-success">${summary.passedTests}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Test Falliti:</span>
+                                <strong class="text-danger">${summary.failedTests}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Tasso di Successo:</span>
+                                <strong class="text-${statusColor}">${successRate}%</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Informazioni
+                            </h6>
+                            <div class="d-flex justify-content-between">
+                                <span>Tipo Test:</span>
+                                <strong>${summary.testType}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Durata:</span>
+                                <strong>${this.formatDuration(summary.duration)}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Eseguito:</span>
+                                <strong>${new Date(summary.timestamp).toLocaleString('it-IT')}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Stato:</span>
+                                <span class="badge bg-${statusColor}">${summary.success ? 'Successo' : 'Fallito'}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    formatDuration(ms) {
+        if (!ms || ms < 1000) return `${ms || 0}ms`;
+        const seconds = Math.round(ms / 1000);
+        if (seconds < 60) return `${seconds}s`;
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes}m ${remainingSeconds}s`;
+    }
+
+    async loadMediaBackups() {
+        try {
+            const response = await fetch('/api/media/backups');
+            const backups = await response.json();
+            
+            const tableBody = document.getElementById('mediaBackupsTable');
+            if (!tableBody) return;
+
+            if (backups.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" class="text-center">Nessun backup disponibile</td></tr>';
+                return;
+            }
+
+            tableBody.innerHTML = backups.map(backup => `
+                <tr>
+                    <td>${backup.name}</td>
+                    <td>${this.formatFileSize(backup.size)}</td>
+                    <td>${new Date(backup.created).toLocaleString('it-IT')}</td>
+                    <td>
+                        <button class="btn btn-sm btn-success" onclick="restoreMediaBackup('${backup.name}')">
+                            <i class="fas fa-undo"></i> Ripristina
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        } catch (error) {
+            console.error('Errore caricamento backup media:', error);
+        }
+    }
+
+    async loadDatabaseBackups() {
+        try {
+            const response = await fetch('/api/database/backups');
+            const backups = await response.json();
+            
+            const tableBody = document.getElementById('databaseBackupsTable');
+            if (!tableBody) return;
+
+            if (backups.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" class="text-center">Nessun backup disponibile</td></tr>';
+                return;
+            }
+
+            tableBody.innerHTML = backups.map(backup => `
+                <tr>
+                    <td>${backup.name}</td>
+                    <td>${this.formatFileSize(backup.size)}</td>
+                    <td>${new Date(backup.created).toLocaleString('it-IT')}</td>
+                    <td>
+                        <button class="btn btn-sm btn-success" onclick="restoreDatabaseBackup('${backup.name}')">
+                            <i class="fas fa-undo"></i> Ripristina
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        } catch (error) {
+            console.error('Errore caricamento backup database:', error);
+        }
+    }
+
+    formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    showToast(message, type = 'info') {
+        const toastContainer = document.getElementById('toastContainer') || this.createToastContainer();
+        
+        const toast = document.createElement('div');
+        toast.className = `alert alert-${type} alert-dismissible fade show`;
+        toast.style.marginBottom = '10px';
+        toast.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        toastContainer.appendChild(toast);
+        
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 5000);
+    }
+
+    createToastContainer() {
+        const container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.style.position = 'fixed';
+        container.style.top = '80px';
+        container.style.right = '20px';
+        container.style.zIndex = '9999';
+        container.style.width = '350px';
+        document.body.appendChild(container);
+        return container;
     }
 }
 
-// Initialize dashboard when page loads
+// === FUNZIONI GLOBALI PER I BOTTONI ===
+
+// Funzioni per test
+async function runTest(testType) {
+    try {
+        // Mostra feedback immediato
+        dashboard.showTestFeedback(testType, 'running');
+        
+        // Pulisci log precedenti
+        const logContainer = document.getElementById('testLogContainer');
+        if (logContainer) {
+            logContainer.innerHTML = '';
+        }
+        
+        const response = await fetch(`/api/test/${testType}`, {
+            method: 'POST'
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Errore durante l\'esecuzione del test');
+        }
+        
+    } catch (error) {
+        console.error('Errore test:', error);
+        dashboard.showTestFeedback(testType, 'error');
+        dashboard.showToast(`Errore: ${error.message}`, 'danger');
+    }
+}
+
+// Funzioni per export
+async function exportMedia() {
+    try {
+        dashboard.showToast('Avvio export Media...', 'info');
+        
+        const response = await fetch('/api/media/export');
+        if (!response.ok) throw new Error('Errore durante l\'export');
+        
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `media-export-${new Date().toISOString().split('T')[0]}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        dashboard.showToast('Export Media completato!', 'success');
+    } catch (error) {
+        console.error('Errore export media:', error);
+        dashboard.showToast(`Errore export: ${error.message}`, 'danger');
+    }
+}
+
+async function exportDatabase() {
+    try {
+        dashboard.showToast('Avvio export Database...', 'info');
+        
+        const response = await fetch('/api/database/export');
+        if (!response.ok) throw new Error('Errore durante l\'export');
+        
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `database-export-${new Date().toISOString().split('T')[0]}.sql`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        dashboard.showToast('Export Database completato!', 'success');
+    } catch (error) {
+        console.error('Errore export database:', error);
+        dashboard.showToast(`Errore export: ${error.message}`, 'danger');
+    }
+}
+
+// Funzioni per backup
+async function backupMedia() {
+    try {
+        dashboard.showToast('Creazione backup Media in corso...', 'info');
+        
+        const response = await fetch('/api/media/backup', {
+            method: 'POST'
+        });
+        
+        if (!response.ok) throw new Error('Errore durante il backup');
+        
+        const result = await response.json();
+        dashboard.showToast(`Backup Media creato: ${result.backup}`, 'success');
+        dashboard.loadMediaBackups(); // Aggiorna la tabella
+        
+    } catch (error) {
+        console.error('Errore backup media:', error);
+        dashboard.showToast(`Errore backup: ${error.message}`, 'danger');
+    }
+}
+
+async function backupDatabase() {
+    try {
+        dashboard.showToast('Creazione backup Database in corso...', 'info');
+        
+        const response = await fetch('/api/database/backup', {
+            method: 'POST'
+        });
+        
+        if (!response.ok) throw new Error('Errore durante il backup');
+        
+        const result = await response.json();
+        dashboard.showToast(`Backup Database creato: ${result.backup}`, 'success');
+        dashboard.loadDatabaseBackups(); // Aggiorna la tabella
+        
+    } catch (error) {
+        console.error('Errore backup database:', error);
+        dashboard.showToast(`Errore backup: ${error.message}`, 'danger');
+    }
+}
+
+// Funzioni per restore backup
+async function restoreMediaBackup(backupName) {
+    if (!confirm(`Sei sicuro di voler ripristinare il backup "${backupName}"? Questa operazione sovrascriverà i dati attuali.`)) {
+        return;
+    }
+    
+    try {
+        dashboard.showToast('Ripristino backup Media in corso...', 'warning');
+        
+        const response = await fetch(`/api/media/restore/${backupName}`, {
+            method: 'POST'
+        });
+        
+        if (!response.ok) throw new Error('Errore durante il ripristino');
+        
+        dashboard.showToast('Backup Media ripristinato con successo!', 'success');
+        
+    } catch (error) {
+        console.error('Errore ripristino backup media:', error);
+        dashboard.showToast(`Errore ripristino: ${error.message}`, 'danger');
+    }
+}
+
+async function restoreDatabaseBackup(backupName) {
+    if (!confirm(`Sei sicuro di voler ripristinare il backup "${backupName}"? Questa operazione sovrascriverà i dati attuali.`)) {
+        return;
+    }
+    
+    try {
+        dashboard.showToast('Ripristino backup Database in corso...', 'warning');
+        
+        const response = await fetch(`/api/database/restore/${backupName}`, {
+            method: 'POST'
+        });
+        
+        if (!response.ok) throw new Error('Errore durante il ripristino');
+        
+        dashboard.showToast('Backup Database ripristinato con successo!', 'success');
+        
+    } catch (error) {
+        console.error('Errore ripristino backup database:', error);
+        dashboard.showToast(`Errore ripristino: ${error.message}`, 'danger');
+    }
+}
+
+// Funzioni per ripristino versioni safe
+async function restoreSafeMedia() {
+    if (!confirm('Sei sicuro di voler ripristinare la versione safe Media? Questa operazione sovrascriverà i dati attuali.')) {
+        return;
+    }
+    
+    try {
+        dashboard.showToast('Ripristino versione safe Media in corso...', 'warning');
+        
+        const response = await fetch('/api/media/restore-safe', {
+            method: 'POST'
+        });
+        
+        if (!response.ok) throw new Error('Errore durante il ripristino');
+        
+        dashboard.showToast('Versione safe Media ripristinata con successo!', 'success');
+        
+    } catch (error) {
+        console.error('Errore ripristino safe media:', error);
+        dashboard.showToast(`Errore ripristino: ${error.message}`, 'danger');
+    }
+}
+
+async function restoreSafeDatabase() {
+    if (!confirm('Sei sicuro di voler ripristinare la versione safe Database? Questa operazione sovrascriverà i dati attuali.')) {
+        return;
+    }
+    
+    try {
+        dashboard.showToast('Ripristino versione safe Database in corso...', 'warning');
+        
+        const response = await fetch('/api/database/restore-safe', {
+            method: 'POST'
+        });
+        
+        if (!response.ok) throw new Error('Errore durante il ripristino');
+        
+        dashboard.showToast('Versione safe Database ripristinata con successo!', 'success');
+        
+    } catch (error) {
+        console.error('Errore ripristino safe database:', error);
+        dashboard.showToast(`Errore ripristino: ${error.message}`, 'danger');
+    }
+}
+
+// Funzione per rollback completo
+async function performRollback() {
+    if (!confirm('ATTENZIONE: Il rollback resetterà completamente il sistema alle versioni safe. Questa operazione è irreversibile. Continuare?')) {
+        return;
+    }
+    
+    try {
+        // Pulisci log precedenti
+        const logContainer = document.getElementById('rollbackLogContainer');
+        if (logContainer) {
+            logContainer.innerHTML = '';
+        }
+        
+        dashboard.showRollbackFeedback('start');
+        
+        const response = await fetch('/api/rollback', {
+            method: 'POST'
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Errore durante il rollback');
+        }
+        
+    } catch (error) {
+        console.error('Errore rollback:', error);
+        dashboard.showRollbackFeedback('error');
+        dashboard.showToast(`Errore rollback: ${error.message}`, 'danger');
+    }
+}
+
+// Funzioni per import
+async function importMedia(file) {
+    if (!file) return;
+    
+    try {
+        dashboard.showToast('Upload Media in corso...', 'info');
+        
+        const formData = new FormData();
+        formData.append('mediaZip', file);
+        
+        const response = await fetch('/api/media/import', {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (!response.ok) throw new Error('Errore durante l\'import');
+        
+        dashboard.showToast('Import Media completato!', 'success');
+        dashboard.loadMediaBackups(); // Aggiorna la tabella
+        
+    } catch (error) {
+        console.error('Errore import media:', error);
+        dashboard.showToast(`Errore import: ${error.message}`, 'danger');
+    }
+}
+
+async function importDatabase(file) {
+    if (!file) return;
+    
+    try {
+        dashboard.showToast('Upload Database in corso...', 'info');
+        
+        const formData = new FormData();
+        formData.append('databaseFile', file);
+        
+        const response = await fetch('/api/database/import', {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (!response.ok) throw new Error('Errore durante l\'import');
+        
+        dashboard.showToast('Import Database completato!', 'success');
+        dashboard.loadDatabaseBackups(); // Aggiorna la tabella
+        
+    } catch (error) {
+        console.error('Errore import database:', error);
+        dashboard.showToast(`Errore import: ${error.message}`, 'danger');
+    }
+}
+
+// Inizializza dashboard
+const dashboard = new MonitoringDashboard();
+
+// Carica dati iniziali quando la pagina è pronta
 document.addEventListener('DOMContentLoaded', () => {
-    window.dashboard = new MonitoringDashboard();
+    dashboard.loadTestReports();
+    dashboard.loadMediaBackups();
+    dashboard.loadDatabaseBackups();
 }); 

@@ -4,9 +4,9 @@
   "description": "Test di performance per l'API e-commerce",
   "main": "index.js",
   "scripts": {
-    "test": "jest --json --outputFile=.jest-results.json && node generate-test-report.js",
-    "test:watch": "jest --watch",
-    "test:load": "jest --testNamePattern=\"Load Test\" --json --outputFile=.jest-results.json && node generate-test-report.js"
+    "test": "bash -c 'npx jest --json --outputFile=.jest-results.json || true; node generate-test-report.js'",
+    "test:watch": "npx jest --watch",
+    "test:load": "npx jest --testNamePattern=\"Load Test\" --json --outputFile=.jest-results.json && node generate-test-report.js"
   },
   "keywords": [
     "performance",

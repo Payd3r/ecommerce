@@ -7,6 +7,11 @@ RUN apk add --no-cache \
     procps \
     htop \
     docker-cli \
+    mariadb-client \
+    zip \
+    unzip \
+    bash \
+    coreutils \
     && rm -rf /var/cache/apk/*
 
 # Crea directory di lavoro

@@ -3,19 +3,50 @@ const path = require('path');
 
 // Performance test report generator
 try {
-  console.log('Generating performance test report...');
+  console.log('=== GENERATE REPORT START ===');
+  console.log('Working directory:', process.cwd());
+  console.log('__dirname:', __dirname);
   
   const jestResultsPath = path.join(__dirname, '.jest-results.json');
+  console.log('Looking for Jest results at:', jestResultsPath);
+  
+  // Lista tutti i file nella directory corrente
+  try {
+    const files = fs.readdirSync(__dirname);
+    console.log('Files in current directory:', files);
+  } catch (err) {
+    console.error('Error listing directory:', err);
+  }
+  
+  let jestResults = {};
   
   if (!fs.existsSync(jestResultsPath)) {
-    console.error(`Jest results file not found: ${jestResultsPath}`);
+    console.warn(`Jest results file not found: ${jestResultsPath}`);
+    console.warn('No performance test results to process. Run tests first.');
+    process.exit(0);
+  }
+  
+  console.log('Jest results file found, reading...');
+  
+  try {
+    const jestContent = fs.readFileSync(jestResultsPath, 'utf8');
+    console.log('Jest file size:', jestContent.length, 'bytes');
+    jestResults = JSON.parse(jestContent);
+    console.log('Jest results parsed successfully');
+    console.log('Test summary:', {
+      total: jestResults.numTotalTests,
+      passed: jestResults.numPassedTests,
+      failed: jestResults.numFailedTests,
+      success: jestResults.success
+    });
+  } catch (err) {
+    console.error('Failed to parse Jest results:', err.message);
     process.exit(1);
   }
   
-  const jestResults = JSON.parse(fs.readFileSync(jestResultsPath, 'utf8'));
-  
   // Parse performance metrics from test output
   const performanceMetrics = extractPerformanceMetrics(jestResults);
+  console.log('Performance metrics extracted:', Object.keys(performanceMetrics));
   
   const testResults = {
     testType: 'performance',
@@ -52,6 +83,9 @@ try {
   const outputDir = path.join(__dirname, '..', 'Output');
   const outputFile = path.join(outputDir, 'performance-results.json');
   
+  console.log('Output directory:', outputDir);
+  console.log('Output file:', outputFile);
+  
   if (!fs.existsSync(outputDir)) {
     try {
       fs.mkdirSync(outputDir, { recursive: true });
@@ -67,12 +101,22 @@ try {
     console.log(`Test Summary: ${testResults.summary.numPassedTests}/${testResults.summary.numTotalTests} passed`);
     
     // Performance summary
-    if (performanceMetrics.summary) {
+    if (performanceMetrics.summary && Object.keys(performanceMetrics.summary).length > 0) {
       console.log('Performance Summary:');
-      console.log(`  Avg Response Time: ${performanceMetrics.summary.avgResponseTime}ms`);
-      console.log(`  Max Response Time: ${performanceMetrics.summary.maxResponseTime}ms`);
-      console.log(`  Error Rate: ${performanceMetrics.summary.errorRate}%`);
-      console.log(`  Throughput: ${performanceMetrics.summary.throughput} req/sec`);
+      if (performanceMetrics.summary.avgResponseTime) {
+        console.log(`  Avg Response Time: ${performanceMetrics.summary.avgResponseTime}ms`);
+      }
+      if (performanceMetrics.summary.maxResponseTime) {
+        console.log(`  Max Response Time: ${performanceMetrics.summary.maxResponseTime}ms`);
+      }
+      if (performanceMetrics.summary.errorRate !== undefined) {
+        console.log(`  Error Rate: ${performanceMetrics.summary.errorRate}%`);
+      }
+      if (performanceMetrics.summary.throughput) {
+        console.log(`  Throughput: ${performanceMetrics.summary.throughput} req/sec`);
+      }
+    } else {
+      console.log('Performance Summary: No detailed metrics available');
     }
     
     // File permissions
@@ -81,6 +125,8 @@ try {
     } catch (chmodErr) {
       console.warn(`Failed to set file permissions: ${chmodErr.message}`);
     }
+    
+    console.log('=== GENERATE REPORT SUCCESS ===');
   } catch (err) {
     console.error(`Failed to save report: ${err.message}`);
     process.exit(1);
