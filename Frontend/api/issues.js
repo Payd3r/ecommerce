@@ -1,7 +1,7 @@
 /*
   issues.js
   -----------------------------
-  Questo modulo fornisce funzioni per la gestione delle segnalazioni (issues) nell'applicazione ArtigianatoShop.
+  Questo modulo fornisce funzioni per la gestione delle segnalazioni (issues) nell'applicazione Pane e Salame.
   - Tutte le chiamate sono indirizzate alle API REST del backend, utilizzando fetchWithAuth per autenticazione e gestione token.
   - Le funzioni permettono: recupero, creazione, aggiornamento e cancellazione delle segnalazioni.
   - Le scelte tecniche privilegiano la modularità e la separazione delle responsabilità: la logica di gestione issues è centralizzata qui.

@@ -1,7 +1,7 @@
 {
   "name": "ecommerce-monitoring",
   "version": "1.0.0",
-  "description": "Sistema di monitoraggio per ArtigianatoShop E-commerce",
+  "description": "Sistema di monitoraggio per Pane e Salame E-commerce",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -23,6 +23,6 @@
     "nodemon": "^3.0.1"
   },
   "keywords": ["monitoring", "docker", "dashboard", "ecommerce"],
-  "author": "ArtigianatoShop Team",
+  "author": "Pane e Salame Team",
   "license": "MIT"
 } 

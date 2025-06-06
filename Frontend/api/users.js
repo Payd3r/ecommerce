@@ -1,7 +1,7 @@
 /*
   users.js
   -----------------------------
-  Questo modulo fornisce un'API client-side per la gestione degli utenti nell'applicazione ArtigianatoShop.
+  Questo modulo fornisce un'API client-side per la gestione degli utenti nell'applicazione Pane e Salame.
   - Tutte le chiamate sono indirizzate alle API REST del backend tramite fetchWithAuth, che gestisce token e headers.
   - Le funzioni di UsersAPI permettono: gestione profilo, password, eliminazione account, gestione utenti e artigiani, approvazione, conteggi, dettagli artigiano e altro.
   - Le scelte tecniche privilegiano la modularità e la separazione delle responsabilità: la logica di gestione utenti è centralizzata qui.

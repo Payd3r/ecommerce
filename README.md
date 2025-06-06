@@ -1,4 +1,4 @@
-# ArtigianatoShop - E-commerce di Artigianato
+# Pane e Salame - E-commerce di Artigianato
 
 ## Membri del Team
 - Luca Cattaneo 755083

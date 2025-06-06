@@ -1,7 +1,7 @@
 /*
   cart.js
   -----------------------------
-  Questo modulo fornisce un'API client-side per la gestione del carrello nell'applicazione ArtigianatoShop.
+  Questo modulo fornisce un'API client-side per la gestione del carrello nell'applicazione Pane e Salame.
   - Tutte le chiamate sono indirizzate alle API REST del backend tramite fetchWithAuth, che gestisce token e headers.
   - Le funzioni di CartAPI permettono: creazione carrello, aggiunta/rimozione/modifica prodotti, recupero e svuotamento carrello.
   - Ogni operazione aggiorna lo stato globale del carrello tramite eventi custom ('cart:change') per sincronizzare UI e badge.

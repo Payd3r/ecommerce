@@ -45,7 +45,7 @@ class Router {
         const defaultOptions = {
             requireAuth: false,
             roles: [],
-            title: 'ArtigianatoShop'
+            title: 'Pane e Salame'
         };
         
         this.routes[path] = {

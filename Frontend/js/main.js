@@ -87,83 +87,83 @@ class App {
      */
     setupRoutes() {
         // Route pubbliche
-        router.register('/', loadHomePage, { title: 'ArtigianatoShop - Home' });
-        router.register('/login', loadLoginPage, { title: 'Accedi - ArtigianatoShop' });
-        router.register('/register', loadRegisterPage, { title: 'Registrati - ArtigianatoShop' });
-        router.register('/products', loadProductsPage, { title: 'Tutti i Prodotti - ArtigianatoShop', allowQuery: true });
+        router.register('/', loadHomePage, { title: 'Pane e Salame - Home' });
+        router.register('/login', loadLoginPage, { title: 'Accedi - Pane e Salame' });
+        router.register('/register', loadRegisterPage, { title: 'Registrati - Pane e Salame' });
+        router.register('/products', loadProductsPage, { title: 'Tutti i Prodotti - Pane e Salame', allowQuery: true });
         router.register('/products/:id', loadProductDetailsPage, { title: 'Dettagli Prodotto - Product' });
-        router.register('/artisans', loadArtisanPage, { title: 'Artigiani - ArtigianatoShop' });
-        router.register('/categories', loadCategoryPage, { title: 'Categorie - ArtigianatoShop' });
-        router.register('/artisan-shop/:id', loadArtisanShopPage, { title: 'Shop Artigiano - ArtigianatoShop' });
-        router.register('/myorders', loadClientOrdersPage, { title: 'I Miei Ordini - ArtigianatoShop' });
-        router.register('/contact', loadContactsPage, { title: 'Contatti - ArtigianatoShop' });
+        router.register('/artisans', loadArtisanPage, { title: 'Artigiani - Pane e Salame' });
+        router.register('/categories', loadCategoryPage, { title: 'Categorie - Pane e Salame' });
+        router.register('/artisan-shop/:id', loadArtisanShopPage, { title: 'Shop Artigiano - Pane e Salame' });
+        router.register('/myorders', loadClientOrdersPage, { title: 'I Miei Ordini - Pane e Salame' });
+        router.register('/contact', loadContactsPage, { title: 'Contatti - Pane e Salame' });
 
         // Route protetta: carrello solo per utenti autenticati
         router.register('/cart', loadCartPage, {
             requireAuth: true,
-            title: 'Il tuo Carrello - ArtigianatoShop'
+            title: 'Il tuo Carrello - Pane e Salame'
         });
         router.register('/profile', loadProfilePage, {
             requireAuth: true,
-            title: 'Profilo - ArtigianatoShop'
+            title: 'Profilo - Pane e Salame'
         });
 
         // Route per diventare artigiano
         router.register('/became-artisan', loadBecameArtisanPage, {
             requireAuth: true,
             roles: ['client'],
-            title: 'Diventa Artigiano - ArtigianatoShop'
+            title: 'Diventa Artigiano - Pane e Salame'
         });
         router.register('/artisan/dashboard', loadArtisanDashboardPage, {
             requireAuth: true,
             roles: ['artisan'],
-            title: 'Dashboard Artigiano - ArtigianatoShop'
+            title: 'Dashboard Artigiano - Pane e Salame'
         });
         router.register('/artisan/manage-orders', loadManageOrdersPage, {
             requireAuth: true,
             roles: ['artisan'],
-            title: 'Gestione Ordini - ArtigianatoShop'
+            title: 'Gestione Ordini - Pane e Salame'
         });
         router.register('/artisan/manage-products', loadManageProductsPage, {
             requireAuth: true,
             roles: ['artisan'],
-            title: 'Gestione Prodotti - ArtigianatoShop'
+            title: 'Gestione Prodotti - Pane e Salame'
         });
 
         // Route protette per admin
         router.register('/admin/products-management', loadProductsManagementPage, {
             requireAuth: true,
             roles: ['admin'],
-            title: 'ProductsManagement Admin - ArtigianatoShop'
+            title: 'ProductsManagement Admin - Pane e Salame'
         });
         router.register('/admin/dashboard', loadAdminDashboardPage, {
             requireAuth: true,
             roles: ['admin'],
-            title: 'Dashboard Admin - ArtigianatoShop'
+            title: 'Dashboard Admin - Pane e Salame'
         });
         router.register('/admin/users-management', loadUsersManagementPage, {
             requireAuth: true,
             roles: ['admin'],
-            title: 'UsersManagement Admin - ArtigianatoShop'
+            title: 'UsersManagement Admin - Pane e Salame'
         });
         router.register('/admin/categories-management', loadCategoriesManagementPage, {
             requireAuth: true,
             roles: ['admin'],
-            title: 'CategoriesManagement Admin - ArtigianatoShop'
+            title: 'CategoriesManagement Admin - Pane e Salame'
         });
         router.register('/admin/orders-management', loadOrdersManagementPage, {
             requireAuth: true,
             roles: ['admin'],
-            title: 'Gestione Ordini - ArtigianatoShop'
+            title: 'Gestione Ordini - Pane e Salame'
         });
         router.register('/admin/issues-management', loadIssuesManagementPage, {
             requireAuth: true,
             roles: ['admin'],
-            title: 'Gestione Segnalazioni - ArtigianatoShop'
+            title: 'Gestione Segnalazioni - Pane e Salame'
         });
 
         // Route 404
-        router.register('404', loadNotFoundPage, { title: 'Pagina non trovata - ArtigianatoShop' });
+        router.register('404', loadNotFoundPage, { title: 'Pagina non trovata - Pane e Salame' });
     }
 }
 

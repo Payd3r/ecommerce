@@ -28,7 +28,7 @@ class Navbar {
                 <!-- Riga Superiore Principale -->
                 <div class="d-flex align-items-center w-100">
                     <!-- Brand (Titolo) -->
-                    <a class="navbar-brand fw-bold mb-0" href="/" data-route>ArtigianatoShop</a>
+                    <a class="navbar-brand fw-bold mb-0" href="/" data-route>Pane e Salame</a>
 
                     <!-- Link Pagine (solo Desktop, allineati a sinistra dopo il brand) -->
                     <ul class="navbar-nav d-none d-lg-flex flex-row me-auto ms-lg-4">

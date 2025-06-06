@@ -19,7 +19,7 @@ class Footer {
             <div class="container">
                 <div class="row gy-4">
                     <div class="col-12 col-md-5">
-                        <div class="mb-2 h4">ArtigianatoShop</div>
+                        <div class="mb-2 h4">Pane e Salame</div>
                         <p class="text-muted">Il meglio dell'artigianato italiano, direttamente a casa tua. Scopri prodotti unici realizzati da artigiani locali con passione e tradizione.</p>
                         <div class="d-flex gap-3 mt-3">
                             <a href="#" aria-label="Facebook" class="text-secondary fs-5"><i class="bi bi-facebook"></i></a>
@@ -44,7 +44,7 @@ class Footer {
                     </div>
                 </div>
                 <hr class="my-4">
-                <div class="text-center text-muted small">&copy; ${currentYear} ArtigianatoShop. Tutti i diritti riservati.</div>
+                <div class="text-center text-muted small">&copy; ${currentYear} Pane e Salame. Tutti i diritti riservati.</div>
             </div>
         `;
         

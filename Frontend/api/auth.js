@@ -1,7 +1,7 @@
 /*
   auth.js
   -----------------------------
-  Questo modulo fornisce un'API client-side per la gestione dell'autenticazione e del profilo utente nell'applicazione ArtigianatoShop.
+  Questo modulo fornisce un'API client-side per la gestione dell'autenticazione e del profilo utente nell'applicazione Pane e Salame.
   - Tutte le chiamate sono indirizzate alle API REST del backend tramite fetchWithAuth, che gestisce token e headers.
   - Le funzioni statiche della classe ApiService permettono: login, registrazione, recupero e aggiornamento profilo, gestione indirizzo, aggiornamento bio artigiano e upload banner.
   - Le scelte tecniche privilegiano la modularità e la separazione delle responsabilità: la logica di autenticazione è centralizzata qui, mentre la gestione del token è delegata ad authService.

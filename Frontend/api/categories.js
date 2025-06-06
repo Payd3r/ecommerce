@@ -1,7 +1,7 @@
 /*
   categories.js
   -----------------------------
-  Questo modulo fornisce un'API client-side per la gestione delle categorie nell'applicazione ArtigianatoShop.
+  Questo modulo fornisce un'API client-side per la gestione delle categorie nell'applicazione Pane e Salame.
   - Tutte le chiamate sono indirizzate alle API REST del backend tramite fetchWithAuth, che gestisce token e headers.
   - Le funzioni di CategoriesAPI permettono: recupero di tutte le categorie, dell'albero categorie, di una singola categoria, creazione, aggiornamento e cancellazione (queste ultime solo per admin).
   - Le scelte tecniche privilegiano la modularità e la separazione delle responsabilità: la logica di gestione categorie è centralizzata qui.

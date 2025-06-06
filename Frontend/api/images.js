@@ -1,7 +1,7 @@
 /*
   images.js
   -----------------------------
-  Questo modulo fornisce funzioni per la gestione delle immagini (upload e cancellazione) nell'applicazione ArtigianatoShop.
+  Questo modulo fornisce funzioni per la gestione delle immagini (upload e cancellazione) nell'applicazione Pane e Salame.
   - Tutte le chiamate sono indirizzate alle API REST del backend, utilizzando FormData per l'upload e JSON per la cancellazione.
   - Le funzioni permettono: upload immagini prodotto, categoria, profilo, banner artigiano e cancellazione immagini prodotto.
   - Le scelte tecniche privilegiano la modularità e la separazione delle responsabilità: la logica di gestione immagini è centralizzata qui.

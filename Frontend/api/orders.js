@@ -1,7 +1,7 @@
 /*
   orders.js
   -----------------------------
-  Questo modulo fornisce funzioni per la gestione degli ordini nell'applicazione ArtigianatoShop.
+  Questo modulo fornisce funzioni per la gestione degli ordini nell'applicazione Pane e Salame.
   - Tutte le chiamate sono indirizzate alle API REST del backend, utilizzando fetchWithAuth per autenticazione e gestione token.
   - Le funzioni permettono: recupero, creazione, checkout, aggiornamento stato, eliminazione ordini, statistiche e pagamenti.
   - Le scelte tecniche privilegiano la modularità e la separazione delle responsabilità: la logica di gestione ordini è centralizzata qui.

@@ -93,7 +93,7 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'healthy', 
     timestamp: new Date(),
-    service: 'ArtigianatoShop Monitoring'
+    service: 'Pane e Salame Monitoring'
   });
 });
 
@@ -1052,7 +1052,7 @@ cron.schedule('0 */5 * * * *', updateMetrics);
 
 // Avvia il server
 server.listen(PORT, () => {
-  console.log(`🚀 Sistema di Monitoraggio ArtigianatoShop avviato su porta ${PORT}`);
+  console.log(`🚀 Sistema di Monitoraggio Pane e Salame avviato su porta ${PORT}`);
   console.log(`📈 Dashboard disponibile su: http://localhost:${PORT}`);
   console.log(`🔧 API disponibili su: http://localhost:${PORT}/api/`);
   

@@ -1,7 +1,7 @@
 /*
   products.js
   -----------------------------
-  Questo modulo fornisce funzioni per la gestione dei prodotti nell'applicazione ArtigianatoShop.
+  Questo modulo fornisce funzioni per la gestione dei prodotti nell'applicazione Pane e Salame.
   - Tutte le chiamate sono indirizzate alle API REST del backend, utilizzando fetchWithAuth per autenticazione e gestione token dove necessario.
   - Le funzioni permettono: recupero, creazione, aggiornamento, eliminazione prodotti, ricerca, best seller e prodotti per artigiano.
   - Le scelte tecniche privilegiano la modularità e la separazione delle responsabilità: la logica di gestione prodotti è centralizzata qui.

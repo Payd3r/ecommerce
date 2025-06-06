@@ -37,7 +37,7 @@ export async function loadRegisterPage() {
                 <div class="col-12 col-md-8 col-lg-6">
                     <div class="card shadow-sm p-4">
                         <h2 class="text-center mb-3">Registrati</h2>
-                        <p class="text-center mb-4 text-muted">Crea il tuo account su ArtigianatoShop</p>
+                        <p class="text-center mb-4 text-muted">Crea il tuo account su Pane e Salame</p>
                         <form id="register-form">
                             <div class="mb-3">
                                 <label for="name" class="form-label">Nome completo</label>
