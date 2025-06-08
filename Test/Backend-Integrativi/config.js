@@ -13,7 +13,7 @@ module.exports = {
     user: process.env.DB_USER || 'ecommerce',
     password: process.env.DB_PASSWORD || 'ecommerce',
     name: process.env.DB_NAME || 'ecommerce_test',
-    port: process.env.DB_PORT || 3307
+    port: process.env.DB_PORT || 3306
   },
   
   // Altre configurazioni
