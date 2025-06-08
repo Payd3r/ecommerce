@@ -116,6 +116,20 @@ export function loadHelpIssuePage() {
         const openModalBtn = page.querySelector('#open-issue-modal');
         const openModalBtnMobile = page.querySelector('#open-issue-modal-mobile');
         const helpIssueModal = new bootstrap.Modal(page.querySelector('#help-issue-modal'));
+        const helpIssueForm = page.querySelector('#help-issue-form');
+        const errorDiv = page.querySelector('#help-issue-error');
+
+        // Reset form and hide error when modal is closed
+        page.querySelector('#help-issue-modal').addEventListener('hidden.bs.modal', function () {
+            if (helpIssueForm) {
+                helpIssueForm.reset();
+            }
+            if (errorDiv) {
+                errorDiv.textContent = '';
+                errorDiv.classList.add('d-none');
+            }
+        });
+
         if (openModalBtn) {
             openModalBtn.addEventListener('click', () => {
                 helpIssueModal.show();
@@ -126,6 +140,51 @@ export function loadHelpIssuePage() {
                 helpIssueModal.show();
             });
         }
+
+        // Handle help issue form submission
+        if (helpIssueForm) {
+            helpIssueForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const submitBtn = this.querySelector('button[type="submit"]');
+                
+                try {
+                    submitBtn.disabled = true;
+                    const formData = new FormData(this);
+                    const { createIssue } = await import('../../../api/issues.js');
+                    
+                    const user = authService.getUser();
+                    if (!user || (!user.id && !user.id_user)) {
+                        throw new Error('Utente non autenticato');
+                    }
+                    
+                    const response = await createIssue({
+                        title: formData.get('title'),
+                        description: formData.get('description'),
+                        id_client: user.id || user.id_user,
+                        status: 'open',
+                        created_at: new Date().toISOString().split('T')[0]
+                    });
+
+                    if (response.success) {
+                        helpIssueModal.hide();
+                        this.reset();
+                        errorDiv.textContent = '';
+                        errorDiv.classList.add('d-none');
+                        // Reload issues to show the new one
+                        loadUserIssues();
+                    } else {
+                        errorDiv.textContent = response.message || 'Errore durante l\'invio della segnalazione';
+                        errorDiv.classList.remove('d-none');
+                    }
+                } catch (error) {
+                    errorDiv.textContent = error.message || 'Errore durante l\'invio della segnalazione';
+                    errorDiv.classList.remove('d-none');
+                } finally {
+                    submitBtn.disabled = false;
+                }
+            });
+        }
+
         // Toggle filtri mobile
         const filtersContainer = page.querySelector('#filters-container');
         const toggleFiltersBtn = page.querySelector('#toggle-filters');
