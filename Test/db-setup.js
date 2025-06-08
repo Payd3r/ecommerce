@@ -8,7 +8,7 @@ const dbConfig = {
   user: 'admin',
   password: '1234',
   database: 'ecommerce_test_db',
-  port: 3306
+  port: 3016
 };
 
 async function waitForDatabase(maxAttempts = 30) {

@@ -2,16 +2,16 @@ version: '3.8'
 
 services:
   # Database per i test
-  mariadb-test-db:
+  test-db:
     image: mariadb:10.6
-    container_name: mariadb-test-db
+    container_name: test-db
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: ecommerce_test
       MYSQL_USER: ecommerce
       MYSQL_PASSWORD: ecommerce
     ports:
-      - "3016:3306"
+      - "3016:3016"
     volumes:
       - mariadb-test-data:/var/lib/mysql
     networks:
@@ -29,14 +29,14 @@ services:
     environment:
       NODE_ENV: test
       DB_HOST: mariadb-test-db
-      DB_PORT: 3306
+      DB_PORT: 3016
       DB_USER: ecommerce
       DB_PASSWORD: ecommerce
       DB_NAME: ecommerce_test
       JWT_SECRET: test_secret
-      PORT: 3001
+      PORT: 3017
     ports:
-      - "3001:3001"
+      - "3017:3017"
     depends_on:
       - mariadb-test-db
     networks:
@@ -54,7 +54,7 @@ services:
     environment:
       NODE_ENV: test
       DB_HOST: mariadb-test-db
-      DB_PORT: 3306
+      DB_PORT: 3016
       DB_USER: ecommerce
       DB_PASSWORD: ecommerce
       DB_NAME: ecommerce_test
@@ -76,7 +76,7 @@ services:
     environment:
       NODE_ENV: test
       DB_HOST: mariadb-test-db
-      DB_PORT: 3306
+      DB_PORT: 3016
       DB_USER: ecommerce
       DB_PASSWORD: ecommerce
       DB_NAME: ecommerce_test
@@ -130,8 +130,7 @@ services:
     environment:
       NODE_ENV: test
     ports:
-      - "3017:3017"
-      - "3018:3018"
+      - "3012:3012"
     depends_on:
       - backend-test
     networks:
