@@ -1,0 +1,195 @@
+version: '3.8'
+
+services:
+  # Database per i test
+  mariadb-test-db:
+    image: mariadb:10.6
+    container_name: mariadb-test-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ecommerce_test
+      MYSQL_USER: ecommerce
+      MYSQL_PASSWORD: ecommerce
+    ports:
+      - "3307:3306"
+    volumes:
+      - mariadb-test-data:/var/lib/mysql
+    networks:
+      - test-network
+    tmpfs:
+      - /tmp
+      - /var/log
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      timeout: 20s
+      retries: 10
+
+  # Backend per i test
+  backend-test:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: backend-test
+    environment:
+      NODE_ENV: test
+      DB_HOST: mariadb-test-db
+      DB_PORT: 3306
+      DB_USER: ecommerce
+      DB_PASSWORD: ecommerce
+      DB_NAME: ecommerce_test
+      JWT_SECRET: test_secret
+      PORT: 3001
+    ports:
+      - "3001:3001"
+    depends_on:
+      mariadb-test-db:
+        condition: service_healthy
+    networks:
+      - test-network
+    volumes:
+      # Mount solo il codice sorgente necessario, senza creare cartelle nel host
+      - ./Backend:/usr/src/app:ro
+      # Volume separato per node_modules per evitare conflitti
+      - backend-test-node-modules:/usr/src/app/node_modules
+      # Mount separato per i media solo se necessario durante i test
+      - ./Media:/usr/src/app/Media:ro
+
+  # Container per test unitari
+  test-unitari:
+    build:
+      context: .
+      dockerfile: Test/Backend-Unitari/Dockerfile
+    environment:
+      NODE_ENV: test
+      DB_HOST: mariadb-test-db
+      DB_PORT: 3306
+      DB_USER: ecommerce
+      DB_PASSWORD: ecommerce
+      DB_NAME: ecommerce_test
+    depends_on:
+      mariadb-test-db:
+        condition: service_healthy
+      backend-test:
+        condition: service_started
+    networks:
+      - test-network
+    volumes:
+      # Mount solo il necessario per i test unitari (read-write per permettere la scrittura dei risultati)
+      - ./Test/Backend-Unitari:/usr/src/app/Test/Backend-Unitari
+      - ./Backend:/usr/src/app/Backend:ro
+      - test-unitari-node-modules:/usr/src/app/Test/Backend-Unitari/node_modules
+      # Output condiviso per i risultati
+      - ./Test/Output:/usr/src/app/Test/Output
+
+  # Container per test integrativi
+  test-integrativi:
+    build:
+      context: .
+      dockerfile: Test/Backend-Integrativi/Dockerfile
+    environment:
+      NODE_ENV: test
+      DB_HOST: mariadb-test-db
+      DB_PORT: 3306
+      DB_USER: ecommerce
+      DB_PASSWORD: ecommerce
+      DB_NAME: ecommerce_test
+      BACKEND_URL: http://backend-test:3001
+    depends_on:
+      mariadb-test-db:
+        condition: service_healthy
+      backend-test:
+        condition: service_started
+    networks:
+      - test-network
+    volumes:
+      - ./Test/Backend-Integrativi:/usr/src/app/Test/Backend-Integrativi
+      - ./Test/db-setup.js:/usr/src/app/Test/db-setup.js:ro
+      - test-integrativi-node-modules:/usr/src/app/Test/Backend-Integrativi/node_modules
+      - ./Test/Output:/usr/src/app/Test/Output
+
+  # Container per test frontend
+  test-frontend:
+    build:
+      context: .
+      dockerfile: Test/Frontend/Dockerfile
+    environment:
+      NODE_ENV: test
+      REACT_APP_API_URL: http://backend-test:3001
+    depends_on:
+      backend-test:
+        condition: service_started
+    networks:
+      - test-network
+    volumes:
+      - ./Test/Frontend:/usr/src/app/Test/Frontend
+      - ./Frontend:/usr/src/app/Frontend:ro
+      - test-frontend-node-modules:/usr/src/app/Test/Frontend/node_modules
+      - ./Test/Output:/usr/src/app/Test/Output
+
+  # Container per test performance
+  test-performance:
+    build:
+      context: .
+      dockerfile: Test/Performance/Dockerfile
+    environment:
+      NODE_ENV: test
+      BACKEND_URL: http://backend-test:3001
+    depends_on:
+      backend-test:
+        condition: service_started
+    networks:
+      - test-network
+    volumes:
+      - ./Test/Performance:/usr/src/app/Test/Performance
+      - test-performance-node-modules:/usr/src/app/Test/Performance/node_modules
+      - ./Test/Output:/usr/src/app/Test/Output
+
+  # Container per il monitoring dei test
+  monitoring-test:
+    build:
+      context: ./Monitoring
+      dockerfile: Dockerfile
+    container_name: monitoring-test
+    environment:
+      NODE_ENV: test
+      PORT: 3018
+      BACKEND_URL: http://backend-test:3001
+      DB_HOST: mariadb-test-db
+      DB_PORT: 3306
+      DB_USER: ecommerce
+      DB_PASSWORD: ecommerce
+      DB_NAME: ecommerce_test
+    ports:
+      - "3018:3018"
+    depends_on:
+      backend-test:
+        condition: service_started
+    networks:
+      - test-network
+    volumes:
+      # Mount read-only delle directory necessarie per monitoring
+      - ./Monitoring:/usr/src/app:ro
+      - monitoring-test-node-modules:/usr/src/app/node_modules
+      # Mount per accesso ai risultati dei test
+      - ./Test/Output:/usr/src/app/Test/Output
+
+networks:
+  test-network:
+    name: ecommerce-test-network
+    driver: bridge
+
+volumes:
+  mariadb-test-data:
+    name: ecommerce-test-db-data
+  backend-test-node-modules:
+    name: ecommerce-backend-test-modules
+  test-unitari-node-modules:
+    name: ecommerce-test-unitari-modules
+  test-integrativi-node-modules:
+    name: ecommerce-test-integrativi-modules
+  test-frontend-node-modules:
+    name: ecommerce-test-frontend-modules
+  test-performance-node-modules:
+    name: ecommerce-test-performance-modules
+  monitoring-test-node-modules:
+    name: ecommerce-monitoring-test-modules

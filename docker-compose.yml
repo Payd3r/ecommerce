@@ -1,0 +1,94 @@
+services:
+  # Production database - persistent data
+  db:
+    image: mariadb:11
+    container_name: ecommerce-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: ecommerce_db
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: 1234
+      MYSQL_INNODB_BUFFER_POOL_SIZE: 256M
+      MYSQL_INNODB_LOG_FILE_SIZE: 128M
+      MYSQL_INNODB_FLUSH_LOG_AT_TRX_COMMIT: 1
+      MYSQL_INNODB_FLUSH_METHOD: O_DIRECT
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadbdata:/var/lib/mysql
+      - ./Backend/db.sql:/docker-entrypoint-initdb.d/db.sql
+
+  # Production backend API
+  backend:
+    build: ./Backend
+    container_name: ecommerce-backend
+    ports:
+      - "3015:3015"
+    depends_on:
+      - db
+    environment:
+      NODE_ENV: development
+      PORT: 3015
+      DB_HOST: db
+      DB_USER: admin
+      DB_PASSWORD: 1234
+      DB_NAME: ecommerce_db
+      DB_PORT: 3306
+      JWT_SECRET: ecommerce_secret_key_2024
+    volumes:
+      - ./Media:/usr/src/app/Media:cached
+      - ./Backend:/usr/src/app:delegated
+      - backend-node-modules:/usr/src/app/node_modules
+
+  # Production frontend server
+  frontend:
+    build: ./Frontend
+    container_name: ecommerce-frontend
+    ports:
+      - "3010:80"
+    depends_on:
+      - backend
+    environment:
+      REACT_APP_API_URL: http://localhost:3015
+    volumes:
+      - ./Frontend:/usr/share/nginx/html
+
+  # Image server
+  imageserver:
+    image: nginx:alpine
+    container_name: ecommerce-imageserver
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      - ./Media:/usr/share/nginx/html/Media:cached
+    depends_on:
+      - backend
+
+  # Monitoring system
+  monitoring:
+    build: ./Monitoring
+    container_name: ecommerce-monitoring
+    restart: always
+    ports:
+      - "3017:3017"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./Media:/usr/src/app/Media:ro
+      - ./Backend:/usr/src/app/Backend:ro
+      - ./Frontend:/usr/src/app/Frontend:ro
+      - ./Test:/usr/src/app/Test:ro
+      - ./Monitoring:/usr/src/app/Monitoring:ro
+      - ./Monitoring/public:/usr/src/app/public
+      - ./backups:/usr/src/app/backups
+    environment:
+      NODE_ENV: production
+      PORT: 3017
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  mariadbdata:    # Production data persistence
+  backend-node-modules:   # Backend node_modules volume

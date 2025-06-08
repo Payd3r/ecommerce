@@ -1,0 +1,16 @@
+{
+  "name": "ecommerce-tests",
+  "version": "1.0.0",
+  "description": "Test per l'applicazione e-commerce",
+  "scripts": {
+    "test:integrativi": "docker-compose run --rm test-integrativi",
+    "test:unitari": "docker-compose run --rm test-unitari",
+    "test:frontend": "docker-compose run --rm test-frontend",
+    "test:performance": "docker-compose run --rm test-performance",
+    "test:all": "powershell -File RunTests.ps1 -TestType all",
+    "test:clean": "docker-compose rm -f test-integrativi test-unitari test-frontend test-performance db-test",
+    "test:rebuild": "docker-compose build --no-cache test-integrativi test-unitari test-frontend test-performance"
+  },
+  "author": "",
+  "license": "ISC"
+} 

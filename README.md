@@ -40,14 +40,14 @@ Il progetto è suddiviso in:
    - Esegue automaticamente la configurazione del database tramite `/Backend/db.sql`
    - Espone i servizi sulle seguenti porte:
      - **Frontend**: [http://localhost:3010](http://localhost:3010)
-     - **Backend/API**: [http://localhost:3010](http://localhost:3010)
-     - **Database MariaDB**: porta 3015
-     - **Image server**: [http://localhost:3011/Media](http://localhost:3011/Media)
+     - **Backend/API**: [http://localhost:3015](http://localhost:3015)
+     - **Database MariaDB**: porta 3306
+     - **Image server**: [http://localhost:8080/Media](http://localhost:8080/Media)
 
 3. **Accesso rapido**
    - Frontend: [http://localhost:3010](http://localhost:3010)
-   - Documentazione API (Swagger): [http://localhost:3010/api-docs](http://localhost:3010/api-docs)
-   - **Dashboard Monitoraggio**: [http://localhost:3012](http://localhost:3012)
+   - Documentazione API (Swagger): [http://localhost:3015/api-docs](http://localhost:3015/api-docs)
+   - **Dashboard Monitoraggio**: [http://localhost:3017](http://localhost:3017)
 
 ### Ambiente di Testing
 
@@ -141,12 +141,12 @@ Per ambienti di produzione, si consiglia di modificarle e gestirle tramite secre
 2. **Backend**
    - Modifica le variabili d'ambiente nel file `docker-compose.yml` o crea un file `.env` in `/Backend` con:
      ```
-     PORT=3010
+     PORT=3015
      DB_HOST=<host>
      DB_USER=<user>
      DB_PASSWORD=<password>
      DB_NAME=<db_name>
-     DB_PORT=3015
+     DB_PORT=3306
      JWT_SECRET=<una_secret>
      ```
    - Installa le dipendenze:
@@ -155,7 +155,7 @@ Per ambienti di produzione, si consiglia di modificarle e gestirle tramite secre
      npm install
      npm run dev
      ```
-   - Il backend sarà disponibile su `http://localhost:3010`.
+   - Il backend sarà disponibile su `http://localhost:3015`.
 
 3. **Frontend**
    - Apri `/Frontend/index.html` in un browser, oppure servi la cartella con un web server statico (es. nginx).
@@ -188,7 +188,7 @@ La piattaforma include un sistema completo di monitoraggio per soddisfare i requ
 
 ### Dashboard di Monitoraggio
 
-- **Accesso**: [http://localhost:3012](http://localhost:3012)
+- **Accesso**: [http://localhost:3017](http://localhost:3017)
 - **Funzionalità**:
   - Monitoraggio stato container Docker in tempo reale
   - Utilizzo CPU e memoria del sistema
@@ -231,9 +231,9 @@ Per esporre il sistema su rete pubblica attraverso il router:
    ```
    Porta Esterna -> Porta Interna (IP Locale)
    3010 -> 3010  (Frontend)
-   3010 -> 3010  (Backend API)
-   3012 -> 3012  (Dashboard Monitoraggio)
-   3011 -> 3011  (Image Server)
+   3015 -> 3015  (Backend API)
+   3017 -> 3017  (Dashboard Monitoraggio)
+   8080 -> 8080  (Image Server)
    ```
 
 2. **Sicurezza Consigliata**
@@ -250,7 +250,7 @@ Per esporre il sistema su rete pubblica attraverso il router:
 ### Integrazione con Testing
 
 Il sistema di monitoraggio è disponibile anche nell'ambiente di testing:
-- **Testing Environment**: [http://localhost:3013](http://localhost:3013)
+- **Testing Environment**: [http://localhost:3018](http://localhost:3018)
 - Configurazione isolata per non interferire con produzione
 - Metriche specifiche per container di test
 
@@ -260,7 +260,7 @@ Il sistema di monitoraggio è disponibile anche nell'ambiente di testing:
 
 - **Swagger**:  
   Tutte le API REST sono documentate e testabili tramite interfaccia Swagger, accessibile su  
-  [http://localhost:3010/api-docs](http://localhost:3010/api-docs)
+  [http://localhost:3015/api-docs](http://localhost:3015/api-docs)
 
 - **Esempio di endpoint documentati**:
   - `/auth/register` - Registrazione utente
@@ -350,10 +350,10 @@ ecommerce/
 
 ### Produzione (docker-compose.yml)
 - **frontend**: Porta 3010 - Interfaccia utente
-- **backend**: Porta 3010 - API REST
-- **db**: Porta 3015 - Database MariaDB
-- **imageserver**: Porta 3011 - Server per immagini statiche
-- **monitoring**: Porta 3012 - Dashboard di monitoraggio
+- **backend**: Porta 3015 - API REST
+- **db**: Porta 3306 - Database MariaDB
+- **imageserver**: Porta 8080 - Server per immagini statiche
+- **monitoring**: Porta 3017 - Dashboard di monitoraggio
 
 ### Testing (docker-compose-testing.yml)
 - **frontend-test**: Frontend per test
@@ -363,7 +363,7 @@ ecommerce/
 - **test-integrativi**: Container per test integrativi
 - **test-frontend**: Container per test frontend
 - **test-performance**: Container per test performance
-- **monitoring-test**: Porta 3013 - Dashboard monitoraggio per test
+- **monitoring-test**: Porta 3018 - Dashboard monitoraggio per test
 
 ---
 
