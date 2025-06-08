@@ -16,46 +16,42 @@ services:
       MYSQL_QUERY_CACHE_SIZE: 32M
       MYSQL_SYNC_BINLOG: 0
     ports:
-      - "3016:3306"
+      - "4006:3306"
     volumes:
       - test_db_data:/var/lib/mysql
       - ./Backend/db.sql:/docker-entrypoint-initdb.d/db.sql
+    networks:
+      - test_network
     # Utilizzo tmpfs per i log per ridurre I/O
     tmpfs:
       - /tmp
       - /var/log
-    # Health check ottimizzato per test
-    healthcheck:
-      test: ["CMD", "mariadb", "-h", "localhost", "-u", "admin", "-p1234", "-e", "SELECT 1;"]
-      start_period: 20s
-      interval: 5s
-      timeout: 3s
-      retries: 6
-      start_interval: 2s
 
   # Backend per test - utilizza database di test
   backend-test:
     build:
       context: ./Backend
       dockerfile: Dockerfile
-    environment:
-      NODE_ENV: test
-      DB_HOST: mariadb-test-db
-      DB_PORT: 3016
-      DB_USER: ecommerce
-      DB_PASSWORD: ecommerce
-      DB_NAME: ecommerce_test
-      JWT_SECRET: test_secret
-      PORT: 3010
     ports:
-      - "3017:3010"
-    depends_on:
-      - mariadb-test-db
-    networks:
-      - ecommerce_default
+      - "4010:4010"
+    environment:
+      - NODE_ENV=test
+      - DB_HOST=db-test
+      - DB_PORT=3306
+      - DB_USER=admin
+      - DB_PASSWORD=admin
+      - DB_NAME=ecommerce_test_db
+      - JWT_SECRET=test_secret
+      - PORT=4010
     volumes:
       - ./Backend:/usr/src/app
-      - test-reports:/usr/src/app/Test/Output
+      - ./Test/Output:/usr/src/app/Test/Output
+      - test-reports:/reports
+    depends_on:
+      - db-test
+    networks:
+      - test_network
+    command: sh -c "npm install && npm install -g nodemon && npm run dev"
 
   # Test unitari backend - isolati, senza dipendenze esterne
   test-unitari:
@@ -64,19 +60,21 @@ services:
       dockerfile: Dockerfile
     environment:
       NODE_ENV: test
-      DB_HOST: mariadb-test-db
-      DB_PORT: 3016
-      DB_USER: ecommerce
-      DB_PASSWORD: ecommerce
-      DB_NAME: ecommerce_test
+      DB_HOST: db-test
+      DB_PORT: 3306
+      DB_USER: admin
+      DB_PASSWORD: 1234
+      DB_NAME: ecommerce_test_db
     depends_on:
-      - mariadb-test-db
+      - db-test
       - backend-test
     networks:
-      - ecommerce_default
+      - test_network
     volumes:
       - ./Test/Output:/usr/src/app/Test/Output
+      - test-reports:/reports
     working_dir: /usr/src/app/Test/Backend-Unitari
+    command: sh -c "sleep 10 && npm test"
     restart: "no"
 
   # Test integrativi backend - richiede database di test e backend
@@ -86,19 +84,21 @@ services:
       dockerfile: Dockerfile
     environment:
       NODE_ENV: test
-      DB_HOST: mariadb-test-db
-      DB_PORT: 3016
-      DB_USER: ecommerce
-      DB_PASSWORD: ecommerce
-      DB_NAME: ecommerce_test
+      DB_HOST: db-test
+      DB_PORT: 3306
+      DB_USER: admin
+      DB_PASSWORD: 1234
+      DB_NAME: ecommerce_test_db
     depends_on:
-      - mariadb-test-db
+      - db-test
       - backend-test
     networks:
-      - ecommerce_default
+      - test_network
     volumes:
       - ./Test/Output:/usr/src/app/Test/Output
+      - test-reports:/reports
     working_dir: /usr/src/app/Test/Backend-Integrativi
+    command: sh -c "sleep 10 && npm test"
     restart: "no"
 
   # Test frontend - testing DOM con jsdom
@@ -108,46 +108,42 @@ services:
       dockerfile: Dockerfile
     environment:
       NODE_ENV: test
-      REACT_APP_API_URL: http://backend-test:3015
+      REACT_APP_API_URL: http://backend-test:4010
+    networks:
+      - test_network
     volumes:
       - ./Test/Output:/usr/src/app/Test/Output
+      - test-reports:/reports
     working_dir: /usr/src/app/Test/Frontend
+    command: sh -c "sleep 10 && npm test"
     restart: "no"
 
   # Test performance - load testing e benchmark
   test-performance:
     build:
-      context: ./Test/Performance
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: Test/Performance/Dockerfile
     environment:
-      NODE_ENV: test
-      API_BASE_URL: http://backend-test:3015
+      - API_BASE_URL=http://backend-test:4010
+      - DB_HOST=db-test
+      - DB_PORT=3306
+      - DB_USER=admin
+      - DB_PASSWORD=admin
+      - DB_NAME=ecommerce_test_db
     volumes:
       - ./Test/Output:/usr/src/app/Test/Output
-    working_dir: /usr/src/app/Test/Performance
-    restart: "no"
-
-  # Monitoring system per environment di test
-  monitoring-test:
-    build: ./Monitoring
-    container_name: ecommerce-monitoring-test
-    ports:
-      - "3018:3017"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./Media:/usr/src/app/Media:ro
-      - ./Backend:/usr/src/app/Backend:ro
-      - ./Frontend:/usr/src/app/Frontend:ro
-      - ./Test:/usr/src/app/Test:ro
-      - ./Monitoring:/usr/src/app/Monitoring:ro
-      - ./Monitoring/public:/usr/src/app/public
-    environment:
-      NODE_ENV: test
-    ports:
-      - "3013:3012"
+      - test-reports:/reports
     depends_on:
       - backend-test
-    restart: "no"
+      - db-test
+    networks:
+      - test_network
+    command: sh -c "sleep 10 && npm test"
 
 volumes:
   test_db_data:   # Persistenza dati test (limitata alla sessione)
+  test-reports:   # Volume condiviso per i report
+
+networks:
+  test_network:
+    driver: bridge

@@ -1,8 +1,8 @@
 // Performance test configuration
 module.exports = {
   server: {
-    port: process.env.PORT || 3015,
-    baseUrl: `http://backend-test:3015` // Backend di test che usa il database di test
+    port: process.env.PORT || 3010,
+    baseUrl: `http://backend-test:3010` // Backend di test che usa il database di test
   },
   
   database: {
@@ -39,5 +39,7 @@ module.exports = {
       email: 'artisan@test.com',
       password: 'artisan123'
     }
-  }
+  },
+  
+  apiBaseUrl: process.env.API_BASE_URL || 'http://backend-test:3010'
 }; 
