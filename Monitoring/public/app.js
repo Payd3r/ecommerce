@@ -1685,7 +1685,7 @@ function openImageModal(imageName, browser, testName) {
     const modalImage = modal.querySelector('#modalImage');
     
     modalTitle.textContent = `${testName} - ${browser.charAt(0).toUpperCase() + browser.slice(1)}`;
-    modalImage.src = `http://localhost:3017/api/test/screenshot/${browser}/${imageName}`;
+    modalImage.src = `http://101.58.39.17:3017/api/test/screenshot/${browser}/${imageName}`;
     modalImage.alt = `${browser} screenshot for ${testName}`;
     
     const modalInstance = new bootstrap.Modal(modal);
@@ -1947,7 +1947,7 @@ function createCrossBrowserTestDetails(report) {
                                         </div>
                                         <div class="card-body p-2">
                                             <div class="screenshot-container position-relative mb-2">
-                                                <img src="http://localhost:3017/api/test/screenshot/${browser}/${test.browser_results[browser].screenshot}" 
+                                                <img src="http://101.58.39.17:3017/api/test/screenshot/${browser}/${test.browser_results[browser].screenshot}" 
                                                      alt="${browser} screenshot" 
                                                      class="img-fluid rounded border screenshot-img"
                                                      style="height: 150px; width: 100%; object-fit: cover; cursor: pointer;"
