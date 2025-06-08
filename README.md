@@ -41,15 +41,15 @@ Il progetto è suddiviso in:
    - Crea e avvia i container per database, backend, frontend e image server
    - Esegue automaticamente la configurazione del database tramite `/Backend/db.sql`
    - Espone i servizi sulle seguenti porte:
-     - **Frontend**: [http://localhost:3010](http://localhost:3010)
-     - **Backend/API**: [http://localhost:3015](http://localhost:3015)
-     - **Database MariaDB**: porta 3307
-     - **Image server**: [http://localhost:8080/Media](http://localhost:8080/Media)
+     - **Frontend**: [http://localhost:3010](http://localhost:3010) o [http://paneesalame.ddns.net:3010](http://paneesalame.ddns.net:3010)
+     - **Backend/API**: [http://localhost:3015](http://localhost:3015) o [http://paneesalame.ddns.net:3015](http://paneesalame.ddns.net:3015)
+     - **Database MariaDB**: porta 3306
+     - **Image server**: [http://localhost:8080/Media](http://localhost:8080/Media) o [http://paneesalame.ddns.net:8080/Media](http://paneesalame.ddns.net:8080/Media)
 
 3. **Accesso rapido**
-   - **Frontend**: [http://localhost:3010](http://localhost:3010)
-   - **Documentazione API (Swagger)**: [http://localhost:3015/api-docs](http://localhost:3015/api-docs)
-   - **Dashboard Monitoraggio**: [http://localhost:3017](http://localhost:3017)
+   - **Frontend**: [http://localhost:3010](http://localhost:3010) o [http://paneesalame.ddns.net:3010](http://paneesalame.ddns.net:3010)
+   - **Documentazione API (Swagger)**: [http://localhost:3015/api-docs](http://localhost:3015/api-docs) o [http://paneesalame.ddns.net:3015/api-docs](http://paneesalame.ddns.net:3015/api-docs)
+   - **Dashboard Monitoraggio**: [http://localhost:3017](http://localhost:3017) o [http://paneesalame.ddns.net:3017](http://paneesalame.ddns.net:3017)
 
 ### Ambiente di Testing
 
@@ -191,7 +191,7 @@ La piattaforma include un sistema completo di monitoraggio per soddisfare i requ
 
 ### Dashboard di Monitoraggio
 
-- **Accesso**: [http://localhost:3017](http://localhost:3017)
+- **Accesso**: [http://localhost:3017](http://localhost:3017) o [http://paneesalame.ddns.net:3017](http://paneesalame.ddns.net:3017)
 - **Funzionalità**:
   - Monitoraggio stato container Docker in tempo reale
   - Utilizzo CPU e memoria del sistema
@@ -275,7 +275,7 @@ Il sistema di monitoraggio è disponibile anche nell'ambiente di testing:
 
 - **Swagger**:  
   Tutte le API REST sono documentate e testabili tramite interfaccia Swagger, accessibile su  
-  [http://localhost:3015/api-docs](http://localhost:3015/api-docs)
+  [http://localhost:3015/api-docs](http://localhost:3015/api-docs) o [http://paneesalame.ddns.net:3015/api-docs](http://paneesalame.ddns.net:3015/api-docs)
 
 - **Esempio di endpoint documentati**:
   - `/auth/register` - Registrazione utente
@@ -533,7 +533,7 @@ Le immagini sono gestite attraverso il database con le seguenti tabelle:
    - Restore di una versione locale
 
 3. **Accesso alle Immagini**
-   - URL pubblico: `http://localhost:8080/Media/[tipo]/[filename]`
+   - URL pubblico: `http://localhost:8080/Media/[tipo]/[filename]` o `http://paneesalame.ddns.net:8080/Media/[tipo]/[filename]`
    - Accesso protetto per immagini private
    - CDN-ready per distribuzione geografica
    - Cache control per ottimizzazione
