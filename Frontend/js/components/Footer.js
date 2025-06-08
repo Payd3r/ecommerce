@@ -39,7 +39,7 @@ class Footer {
                     <div class="col-6 col-md-3">
                         <h5 class="mb-3">Contatti</h5>
                         <p class="mb-1">Via dell'Artigianato, 123<br>00100 Roma, Italia</p>
-                        <p class="mb-1">Email: <a href="mailto:info@artigianatoshop.it" class="text-decoration-none">info@artigianatoshop.it</a></p>
+                        <p class="mb-1">Email: <a href="mailto:info@paneesalame.it" class="text-decoration-none">info@paneesalame.it</a></p>
                         <p>Telefono: +39 06 1234567</p>
                     </div>
                 </div>
