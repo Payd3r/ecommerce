@@ -14,7 +14,7 @@ services:
       MYSQL_INNODB_FLUSH_LOG_AT_TRX_COMMIT: 1
       MYSQL_INNODB_FLUSH_METHOD: O_DIRECT
     ports:
-      - "3306:3306"
+      - "3307:3307"
     volumes:
       - mariadbdata:/var/lib/mysql
       - ./Backend/db.sql:/docker-entrypoint-initdb.d/db.sql
@@ -34,7 +34,7 @@ services:
       DB_USER: admin
       DB_PASSWORD: 1234
       DB_NAME: ecommerce_db
-      DB_PORT: 3306
+      DB_PORT: 3307
       JWT_SECRET: ecommerce_secret_key_2024
     volumes:
       - ./Media:/usr/src/app/Media:cached

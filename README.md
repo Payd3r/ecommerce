@@ -43,7 +43,7 @@ Il progetto è suddiviso in:
    - Espone i servizi sulle seguenti porte:
      - **Frontend**: [http://localhost:3010](http://localhost:3010)
      - **Backend/API**: [http://localhost:3015](http://localhost:3015)
-     - **Database MariaDB**: porta 3306
+     - **Database MariaDB**: porta 3307
      - **Image server**: [http://localhost:8080/Media](http://localhost:8080/Media)
 
 3. **Accesso rapido**
@@ -149,7 +149,7 @@ Per ambienti di produzione, si consiglia di modificarle e gestirle tramite secre
      DB_USER=<user>
      DB_PASSWORD=<password>
      DB_NAME=<db_name>
-     DB_PORT=3306
+     DB_PORT=3307
      JWT_SECRET=<una_secret>
      ```
    - Installa le dipendenze:
@@ -472,7 +472,7 @@ La cartella `Documenti/` contiene risorse aggiuntive per lo sviluppo e la manute
 ### Produzione (docker-compose.yml)
 - **frontend**: Porta 3010 - Interfaccia utente
 - **backend**: Porta 3015 - API REST
-- **db**: Porta 3306 - Database MariaDB
+- **db**: Porta 3307 - Database MariaDB
 - **imageserver**: Porta 8080 - Server per immagini statiche
 - **monitoring**: Porta 3017 - Dashboard di monitoraggio
 
