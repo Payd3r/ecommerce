@@ -13,6 +13,9 @@ services:
       MYSQL_INNODB_LOG_FILE_SIZE: 128M
       MYSQL_INNODB_FLUSH_LOG_AT_TRX_COMMIT: 1
       MYSQL_INNODB_FLUSH_METHOD: O_DIRECT
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'no'
+    command: --default-authentication-plugin=mysql_native_password
     ports:
       - "3306:3306"
     volumes:
