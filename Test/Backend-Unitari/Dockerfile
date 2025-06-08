@@ -3,8 +3,7 @@ FROM node:20-alpine
 WORKDIR /usr/src/app
 
 # Copia tutto il codice sorgente necessario
-COPY ./Backend ./Backend/
-COPY ./Test/Backend-Unitari ./Test/Backend-Unitari/
+COPY . .
 
 # Installa tutte le dipendenze di test (comprese devDependencies)
 WORKDIR /usr/src/app/Test/Backend-Unitari

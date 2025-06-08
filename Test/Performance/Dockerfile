@@ -3,8 +3,7 @@ FROM node:20-alpine
 WORKDIR /usr/src/app
 
 # Copia codice sorgente necessario
-COPY ./Test/Performance ./Test/Performance/
-COPY ./Test/db-setup.js ./Test/db-setup.js
+COPY . .
 
 # Installa dipendenze performance tests
 WORKDIR /usr/src/app/Test/Performance
@@ -40,4 +39,4 @@ ENV NODE_OPTIONS="--max-old-space-size=512 --no-deprecation"
 
 WORKDIR /usr/src/app/Test/Performance
 
-CMD ["/usr/src/app/start-performance.sh"] 
+CMD ["sh", "/usr/src/app/start-performance.sh"] 

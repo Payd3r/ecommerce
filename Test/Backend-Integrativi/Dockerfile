@@ -3,8 +3,7 @@ FROM node:20-alpine
 WORKDIR /usr/src/app
 
 # Copia solo i file di test necessari
-COPY ./Test/Backend-Integrativi ./Test/Backend-Integrativi/
-COPY ./Test/db-setup.js ./Test/db-setup.js
+COPY . .
 
 # Installa dipendenze di test
 WORKDIR /usr/src/app/Test/Backend-Integrativi  
@@ -36,4 +35,4 @@ RUN echo '#!/bin/sh' > /usr/src/app/start-tests.sh && \
 
 WORKDIR /usr/src/app/Test/Backend-Integrativi
 
-CMD ["/usr/src/app/start-tests.sh"] 
+CMD ["sh", "/usr/src/app/start-tests.sh"] 

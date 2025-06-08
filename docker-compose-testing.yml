@@ -2,16 +2,16 @@ version: '3.8'
 
 services:
   # Database per i test
-  test-db:
+  mariadb-test-db:
     image: mariadb:10.6
-    container_name: test-db
+    container_name: mariadb-test-db
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: ecommerce_test
       MYSQL_USER: ecommerce
       MYSQL_PASSWORD: ecommerce
     ports:
-      - "3016:3016"
+      - "3016:3306"
     volumes:
       - mariadb-test-data:/var/lib/mysql
     networks:
@@ -24,8 +24,8 @@ services:
   # Backend per i test
   backend-test:
     build:
-      context: .
-      dockerfile: Backend/Dockerfile
+      context: ./Backend
+      dockerfile: Dockerfile
     environment:
       NODE_ENV: test
       DB_HOST: mariadb-test-db
@@ -34,23 +34,22 @@ services:
       DB_PASSWORD: ecommerce
       DB_NAME: ecommerce_test
       JWT_SECRET: test_secret
-      PORT: 3017
+      PORT: 3010
     ports:
-      - "3017:3017"
+      - "3017:3010"
     depends_on:
       - mariadb-test-db
     networks:
       - ecommerce_default
     volumes:
       - ./Backend:/usr/src/app
-      - /usr/src/app/node_modules
       - test-reports:/usr/src/app/Test/Output
 
   # Container per test unitari
   test-unitari:
     build:
-      context: .
-      dockerfile: Test/Backend-Unitari/Dockerfile
+      context: ./Test/Backend-Unitari
+      dockerfile: Dockerfile
     environment:
       NODE_ENV: test
       DB_HOST: mariadb-test-db
@@ -71,8 +70,8 @@ services:
   # Container per test integrativi
   test-integrativi:
     build:
-      context: .
-      dockerfile: Test/Backend-Integrativi/Dockerfile
+      context: ./Test/Backend-Integrativi
+      dockerfile: Dockerfile
     environment:
       NODE_ENV: test
       DB_HOST: mariadb-test-db
@@ -93,8 +92,8 @@ services:
   # Container per test frontend
   test-frontend:
     build:
-      context: .
-      dockerfile: Test/Frontend/Dockerfile
+      context: ./Test/Frontend
+      dockerfile: Dockerfile
     environment:
       NODE_ENV: test
     depends_on:
@@ -109,8 +108,8 @@ services:
   # Container per test performance
   test-performance:
     build:
-      context: .
-      dockerfile: Test/Performance/Dockerfile
+      context: ./Test/Performance
+      dockerfile: Dockerfile
     environment:
       NODE_ENV: test
     depends_on:
@@ -130,7 +129,7 @@ services:
     environment:
       NODE_ENV: test
     ports:
-      - "3012:3012"
+      - "3013:3012"
     depends_on:
       - backend-test
     networks:

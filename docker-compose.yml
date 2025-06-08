@@ -14,7 +14,7 @@ services:
       MYSQL_INNODB_FLUSH_LOG_AT_TRX_COMMIT: 1
       MYSQL_INNODB_FLUSH_METHOD: O_DIRECT
     ports:
-      - "3015:3015"
+      - "3015:3306"
     volumes:
       - mariadbdata:/var/lib/mysql
       - ./Backend/db.sql:/docker-entrypoint-initdb.d/db.sql
@@ -24,7 +24,7 @@ services:
     build: ./Backend
     container_name: ecommerce-backend
     ports:
-      - "3010:3010"
+      - "3010:3015"
     depends_on:
       - db
     environment:
@@ -34,7 +34,7 @@ services:
       DB_USER: admin
       DB_PASSWORD: 1234
       DB_NAME: ecommerce_db
-      DB_PORT: 3015
+      DB_PORT: 3306
       JWT_SECRET: ecommerce_secret_key_2024
     volumes:
       - ./Media:/usr/src/app/Media:cached
@@ -46,7 +46,7 @@ services:
     build: ./Frontend
     container_name: ecommerce-frontend
     ports:
-      - "3014:3014"
+      - "3014:80"
     depends_on:
       - backend
     environment:
@@ -60,7 +60,7 @@ services:
     container_name: ecommerce-imageserver
     restart: always
     ports:
-      - "3011:3011"
+      - "3011:80"
     volumes:
       - ./Media:/usr/share/nginx/html/Media:cached
     depends_on:
@@ -84,7 +84,7 @@ services:
       - ./backups:/usr/src/app/backups
     environment:
       NODE_ENV: production
-      PORT: 3017
+      PORT: 3012
     depends_on:
       - backend
       - frontend
