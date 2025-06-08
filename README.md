@@ -309,10 +309,8 @@ ecommerce/
 │   ├── db.sql
 │   ├── Dockerfile
 │   ├── package.json
-│   ├── package-lock.json
 │   ├── .dockerignore
-│   ├── .gitignore
-│   ├── Media/                  
+│   ├── .gitignore            
 │   ├── models/
 │   ├── routes/
 │   │   ├── auth.js

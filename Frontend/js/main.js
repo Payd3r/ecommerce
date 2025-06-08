@@ -87,7 +87,7 @@ class App {
      */
     setupRoutes() {
         // Route pubbliche
-        router.register('/', loadHomePage, { title: 'Pane e Salame - Home' });
+        router.register('/', loadHomePage, { title: 'Pane e Salame' });
         router.register('/login', loadLoginPage, { title: 'Accedi - Pane e Salame' });
         router.register('/register', loadRegisterPage, { title: 'Registrati - Pane e Salame' });
         router.register('/products', loadProductsPage, { title: 'Tutti i Prodotti - Pane e Salame', allowQuery: true });
