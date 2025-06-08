@@ -21,7 +21,7 @@ export function loadContactsPage() {
                         <h5 class="mb-4"><i class="bi bi-geo-alt-fill me-2 text-primary"></i>Indirizzo</h5>
                         <p class="mb-3">Via dell'Artigianato, 123<br>00100 Roma, Italia</p>
                         <h5 class="mb-3 mt-4"><i class="bi bi-envelope-fill me-2 text-primary"></i>Email</h5>
-                        <p class="mb-3"><a href="mailto:info@paneesalame.it" class="text-decoration-none">info@paneesalame.it</a></p>
+                        <p class="mb-3"><a href="mailto:info@artigianatoshop.it" class="text-decoration-none">info@artigianatoshop.it</a></p>
                         <h5 class="mb-3 mt-4"><i class="bi bi-telephone-fill me-2 text-primary"></i>Telefono</h5>
                         <p class="mb-0">+39 06 1234567</p>
                     </div>
