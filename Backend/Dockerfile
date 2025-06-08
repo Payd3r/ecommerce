@@ -8,11 +8,8 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 ENV NODE_ENV=development
 
-# Installa le dipendenze e nodemon globalmente
-RUN npm install && npm install -g nodemon
-
-# Crea una directory per i moduli node
-RUN mkdir -p /usr/src/app/node_modules
+# Installa le dipendenze
+RUN npm install
 
 # Copia tutto il resto del codice sorgente
 COPY . .

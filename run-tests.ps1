@@ -45,7 +45,6 @@ elseif ($TestTypeLower -eq "frontend") {
 elseif ($TestTypeLower -eq "performance") {
     Start-TestInfrastructure
     Write-Host "⚡ Esecuzione test performance..." -ForegroundColor Cyan
-    docker-compose -f docker-compose-testing.yml build test-performance
     docker-compose -f docker-compose-testing.yml run --rm test-performance
 }
 elseif ($TestTypeLower -eq "all") {
