@@ -1,6 +1,6 @@
 {
   "testType": "frontend",
-  "timestamp": "2025-06-08T15:47:43.092Z",
+  "timestamp": "2025-06-08T18:03:47.374Z",
   "summary": {
     "numTotalTests": 43,
     "numPassedTests": 43,
@@ -15,7 +15,7 @@
       "name": "/usr/src/app/Test/Frontend/tests/router.test.js",
       "status": "passed",
       "message": "",
-      "duration": 1317,
+      "duration": 1208,
       "numFailingTests": 0,
       "numPassingTests": 0,
       "numPendingTests": 0,
@@ -30,7 +30,7 @@
           "title": "dovrebbe navigare correttamente a una rotta dinamica",
           "status": "passed",
           "failureMessages": [],
-          "duration": 6
+          "duration": 4
         },
         {
           "title": "dovrebbe reindirizzare al login se l'utente non è autenticato per una rotta protetta",
@@ -42,7 +42,7 @@
           "title": "dovrebbe permettere l'accesso a una rotta protetta se l'utente è autenticato",
           "status": "passed",
           "failureMessages": [],
-          "duration": 4
+          "duration": 3
         },
         {
           "title": "dovrebbe reindirizzare alla home se l'utente non ha il ruolo richiesto",
@@ -66,13 +66,13 @@
           "title": "dovrebbe reindirizzare alla dashboard admin per un utente admin",
           "status": "passed",
           "failureMessages": [],
-          "duration": 6
+          "duration": 3
         },
         {
           "title": "dovrebbe reindirizzare alla dashboard artigiano per un utente artigiano",
           "status": "passed",
           "failureMessages": [],
-          "duration": 7
+          "duration": 8
         },
         {
           "title": "dovrebbe reindirizzare alla home per un utente client",
@@ -84,7 +84,7 @@
           "title": "dovrebbe reindirizzare alla home se l'utente non è loggato",
           "status": "passed",
           "failureMessages": [],
-          "duration": 10
+          "duration": 3
         }
       ]
     },
@@ -92,7 +92,7 @@
       "name": "/usr/src/app/Test/Frontend/tests/integration.test.js",
       "status": "passed",
       "message": "",
-      "duration": 325,
+      "duration": 212,
       "numFailingTests": 0,
       "numPassingTests": 0,
       "numPendingTests": 0,
@@ -107,7 +107,7 @@
           "title": "flusso per utente artigiano: login, accesso dashboard e gestione prodotti",
           "status": "passed",
           "failureMessages": [],
-          "duration": 8
+          "duration": 21
         }
       ]
     },
@@ -115,7 +115,7 @@
       "name": "/usr/src/app/Test/Frontend/tests/api.test.js",
       "status": "passed",
       "message": "",
-      "duration": 258,
+      "duration": 154,
       "numFailingTests": 0,
       "numPassingTests": 0,
       "numPendingTests": 0,
@@ -124,37 +124,37 @@
           "title": "dovrebbe effettuare il login con successo",
           "status": "passed",
           "failureMessages": [],
-          "duration": 5
+          "duration": 2
         },
         {
           "title": "dovrebbe gestire errori durante il login",
           "status": "passed",
           "failureMessages": [],
-          "duration": 22
+          "duration": 14
         },
         {
           "title": "dovrebbe recuperare il profilo utente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 10
+          "duration": 7
         },
         {
           "title": "dovrebbe gestire errori durante il recupero del profilo",
           "status": "passed",
           "failureMessages": [],
-          "duration": 8
+          "duration": 4
         },
         {
           "title": "dovrebbe recuperare l'indirizzo dell'utente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 5
+          "duration": 4
         },
         {
           "title": "dovrebbe salvare l'indirizzo dell'utente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 3
+          "duration": 19
         }
       ]
     },
@@ -162,7 +162,7 @@
       "name": "/usr/src/app/Test/Frontend/tests/authService.test.js",
       "status": "passed",
       "message": "",
-      "duration": 214,
+      "duration": 152,
       "numFailingTests": 0,
       "numPassingTests": 0,
       "numPendingTests": 0,
@@ -171,7 +171,7 @@
           "title": "dovrebbe effettuare il login con successo e salvare i dati di autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 7
+          "duration": 4
         },
         {
           "title": "dovrebbe gestire errori durante il login",
@@ -189,13 +189,13 @@
           "title": "dovrebbe recuperare il profilo utente e aggiornare i dati nel localStorage",
           "status": "passed",
           "failureMessages": [],
-          "duration": 3
+          "duration": 1
         },
         {
           "title": "dovrebbe lanciare un errore se l'utente non è autenticato",
           "status": "passed",
           "failureMessages": [],
-          "duration": 13
+          "duration": 15
         },
         {
           "title": "dovrebbe restituire true se è presente un token",
@@ -207,7 +207,7 @@
           "title": "dovrebbe restituire false se non è presente un token",
           "status": "passed",
           "failureMessages": [],
-          "duration": 5
+          "duration": 3
         },
         {
           "title": "dovrebbe restituire true se l'utente ha il ruolo specificato",
@@ -225,13 +225,13 @@
           "title": "dovrebbe restituire false se l'utente non ha il ruolo specificato",
           "status": "passed",
           "failureMessages": [],
-          "duration": 4
+          "duration": 2
         },
         {
           "title": "dovrebbe restituire false se non c'è un utente loggato",
           "status": "passed",
           "failureMessages": [],
-          "duration": 2
+          "duration": 1
         }
       ]
     },
@@ -239,7 +239,7 @@
       "name": "/usr/src/app/Test/Frontend/tests/app.test.js",
       "status": "passed",
       "message": "",
-      "duration": 174,
+      "duration": 136,
       "numFailingTests": 0,
       "numPassingTests": 0,
       "numPendingTests": 0,
@@ -248,25 +248,25 @@
           "title": "dovrebbe inizializzare il router e i componenti quando viene caricato il DOM",
           "status": "passed",
           "failureMessages": [],
-          "duration": 2
+          "duration": 1
         },
         {
           "title": "dovrebbe controllare lo stato di autenticazione e aggiornare il profilo",
           "status": "passed",
           "failureMessages": [],
-          "duration": 5
+          "duration": 14
         },
         {
           "title": "dovrebbe gestire errori di autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 22
+          "duration": 11
         },
         {
           "title": "dovrebbe registrare il listener per auth:change",
           "status": "passed",
           "failureMessages": [],
-          "duration": 2
+          "duration": 3
         }
       ]
     },
@@ -274,7 +274,7 @@
       "name": "/usr/src/app/Test/Frontend/tests/fetchWithAuth.test.js",
       "status": "passed",
       "message": "",
-      "duration": 150,
+      "duration": 112,
       "numFailingTests": 0,
       "numPassingTests": 0,
       "numPendingTests": 0,
@@ -283,7 +283,7 @@
           "title": "dovrebbe chiamare fetch con i parametri corretti",
           "status": "passed",
           "failureMessages": [],
-          "duration": 2
+          "duration": 3
         },
         {
           "title": "dovrebbe gestire correttamente una risposta con status 401",
@@ -295,13 +295,13 @@
           "title": "dovrebbe restituire la risposta per status code diversi da 401",
           "status": "passed",
           "failureMessages": [],
-          "duration": 2
+          "duration": 3
         },
         {
           "title": "dovrebbe gestire correttamente errori di rete",
           "status": "passed",
           "failureMessages": [],
-          "duration": 2
+          "duration": 3
         }
       ]
     },
@@ -309,7 +309,7 @@
       "name": "/usr/src/app/Test/Frontend/tests/example.test.js",
       "status": "passed",
       "message": "",
-      "duration": 124,
+      "duration": 84,
       "numFailingTests": 0,
       "numPassingTests": 0,
       "numPendingTests": 0,
@@ -318,19 +318,19 @@
           "title": "dovrebbe passare un test di esempio",
           "status": "passed",
           "failureMessages": [],
-          "duration": 2
+          "duration": 1
         },
         {
           "title": "dovrebbe concatenare stringhe",
           "status": "passed",
           "failureMessages": [],
-          "duration": 2
+          "duration": 0
         },
         {
           "title": "dovrebbe eseguire semplici operazioni matematiche",
           "status": "passed",
           "failureMessages": [],
-          "duration": 2
+          "duration": 1
         },
         {
           "title": "dovrebbe manipolare array",

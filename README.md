@@ -80,7 +80,8 @@ powershell -ExecutionPolicy Bypass -File ./run-tests.ps1 help
 # Test unitari (non richiedono infrastruttura)
 docker-compose -f docker-compose-testing.yml run --rm test-unitari
 
-# Test integrativi (richiedono backend e database di test)
+# Test integrativi (richiedono backend 
+# e database di test)
 docker-compose -f docker-compose-testing.yml up -d db-test backend-test
 docker-compose -f docker-compose-testing.yml run --rm test-integrativi
 
@@ -311,7 +312,7 @@ ecommerce/
 │   ├── package-lock.json
 │   ├── .dockerignore
 │   ├── .gitignore
-│   ├── Media/                  # Directory per il backup locale delle immagini
+│   ├── Media/                  
 │   ├── models/
 │   ├── routes/
 │   │   ├── auth.js
@@ -580,5 +581,3 @@ La dashboard di monitoraggio include metriche specifiche per le immagini:
 - Performance del server immagini
 
 ---
-
-## Troubleshooting

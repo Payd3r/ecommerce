@@ -112,21 +112,36 @@ function runTestScript(testType) {
     let args;
     
     switch(testType) {
+      case 'backend-unitari':
       case 'unitari':
-        command = 'docker';
-        args = ['run', '--rm', '--network', 'ecommerce_default', 'ecommerce-test-unitari'];
+        command = 'sh';
+        args = ['-c', 'cd /usr/src/app && docker compose -f docker-compose-testing.yml up -d mariadb-test-db && docker compose -f docker-compose-testing.yml run --rm test-unitari'];
         break;
+      case 'backend-integrativi':
       case 'integrativi':
-        command = 'docker';
-        args = ['run', '--rm', '--network', 'ecommerce_default', 'ecommerce-test-integrativi'];
+        command = 'sh';
+        args = ['-c', 'cd /usr/src/app && docker compose -f docker-compose-testing.yml up -d mariadb-test-db backend-test && docker compose -f docker-compose-testing.yml run --rm test-integrativi'];
         break;
       case 'frontend':
-        command = 'docker';
-        args = ['run', '--rm', '--network', 'ecommerce_default', 'ecommerce-test-frontend'];
+        command = 'sh';
+        args = ['-c', 'cd /usr/src/app && docker compose -f docker-compose-testing.yml up -d mariadb-test-db backend-test && docker compose -f docker-compose-testing.yml run --rm test-frontend'];
         break;
       case 'performance':
-        command = 'docker';
-        args = ['run', '--rm', '--network', 'ecommerce_default', 'ecommerce-test-performance'];
+        command = 'sh';
+        args = ['-c', 'cd /usr/src/app && docker compose -f docker-compose-testing.yml up -d mariadb-test-db backend-test && docker compose -f docker-compose-testing.yml run --rm test-performance'];
+        break;
+      case 'cross-browser':
+        // Cross-browser test è statico, restituisce successo immediato
+        resolve({ 
+          success: true, 
+          output: 'Cross-browser test completato (report statico)',
+          code: 0,
+          message: 'Test cross-browser utilizza report pre-generati'
+        });
+        return;
+      case 'all':
+        command = 'sh';
+        args = ['-c', 'cd /usr/src/app && docker compose -f docker-compose-testing.yml up -d mariadb-test-db backend-test && docker compose -f docker-compose-testing.yml run --rm test-unitari && docker compose -f docker-compose-testing.yml run --rm test-integrativi && docker compose -f docker-compose-testing.yml run --rm test-frontend && docker compose -f docker-compose-testing.yml run --rm test-performance'];
         break;
       default:
         reject(new Error(`Tipo di test non supportato: ${testType}`));
@@ -136,7 +151,8 @@ function runTestScript(testType) {
     console.log(`📝 Comando: ${command} ${args.join(' ')}`);
     
     const testProcess = spawn(command, args, {
-      stdio: ['ignore', 'pipe', 'pipe']
+      stdio: ['ignore', 'pipe', 'pipe'],
+      cwd: '/usr/src/app'
     });
 
     let output = '';
@@ -198,32 +214,49 @@ app.get('/api/test/report/:filename', (req, res) => {
 
 // API per ottenere i report dei test
 app.get('/api/test/reports', (req, res) => {
+  // Nella configurazione Docker, Test/Output viene montato direttamente
   const outputDir = path.join(__dirname, 'Test/Output');
+  
+  console.log('📊 Richiesta report test, directory:', outputDir);
   
   try {
     // Assicuriamoci che la directory esista
     if (!fs.existsSync(outputDir)) {
+      console.log('❌ Directory non esiste:', outputDir);
       return res.json([]);
     }
     
     // Leggi tutti i file JSON nella directory
-    const files = fs.readdirSync(outputDir)
-      .filter(file => file.endsWith('.json'))
-      .map(file => {
+    const allFiles = fs.readdirSync(outputDir);
+    console.log('📁 File trovati:', allFiles);
+    
+    const jsonFiles = allFiles.filter(file => file.endsWith('.json'));
+    console.log('📄 File JSON:', jsonFiles);
+    
+    const files = jsonFiles.map(file => {
         const filePath = path.join(outputDir, file);
         const stats = fs.statSync(filePath);
-        const content = JSON.parse(fs.readFileSync(filePath, 'utf8'));
         
-        return {
-          ...content,
-          timestamp: stats.mtime.toISOString()
-        };
+        try {
+          const content = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+          console.log(`✅ File ${file} parsato correttamente`);
+          
+          return {
+            ...content,
+            timestamp: stats.mtime.toISOString()
+          };
+        } catch (parseError) {
+          console.error(`❌ Errore parsing file ${file}:`, parseError.message);
+          return null;
+        }
       })
+      .filter(file => file !== null)
       .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     
+    console.log('📋 Report processati:', files.length);
     res.json(files);
   } catch (error) {
-    console.error('Errore lettura report:', error);
+    console.error('❌ Errore lettura report:', error);
     res.status(500).json({ error: 'Errore lettura report' });
   }
 });
@@ -327,6 +360,113 @@ app.get('/api/test/report/:filename/download', (req, res) => {
   } catch (error) {
     console.error('❌ Errore download report:', error);
     res.status(500).json({ error: 'Errore nel download del report' });
+  }
+});
+
+// === API README ===
+
+// API per ottenere il contenuto del README
+app.get('/api/readme', (req, res) => {
+  try {
+    const readmePath = path.join(__dirname, 'README.md');
+    
+    if (!fs.existsSync(readmePath)) {
+      return res.status(404).json({ error: 'README non trovato' });
+    }
+
+    const content = fs.readFileSync(readmePath, 'utf8');
+    res.json({ 
+      content: content,
+      lastModified: fs.statSync(readmePath).mtime.toISOString()
+    });
+  } catch (error) {
+    console.error('❌ Errore lettura README:', error);
+    res.status(500).json({ error: 'Errore lettura README' });
+  }
+});
+
+// API per servire screenshot di test cross-browser
+app.get('/api/test/screenshot/:filename', (req, res) => {
+  const filename = req.params.filename;
+  
+  try {
+    // Prova prima la cartella Documenti/cross_browser
+    const crossBrowserBasePath = path.join(__dirname, '../Documenti/cross_browser');
+    let screenshotPath = null;
+    
+    // Lista delle possibili posizioni per browser
+    const browserPaths = ['chrome', 'firefox', 'edge'];
+    
+    // Cerca nelle cartelle browser
+    for (const browser of browserPaths) {
+      const possibleExtensions = ['.png', '.jpg', '.jpeg'];
+      
+      for (const ext of possibleExtensions) {
+        const testPath = path.join(crossBrowserBasePath, browser, filename.replace('.png', ext));
+        if (fs.existsSync(testPath)) {
+          screenshotPath = testPath;
+          break;
+        }
+      }
+      
+      if (screenshotPath) break;
+    }
+    
+    // Fallback: cerca nella cartella screenshots tradizionale
+    if (!screenshotPath) {
+      screenshotPath = path.join(__dirname, '../Test/Output/screenshots', filename);
+    }
+    
+    // Se non esiste, crea un placeholder SVG migliorato
+    if (!fs.existsSync(screenshotPath)) {
+      const svgPlaceholder = `
+        <svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e0e0e0" stroke-width="0.5"/>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#grid)"/>
+          <rect x="50" y="50" width="300" height="200" fill="#f8f9fa" stroke="#dee2e6" stroke-width="2" rx="8"/>
+          <text x="50%" y="40%" text-anchor="middle" font-family="Arial" font-size="16" fill="#6c757d" font-weight="bold">
+            Ecommerce Screenshot
+          </text>
+          <text x="50%" y="55%" text-anchor="middle" font-family="Arial" font-size="12" fill="#6c757d">
+            ${filename.replace('.png', '').charAt(0).toUpperCase() + filename.replace('.png', '').slice(1)}
+          </text>
+          <text x="50%" y="70%" text-anchor="middle" font-family="Arial" font-size="10" fill="#adb5bd">
+            Test Cross-Browser Placeholder
+          </text>
+          <circle cx="120" cy="140" r="8" fill="#007bff"/>
+          <circle cx="200" cy="160" r="6" fill="#28a745"/>
+          <circle cx="280" cy="140" r="10" fill="#ffc107"/>
+        </svg>
+      `;
+      
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+      return res.send(svgPlaceholder);
+    }
+    
+    // Determina il tipo MIME basato sull'estensione
+    const ext = path.extname(screenshotPath).toLowerCase();
+    const mimeTypes = {
+      '.png': 'image/png',
+      '.jpg': 'image/jpeg', 
+      '.jpeg': 'image/jpeg',
+      '.gif': 'image/gif',
+      '.svg': 'image/svg+xml'
+    };
+    
+    const mimeType = mimeTypes[ext] || 'application/octet-stream';
+    res.setHeader('Content-Type', mimeType);
+    res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache per 24 ore
+    
+    // Serve il file esistente
+    res.sendFile(screenshotPath);
+  } catch (error) {
+    console.error('❌ Errore servizio screenshot:', error);
+    res.status(500).json({ error: 'Errore nel servizio screenshot' });
   }
 });
 
@@ -861,21 +1001,30 @@ app.post('/api/rollback', async (req, res) => {
     broadcastWebSocket('rollback_log', { text: '⚠️ Cancellazione di tutti i container e immagini...\n' });
     
     // Step 1: Ferma tutti i container tranne monitoring
-    broadcastWebSocket('rollback_log', { text: '🛑 Fermando container...\n' });
+    broadcastWebSocket('rollback_log', { text: '🛑 Fermando container produzione...\n' });
     try {
       await executeCommand('docker stop ecommerce-db ecommerce-backend ecommerce-frontend ecommerce-imageserver');
-      broadcastWebSocket('rollback_log', { text: '✅ Container fermati\n' });
+      broadcastWebSocket('rollback_log', { text: '✅ Container produzione fermati\n' });
     } catch (err) {
-      broadcastWebSocket('rollback_log', { text: `⚠️ Alcuni container già fermati: ${err.message}\n` });
+      broadcastWebSocket('rollback_log', { text: `⚠️ Alcuni container produzione già fermati: ${err.message}\n` });
+    }
+
+    // Step 1.5: Ferma e rimuovi tutti i container di testing
+    broadcastWebSocket('rollback_log', { text: '🛑 Fermando container di testing...\n' });
+    try {
+      await executeCommand('docker compose -f docker-compose-testing.yml down --remove-orphans');
+      broadcastWebSocket('rollback_log', { text: '✅ Container di testing fermati e rimossi\n' });
+    } catch (err) {
+      broadcastWebSocket('rollback_log', { text: `⚠️ Errore rimozione container testing: ${err.message}\n` });
     }
 
     // Step 2: Rimuovi tutti i container tranne monitoring
-    broadcastWebSocket('rollback_log', { text: '🗑️ Rimuovendo container...\n' });
+    broadcastWebSocket('rollback_log', { text: '🗑️ Rimuovendo container produzione...\n' });
     try {
       await executeCommand('docker rm -f ecommerce-db ecommerce-backend ecommerce-frontend ecommerce-imageserver');
-      broadcastWebSocket('rollback_log', { text: '✅ Container rimossi\n' });
+      broadcastWebSocket('rollback_log', { text: '✅ Container produzione rimossi\n' });
     } catch (err) {
-      broadcastWebSocket('rollback_log', { text: `⚠️ Alcuni container già rimossi: ${err.message}\n` });
+      broadcastWebSocket('rollback_log', { text: `⚠️ Alcuni container produzione già rimossi: ${err.message}\n` });
     }
 
     // Step 3: Rimuovi le immagini
@@ -887,13 +1036,22 @@ app.post('/api/rollback', async (req, res) => {
       broadcastWebSocket('rollback_log', { text: `⚠️ Alcune immagini già rimosse: ${err.message}\n` });
     }
 
-    // Step 4: Rimuovi volumi
-    broadcastWebSocket('rollback_log', { text: '💾 Rimuovendo volumi...\n' });
+    // Step 4: Rimuovi volumi produzione e testing
+    broadcastWebSocket('rollback_log', { text: '💾 Rimuovendo volumi produzione...\n' });
     try {
       await executeCommand('docker volume rm ecommerce_mariadbdata');
-      broadcastWebSocket('rollback_log', { text: '✅ Volumi rimossi\n' });
+      broadcastWebSocket('rollback_log', { text: '✅ Volumi produzione rimossi\n' });
     } catch (err) {
-      broadcastWebSocket('rollback_log', { text: `⚠️ Alcuni volumi già rimossi: ${err.message}\n` });
+      broadcastWebSocket('rollback_log', { text: `⚠️ Alcuni volumi produzione già rimossi: ${err.message}\n` });
+    }
+
+    // Step 4.5: Rimuovi volumi di testing
+    broadcastWebSocket('rollback_log', { text: '💾 Rimuovendo volumi di testing...\n' });
+    try {
+      await executeCommand('docker volume rm testing_test-db-data testing_backend-test-modules testing_backend-test-media testing_test-unitari-modules testing_test-integrativi-modules testing_test-frontend-modules testing_test-performance-modules testing_monitoring-test-modules');
+      broadcastWebSocket('rollback_log', { text: '✅ Volumi di testing rimossi\n' });
+    } catch (err) {
+      broadcastWebSocket('rollback_log', { text: `⚠️ Alcuni volumi di testing già rimossi: ${err.message}\n` });
     }
 
     // Step 5: Pulisci sistema Docker
@@ -953,6 +1111,13 @@ app.post('/api/rollback', async (req, res) => {
     }
 
     broadcastWebSocket('rollback_log', { text: '🎉 ROLLBACK COMPLETO TERMINATO CON SUCCESSO!\n' });
+    broadcastWebSocket('rollback_log', { text: '🔄 Refreshing pagina in 3 secondi...\n' });
+    
+    // Refresh della pagina dopo 3 secondi
+    setTimeout(() => {
+      broadcastWebSocket('page_refresh', {});
+    }, 3000);
+    
     broadcastWebSocket('rollback_complete', { success: true });
     res.json({ success: true, message: 'Rollback completo terminato con successo - Sistema ricostruito' });
     
