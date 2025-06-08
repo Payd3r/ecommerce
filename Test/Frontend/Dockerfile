@@ -3,8 +3,7 @@ FROM node:20-alpine
 WORKDIR /usr/src/app
 
 # Copia tutto il codice sorgente necessario
-COPY ./Frontend ./Frontend/
-COPY ./Test/Frontend ./Test/Frontend/
+COPY . .
 
 # Installa le dipendenze di test
 WORKDIR /usr/src/app/Test/Frontend

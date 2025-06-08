@@ -4,15 +4,15 @@ module.exports = {
   // Configurazione del server di test - usa backend di test
   server: {
     port: process.env.PORT || 3017,
-    baseUrl: `http://localhost:3017` // Backend di test che usa il database di test
+    baseUrl: `http://backend-test:3017` // Backend di test che usa il database di test
   },
   
   // Configurazione del database di test
   database: {
-    host: 'localhost',
-    user: process.env.DB_USER || 'test_user',
-    password: process.env.DB_PASSWORD || 'test_password',
-    name: process.env.DB_NAME || 'test_db',
+    host: process.env.DB_HOST || 'db-test',
+    user: process.env.DB_USER || 'admin',
+    password: process.env.DB_PASSWORD || '1234',
+    name: process.env.DB_NAME || 'ecommerce_test_db',
     port: process.env.DB_PORT || 3016
   },
   

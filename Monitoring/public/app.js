@@ -522,70 +522,52 @@ class MonitoringDashboard {
     async loadTestReports() {
         try {
             const response = await fetch('/api/test/reports');
-            const reports = await response.json();
-            
-            const accordionContainer = document.getElementById('testReportsAccordion');
-            if (!accordionContainer) return;
-
-            if (reports.length === 0) {
-                accordionContainer.innerHTML = '<div class="text-center text-muted p-3">Nessun report disponibile</div>';
-                return;
+            if (!response.ok) {
+                throw new Error(`Errore recupero report: ${response.statusText}`);
             }
-
-            // Carica il contenuto di ogni report per l'accordion
-            const reportsWithContent = await Promise.all(reports.map(async (report) => {
-                try {
-                    const contentResponse = await fetch(`/api/test/report/${report.name}/content`);
-                    const content = await contentResponse.json();
-                    return { ...report, content };
-                } catch (error) {
-                    console.warn(`Errore caricamento contenuto ${report.name}:`, error);
-                    return { ...report, content: null };
-                }
-            }));
-
-            accordionContainer.innerHTML = reportsWithContent.map((report, index) => {
-                const reportId = `report-${index}`;
-                const testType = this.getTestTypeFromFilename(report.name);
-                const summary = this.extractTestSummary(report.content);
+            
+            const reports = await response.json();
+            const reportsList = document.getElementById('testReportsList');
+            
+            if (reportsList) {
+                reportsList.innerHTML = '';
                 
-                return `
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="heading-${reportId}">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
-                                    data-bs-target="#collapse-${reportId}" aria-expanded="false" 
-                                    aria-controls="collapse-${reportId}">
-                                <div class="d-flex justify-content-between align-items-center w-100 me-3">
-                                    <div>
-                                        <i class="fas fa-file-alt me-2"></i>
-                                        <strong>${report.name}</strong>
-                                        <span class="badge bg-${this.getTestTypeBadgeColor(testType)} ms-2">${testType}</span>
-                                    </div>
-                                    <div class="text-end">
-                                        <small class="text-muted">${this.formatFileSize(report.size)} • ${new Date(report.modified).toLocaleString('it-IT')}</small>
-                                    </div>
-                                </div>
-                            </button>
-                        </h2>
-                        <div id="collapse-${reportId}" class="accordion-collapse collapse" 
-                             aria-labelledby="heading-${reportId}" data-bs-parent="#testReportsAccordion">
-                            <div class="accordion-body">
-                                ${this.renderTestSummary(summary)}
-                                <div class="mt-3">
-                                    <a href="/api/test/report/${report.name}/download" class="btn btn-primary btn-sm" download>
-                                        <i class="fas fa-download me-1"></i> Scarica Report Completo
-                                    </a>
-                                </div>
+                if (reports.length === 0) {
+                    reportsList.innerHTML = '<li class="list-group-item">Nessun report disponibile</li>';
+                    return;
+                }
+                
+                reports.forEach(report => {
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item';
+                    
+                    const statusIcon = report.status === 'success' ? '✅' : '❌';
+                    const statusClass = report.status === 'success' ? 'text-success' : 'text-danger';
+                    
+                    li.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="${statusClass}">${statusIcon}</span>
+                                <strong>${report.testType}</strong>
+                                <small class="text-muted ms-2">${new Date(report.timestamp).toLocaleString()}</small>
+                            </div>
+                            <div>
+                                <span class="badge ${statusClass}">${report.summary.passed}/${report.summary.total} test passati</span>
+                                <button class="btn btn-sm btn-outline-primary ms-2" onclick="showTestDetails('${report.testType}', '${report.timestamp}')">
+                                    Dettagli
+                                </button>
                             </div>
                         </div>
-                    </div>
-                `;
-            }).join('');
+                    `;
+                    
+                    reportsList.appendChild(li);
+                });
+            }
         } catch (error) {
             console.error('Errore caricamento report:', error);
-            const accordionContainer = document.getElementById('testReportsAccordion');
-            if (accordionContainer) {
-                accordionContainer.innerHTML = '<div class="text-center text-danger p-3">Errore caricamento report</div>';
+            const reportsList = document.getElementById('testReportsList');
+            if (reportsList) {
+                reportsList.innerHTML = `<li class="list-group-item text-danger">Errore caricamento report: ${error.message}</li>`;
             }
         }
     }
@@ -812,31 +794,177 @@ class MonitoringDashboard {
 
 // === FUNZIONI GLOBALI PER I BOTTONI ===
 
-// Funzioni per test
+// Funzione per eseguire i test
 async function runTest(testType) {
     try {
-        // Mostra feedback immediato
-        dashboard.showTestFeedback(testType, 'running');
+        // Mostra il banner di esecuzione
+        const testBanner = document.getElementById('testBanner');
+        testBanner.textContent = `🧪 Esecuzione test ${testType} in corso...`;
+        testBanner.style.display = 'block';
         
-        // Pulisci log precedenti
-        const logContainer = document.getElementById('testLogContainer');
-        if (logContainer) {
-            logContainer.innerHTML = '';
+        // Disabilita il pulsante durante l'esecuzione
+        const testButton = document.querySelector(`button[onclick="runTest('${testType}')"]`);
+        if (testButton) {
+            testButton.disabled = true;
         }
-        
+
         const response = await fetch(`/api/test/${testType}`, {
             method: 'POST'
         });
-        
+
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || 'Errore durante l\'esecuzione del test');
+            throw new Error(`Errore test: ${response.statusText}`);
         }
+
+        const result = await response.json();
+        console.log('Risultato test:', result);
+
+        // Aggiorna la lista dei report
+        await loadTestReports();
+
+        // Mostra il messaggio di successo
+        testBanner.textContent = `✅ Test ${testType} completati con successo!`;
+        testBanner.style.backgroundColor = '#4CAF50';
         
+        // Nascondi il banner dopo 3 secondi
+        setTimeout(() => {
+            testBanner.style.display = 'none';
+            testBanner.style.backgroundColor = '#2196F3';
+        }, 3000);
+
     } catch (error) {
         console.error('Errore test:', error);
-        dashboard.showTestFeedback(testType, 'error');
-        dashboard.showToast(`Errore: ${error.message}`, 'danger');
+        
+        // Mostra il messaggio di errore
+        const testBanner = document.getElementById('testBanner');
+        testBanner.textContent = `❌ Errore durante l'esecuzione dei test: ${error.message}`;
+        testBanner.style.backgroundColor = '#f44336';
+        
+        // Nascondi il banner dopo 5 secondi
+        setTimeout(() => {
+            testBanner.style.display = 'none';
+            testBanner.style.backgroundColor = '#2196F3';
+        }, 5000);
+    } finally {
+        // Riabilita il pulsante
+        const testButton = document.querySelector(`button[onclick="runTest('${testType}')"]`);
+        if (testButton) {
+            testButton.disabled = false;
+        }
+    }
+}
+
+// Funzione per aggiornare la lista dei report
+async function loadTestReports() {
+    try {
+        const response = await fetch('/api/test/reports');
+        if (!response.ok) {
+            throw new Error(`Errore recupero report: ${response.statusText}`);
+        }
+        
+        const reports = await response.json();
+        const reportsList = document.getElementById('testReportsList');
+        
+        if (reportsList) {
+            reportsList.innerHTML = '';
+            
+            if (reports.length === 0) {
+                reportsList.innerHTML = '<li class="list-group-item">Nessun report disponibile</li>';
+                return;
+            }
+            
+            reports.forEach(report => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item';
+                
+                const statusIcon = report.status === 'success' ? '✅' : '❌';
+                const statusClass = report.status === 'success' ? 'text-success' : 'text-danger';
+                
+                li.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="${statusClass}">${statusIcon}</span>
+                            <strong>${report.testType}</strong>
+                            <small class="text-muted ms-2">${new Date(report.timestamp).toLocaleString()}</small>
+                        </div>
+                        <div>
+                            <span class="badge ${statusClass}">${report.summary.passed}/${report.summary.total} test passati</span>
+                            <button class="btn btn-sm btn-outline-primary ms-2" onclick="showTestDetails('${report.testType}', '${report.timestamp}')">
+                                Dettagli
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                reportsList.appendChild(li);
+            });
+        }
+    } catch (error) {
+        console.error('Errore caricamento report:', error);
+        const reportsList = document.getElementById('testReportsList');
+        if (reportsList) {
+            reportsList.innerHTML = `<li class="list-group-item text-danger">Errore caricamento report: ${error.message}</li>`;
+        }
+    }
+}
+
+// Funzione per mostrare i dettagli di un test
+async function showTestDetails(testType, timestamp) {
+    try {
+        const response = await fetch(`/api/test/reports/${testType}/${timestamp}`);
+        if (!response.ok) {
+            throw new Error(`Errore recupero dettagli: ${response.statusText}`);
+        }
+        
+        const report = await response.json();
+        const modal = document.getElementById('testDetailsModal');
+        const modalBody = modal.querySelector('.modal-body');
+        
+        // Popola il modal con i dettagli del test
+        modalBody.innerHTML = `
+            <div class="mb-3">
+                <h5>Riepilogo</h5>
+                <p>Test: ${report.testType}</p>
+                <p>Data: ${new Date(report.timestamp).toLocaleString()}</p>
+                <p>Stato: ${report.status === 'success' ? '✅ Successo' : '❌ Fallito'}</p>
+                <p>Durata: ${report.duration}</p>
+            </div>
+            
+            <div class="mb-3">
+                <h5>Dettagli Test</h5>
+                <ul class="list-group">
+                    ${report.details.map(detail => `
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>${detail.name}</span>
+                            <span class="badge ${detail.status === 'passed' ? 'bg-success' : 'bg-danger'}">
+                                ${detail.status === 'passed' ? '✅' : '❌'} ${detail.duration}
+                            </span>
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+            
+            ${report.output ? `
+                <div class="mb-3">
+                    <h5>Output</h5>
+                    <pre class="bg-light p-3 rounded">${report.output}</pre>
+                </div>
+            ` : ''}
+            
+            ${report.errors ? `
+                <div class="mb-3">
+                    <h5>Errori</h5>
+                    <pre class="bg-danger text-white p-3 rounded">${report.errors}</pre>
+                </div>
+            ` : ''}
+        `;
+        
+        // Mostra il modal
+        const modalInstance = new bootstrap.Modal(modal);
+        modalInstance.show();
+    } catch (error) {
+        console.error('Errore visualizzazione dettagli:', error);
+        alert(`Errore visualizzazione dettagli: ${error.message}`);
     }
 }
 
@@ -1081,33 +1209,43 @@ async function importDatabase(file) {
     if (!file) return;
     
     try {
-        dashboard.showToast('Upload Database in corso...', 'info');
-        
         const formData = new FormData();
-        formData.append('databaseFile', file);
+        formData.append('database', file);
         
-        const response = await fetch('/api/database/import', {
+        const response = await fetch('/api/import/database', {
             method: 'POST',
             body: formData
         });
         
-        if (!response.ok) throw new Error('Errore durante l\'import');
+        const result = await response.json();
         
-        dashboard.showToast('Import Database completato!', 'success');
-        dashboard.loadDatabaseBackups(); // Aggiorna la tabella
-        
+        if (result.success) {
+            dashboard.showToast('✅ Database importato con successo!', 'success');
+            dashboard.loadDatabaseBackups();
+        } else {
+            dashboard.showToast('❌ Errore durante l\'importazione del database: ' + result.error, 'error');
+        }
     } catch (error) {
-        console.error('Errore import database:', error);
-        dashboard.showToast(`Errore import: ${error.message}`, 'danger');
+        console.error('Errore importazione database:', error);
+        dashboard.showToast('❌ Errore durante l\'importazione del database', 'error');
     }
 }
 
-// Inizializza dashboard
-const dashboard = new MonitoringDashboard();
-
-// Carica dati iniziali quando la pagina è pronta
-document.addEventListener('DOMContentLoaded', () => {
+// Funzione per aggiornare manualmente i dati
+function refreshData() {
+    console.log('🔄 Aggiornamento manuale dati...');
+    dashboard.showToast('🔄 Aggiornamento dati in corso...', 'info');
+    
+    // Forza l'aggiornamento tramite fetch HTTP
+    dashboard.fetchMetricsHTTP();
+    
+    // Ricarica anche i report e backup
     dashboard.loadTestReports();
     dashboard.loadMediaBackups();
     dashboard.loadDatabaseBackups();
+}
+
+// Inizializza dashboard quando DOM è pronto
+document.addEventListener('DOMContentLoaded', function() {
+    window.dashboard = new MonitoringDashboard();
 }); 

@@ -3,16 +3,11 @@ FROM node:20-alpine
 WORKDIR /usr/src/app
 
 # Copia tutto il codice sorgente necessario
-COPY ./Backend ./Backend/
-COPY ./Test/Backend-Unitari ./Test/Backend-Unitari/
+COPY . .
 
-# Installa le dipendenze del backend
-WORKDIR /usr/src/app/Backend
-RUN npm install --production=false
-
-# Installa le dipendenze di test
+# Installa tutte le dipendenze di test (comprese devDependencies)
 WORKDIR /usr/src/app/Test/Backend-Unitari
-RUN npm install
+RUN npm install && npm install -g jest
 
 # Crea la cartella per i risultati dei test
 RUN mkdir -p /usr/src/app/Test/Output

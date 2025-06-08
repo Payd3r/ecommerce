@@ -1,165 +1,148 @@
+version: '3.8'
+
 services:
-  # Test database - ottimizzato per esecuzione veloce dei test
-  db-test:
-    image: mariadb:11
-    container_name: ecommerce-db-test
+  # Database per i test
+  mariadb-test-db:
+    image: mariadb:10.6
+    container_name: mariadb-test-db
     environment:
-      MYSQL_ROOT_PASSWORD: test_root_password
-      MYSQL_DATABASE: test_db
-      MYSQL_USER: test_user
-      MYSQL_PASSWORD: test_password
-      # Ottimizzazione per test - disabilita durability per velocità
-      MYSQL_INNODB_FLUSH_LOG_AT_TRX_COMMIT: 0
-      MYSQL_INNODB_FLUSH_METHOD: O_DIRECT
-      MYSQL_INNODB_BUFFER_POOL_SIZE: 128M
-      # Configurazioni aggiuntive per test
-      MYSQL_QUERY_CACHE_SIZE: 32M
-      MYSQL_SYNC_BINLOG: 0
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ecommerce_test
+      MYSQL_USER: ecommerce
+      MYSQL_PASSWORD: ecommerce
     ports:
       - "3016:3306"
     volumes:
-      - test_db_data:/var/lib/mysql
-      - ./Backend/db.sql:/docker-entrypoint-initdb.d/db.sql
+      - mariadb-test-data:/var/lib/mysql
+    networks:
+      - ecommerce_default
     # Utilizzo tmpfs per i log per ridurre I/O
     tmpfs:
       - /tmp
       - /var/log
-    # Health check ottimizzato per test
-    healthcheck:
-      test: ["CMD", "mariadb", "-h", "localhost", "-u", "test_user", "-ptest_password", "-e", "SELECT 1;"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
-  # Test backend API
+  # Backend per i test
   backend-test:
-    build: ./Backend
-    container_name: ecommerce-backend-test
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: test
+      DB_HOST: mariadb-test-db
+      DB_PORT: 3016
+      DB_USER: ecommerce
+      DB_PASSWORD: ecommerce
+      DB_NAME: ecommerce_test
+      JWT_SECRET: test_secret
+      PORT: 3010
     ports:
       - "3017:3010"
     depends_on:
-      db-test:
-        condition: service_healthy
-    environment:
-      NODE_ENV: test
-      PORT: 3010
-      DB_HOST: db-test
-      DB_USER: test_user
-      DB_PASSWORD: test_password
-      DB_NAME: test_db
-      DB_PORT: 3016
-      JWT_SECRET: test_secret_key
-    command: ["npm", "start"]
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3010/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-    restart: "no"  # Non riavviare automaticamente
+      - mariadb-test-db
+    networks:
+      - ecommerce_default
+    volumes:
+      - ./Backend:/usr/src/app
+      - test-reports:/usr/src/app/Test/Output
 
-  # Test frontend
-  frontend-test:
-    build: ./Frontend
-    container_name: ecommerce-frontend-test
-    ports:
-      - "3018:80"
-    depends_on:
-      backend-test:
-        condition: service_healthy
-    environment:
-      NODE_ENV: test
-      REACT_APP_API_URL: http://backend-test:3010
-    restart: "no"
-
-  # Test unitari backend - isolati, senza dipendenze esterne
+  # Container per test unitari
   test-unitari:
     build:
-      context: .
-      dockerfile: ./Test/Backend-Unitari/Dockerfile
+      context: ./Test/Backend-Unitari
+      dockerfile: Dockerfile
     environment:
       NODE_ENV: test
+      DB_HOST: mariadb-test-db
+      DB_PORT: 3016
+      DB_USER: ecommerce
+      DB_PASSWORD: ecommerce
+      DB_NAME: ecommerce_test
+    depends_on:
+      - mariadb-test-db
+      - backend-test
+    networks:
+      - ecommerce_default
     volumes:
-      - ./Test/Output:/usr/src/app/Test/Output
-    working_dir: /usr/src/app/Test/Backend-Unitari
-    restart: "no"
+      - ./Test/Backend-Unitari:/usr/src/app
+      - /usr/src/app/node_modules
+      - test-reports:/usr/src/app/Test/Output
 
-  # Test integrativi backend - richiede database di test e backend
+  # Container per test integrativi
   test-integrativi:
     build:
-      context: .
-      dockerfile: ./Test/Backend-Integrativi/Dockerfile
-    depends_on:
-      db-test:
-        condition: service_healthy
-      backend-test:
-        condition: service_healthy
+      context: ./Test/Backend-Integrativi
+      dockerfile: Dockerfile
     environment:
       NODE_ENV: test
-      API_BASE_URL: http://backend-test:3010
+      DB_HOST: mariadb-test-db
+      DB_PORT: 3016
+      DB_USER: ecommerce
+      DB_PASSWORD: ecommerce
+      DB_NAME: ecommerce_test
+    depends_on:
+      - mariadb-test-db
+      - backend-test
+    networks:
+      - ecommerce_default
     volumes:
-      - ./Test/Output:/usr/src/app/Test/Output
-    working_dir: /usr/src/app/Test/Backend-Integrativi
-    restart: "no"
+      - ./Test/Backend-Integrativi:/usr/src/app
+      - /usr/src/app/node_modules
+      - test-reports:/usr/src/app/Test/Output
 
-  # Test frontend - testing DOM con jsdom
+  # Container per test frontend
   test-frontend:
     build:
-      context: .
-      dockerfile: ./Test/Frontend/Dockerfile
+      context: ./Test/Frontend
+      dockerfile: Dockerfile
     environment:
       NODE_ENV: test
-      REACT_APP_API_URL: http://backend-test:3010
+    depends_on:
+      - backend-test
+    networks:
+      - ecommerce_default
     volumes:
-      - ./Test/Output:/usr/src/app/Test/Output
-    working_dir: /usr/src/app/Test/Frontend
-    restart: "no"
+      - ./Test/Frontend:/usr/src/app
+      - /usr/src/app/node_modules
+      - test-reports:/usr/src/app/Test/Output
 
-  # Test performance - load testing e benchmark
+  # Container per test performance
   test-performance:
     build:
-      context: .
-      dockerfile: ./Test/Performance/Dockerfile
-    depends_on:
-      - backend-test
+      context: ./Test/Performance
+      dockerfile: Dockerfile
     environment:
       NODE_ENV: test
-      API_BASE_URL: http://backend-test:3010
-    volumes:
-      - ./Test/Output:/usr/src/app/Test/Output
-    working_dir: /usr/src/app/Test/Performance
-    restart: "no"
-
-  # Test image server
-  imageserver-test:
-    image: nginx:alpine
-    container_name: ecommerce-imageserver-test
-    ports:
-      - "3019:80"
-    volumes:
-      - ./Media:/usr/share/nginx/html/Media:ro
     depends_on:
       - backend-test
+    networks:
+      - ecommerce_default
+    volumes:
+      - ./Test/Performance:/usr/src/app
+      - /usr/src/app/node_modules
+      - test-reports:/usr/src/app/Test/Output
 
-  # Test monitoring system
+  # Container per il monitoring
   monitoring-test:
-    build: ./Monitoring
-    container_name: ecommerce-monitoring-test
-    ports:
-      - "3020:3012"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./Media:/usr/src/app/Media:ro
-      - ./Backend:/usr/src/app/Backend:ro
-      - ./Frontend:/usr/src/app/Frontend:ro
-      - ./Test:/usr/src/app/Test:ro
-      - ./Monitoring:/usr/src/app/Monitoring:ro
-      - ./Monitoring/public:/usr/src/app/public
+    build:
+      context: ./Monitoring
+      dockerfile: Dockerfile
     environment:
       NODE_ENV: test
-      PORT: 3012
+    ports:
+      - "3013:3012"
     depends_on:
       - backend-test
-    restart: "no"
+    networks:
+      - ecommerce_default
+    volumes:
+      - ./Monitoring:/usr/src/app
+      - /usr/src/app/node_modules
+      - test-reports:/usr/src/app/Test/Output
+
+networks:
+  ecommerce_default:
+    driver: bridge
 
 volumes:
-  test_db_data:   # Persistenza dati test (limitata alla sessione)
+  mariadb-test-data:
+  test-reports:

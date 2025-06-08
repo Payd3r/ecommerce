@@ -14,6 +14,11 @@ RUN apk add --no-cache \
     coreutils \
     && rm -rf /var/cache/apk/*
 
+# Installa Docker Compose Plugin
+RUN mkdir -p /usr/local/lib/docker/cli-plugins && \
+    curl -SL https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-x86_64 -o /usr/local/lib/docker/cli-plugins/docker-compose && \
+    chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+
 # Crea directory di lavoro
 WORKDIR /usr/src/app
 
