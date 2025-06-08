@@ -24,7 +24,7 @@ RUN apk add --no-cache netcat-openbsd
 RUN echo '#!/bin/sh' > /usr/src/app/start-performance.sh && \
     echo 'echo "Starting performance tests..."' >> /usr/src/app/start-performance.sh && \
     echo 'echo "Waiting for backend API..."' >> /usr/src/app/start-performance.sh && \
-    echo 'until nc -z backend-test 3015; do sleep 2; done' >> /usr/src/app/start-performance.sh && \
+    echo 'until nc -z backend-test 3010; do sleep 2; done' >> /usr/src/app/start-performance.sh && \
     echo 'echo "Backend API ready"' >> /usr/src/app/start-performance.sh && \
     echo 'sleep 5' >> /usr/src/app/start-performance.sh && \
     echo 'echo "Running performance tests..."' >> /usr/src/app/start-performance.sh && \

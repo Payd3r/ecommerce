@@ -20,7 +20,7 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-const PORT = process.env.PORT || 3017;
+const PORT = process.env.PORT || 3012;
 
 // Middleware
 app.use(cors());
@@ -587,7 +587,7 @@ const dbConfig = {
   user: process.env.DB_USER || 'admin',
   password: process.env.DB_PASSWORD || '1234',
   database: process.env.DB_NAME || 'ecommerce_db',
-  port: process.env.DB_PORT || 3306
+  port: process.env.DB_PORT || 3015
 };
 
 // Export database

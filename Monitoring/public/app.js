@@ -2,7 +2,6 @@ class MonitoringDashboard {
     constructor() {
         this.ws = null;
         this.reconnectInterval = null;
-        this.charts = {};
         this.metricsHistory = {
             cpu: [],
             memory: [],
@@ -15,7 +14,6 @@ class MonitoringDashboard {
 
     init() {
         this.connectWebSocket();
-        this.initializeCharts();
         this.bindEvents();
         
         // Carica i dati iniziali
@@ -114,7 +112,6 @@ class MonitoringDashboard {
         this.updateContainersList(metrics.docker);
         this.updateSystemInfo(metrics.system);
         this.updateStorageInfo(metrics.storage);
-        this.updateCharts(metrics);
         this.updateLastUpdateTime(metrics.lastUpdate);
         window.scrollTo({ top: scrollY });
     }
@@ -353,100 +350,6 @@ class MonitoringDashboard {
                 });
                 projectStorageEl.innerHTML += projectDetails;
             }
-        }
-    }
-
-    initializeCharts() {
-        // CPU Chart
-        const cpuCtx = document.getElementById('cpuChart').getContext('2d');
-        this.charts.cpu = new Chart(cpuCtx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'CPU Usage (%)',
-                    data: [],
-                    borderColor: 'rgb(75, 192, 192)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100
-                    }
-                },
-                animation: {
-                    duration: 750
-                }
-            }
-        });
-
-        // Memory Chart
-        const memCtx = document.getElementById('memoryChart').getContext('2d');
-        this.charts.memory = new Chart(memCtx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'Memory Usage (%)',
-                    data: [],
-                    borderColor: 'rgb(255, 99, 132)',
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100
-                    }
-                },
-                animation: {
-                    duration: 750
-                }
-            }
-        });
-    }
-
-    updateCharts(metrics) {
-        if (!metrics.system) return;
-
-        const now = new Date().toLocaleTimeString();
-        const cpuUsage = metrics.system.cpu?.usage?.currentLoad || 0;
-        const memUsage = parseFloat(metrics.system.memory?.usage?.usagePercent || 0);
-
-        // Aggiungi ai dati storici
-        this.metricsHistory.timestamps.push(now);
-        this.metricsHistory.cpu.push(cpuUsage);
-        this.metricsHistory.memory.push(memUsage);
-
-        // Mantieni solo gli ultimi N punti
-        if (this.metricsHistory.timestamps.length > this.maxHistoryPoints) {
-            this.metricsHistory.timestamps.shift();
-            this.metricsHistory.cpu.shift();
-            this.metricsHistory.memory.shift();
-        }
-
-        // Aggiorna CPU Chart
-        if (this.charts.cpu) {
-            this.charts.cpu.data.labels = [...this.metricsHistory.timestamps];
-            this.charts.cpu.data.datasets[0].data = [...this.metricsHistory.cpu];
-            this.charts.cpu.update('none');
-        }
-
-        // Aggiorna Memory Chart
-        if (this.charts.memory) {
-            this.charts.memory.data.labels = [...this.metricsHistory.timestamps];
-            this.charts.memory.data.datasets[0].data = [...this.metricsHistory.memory];
-            this.charts.memory.update('none');
         }
     }
 

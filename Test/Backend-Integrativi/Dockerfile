@@ -24,9 +24,9 @@ RUN apk add --no-cache netcat-openbsd
 RUN echo '#!/bin/sh' > /usr/src/app/start-tests.sh && \
     echo 'echo "Starting integration tests..."' >> /usr/src/app/start-tests.sh && \
     echo 'echo "Waiting for database..."' >> /usr/src/app/start-tests.sh && \
-    echo 'until nc -z db-test 3306; do sleep 2; done' >> /usr/src/app/start-tests.sh && \
+    echo 'until nc -z db-test 3016; do sleep 2; done' >> /usr/src/app/start-tests.sh && \
     echo 'echo "Waiting for backend API..."' >> /usr/src/app/start-tests.sh && \
-    echo 'until nc -z backend-test 3015; do sleep 2; done' >> /usr/src/app/start-tests.sh && \
+    echo 'until nc -z backend-test 3010; do sleep 2; done' >> /usr/src/app/start-tests.sh && \
     echo 'echo "Database and API ready, initializing..."' >> /usr/src/app/start-tests.sh && \
     echo 'cd /usr/src/app/Test && node db-setup.js init' >> /usr/src/app/start-tests.sh && \
     echo 'echo "Running tests..."' >> /usr/src/app/start-tests.sh && \

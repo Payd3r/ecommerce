@@ -35,11 +35,11 @@ RUN addgroup -g 1001 -S nodejs && \
 RUN chown -R nodejs:nodejs /usr/src/app
 
 # Espone la porta del servizio
-EXPOSE 3017
+EXPOSE 3012
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:3017/api/health || exit 1
+    CMD curl -f http://localhost:3012/api/health || exit 1
 
 # Per ora esegui come root per accedere al socket Docker
 # In produzione si dovrebbe configurare i permessi appropriati

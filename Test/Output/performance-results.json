@@ -1,6 +1,6 @@
 {
   "testType": "performance",
-  "timestamp": "2025-06-05T20:09:44.280Z",
+  "timestamp": "2025-06-06T16:42:05.633Z",
   "summary": {
     "numTotalTests": 6,
     "numPassedTests": 3,
@@ -21,7 +21,7 @@
       "name": "/usr/src/app/Test/Performance/tests/api-performance.test.js",
       "status": "focused",
       "message": "",
-      "duration": 2185,
+      "duration": 1910,
       "numFailingTests": 0,
       "numPassingTests": 0,
       "numPendingTests": 0,
@@ -30,7 +30,7 @@
           "title": "GET /products - Response Time Test",
           "status": "passed",
           "failureMessages": [],
-          "duration": 121
+          "duration": 132
         },
         {
           "title": "GET /products/:id - Single Product Performance (SKIPPED - no products in test DB)",
@@ -42,7 +42,7 @@
           "title": "GET /categories - Categories List Performance",
           "status": "passed",
           "failureMessages": [],
-          "duration": 101
+          "duration": 95
         },
         {
           "title": "POST /auth/login - Login Performance (SKIPPED - test users not available)",
@@ -54,7 +54,7 @@
           "title": "Mixed API Load Test",
           "status": "passed",
           "failureMessages": [],
-          "duration": 949
+          "duration": 738
         },
         {
           "title": "Database Connection Pool Test (SKIPPED - direct DB access not available)",

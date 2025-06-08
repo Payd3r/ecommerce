@@ -4,11 +4,11 @@ const path = require('path');
 
 // Config database di test
 const dbConfig = {
-  host: 'db-test',
+  host: 'localhost',
   user: 'test_user',
   password: 'test_password',
   database: 'test_db',
-  port: 3306
+  port: 3016
 };
 
 async function waitForDatabase(maxAttempts = 30) {

@@ -2,12 +2,12 @@ services:
   # Test database - ottimizzato per esecuzione veloce dei test
   db-test:
     image: mariadb:11
-    container_name: mariadb-test-db
+    container_name: ecommerce-db-test
     environment:
-      MYSQL_ROOT_PASSWORD: 1234
-      MYSQL_DATABASE: ecommerce_test_db
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: 1234
+      MYSQL_ROOT_PASSWORD: test_root_password
+      MYSQL_DATABASE: test_db
+      MYSQL_USER: test_user
+      MYSQL_PASSWORD: test_password
       # Ottimizzazione per test - disabilita durability per velocità
       MYSQL_INNODB_FLUSH_LOG_AT_TRX_COMMIT: 0
       MYSQL_INNODB_FLUSH_METHOD: O_DIRECT
@@ -16,7 +16,7 @@ services:
       MYSQL_QUERY_CACHE_SIZE: 32M
       MYSQL_SYNC_BINLOG: 0
     ports:
-      - "3307:3306"
+      - "3016:3306"
     volumes:
       - test_db_data:/var/lib/mysql
       - ./Backend/db.sql:/docker-entrypoint-initdb.d/db.sql
@@ -26,44 +26,49 @@ services:
       - /var/log
     # Health check ottimizzato per test
     healthcheck:
-      test: ["CMD", "mariadb", "-h", "localhost", "-u", "admin", "-p1234", "-e", "SELECT 1;"]
-      start_period: 20s
-      interval: 5s
-      timeout: 3s
-      retries: 6
-      start_interval: 2s
+      test: ["CMD", "mariadb", "-h", "localhost", "-u", "test_user", "-ptest_password", "-e", "SELECT 1;"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # Backend per test - utilizza database di test
+  # Test backend API
   backend-test:
     build: ./Backend
+    container_name: ecommerce-backend-test
+    ports:
+      - "3017:3010"
     depends_on:
       db-test:
         condition: service_healthy
     environment:
       NODE_ENV: test
-      PORT: 3015
+      PORT: 3010
       DB_HOST: db-test
-      DB_USER: admin
-      DB_PASSWORD: 1234
-      DB_NAME: ecommerce_test_db
-      DB_PORT: 3306
+      DB_USER: test_user
+      DB_PASSWORD: test_password
+      DB_NAME: test_db
+      DB_PORT: 3016
       JWT_SECRET: test_secret_key
     command: ["npm", "start"]
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3015/health"]
-      interval: 30s
-      timeout: 10s
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3010/health"]
+      interval: 10s
+      timeout: 5s
       retries: 3
     restart: "no"  # Non riavviare automaticamente
 
-  # Frontend per test
+  # Test frontend
   frontend-test:
     build: ./Frontend
+    container_name: ecommerce-frontend-test
+    ports:
+      - "3018:80"
     depends_on:
-      - backend-test
+      backend-test:
+        condition: service_healthy
     environment:
       NODE_ENV: test
-      REACT_APP_API_URL: http://backend-test:3015
+      REACT_APP_API_URL: http://backend-test:3010
     restart: "no"
 
   # Test unitari backend - isolati, senza dipendenze esterne
@@ -90,7 +95,7 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: test
-      API_BASE_URL: http://backend-test:3015
+      API_BASE_URL: http://backend-test:3010
     volumes:
       - ./Test/Output:/usr/src/app/Test/Output
     working_dir: /usr/src/app/Test/Backend-Integrativi
@@ -103,7 +108,7 @@ services:
       dockerfile: ./Test/Frontend/Dockerfile
     environment:
       NODE_ENV: test
-      REACT_APP_API_URL: http://backend-test:3015
+      REACT_APP_API_URL: http://backend-test:3010
     volumes:
       - ./Test/Output:/usr/src/app/Test/Output
     working_dir: /usr/src/app/Test/Frontend
@@ -118,18 +123,29 @@ services:
       - backend-test
     environment:
       NODE_ENV: test
-      API_BASE_URL: http://backend-test:3015
+      API_BASE_URL: http://backend-test:3010
     volumes:
       - ./Test/Output:/usr/src/app/Test/Output
     working_dir: /usr/src/app/Test/Performance
     restart: "no"
 
-  # Monitoring system per environment di test
+  # Test image server
+  imageserver-test:
+    image: nginx:alpine
+    container_name: ecommerce-imageserver-test
+    ports:
+      - "3019:80"
+    volumes:
+      - ./Media:/usr/share/nginx/html/Media:ro
+    depends_on:
+      - backend-test
+
+  # Test monitoring system
   monitoring-test:
     build: ./Monitoring
     container_name: ecommerce-monitoring-test
     ports:
-      - "3018:3017"
+      - "3020:3012"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./Media:/usr/src/app/Media:ro
@@ -140,7 +156,7 @@ services:
       - ./Monitoring/public:/usr/src/app/public
     environment:
       NODE_ENV: test
-      PORT: 3017
+      PORT: 3012
     depends_on:
       - backend-test
     restart: "no"

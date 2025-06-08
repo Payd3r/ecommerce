@@ -1,6 +1,6 @@
 {
   "testType": "backend-integrativi",
-  "timestamp": "2025-06-05T20:12:40.418Z",
+  "timestamp": "2025-06-06T16:40:54.625Z",
   "summary": {
     "numTotalTests": 89,
     "numPassedTests": 89,
@@ -8,14 +8,14 @@
     "numPendingTests": 0,
     "numSkippedTests": 0,
     "success": true,
-    "duration": 4744
+    "duration": 4106
   },
   "testResults": [
     {
       "name": "orders.integration.test.js",
       "status": "passed",
       "message": "",
-      "duration": 2298,
+      "duration": 2130,
       "numFailingTests": 0,
       "numPassingTests": 26,
       "numPendingTests": 0,
@@ -24,37 +24,37 @@
           "title": "dovrebbe creare un nuovo ordine",
           "status": "passed",
           "failureMessages": [],
-          "duration": 25
+          "duration": 31
         },
         {
           "title": "dovrebbe rifiutare creazione ordine con dati mancanti",
           "status": "passed",
           "failureMessages": [],
-          "duration": 12
+          "duration": 78
         },
         {
           "title": "dovrebbe usare status default \"pending\" se non specificato",
           "status": "passed",
           "failureMessages": [],
-          "duration": 27
+          "duration": 25
         },
         {
           "title": "dovrebbe creare ordine dal carrello con checkout",
           "status": "passed",
           "failureMessages": [],
-          "duration": 57
+          "duration": 67
         },
         {
           "title": "dovrebbe rifiutare checkout senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 24
+          "duration": 16
         },
         {
           "title": "dovrebbe rifiutare checkout con carrello vuoto",
           "status": "passed",
           "failureMessages": [],
-          "duration": 44
+          "duration": 38
         },
         {
           "title": "dovrebbe restituire tutti gli ordini per admin",
@@ -72,25 +72,25 @@
           "title": "dovrebbe rifiutare accesso a ordini di altri clienti",
           "status": "passed",
           "failureMessages": [],
-          "duration": 99
+          "duration": 173
         },
         {
           "title": "dovrebbe rifiutare accesso senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 10
+          "duration": 7
         },
         {
           "title": "dovrebbe restituire ordini per prodotti di un artigiano",
           "status": "passed",
           "failureMessages": [],
-          "duration": 9
+          "duration": 7
         },
         {
           "title": "dovrebbe rifiutare ID artigiano non valido",
           "status": "passed",
           "failureMessages": [],
-          "duration": 7
+          "duration": 10
         },
         {
           "title": "dovrebbe restituire array vuoto per artigiano senza ordini",
@@ -102,79 +102,79 @@
           "title": "dovrebbe restituire statistiche vendite mensili per artigiano",
           "status": "passed",
           "failureMessages": [],
-          "duration": 9
+          "duration": 10
         },
         {
           "title": "dovrebbe rifiutare richiesta senza artisanId",
           "status": "passed",
           "failureMessages": [],
-          "duration": 8
+          "duration": 7
         },
         {
           "title": "dovrebbe rifiutare artisanId non valido",
           "status": "passed",
           "failureMessages": [],
-          "duration": 8
+          "duration": 10
         },
         {
           "title": "dovrebbe restituire statistiche ordini mensili per artigiano",
           "status": "passed",
           "failureMessages": [],
-          "duration": 8
+          "duration": 9
         },
         {
           "title": "dovrebbe rifiutare richiesta senza artisanId",
           "status": "passed",
           "failureMessages": [],
-          "duration": 7
+          "duration": 9
         },
         {
           "title": "dovrebbe restituire item di un ordine specifico",
           "status": "passed",
           "failureMessages": [],
-          "duration": 12
+          "duration": 11
         },
         {
           "title": "dovrebbe rifiutare accesso senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 9
+          "duration": 6
         },
         {
           "title": "dovrebbe eliminare ordine come admin",
           "status": "passed",
           "failureMessages": [],
-          "duration": 37
+          "duration": 29
         },
         {
           "title": "dovrebbe rifiutare eliminazione senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 7
+          "duration": 6
         },
         {
           "title": "dovrebbe rifiutare eliminazione ordine inesistente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 11
+          "duration": 12
         },
         {
           "title": "dovrebbe creare payment intent per checkout",
           "status": "passed",
           "failureMessages": [],
-          "duration": 453
+          "duration": 479
         },
         {
           "title": "dovrebbe rifiutare payment intent senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 23
+          "duration": 20
         },
         {
           "title": "dovrebbe rifiutare payment intent con carrello vuoto",
           "status": "passed",
           "failureMessages": [],
-          "duration": 35
+          "duration": 31
         }
       ]
     },
@@ -182,7 +182,7 @@
       "name": "products.integration.test.js",
       "status": "passed",
       "message": "",
-      "duration": 699,
+      "duration": 525,
       "numFailingTests": 0,
       "numPassingTests": 18,
       "numPendingTests": 0,
@@ -191,37 +191,37 @@
           "title": "dovrebbe creare un nuovo prodotto come artigiano",
           "status": "passed",
           "failureMessages": [],
-          "duration": 15
+          "duration": 10
         },
         {
           "title": "dovrebbe rifiutare creazione prodotto senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 12
+          "duration": 70
         },
         {
           "title": "dovrebbe rifiutare creazione prodotto da cliente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 92
+          "duration": 68
         },
         {
           "title": "dovrebbe rifiutare creazione prodotto con dati mancanti",
           "status": "passed",
           "failureMessages": [],
-          "duration": 10
+          "duration": 8
         },
         {
           "title": "dovrebbe restituire lista prodotti con paginazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 10
+          "duration": 8
         },
         {
           "title": "dovrebbe filtrare prodotti per categoria",
           "status": "passed",
           "failureMessages": [],
-          "duration": 11
+          "duration": 13
         },
         {
           "title": "dovrebbe filtrare prodotti per prezzo",
@@ -233,67 +233,67 @@
           "title": "dovrebbe cercare prodotti per nome",
           "status": "passed",
           "failureMessages": [],
-          "duration": 16
+          "duration": 10
         },
         {
           "title": "dovrebbe restituire prodotti con informazioni complete",
           "status": "passed",
           "failureMessages": [],
-          "duration": 17
+          "duration": 10
         },
         {
           "title": "dovrebbe restituire prodotti più venduti",
           "status": "passed",
           "failureMessages": [],
-          "duration": 15
+          "duration": 10
         },
         {
           "title": "dovrebbe restituire prodotto specifico con immagini",
           "status": "passed",
           "failureMessages": [],
-          "duration": 11
+          "duration": 7
         },
         {
           "title": "dovrebbe restituire 404 per prodotto inesistente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 12
+          "duration": 7
         },
         {
           "title": "dovrebbe aggiornare prodotto del proprio artigiano",
           "status": "passed",
           "failureMessages": [],
-          "duration": 17
+          "duration": 11
         },
         {
           "title": "dovrebbe rifiutare aggiornamento senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 10
+          "duration": 6
         },
         {
           "title": "dovrebbe rifiutare aggiornamento prodotto 404",
           "status": "passed",
           "failureMessages": [],
-          "duration": 13
+          "duration": 9
         },
         {
           "title": "dovrebbe eliminare prodotto del proprio artigiano",
           "status": "passed",
           "failureMessages": [],
-          "duration": 40
+          "duration": 23
         },
         {
           "title": "dovrebbe rifiutare eliminazione senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 8
+          "duration": 6
         },
         {
           "title": "dovrebbe rifiutare eliminazione prodotto inesistente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 11
+          "duration": 8
         }
       ]
     },
@@ -301,7 +301,7 @@
       "name": "cart.integration.test.js",
       "status": "passed",
       "message": "",
-      "duration": 681,
+      "duration": 554,
       "numFailingTests": 0,
       "numPassingTests": 21,
       "numPendingTests": 0,
@@ -310,127 +310,127 @@
           "title": "dovrebbe creare un nuovo carrello",
           "status": "passed",
           "failureMessages": [],
-          "duration": 16
+          "duration": 12
         },
         {
           "title": "dovrebbe riconoscere carrello già esistente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 13
+          "duration": 9
         },
         {
           "title": "dovrebbe rifiutare creazione carrello senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 7
+          "duration": 82
         },
         {
           "title": "dovrebbe aggiungere prodotto al carrello",
           "status": "passed",
           "failureMessages": [],
-          "duration": 14
+          "duration": 16
         },
         {
           "title": "dovrebbe aggiornare quantità prodotto già presente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 16
+          "duration": 11
         },
         {
           "title": "dovrebbe rifiutare aggiunta senza dati validi",
           "status": "passed",
           "failureMessages": [],
-          "duration": 18
+          "duration": 7
         },
         {
           "title": "dovrebbe rifiutare quantità non valida",
           "status": "passed",
           "failureMessages": [],
-          "duration": 13
+          "duration": 10
         },
         {
           "title": "dovrebbe rifiutare aggiunta senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 10
+          "duration": 6
         },
         {
           "title": "dovrebbe restituire carrello con prodotti",
           "status": "passed",
           "failureMessages": [],
-          "duration": 13
+          "duration": 10
         },
         {
           "title": "dovrebbe restituire carrello vuoto per nuovo utente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 86
+          "duration": 67
         },
         {
           "title": "dovrebbe rifiutare accesso carrello senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 10
+          "duration": 8
         },
         {
           "title": "dovrebbe aggiornare quantità prodotto nel carrello",
           "status": "passed",
           "failureMessages": [],
-          "duration": 24
+          "duration": 17
         },
         {
           "title": "dovrebbe rifiutare aggiornamento con quantità non valida",
           "status": "passed",
           "failureMessages": [],
-          "duration": 11
+          "duration": 8
         },
         {
           "title": "dovrebbe rifiutare aggiornamento item inesistente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 11
+          "duration": 9
         },
         {
           "title": "dovrebbe rifiutare aggiornamento senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 9
+          "duration": 7
         },
         {
           "title": "dovrebbe rimuovere prodotto dal carrello",
           "status": "passed",
           "failureMessages": [],
-          "duration": 42
+          "duration": 32
         },
         {
           "title": "dovrebbe rifiutare rimozione item inesistente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 10
+          "duration": 7
         },
         {
           "title": "dovrebbe rifiutare rimozione senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 7
+          "duration": 8
         },
         {
           "title": "dovrebbe svuotare il carrello",
           "status": "passed",
           "failureMessages": [],
-          "duration": 21
+          "duration": 15
         },
         {
           "title": "dovrebbe gestire svuotamento carrello già vuoto",
           "status": "passed",
           "failureMessages": [],
-          "duration": 11
+          "duration": 7
         },
         {
           "title": "dovrebbe rifiutare svuotamento senza autenticazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 7
+          "duration": 8
         }
       ]
     },
@@ -438,7 +438,7 @@
       "name": "auth.integration.test.js",
       "status": "passed",
       "message": "",
-      "duration": 743,
+      "duration": 622,
       "numFailingTests": 0,
       "numPassingTests": 21,
       "numPendingTests": 0,
@@ -447,85 +447,85 @@
           "title": "dovrebbe registrare un nuovo cliente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 146
+          "duration": 63
         },
         {
           "title": "dovrebbe registrare un nuovo artigiano",
           "status": "passed",
           "failureMessages": [],
-          "duration": 79
+          "duration": 60
         },
         {
           "title": "dovrebbe registrare un nuovo admin",
           "status": "passed",
           "failureMessages": [],
-          "duration": 69
+          "duration": 64
         },
         {
           "title": "dovrebbe rifiutare registrazione con email duplicata",
           "status": "passed",
           "failureMessages": [],
-          "duration": 8
+          "duration": 71
         },
         {
           "title": "dovrebbe rifiutare registrazione con dati mancanti",
           "status": "passed",
           "failureMessages": [],
-          "duration": 15
+          "duration": 7
         },
         {
           "title": "dovrebbe rifiutare ruolo non valido",
           "status": "passed",
           "failureMessages": [],
-          "duration": 11
+          "duration": 6
         },
         {
           "title": "dovrebbe effettuare login con credenziali valide",
           "status": "passed",
           "failureMessages": [],
-          "duration": 65
+          "duration": 58
         },
         {
           "title": "dovrebbe rifiutare login con password errata",
           "status": "passed",
           "failureMessages": [],
-          "duration": 70
+          "duration": 59
         },
         {
           "title": "dovrebbe rifiutare login con email inesistente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 10
+          "duration": 6
         },
         {
           "title": "dovrebbe rifiutare login con dati mancanti",
           "status": "passed",
           "failureMessages": [],
-          "duration": 8
+          "duration": 7
         },
         {
           "title": "dovrebbe restituire profilo utente con token valido",
           "status": "passed",
           "failureMessages": [],
-          "duration": 13
+          "duration": 11
         },
         {
           "title": "dovrebbe restituire profilo artigiano con dati extended_users",
           "status": "passed",
           "failureMessages": [],
-          "duration": 15
+          "duration": 13
         },
         {
           "title": "dovrebbe rifiutare accesso senza token",
           "status": "passed",
           "failureMessages": [],
-          "duration": 10
+          "duration": 6
         },
         {
           "title": "dovrebbe rifiutare accesso con token non valido",
           "status": "passed",
           "failureMessages": [],
-          "duration": 8
+          "duration": 7
         },
         {
           "title": "dovrebbe aggiornare nickname utente",
@@ -537,7 +537,7 @@
           "title": "dovrebbe aggiornare email utente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 11
+          "duration": 9
         },
         {
           "title": "dovrebbe rifiutare aggiornamento senza dati",
@@ -549,19 +549,19 @@
           "title": "dovrebbe rifiutare aggiornamento senza token",
           "status": "passed",
           "failureMessages": [],
-          "duration": 9
+          "duration": 7
         },
         {
           "title": "dovrebbe aggiornare bio artigiano",
           "status": "passed",
           "failureMessages": [],
-          "duration": 14
+          "duration": 12
         },
         {
           "title": "dovrebbe rifiutare aggiornamento bio da non-artigiano",
           "status": "passed",
           "failureMessages": [],
-          "duration": 10
+          "duration": 18
         },
         {
           "title": "dovrebbe rifiutare aggiornamento bio senza bio",
@@ -575,7 +575,7 @@
       "name": "connection.test.js",
       "status": "passed",
       "message": "",
-      "duration": 124,
+      "duration": 113,
       "numFailingTests": 0,
       "numPassingTests": 1,
       "numPendingTests": 0,
@@ -584,7 +584,7 @@
           "title": "dovrebbe connettersi al backend",
           "status": "passed",
           "failureMessages": [],
-          "duration": 24
+          "duration": 16
         }
       ]
     },
@@ -592,7 +592,7 @@
       "name": "base.test.js",
       "status": "passed",
       "message": "",
-      "duration": 88,
+      "duration": 80,
       "numFailingTests": 0,
       "numPassingTests": 2,
       "numPendingTests": 0,
@@ -601,13 +601,13 @@
           "title": "dovrebbe verificare che la configurazione di test funzioni correttamente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 2
+          "duration": 1
         },
         {
           "title": "dovrebbe supportare richieste HTTP",
           "status": "passed",
           "failureMessages": [],
-          "duration": 18
+          "duration": 19
         }
       ]
     }

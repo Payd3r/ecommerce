@@ -1,16 +1,16 @@
 // Performance test configuration
 module.exports = {
   server: {
-    port: process.env.PORT || 3015,
-    baseUrl: `http://backend-test:3015` // Backend di test che usa il database di test
+    port: process.env.PORT || 3017,
+    baseUrl: `http://localhost:3017` // Backend di test che usa il database di test
   },
   
   database: {
-    host: 'db-test',
+    host: 'localhost',
     user: 'test_user', 
     password: 'test_password',
     name: 'test_db',
-    port: 3306
+    port: 3016
   },
   
   // Test parameters

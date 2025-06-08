@@ -11,7 +11,7 @@ RUN echo 'server { \
         try_files $uri $uri/ @api_backend; \
     } \
     location @api_backend { \
-        proxy_pass http://backend:3015; \
+        proxy_pass http://backend:3010; \
         proxy_http_version 1.1; \
         proxy_set_header Upgrade $http_upgrade; \
         proxy_set_header Connection "upgrade"; \

@@ -4,11 +4,11 @@ function toPublicImageUrl(urlOrType, id, filename) {
         const url = urlOrType;
         if (!url) return null;
         if (url.startsWith('http')) return url;
-        return `http://localhost:8080${url}`;
+        return `http://localhost:3011${url}`;
     }
     // Se chiamato con type, id, filename
     if (urlOrType && id && filename) {
-        return `http://localhost:8080/Media/${urlOrType}/${id}/${filename}`;
+        return `http://localhost:3011/Media/${urlOrType}/${id}/${filename}`;
     }
     return null;
 }
