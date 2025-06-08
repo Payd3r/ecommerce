@@ -391,6 +391,43 @@ Il progetto include un sistema completo di backup e ripristino per garantire la 
    powershell -ExecutionPolicy Bypass -File ./run-tests.ps1 verify-backup
    ```
 
+### Backup da Dashboard (Consigliato)
+
+I backup possono essere gestiti anche direttamente dalla dashboard di monitoraggio all'indirizzo [http://localhost:3017](http://localhost:3017):
+
+1. **Backup Manuale**
+   - Accedi alla sezione "Gestione Dati"
+   - Clicca su "Nuovo Backup"
+   - Seleziona il tipo di backup (completo, database, media)
+   - Conferma l'operazione
+
+2. **Pianificazione Backup**
+   - Configura backup automatici
+   - Imposta frequenza e orario
+   - Definisci criteri di retention
+   - Gestisci notifiche
+
+3. **Monitoraggio**
+   - Visualizza stato ultimo backup
+   - Controlla spazio occupato
+   - Verifica integrità
+   - Consulta log operazioni
+4. **Ripristino da Backup Esistenti**
+   - Accedi alla sezione "Gestione Dati"
+   - Clicca su "Ripristino da Backup"
+   - Seleziona il backup da ripristinare dalla lista dei backup disponibili
+   - Scegli il tipo di ripristino (completo, database, media)
+   - Conferma l'operazione
+   - Monitora lo stato del ripristino in tempo reale
+
+5. **Gestione Backup Esistenti**
+   - Visualizza lista completa dei backup disponibili
+   - Filtra per data, tipo e dimensione
+   - Scarica copia locale del backup
+   - Elimina backup non più necessari
+   - Verifica integrità dei backup selezionati
+
+
 ### Dashboard di Gestione Dati
 
 La dashboard di monitoraggio include una sezione dedicata alla gestione dei dati:
@@ -413,11 +450,9 @@ La dashboard di monitoraggio include una sezione dedicata alla gestione dei dati
 
 La cartella `Documenti/` contiene risorse aggiuntive per lo sviluppo e la manutenzione del progetto:
 
-- **Guide Tecniche**: Documentazione dettagliata delle API e dei servizi
 - **Diagrammi**: Architettura del sistema e flussi di dati
-- **Procedure**: Guide per operazioni comuni e troubleshooting
-- **Standard**: Linee guida per lo sviluppo e la manutenzione
-
+- **Prototipi UI**: Tutti i prototipi delle pagine principali
+- **Cross browsers**: Screenshots dimostrativi del comportamento sui princopali browser diffusi
 ---
 
 ## Servizi Docker
@@ -441,10 +476,96 @@ La cartella `Documenti/` contiene risorse aggiuntive per lo sviluppo e la manute
 
 ---
 
+## Gestione delle Immagini
+
+### Struttura della Cartella Media
+
+La cartella `Media/` è organizzata in sottocartelle specifiche per tipo di contenuto:
+```
+Media/
+├── profile/     # Immagini profilo utenti
+├── product/     # Immagini prodotti
+├── category/    # Immagini categorie
+└── banner/      # Banner e immagini promozionali
+```
+
+### Gestione nel Database
+
+Le immagini sono gestite attraverso il database con le seguenti tabelle:
+
+1. **Tabella `images`**
+   - `id`: Identificativo univoco
+   - `filename`: Nome del file
+   - `path`: Percorso relativo nella cartella Media
+   - `type`: Tipo di immagine (profile, product, category, banner)
+   - `size`: Dimensione in bytes
+   - `mime_type`: Tipo MIME del file
+   - `created_at`: Data di upload
+   - `updated_at`: Data ultima modifica
+
+2. **Relazioni**
+   - `products.images`: Array di ID immagini per prodotto
+   - `categories.image_id`: ID immagine categoria
+   - `users.profile_image_id`: ID immagine profilo
+   - `banners.image_id`: ID immagine banner
+
+### Caratteristiche del Sistema
+
+1. **Ottimizzazione Automatica**
+   - Ridimensionamento automatico delle immagini
+   - Generazione di thumbnail per anteprima
+   - Formati supportati: JPG, PNG, WebP
+
+2. **Backup e Ripristino**
+   - Backup della cartella Media
+   - Restore di una versione locale
+
+3. **Accesso alle Immagini**
+   - URL pubblico: `http://localhost:8080/Media/[tipo]/[filename]`
+   - Accesso protetto per immagini private
+   - CDN-ready per distribuzione geografica
+   - Cache control per ottimizzazione
+
+### API per la Gestione Immagini
+
+```javascript
+// Esempi di endpoint disponibili
+POST   /api/images/upload/product    // Upload immagine prodotto
+POST   /api/images/upload/profile    // Upload immagine profilo
+POST   /api/images/upload/category   // Upload immagine categoria
+POST   /api/images/upload/banner     // Upload banner
+GET    /api/images/[id]             // Recupera dettagli immagine
+DELETE /api/images/[id]             // Elimina immagine
+```
+
+### Best Practices
+
+1. **Upload**
+   - Dimensione massima file: 5MB
+   - Risoluzione consigliata: 1920x1080px
+   - Formato preferito: WebP con fallback JPG
+   - Nome file: sanitizzato e univoco
+
+2. **Manutenzione**
+   - Pulizia automatica delle immagini orfane
+   - Verifica periodica dell'integrità
+   - Ottimizzazione storage
+   - Monitoraggio dello spazio
+
+3. **Performance**
+   - Lazy loading delle immagini
+   - Responsive images con srcset
+   - Caching lato client
+   - Compressione automatica
+
+### Monitoraggio
+
+La dashboard di monitoraggio include metriche specifiche per le immagini:
+- Spazio occupato per tipo
+- Numero di immagini per categoria
+- Statistiche di accesso
+- Performance del server immagini
+
+---
+
 ## Troubleshooting
-
-### Problemi Comuni
-
-1. **Porte già in uso**: Modifica le porte nei file docker-compose se necessario
-2. **Permessi script**: Su sistemi Unix, rendi eseguibile lo script: `chmod +x run-tests.ps1`
-3. **Container orfani**: Pulisci con `
