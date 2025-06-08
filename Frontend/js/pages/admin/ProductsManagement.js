@@ -128,7 +128,7 @@ export async function loadProductsManagementPage() {
                 const tr = btn.closest('tr');
                 const productId = tr.getAttribute('data-product-id');
                 console.log('Click su Modifica, productId:', productId);
-                showEditProductModal(productId, flattenCategories(categories), () => {
+                showEditProductModal(productId, categories, () => {
                     console.log('Callback dopo editProduct');
                     resetFiltersAndRefresh();
                 });
