@@ -18,6 +18,12 @@ class MonitoringDashboard {
         this.initializeCharts();
         this.bindEvents();
         
+        // Mostra loader per i report test
+        const reportsList = document.getElementById('testReportsList');
+        if (reportsList) {
+            reportsList.innerHTML = '<li class="list-group-item text-center text-muted">Caricamento...</li>';
+        }
+        
         // Carica i dati iniziali
         this.loadTestReports();
         this.loadMediaBackups();
@@ -144,34 +150,129 @@ class MonitoringDashboard {
         // Stato di quale container è espanso (persistente tra refresh)
         if (!window.expandedContainerName) window.expandedContainerName = null;
 
+        // Separa container di produzione da quelli di test
+        const productionContainers = dockerMetrics.containers.filter(c => 
+            !c.name.includes('test') && !c.name.includes('-testing') && 
+            !c.image.includes('test')
+        );
+        
+        const testingContainers = dockerMetrics.containers.filter(c => 
+            c.name.includes('test') || c.name.includes('-testing') || 
+            c.image.includes('test')
+        );
+
         let html = '';
-        dockerMetrics.containers.forEach((container, idx) => {
-            const statusClass = container.state === 'running' ? 'status-running' : 'status-stopped';
-            const iconClass = container.state === 'running' ? 'fa-play-circle' : 'fa-stop-circle';
-            const expanded = window.expandedContainerName === container.name;
+
+        // Container di Produzione
+        if (productionContainers.length > 0) {
             html += `
-                <div class="container-item container-expandable${expanded ? ' expanded' : ''}" data-container-name="${container.name}" id="container-item-${idx}">
-                    <div class="row align-items-center">
-                        <div class="col-md-4">
-                            <h6><i class="fas ${iconClass} me-2"></i>${container.name}</h6>
-                            <small class="text-muted">${container.image}</small>
-                        </div>
-                        <div class="col-md-2">
-                            <span class="status-badge ${statusClass}">
-                                ${container.state.toUpperCase()}
-                            </span>
-                        </div>
-                        <div class="col-md-6">
-                            ${container.metrics ? this.renderContainerMetrics(container.metrics) : '<small class="text-muted">Container non attivo</small>'}
-                        </div>
+                <div class="mb-4">
+                    <h5 class="text-primary mb-3">
+                        <i class="fas fa-server me-2"></i>Container di Produzione
+                        <span class="badge bg-primary ms-2">${productionContainers.length}</span>
+                    </h5>
+                    <div class="container-section">
+            `;
+            
+            productionContainers.forEach((container, idx) => {
+                html += this.renderContainerHtml(container, idx, 'production');
+            });
+            
+            html += `
                     </div>
-                    <div class="log-section" style="display:${expanded ? 'block' : 'none'};"></div>
                 </div>
             `;
-        });
+        }
+
+        // Container di Testing
+        if (testingContainers.length > 0) {
+            html += `
+                <div class="mb-4">
+                    <h5 class="text-warning mb-3">
+                        <i class="fas fa-flask me-2"></i>Container di Testing
+                        <span class="badge bg-warning ms-2">${testingContainers.length}</span>
+                    </h5>
+                    <div class="container-section">
+            `;
+            
+            testingContainers.forEach((container, idx) => {
+                html += this.renderContainerHtml(container, idx + productionContainers.length, 'testing');
+            });
+            
+            html += `
+                    </div>
+                </div>
+            `;
+        }
+
+        if (productionContainers.length === 0 && testingContainers.length === 0) {
+            html = '<div class="alert alert-info">Nessun container in esecuzione</div>';
+        }
         containersList.innerHTML = html;
 
-        // Gestione click per espansione log
+        // Gestione click per espansione log per tutti i container
+        this.setupContainerClickHandlers(dockerMetrics);
+
+        // Se c'è un container espanso, carica i log (anche dopo refresh)
+        if (window.expandedContainerName) {
+            const expandedItem = document.querySelector(`.container-expandable[data-container-name='${window.expandedContainerName}']`);
+            if (expandedItem) {
+                const logSection = expandedItem.querySelector('.log-section');
+                if (logSection && !logSection.innerHTML) {
+                    logSection.innerHTML = '<div class="log-container">Caricamento log...</div>';
+                    fetch(`/api/container/${window.expandedContainerName}/logs?lines=100`)
+                        .then(res => res.text())
+                        .then(text => {
+                            logSection.innerHTML = `<div class=\"log-container\"><pre>${text.replace(/</g, '&lt;')}</pre></div>`;
+                            // Auto-scroll in basso per vedere gli ultimi log
+                            const logDiv = logSection.querySelector('.log-container');
+                            if (logDiv) {
+                                requestAnimationFrame(() => { 
+                                    logDiv.scrollTop = logDiv.scrollHeight; 
+                                });
+                            }
+                        })
+                        .catch(() => {
+                            logSection.innerHTML = '<div class="log-container">Errore nel caricamento log</div>';
+                        });
+                }
+            }
+        }
+    }
+
+    renderContainerHtml(container, idx, type) {
+        const statusClass = container.state === 'running' ? 'status-running' : 'status-stopped';
+        const iconClass = container.state === 'running' ? 'fa-play-circle' : 'fa-stop-circle';
+        const expanded = window.expandedContainerName === container.name;
+        const typeClass = type === 'testing' ? 'border-warning' : 'border-primary';
+        const typeIcon = type === 'testing' ? 'fas fa-vial text-warning' : 'fas fa-cube text-primary';
+        
+        return `
+            <div class="container-item container-expandable ${typeClass}${expanded ? ' expanded' : ''}" data-container-name="${container.name}" id="container-item-${idx}">
+                <div class="row align-items-center">
+                    <div class="col-md-4">
+                        <h6>
+                            <i class="${typeIcon} me-1"></i>
+                            <i class="fas ${iconClass} me-1"></i>
+                            ${container.name}
+                        </h6>
+                        <small class="text-muted">${container.image}</small>
+                    </div>
+                    <div class="col-md-2">
+                        <span class="status-badge ${statusClass}">
+                            ${container.state.toUpperCase()}
+                        </span>
+                    </div>
+                    <div class="col-md-6">
+                        ${container.metrics ? this.renderContainerMetrics(container.metrics) : '<small class="text-muted">Container non attivo</small>'}
+                    </div>
+                </div>
+                <div class="log-section" style="display:${expanded ? 'block' : 'none'};"></div>
+            </div>
+        `;
+    }
+
+    setupContainerClickHandlers(dockerMetrics) {
         document.querySelectorAll('.container-expandable').forEach(item => {
             item.addEventListener('click', async (e) => {
                 if (e.target.closest('.log-section')) return;
@@ -187,53 +288,23 @@ class MonitoringDashboard {
                 // Dopo il refresh, carica i log
                 const newItem = document.querySelector(`.container-expandable[data-container-name='${containerName}']`);
                 const logSection = newItem.querySelector('.log-section');
-                // Salva posizione scroll log
-                let prevScroll = 0;
-                const prevLog = logSection.querySelector('.log-container');
-                if (prevLog) prevScroll = prevLog.scrollTop;
                 logSection.innerHTML = '<div class="log-container">Caricamento log...</div>';
                 try {
                     const res = await fetch(`/api/container/${containerName}/logs?lines=100`);
                     const text = await res.text();
                     logSection.innerHTML = `<div class=\"log-container\"><pre>${text.replace(/</g, '&lt;')}</pre></div>`;
-                    // Ripristina posizione scroll log
+                    // Auto-scroll in basso per vedere gli ultimi log
                     const logDiv = logSection.querySelector('.log-container');
                     if (logDiv) {
-                        requestAnimationFrame(() => { logDiv.scrollTop = prevScroll; });
+                        requestAnimationFrame(() => { 
+                            logDiv.scrollTop = logDiv.scrollHeight; 
+                        });
                     }
                 } catch (err) {
                     logSection.innerHTML = '<div class="log-container">Errore nel caricamento log</div>';
                 }
             });
         });
-
-        // Se c'è un container espanso, carica i log (anche dopo refresh)
-        if (window.expandedContainerName) {
-            const expandedItem = document.querySelector(`.container-expandable[data-container-name='${window.expandedContainerName}']`);
-            if (expandedItem) {
-                const logSection = expandedItem.querySelector('.log-section');
-                if (logSection && !logSection.innerHTML) {
-                    // Salva posizione scroll log
-                    let prevScroll = 0;
-                    const prevLog = logSection.querySelector('.log-container');
-                    if (prevLog) prevScroll = prevLog.scrollTop;
-                    logSection.innerHTML = '<div class="log-container">Caricamento log...</div>';
-                    fetch(`/api/container/${window.expandedContainerName}/logs?lines=100`)
-                        .then(res => res.text())
-                        .then(text => {
-                            logSection.innerHTML = `<div class=\"log-container\"><pre>${text.replace(/</g, '&lt;')}</pre></div>`;
-                            // Ripristina posizione scroll log
-                            const logDiv = logSection.querySelector('.log-container');
-                            if (logDiv) {
-                                requestAnimationFrame(() => { logDiv.scrollTop = prevScroll; });
-                            }
-                        })
-                        .catch(() => {
-                            logSection.innerHTML = '<div class="log-container">Errore nel caricamento log</div>';
-                        });
-                }
-            }
-        }
     }
 
     renderContainerMetrics(metrics) {
@@ -416,9 +487,9 @@ class MonitoringDashboard {
         });
     }
 
-    updateCharts(metrics) {
+        updateCharts(metrics) {
         if (!metrics.system) return;
-
+        
         const now = new Date().toLocaleTimeString();
         const cpuUsage = metrics.system.cpu?.usage?.currentLoad || 0;
         const memUsage = parseFloat(metrics.system.memory?.usage?.usagePercent || 0);
@@ -435,19 +506,64 @@ class MonitoringDashboard {
             this.metricsHistory.memory.shift();
         }
 
+        // Raggruppa i dati se ci sono troppi punti per una visualizzazione pulita
+        const maxDisplayPoints = 15; // Massimo 15 punti sull'asse X
+        const groupedData = this.groupDataPoints(
+            this.metricsHistory.timestamps,
+            [this.metricsHistory.cpu, this.metricsHistory.memory],
+            maxDisplayPoints
+        );
+
         // Aggiorna CPU Chart
         if (this.charts.cpu) {
-            this.charts.cpu.data.labels = [...this.metricsHistory.timestamps];
-            this.charts.cpu.data.datasets[0].data = [...this.metricsHistory.cpu];
+            this.charts.cpu.data.labels = groupedData.labels;
+            this.charts.cpu.data.datasets[0].data = groupedData.datasets[0];
             this.charts.cpu.update('none');
         }
 
         // Aggiorna Memory Chart
         if (this.charts.memory) {
-            this.charts.memory.data.labels = [...this.metricsHistory.timestamps];
-            this.charts.memory.data.datasets[0].data = [...this.metricsHistory.memory];
+            this.charts.memory.data.labels = groupedData.labels;
+            this.charts.memory.data.datasets[0].data = groupedData.datasets[1];
             this.charts.memory.update('none');
         }
+    }
+
+    // Funzione per raggruppare i dati quando diventano troppi
+    groupDataPoints(timestamps, datasets, maxPoints) {
+        if (timestamps.length <= maxPoints) {
+            return {
+                labels: timestamps,
+                datasets: datasets
+            };
+        }
+
+        const groupSize = Math.ceil(timestamps.length / maxPoints);
+        const groupedLabels = [];
+        const groupedDatasets = datasets.map(() => []);
+
+        // Raggruppa i dati in gruppi e calcola la media
+        for (let i = 0; i < timestamps.length; i += groupSize) {
+            const groupEndIndex = Math.min(i + groupSize, timestamps.length);
+            
+            // Label del gruppo (primo e ultimo timestamp del gruppo)
+            const firstTime = timestamps[i];
+            const lastTime = timestamps[groupEndIndex - 1];
+            const groupLabel = groupSize === 1 ? firstTime : `${firstTime}-${lastTime}`;
+            groupedLabels.push(groupLabel);
+
+            // Media dei valori per ogni dataset nel gruppo
+            datasets.forEach((dataset, datasetIndex) => {
+                const groupValues = dataset.slice(i, groupEndIndex);
+                const average = groupValues.reduce((sum, val) => sum + val, 0) / groupValues.length;
+                groupedDatasets[datasetIndex].push(Math.round(average * 100) / 100); // Arrotonda a 2 decimali
+            });
+        }
+
+        return {
+            labels: groupedLabels,
+            datasets: groupedDatasets
+        };
     }
 
     updateLastUpdateTime(timestamp) {
@@ -515,6 +631,12 @@ class MonitoringDashboard {
                 break;
             case 'rollback_complete':
                 this.showRollbackFeedback(data.data.success ? 'success' : 'error');
+                break;
+            case 'page_refresh':
+                // Refresh della pagina
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
                 break;
         }
     }
@@ -618,29 +740,35 @@ class MonitoringDashboard {
 
     async loadTestReports() {
         try {
+            const reportsList = document.getElementById('testReportsList');
+            if (reportsList) {
+                reportsList.innerHTML = '<li class="list-group-item text-center text-muted">Caricamento...</li>';
+            }
             const response = await fetch('/api/test/reports');
             if (!response.ok) {
                 throw new Error(`Errore recupero report: ${response.statusText}`);
             }
-            
             const reports = await response.json();
-            const reportsList = document.getElementById('testReportsList');
-            
             if (reportsList) {
                 reportsList.innerHTML = '';
-                
-                if (reports.length === 0) {
+                if (!reports || reports.length === 0) {
                     reportsList.innerHTML = '<li class="list-group-item">Nessun report disponibile</li>';
                     return;
                 }
-                
                 reports.forEach(report => {
                     const li = document.createElement('li');
                     li.className = 'list-group-item';
-                    
-                    const statusIcon = report.status === 'success' ? '✅' : '❌';
-                    const statusClass = report.status === 'success' ? 'text-success' : 'text-danger';
-                    
+                    // Determina i valori passati/totali in modo robusto
+                    let passed = 0, total = 0;
+                    if (report.summary) {
+                        passed = report.summary.numPassedTests ?? report.summary.passed ?? 0;
+                        total = report.summary.numTotalTests ?? report.summary.total ?? 0;
+                    } else if (report.testResults && Array.isArray(report.testResults)) {
+                        passed = report.testResults.filter(t => t.status === 'passed' || t.success === true).length;
+                        total = report.testResults.length;
+                    }
+                    const statusIcon = (report.status === 'success' || report.summary?.success || passed === total && total > 0) ? '✅' : '❌';
+                    const statusClass = (report.status === 'success' || report.summary?.success || passed === total && total > 0) ? 'text-success' : 'text-danger';
                     li.innerHTML = `
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
@@ -649,14 +777,13 @@ class MonitoringDashboard {
                                 <small class="text-muted ms-2">${new Date(report.timestamp).toLocaleString()}</small>
                             </div>
                             <div>
-                                <span class="badge ${statusClass}">${report.summary.passed}/${report.summary.total} test passati</span>
+                                <span class="badge ${statusClass}">${passed}/${total} test passati</span>
                                 <button class="btn btn-sm btn-outline-primary ms-2" onclick="showTestDetails('${report.testType}', '${report.timestamp}')">
                                     Dettagli
                                 </button>
                             </div>
                         </div>
                     `;
-                    
                     reportsList.appendChild(li);
                 });
             }
@@ -895,9 +1022,10 @@ class MonitoringDashboard {
 async function runTest(testType) {
     try {
         // Mostra il banner di esecuzione
-        const testBanner = document.getElementById('testBanner');
-        testBanner.textContent = `🧪 Esecuzione test ${testType} in corso...`;
-        testBanner.style.display = 'block';
+        const testStatus = document.getElementById('testStatus');
+        if (testStatus) {
+            testStatus.innerHTML = `<div class="alert alert-info"><i class="fas fa-spinner fa-spin me-2"></i>🧪 Esecuzione test ${testType} in corso...</div>`;
+        }
         
         // Disabilita il pulsante durante l'esecuzione
         const testButton = document.querySelector(`button[onclick="runTest('${testType}')"]`);
@@ -916,32 +1044,35 @@ async function runTest(testType) {
         const result = await response.json();
         console.log('Risultato test:', result);
 
-        // Aggiorna la lista dei report
-        await loadTestReports();
+        // Attendi che il report venga scritto e poi aggiorna la lista
+        setTimeout(async () => {
+            await loadTestReports();
+            dashboard.loadTestReports(); // Ricarica anche nella classe
+        }, 3000);
 
         // Mostra il messaggio di successo
-        testBanner.textContent = `✅ Test ${testType} completati con successo!`;
-        testBanner.style.backgroundColor = '#4CAF50';
-        
-        // Nascondi il banner dopo 3 secondi
-        setTimeout(() => {
-            testBanner.style.display = 'none';
-            testBanner.style.backgroundColor = '#2196F3';
-        }, 3000);
+        if (testStatus) {
+            testStatus.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>✅ Test ${testType} completati con successo!</div>`;
+            
+            // Nascondi il banner dopo 3 secondi
+            setTimeout(() => {
+                testStatus.innerHTML = '';
+            }, 3000);
+        }
 
     } catch (error) {
         console.error('Errore test:', error);
         
         // Mostra il messaggio di errore
-        const testBanner = document.getElementById('testBanner');
-        testBanner.textContent = `❌ Errore durante l'esecuzione dei test: ${error.message}`;
-        testBanner.style.backgroundColor = '#f44336';
-        
-        // Nascondi il banner dopo 5 secondi
-        setTimeout(() => {
-            testBanner.style.display = 'none';
-            testBanner.style.backgroundColor = '#2196F3';
-        }, 5000);
+        const testStatus = document.getElementById('testStatus');
+        if (testStatus) {
+            testStatus.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>❌ Errore durante l'esecuzione dei test: ${error.message}</div>`;
+            
+            // Nascondi il banner dopo 5 secondi
+            setTimeout(() => {
+                testStatus.innerHTML = '';
+            }, 5000);
+        }
     } finally {
         // Riabilita il pulsante
         const testButton = document.querySelector(`button[onclick="runTest('${testType}')"]`);
@@ -951,32 +1082,73 @@ async function runTest(testType) {
     }
 }
 
+// Funzione per aggiornare la lista dei report (refresh forzato)
+async function refreshTestReports() {
+    try {
+        console.log('🔄 Aggiornamento forzato lista report...');
+        
+        // Prima forza il refresh sul server
+        const refreshResponse = await fetch('/api/test/reports/refresh', {
+            method: 'POST'
+        });
+        
+        if (!refreshResponse.ok) {
+            throw new Error(`Errore refresh: ${refreshResponse.statusText}`);
+        }
+        
+        // Poi ricarica la lista
+        await loadTestReports();
+        
+        // Mostra messaggio di successo
+        const testStatus = document.getElementById('testStatus');
+        if (testStatus) {
+            testStatus.innerHTML = `<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>Lista report aggiornata con successo!</div>`;
+            setTimeout(() => {
+                testStatus.innerHTML = '';
+            }, 2000);
+        }
+        
+    } catch (error) {
+        console.error('Errore aggiornamento report:', error);
+        const testStatus = document.getElementById('testStatus');
+        if (testStatus) {
+            testStatus.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>Errore aggiornamento: ${error.message}</div>`;
+        }
+    }
+}
+
 // Funzione per aggiornare la lista dei report
 async function loadTestReports() {
     try {
+        const reportsList = document.getElementById('testReportsList');
+        if (reportsList) {
+            reportsList.innerHTML = '<li class="list-group-item text-center text-muted">Caricamento...</li>';
+        }
         const response = await fetch('/api/test/reports');
         if (!response.ok) {
             throw new Error(`Errore recupero report: ${response.statusText}`);
         }
-        
         const reports = await response.json();
-        const reportsList = document.getElementById('testReportsList');
-        
         if (reportsList) {
             reportsList.innerHTML = '';
-            
-            if (reports.length === 0) {
+            if (!reports || reports.length === 0) {
                 reportsList.innerHTML = '<li class="list-group-item">Nessun report disponibile</li>';
                 return;
             }
-            
             reports.forEach(report => {
                 const li = document.createElement('li');
                 li.className = 'list-group-item';
-                
-                const statusIcon = report.status === 'success' ? '✅' : '❌';
-                const statusClass = report.status === 'success' ? 'text-success' : 'text-danger';
-                
+                // Determina i valori passati/totali in modo robusto
+                let passed = 0, total = 0;
+                if (report.summary) {
+                    passed = report.summary.numPassedTests ?? report.summary.passed ?? 0;
+                    total = report.summary.numTotalTests ?? report.summary.total ?? 0;
+                } else if (report.testResults && Array.isArray(report.testResults)) {
+                    passed = report.testResults.filter(t => t.status === 'passed' || t.success === true).length;
+                    total = report.testResults.length;
+                }
+                const statusIcon = (report.status === 'success' || report.summary?.success || passed === total && total > 0) ? '✅' : '❌';
+                const statusClass = (report.status === 'success' || report.summary?.success || passed === total && total > 0) ? 'text-success' : 'text-danger';
                 li.innerHTML = `
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -985,14 +1157,13 @@ async function loadTestReports() {
                             <small class="text-muted ms-2">${new Date(report.timestamp).toLocaleString()}</small>
                         </div>
                         <div>
-                            <span class="badge ${statusClass}">${report.summary.passed}/${report.summary.total} test passati</span>
+                            <span class="badge ${statusClass}">${passed}/${total} test passati</span>
                             <button class="btn btn-sm btn-outline-primary ms-2" onclick="showTestDetails('${report.testType}', '${report.timestamp}')">
                                 Dettagli
                             </button>
                         </div>
                     </div>
                 `;
-                
                 reportsList.appendChild(li);
             });
         }
@@ -1015,53 +1186,47 @@ async function showTestDetails(testType, timestamp) {
         
         const report = await response.json();
         const modal = document.getElementById('testDetailsModal');
+        const modalTitle = modal.querySelector('.modal-title');
         const modalBody = modal.querySelector('.modal-body');
         
-        // Popola il modal con i dettagli del test
-        modalBody.innerHTML = `
-            <div class="mb-3">
-                <h5>Riepilogo</h5>
-                <p>Test: ${report.testType}</p>
-                <p>Data: ${new Date(report.timestamp).toLocaleString()}</p>
-                <p>Stato: ${report.status === 'success' ? '✅ Successo' : '❌ Fallito'}</p>
-                <p>Durata: ${report.duration}</p>
-            </div>
-            
-            <div class="mb-3">
-                <h5>Dettagli Test</h5>
-                <ul class="list-group">
-                    ${report.details.map(detail => `
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>${detail.name}</span>
-                            <span class="badge ${detail.status === 'passed' ? 'bg-success' : 'bg-danger'}">
-                                ${detail.status === 'passed' ? '✅' : '❌'} ${detail.duration}
-                            </span>
-                        </li>
-                    `).join('')}
-                </ul>
-            </div>
-            
-            ${report.output ? `
-                <div class="mb-3">
-                    <h5>Output</h5>
-                    <pre class="bg-light p-3 rounded">${report.output}</pre>
-                </div>
-            ` : ''}
-            
-            ${report.errors ? `
-                <div class="mb-3">
-                    <h5>Errori</h5>
-                    <pre class="bg-danger text-white p-3 rounded">${report.errors}</pre>
-                </div>
-            ` : ''}
+        // Aggiorna il titolo del modal con il tipo di test
+        modalTitle.innerHTML = `
+            <i class="fas fa-${getTestIcon(testType)} me-2"></i>
+            Dettagli Test: ${getTestDisplayName(testType)}
         `;
         
-        // Mostra il modal
+        let content = createTestHeader(report);
+        
+        // Aggiungi contenuto specifico per tipo di test
+        switch(testType) {
+            case 'backend-unitari':
+            case 'backend-integrativi':
+                content += createBackendTestDetails(report);
+                break;
+            case 'frontend':
+                content += createFrontendTestDetails(report);
+                break;
+            case 'performance':
+                content += createPerformanceTestDetails(report);
+                break;
+            case 'cross-browser':
+                content += createCrossBrowserTestDetails(report);
+                break;
+            default:
+                content += createGenericTestDetails(report);
+        }
+        
+
+        modalBody.innerHTML = content;
         const modalInstance = new bootstrap.Modal(modal);
         modalInstance.show();
     } catch (error) {
-        console.error('Errore visualizzazione dettagli:', error);
-        alert(`Errore visualizzazione dettagli: ${error.message}`);
+        console.error('Errore caricamento dettagli test:', error);
+        const modal = document.getElementById('testDetailsModal');
+        const modalBody = modal.querySelector('.modal-body');
+        modalBody.innerHTML = `<div class="alert alert-danger">Errore caricamento dettagli: ${error.message}</div>`;
+        const modalInstance = new bootstrap.Modal(modal);
+        modalInstance.show();
     }
 }
 
@@ -1342,7 +1507,532 @@ function refreshData() {
     dashboard.loadDatabaseBackups();
 }
 
+// === FUNZIONI README ===
+
+async function loadReadme() {
+    const readmeContent = document.getElementById('readmeContent');
+    
+    // Mostra loader
+    readmeContent.innerHTML = `
+        <div class="text-center text-muted p-3">
+            <i class="fas fa-spinner fa-spin me-2"></i>Caricamento...
+        </div>
+    `;
+    
+    try {
+        const response = await fetch('/api/readme');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        // Converti markdown in HTML (versione semplificata)
+        const htmlContent = convertMarkdownToHtml(data.content);
+        
+        readmeContent.innerHTML = `
+            <div class="readme-container">
+                <div class="mb-2 text-muted small">
+                    <i class="fas fa-clock me-1"></i>
+                    Ultima modifica: ${new Date(data.lastModified).toLocaleString('it-IT')}
+                </div>
+                <div class="readme-content">
+                    ${htmlContent}
+                </div>
+            </div>
+        `;
+        
+        // Applica stili per code blocks
+        readmeContent.querySelectorAll('pre code').forEach(block => {
+            block.style.background = '#f8f9fa';
+            block.style.padding = '10px';
+            block.style.borderRadius = '5px';
+            block.style.border = '1px solid #e9ecef';
+        });
+        
+    } catch (error) {
+        console.error('❌ Errore caricamento README:', error);
+        readmeContent.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Errore:</strong> Impossibile caricare il README.
+                <br><small>${error.message}</small>
+            </div>
+        `;
+    }
+}
+
+function convertMarkdownToHtml(markdown) {
+    let html = markdown;
+    
+    // Headers
+    html = html.replace(/^### (.*$)/gim, '<h3 class="mt-4 mb-3 text-primary">$1</h3>');
+    html = html.replace(/^## (.*$)/gim, '<h2 class="mt-4 mb-3 text-primary border-bottom pb-2">$1</h2>');
+    html = html.replace(/^# (.*$)/gim, '<h1 class="mt-4 mb-3 text-primary">$1</h1>');
+    
+    // Bold and Italic
+    html = html.replace(/\*\*\*(.*)\*\*\*/gim, '<strong><em>$1</em></strong>');
+    html = html.replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>');
+    html = html.replace(/\*(.*)\*/gim, '<em>$1</em>');
+    
+    // Links
+    html = html.replace(/\[([^\]]*)\]\(([^\)]*)\)/gim, '<a href="$2" target="_blank" class="text-decoration-none">$1 <i class="fas fa-external-link-alt ms-1" style="font-size: 0.8em;"></i></a>');
+    
+    // Code blocks
+    html = html.replace(/```([\s\S]*?)```/gim, '<pre class="bg-light p-3 rounded border"><code>$1</code></pre>');
+    
+    // Inline code
+    html = html.replace(/`([^`]*)`/gim, '<code class="bg-light px-2 py-1 rounded">$1</code>');
+    
+    // Lists (migliore gestione dell'indentazione)
+    let lines = html.split('\n');
+    let inList = false;
+    let processedLines = [];
+    
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i];
+        
+        // Lista non ordinata
+        if (/^\s*[\-\*\+]\s+/.test(line)) {
+            if (!inList) {
+                processedLines.push('<ul class="list-unstyled ps-3">');
+                inList = 'ul';
+            }
+            line = line.replace(/^\s*[\-\*\+]\s+(.*)$/, '<li class="mb-1">$1</li>');
+        }
+        // Lista ordinata  
+        else if (/^\s*\d+\.\s+/.test(line)) {
+            if (!inList) {
+                processedLines.push('<ol class="ps-3">');
+                inList = 'ol';
+            }
+            line = line.replace(/^\s*\d+\.\s+(.*)$/, '<li class="mb-1">$1</li>');
+        }
+        // Fine lista
+        else if (inList && line.trim() === '') {
+            processedLines.push(`</${inList}>`);
+            inList = false;
+        }
+        
+        processedLines.push(line);
+    }
+    
+    // Chiudi lista se è ancora aperta
+    if (inList) {
+        processedLines.push(`</${inList}>`);
+    }
+    
+    html = processedLines.join('\n');
+    
+    // Paragraphs
+    html = html.replace(/\n\n/gim, '</p><p class="mb-3">');
+    html = '<p class="mb-3">' + html + '</p>';
+    
+    // Clean up empty paragraphs
+    html = html.replace(/<p[^>]*><\/p>/gim, '');
+    html = html.replace(/<p[^>]*>\s*<\/p>/gim, '');
+    
+    // Horizontal rules
+    html = html.replace(/^---$/gim, '<hr class="my-4">');
+    
+    return html;
+}
+
+// Funzioni di utility globali
+function formatDuration(ms) {
+    if (!ms || ms < 1000) return `${ms || 0}ms`;
+    const seconds = Math.round(ms / 1000);
+    if (seconds < 60) return `${seconds}s`;
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}m ${remainingSeconds}s`;
+}
+
+function downloadReport(testType, timestamp) {
+    try {
+        // Trova il report corrispondente
+        fetch(`/api/test/reports/${testType}/${timestamp}`)
+            .then(response => response.json())
+            .then(report => {
+                const dataStr = JSON.stringify(report, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${testType}-${new Date(timestamp).toISOString().split('T')[0]}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                dashboard.showToast('✅ Report scaricato con successo!', 'success');
+            })
+            .catch(error => {
+                console.error('Errore download report:', error);
+                dashboard.showToast('❌ Errore durante il download', 'danger');
+            });
+    } catch (error) {
+        console.error('Errore download report:', error);
+        dashboard.showToast('❌ Errore durante il download', 'danger');
+    }
+}
+
+function openImageModal(imageName, browser, testName) {
+    const modal = document.getElementById('imageModal') || createImageModal();
+    const modalTitle = modal.querySelector('.modal-title');
+    const modalImage = modal.querySelector('#modalImage');
+    
+    modalTitle.textContent = `${testName} - ${browser.charAt(0).toUpperCase() + browser.slice(1)}`;
+    modalImage.src = `http://localhost:3017/api/test/screenshot/${browser}/${imageName}`;
+    modalImage.alt = `${browser} screenshot for ${testName}`;
+    
+    const modalInstance = new bootstrap.Modal(modal);
+    modalInstance.show();
+}
+
+function createImageModal() {
+    const modalHtml = `
+        <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="imageModalLabel">Screenshot</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img id="modalImage" class="img-fluid rounded" src="" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    return document.getElementById('imageModal');
+}
+
+// === FUNZIONI HELPER PER MODAL SPECIFICI ===
+
+function getTestIcon(testType) {
+    switch(testType) {
+        case 'backend-unitari': return 'flask';
+        case 'backend-integrativi': return 'link';
+        case 'frontend': return 'desktop';
+        case 'performance': return 'tachometer-alt';
+        case 'cross-browser': return 'globe';
+        default: return 'vial';
+    }
+}
+
+function getTestDisplayName(testType) {
+    switch(testType) {
+        case 'backend-unitari': return 'Backend Unitari';
+        case 'backend-integrativi': return 'Backend Integrativi';
+        case 'frontend': return 'Frontend';
+        case 'performance': return 'Performance';
+        case 'cross-browser': return 'Cross-Browser Compatibility';
+        default: return testType.charAt(0).toUpperCase() + testType.slice(1);
+    }
+}
+
+function createTestHeader(report) {
+    return `
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="card border-${(report.status === 'success' || report.summary?.success) ? 'success' : 'danger'}">
+                    <div class="card-header bg-${(report.status === 'success' || report.summary?.success) ? 'success' : 'danger'} text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-${(report.status === 'success' || report.summary?.success) ? 'check-circle' : 'times-circle'} me-2"></i>
+                            Riepilogo Esecuzione
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <small class="text-muted">Data Esecuzione</small>
+                                <div class="fw-bold">${new Date(report.timestamp).toLocaleString('it-IT')}</div>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Durata</small>
+                                <div class="fw-bold">${formatDuration(report.summary?.duration || report.duration) || 'N/A'}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h6><i class="fas fa-chart-pie me-2"></i>Risultati</h6>
+                        <div class="display-4 ${(report.status === 'success' || report.summary?.success) ? 'text-success' : 'text-danger'}">
+                            ${report.summary?.numPassedTests || 0}/${report.summary?.numTotalTests || 0}
+                        </div>
+                        <small class="text-muted">Test Passati</small>
+                        <div class="mt-3">
+                            <button class="btn btn-outline-primary btn-sm" onclick="downloadReport('${report.testType}', '${report.timestamp}')">
+                                <i class="fas fa-download me-1"></i>Scarica Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function createBackendTestDetails(report) {
+    if (!report.testResults) return '<div class="alert alert-info">Nessun dettaglio disponibile</div>';
+    
+    let content = `
+        <div class="mb-4">
+            <h5><i class="fas fa-list-alt me-2"></i>Dettagli Test</h5>
+            <div class="accordion" id="testAccordion">
+    `;
+    
+    report.testResults.forEach((testFile, index) => {
+        const passedTests = testFile.assertionResults?.filter(a => a.status === 'passed').length || 0;
+        const totalTests = testFile.assertionResults?.length || 0;
+        const fileName = testFile.name.split('/').pop();
+        
+        content += `
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button ${index === 0 ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${index}">
+                        <div class="d-flex w-100 justify-content-between">
+                            <div>
+                                <i class="fas fa-file-code me-2"></i>
+                                <strong>${fileName}</strong>
+                            </div>
+                            <div>
+                                <span class="badge bg-success me-2">${passedTests}/${totalTests}</span>
+                                <small class="text-muted">${testFile.duration}ms</small>
+                            </div>
+                        </div>
+                    </button>
+                </h2>
+                <div id="collapse${index}" class="accordion-collapse collapse ${index === 0 ? 'show' : ''}">
+                    <div class="accordion-body">
+                        ${testFile.assertionResults ? `
+                            <div class="list-group">
+                                ${testFile.assertionResults.map(assertion => `
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="fas fa-${assertion.status === 'passed' ? 'check text-success' : 'times text-danger'} me-2"></i>
+                                            ${assertion.title}
+                                        </div>
+                                        <small class="text-muted">${assertion.duration}ms</small>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<div class="text-muted">Nessun dettaglio disponibile</div>'}
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    content += `
+            </div>
+        </div>
+    `;
+    
+    return content;
+}
+
+function createFrontendTestDetails(report) {
+    return createBackendTestDetails(report); // Stessa struttura per frontend
+}
+
+function createPerformanceTestDetails(report) {
+    let content = createBackendTestDetails(report);
+    
+    if (report.performanceMetrics) {
+        content += `
+            <div class="mb-4">
+                <h5><i class="fas fa-tachometer-alt me-2"></i>Metriche Performance</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">Tempi di Risposta</div>
+                            <div class="card-body">
+                                <div class="text-muted">Dati non disponibili nel report</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">Throughput</div>
+                            <div class="card-body">
+                                <div class="text-muted">Dati non disponibili nel report</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    return content;
+}
+
+function createCrossBrowserTestDetails(report) {
+    if (!report.testResults) return '<div class="alert alert-info">Nessun dettaglio disponibile</div>';
+    
+    let content = `
+        <div class="mb-4">
+            <h5><i class="fas fa-globe me-2"></i>Compatibilità Cross-Browser</h5>
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body text-center">
+                            <h4>${report.summary.compatibilityScore}%</h4>
+                            <small>Score Compatibilità</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-success text-white">
+                        <div class="card-body text-center">
+                            <h4>${report.summary.browsers?.length || 3}</h4>
+                            <small>Browser Testati</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-info text-white">
+                        <div class="card-body text-center">
+                            <h4>${report.summary.visualConsistency}</h4>
+                            <small>Consistenza Visiva</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mb-4">
+            <h5><i class="fas fa-images me-2"></i>Test Risultati</h5>
+            <div class="accordion" id="crossBrowserAccordion">
+    `;
+    
+    report.testResults.forEach((test, index) => {
+        const browsers = Object.keys(test.browser_results || {});
+        content += `
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button ${index === 0 ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#crossCollapse${index}">
+                        <div class="d-flex w-100 justify-content-between">
+                            <div>
+                                <span class="badge ${test.status === 'PASS' ? 'bg-success' : 'bg-danger'} me-2">${test.status}</span>
+                                <strong>${test.name}</strong>
+                            </div>
+                            <small class="text-muted">${test.compatibility_score}% compatibilità</small>
+                        </div>
+                    </button>
+                </h2>
+                <div id="crossCollapse${index}" class="accordion-collapse collapse ${index === 0 ? 'show' : ''}">
+                    <div class="accordion-body">
+                        <p class="mb-3 text-muted">${test.description}</p>
+                        
+                        <div class="row">
+                            ${browsers.map(browser => `
+                                <div class="col-md-4 mb-3">
+                                    <div class="card h-100">
+                                        <div class="card-header text-center">
+                                            <strong>${browser.charAt(0).toUpperCase() + browser.slice(1)}</strong>
+                                            <span class="badge ${test.browser_results[browser].passed ? 'bg-success' : 'bg-danger'} ms-2">
+                                                ${test.browser_results[browser].passed ? '✓' : '✗'}
+                                            </span>
+                                        </div>
+                                        <div class="card-body p-2">
+                                            <div class="screenshot-container position-relative mb-2">
+                                                <img src="http://localhost:3017/api/test/screenshot/${browser}/${test.browser_results[browser].screenshot}" 
+                                                     alt="${browser} screenshot" 
+                                                     class="img-fluid rounded border screenshot-img"
+                                                     style="height: 150px; width: 100%; object-fit: cover; cursor: pointer;"
+                                                     onclick="openImageModal('${test.browser_results[browser].screenshot}', '${browser}', '${test.name}')">
+                                                <div class="screenshot-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" 
+                                                     style="background: rgba(0,0,0,0.7); opacity: 0; transition: opacity 0.3s; cursor: pointer;"
+                                                     onmouseenter="this.style.opacity='1'"
+                                                     onmouseleave="this.style.opacity='0'"
+                                                     onclick="openImageModal('${test.browser_results[browser].screenshot}', '${browser}', '${test.name}')">
+                                                    <i class="fas fa-search-plus fa-lg text-white"></i>
+                                                </div>
+                                            </div>
+                                            <div class="small">
+                                                <div><strong>Dimensione:</strong> ${test.browser_results[browser].fileSize}</div>
+                                                <div><strong>Render:</strong> ${test.browser_results[browser].renderTime}</div>
+                                                ${test.browser_results[browser].issues && test.browser_results[browser].issues.length > 0 ? `
+                                                    <div class="mt-1">
+                                                        <strong class="text-warning">Issues:</strong>
+                                                        <ul class="list-unstyled mb-0">
+                                                            ${test.browser_results[browser].issues.map(issue => `<li class="small text-warning">• ${issue}</li>`).join('')}
+                                                        </ul>
+                                                    </div>
+                                                ` : ''}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <div class="mt-3">
+                            <div class="card bg-light">
+                                <div class="card-body text-center py-2">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="badge bg-primary">Score: ${test.compatibility_score}%</div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="badge ${test.status === 'PASS' ? 'bg-success' : 'bg-danger'}">${test.status}</div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="badge bg-info">
+                                                ${browsers.filter(b => test.browser_results[b].passed).length}/${browsers.length} Browser OK
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    content += `
+            </div>
+        </div>
+    `;
+    
+    return content;
+}
+
+function createGenericTestDetails(report) {
+    return `
+        <div class="alert alert-info">
+            <h6><i class="fas fa-info-circle me-2"></i>Test completato</h6>
+            <p class="mb-0">Tipo: ${report.testType}</p>
+            <p class="mb-0">Timestamp: ${new Date(report.timestamp).toLocaleString('it-IT')}</p>
+        </div>
+    `;
+}
+
 // Inizializza dashboard quando DOM è pronto
 document.addEventListener('DOMContentLoaded', function() {
     window.dashboard = new MonitoringDashboard();
+    
+    // Listener per quando si clicca sulla tab README
+    const readmeTab = document.getElementById('readme-tab');
+    if (readmeTab) {
+        readmeTab.addEventListener('shown.bs.tab', loadReadme);
+    }
+    
+    // Se la tab README è già attiva al caricamento della pagina
+    if (readmeTab && readmeTab.classList.contains('active')) {
+        loadReadme();
+    }
 }); 

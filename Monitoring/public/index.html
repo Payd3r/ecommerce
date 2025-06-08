@@ -22,6 +22,13 @@
         body {
             background-color: #f8f9fa;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
         }
 
         .navbar {
@@ -97,7 +104,7 @@
             background: var(--dark-color);
             color: var(--light-color);
             padding: 20px 0;
-            margin-top: 50px;
+            margin-top: auto;
         }
 
         .connection-status {
@@ -190,6 +197,75 @@
         .container-expandable {
             cursor: pointer;
         }
+
+        /* Screenshot hover effects */
+        .screenshot-container:hover .screenshot-overlay {
+            opacity: 1 !important;
+        }
+
+        .screenshot-img {
+            transition: transform 0.3s ease;
+        }
+
+        .screenshot-container:hover .screenshot-img {
+            transform: scale(1.05);
+        }
+
+        /* README miglioramenti */
+        .readme-content {
+            line-height: 2.2;
+        }
+
+        .readme-content pre {
+            line-height: 2.0;
+            margin: 2rem 0;
+            padding: 2rem;
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+        }
+
+        .readme-content code {
+            padding: 0.4rem 0.6rem;
+            margin: 0.2rem;
+            background-color: #f1f3f4;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .readme-content ul, .readme-content ol {
+            line-height: 2.0;
+            margin: 1.5rem 0;
+            padding-left: 2rem;
+        }
+
+        .readme-content li {
+            margin: 0.8rem 0;
+        }
+
+        .readme-content h1, .readme-content h2, .readme-content h3 {
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .readme-content p {
+            margin: 1.2rem 0;
+        }
+
+        /* Container sections styling */
+        .container-section {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            background-color: #f8f9fa;
+        }
+
+        .container-item.border-warning {
+            border-left: 4px solid #ffc107 !important;
+        }
+
+        .container-item.border-primary {
+            border-left: 4px solid #007bff !important;
+        }
     </style>
 </head>
 
@@ -215,7 +291,7 @@
         </div>
     </nav>
 
-    <div class="container mt-4">
+    <div class="container mt-4 main-content">
         <!-- Summary Cards -->
         <div class="row mb-4">
             <div class="col-md-3">
@@ -304,6 +380,11 @@
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="rollback-tab" data-bs-toggle="tab" data-bs-target="#rollback" type="button" role="tab">
                         <i class="fas fa-undo me-2"></i>Rollback
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="readme-tab" data-bs-toggle="tab" data-bs-target="#readme" type="button" role="tab">
+                        <i class="fas fa-book me-2"></i>README
                     </button>
                 </li>
             </ul>
@@ -460,7 +541,7 @@
                             </button>
                         </div>
                         <div class="col-md-6">
-                            <button class="btn btn-secondary w-100" onclick="dashboard.loadTestReports()">
+                            <button class="btn btn-secondary w-100" onclick="refreshTestReports()">
                                 <i class="fas fa-sync me-1"></i>Aggiorna Report
                             </button>
                         </div>
@@ -481,10 +562,9 @@
                             <i class="fas fa-file-download me-2"></i>Report Test Disponibili
                         </div>
                         <div class="card-body">
-                            <div id="testReportsAccordion" class="accordion">
-                                <!-- Gli accordion items verranno inseriti qui dinamicamente -->
-                                <div class="text-center text-muted p-3">Caricamento...</div>
-                            </div>
+                            <ul id="testReportsList" class="list-group list-group-flush">
+                                <li class="list-group-item text-center text-muted">Caricamento...</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -633,10 +713,49 @@
                     <!-- Rollback Log -->
                     <div class="card mt-4" id="rollbackLogContainer"></div>
                 </div>
+
+                <!-- README Tab -->
+                <div class="tab-pane fade" id="readme" role="tabpanel">
+                    <h5><i class="fas fa-book me-2"></i>Documentazione del Progetto</h5>
+                    
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-file-alt me-2"></i>README.md</span>
+                            <button class="btn btn-outline-primary btn-sm" onclick="loadReadme()">
+                                <i class="fas fa-sync me-1"></i>Aggiorna
+                            </button>
+                        </div>
+                        <div class="card-body" id="readmeContent">
+                            <div class="text-center text-muted p-3">
+                                <i class="fas fa-spinner fa-spin me-2"></i>Caricamento...
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
 
+    </div>
+
+    <!-- Modal per dettagli test -->
+    <div class="modal fade" id="testDetailsModal" tabindex="-1" aria-labelledby="testDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="testDetailsModalLabel">
+                        <i class="fas fa-vial me-2"></i>Dettagli Test
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Contenuto dinamico -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Footer -->

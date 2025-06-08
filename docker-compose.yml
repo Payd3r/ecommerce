@@ -38,8 +38,14 @@ services:
       JWT_SECRET: ecommerce_secret_key_2024
     volumes:
       - ./Media:/usr/src/app/Media:cached
-      - ./Backend:/usr/src/app:delegated
-      - backend-node-modules:/usr/src/app/node_modules
+      - ./Backend/app.js:/usr/src/app/app.js:ro
+      - ./Backend/package.json:/usr/src/app/package.json:ro
+      - ./Backend/db.sql:/usr/src/app/db.sql:ro
+      - ./Backend/routes:/usr/src/app/routes:ro
+      - ./Backend/services:/usr/src/app/services:ro
+      - ./Backend/models:/usr/src/app/models:ro
+      - ./Backend/middleware:/usr/src/app/middleware:ro
+      - /usr/src/app/node_modules
 
   # Production frontend server
   frontend:
@@ -81,7 +87,10 @@ services:
       - ./Test:/usr/src/app/Test:ro
       - ./Monitoring:/usr/src/app/Monitoring:ro
       - ./Monitoring/public:/usr/src/app/public
+      - ./Documenti/cross_browser:/usr/src/app/public/api/test/screenshot:ro
       - ./backups:/usr/src/app/backups
+      - ./docker-compose-testing.yml:/usr/src/app/docker-compose-testing.yml:ro
+      - ./README.md:/usr/src/app/README.md:ro
     environment:
       NODE_ENV: production
       PORT: 3017

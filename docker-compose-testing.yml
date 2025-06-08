@@ -1,4 +1,4 @@
-version: '3.8'
+name: testing
 
 services:
   # Database per i test
@@ -14,6 +14,7 @@ services:
       - "3307:3306"
     volumes:
       - mariadb-test-data:/var/lib/mysql
+      - ./Backend/db.sql:/docker-entrypoint-initdb.d/db.sql
     networks:
       - test-network
     tmpfs:
@@ -47,12 +48,17 @@ services:
     networks:
       - test-network
     volumes:
-      # Mount solo il codice sorgente necessario, senza creare cartelle nel host
-      - ./Backend:/usr/src/app:ro
+      # Mount specifici file e cartelle senza sovrascrivere tutto
+      - ./Backend/app.js:/usr/src/app/app.js:ro
+      - ./Backend/package.json:/usr/src/app/package.json:ro
+      - ./Backend/routes:/usr/src/app/routes:ro
+      - ./Backend/services:/usr/src/app/services:ro
+      - ./Backend/models:/usr/src/app/models:ro
+      - ./Backend/middleware:/usr/src/app/middleware:ro
       # Volume separato per node_modules per evitare conflitti
       - backend-test-node-modules:/usr/src/app/node_modules
-      # Mount separato per i media solo se necessario durante i test
-      - ./Media:/usr/src/app/Media:ro
+      # Volume temporaneo per Media durante i test
+      - backend-test-media:/usr/src/app/Media
 
   # Container per test unitari
   test-unitari:
@@ -69,14 +75,12 @@ services:
     depends_on:
       mariadb-test-db:
         condition: service_healthy
-      backend-test:
-        condition: service_started
     networks:
       - test-network
     volumes:
-      # Mount solo il necessario per i test unitari (read-write per permettere la scrittura dei risultati)
-      - ./Test/Backend-Unitari:/usr/src/app/Test/Backend-Unitari
+      # Mount del codice sorgente (read-only)
       - ./Backend:/usr/src/app/Backend:ro
+      # Volume separato per node_modules per evitare conflitti
       - test-unitari-node-modules:/usr/src/app/Test/Backend-Unitari/node_modules
       # Output condiviso per i risultati
       - ./Test/Output:/usr/src/app/Test/Output
@@ -102,7 +106,6 @@ services:
     networks:
       - test-network
     volumes:
-      - ./Test/Backend-Integrativi:/usr/src/app/Test/Backend-Integrativi
       - ./Test/db-setup.js:/usr/src/app/Test/db-setup.js:ro
       - test-integrativi-node-modules:/usr/src/app/Test/Backend-Integrativi/node_modules
       - ./Test/Output:/usr/src/app/Test/Output
@@ -121,7 +124,6 @@ services:
     networks:
       - test-network
     volumes:
-      - ./Test/Frontend:/usr/src/app/Test/Frontend
       - ./Frontend:/usr/src/app/Frontend:ro
       - test-frontend-node-modules:/usr/src/app/Test/Frontend/node_modules
       - ./Test/Output:/usr/src/app/Test/Output
@@ -140,7 +142,6 @@ services:
     networks:
       - test-network
     volumes:
-      - ./Test/Performance:/usr/src/app/Test/Performance
       - test-performance-node-modules:/usr/src/app/Test/Performance/node_modules
       - ./Test/Output:/usr/src/app/Test/Output
 
@@ -183,6 +184,8 @@ volumes:
     name: ecommerce-test-db-data
   backend-test-node-modules:
     name: ecommerce-backend-test-modules
+  backend-test-media:
+    name: ecommerce-backend-test-media
   test-unitari-node-modules:
     name: ecommerce-test-unitari-modules
   test-integrativi-node-modules:

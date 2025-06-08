@@ -1,13 +1,13 @@
 {
   "testType": "performance",
-  "timestamp": "2025-06-08T15:48:02.099Z",
+  "timestamp": "2025-06-08T18:03:53.761Z",
   "summary": {
     "numTotalTests": 4,
-    "numPassedTests": 0,
-    "numFailedTests": 4,
+    "numPassedTests": 4,
+    "numFailedTests": 0,
     "numPendingTests": 0,
     "numSkippedTests": 0,
-    "success": false,
+    "success": true,
     "duration": 0
   },
   "performanceMetrics": {
@@ -19,44 +19,36 @@
   "testResults": [
     {
       "name": "/usr/src/app/Test/Performance/tests/api-performance.test.js",
-      "status": "failed",
-      "message": "\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mAPI Performance Tests › Auth API Performance › POST /auth/login - Login Performance\u001b[39m\u001b[22m\n\n    Table 'ecommerce_test.users' doesn't exist\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 21 |\u001b[39m     \u001b[36mfor\u001b[39m (\u001b[36mconst\u001b[39m [role\u001b[33m,\u001b[39m user] \u001b[36mof\u001b[39m \u001b[33mObject\u001b[39m\u001b[33m.\u001b[39mentries(config\u001b[33m.\u001b[39mtestUsers)) {\u001b[22m\n\u001b[2m     \u001b[90m 22 |\u001b[39m       \u001b[36mconst\u001b[39m hashedPassword \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m bcrypt\u001b[33m.\u001b[39mhash(user\u001b[33m.\u001b[39mpassword\u001b[33m,\u001b[39m \u001b[35m10\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 23 |\u001b[39m       \u001b[36mawait\u001b[39m connection\u001b[33m.\u001b[39mexecute(\u001b[22m\n\u001b[2m     \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 24 |\u001b[39m         \u001b[32m'INSERT IGNORE INTO users (email, password_hash, name, role) VALUES (?, ?, ?, ?)'\u001b[39m\u001b[33m,\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 25 |\u001b[39m         [user\u001b[33m.\u001b[39memail\u001b[33m,\u001b[39m hashedPassword\u001b[33m,\u001b[39m user\u001b[33m.\u001b[39mname\u001b[33m,\u001b[39m role]\u001b[22m\n\u001b[2m     \u001b[90m 26 |\u001b[39m       )\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat PromiseConnection.execute (\u001b[22m\u001b[2mnode_modules/mysql2/lib/promise/connection.js\u001b[2m:47:22)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat execute (\u001b[22m\u001b[2msetup.js\u001b[2m:23:24)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.<anonymous> (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/api-performance.test.js\u001b[39m\u001b[0m\u001b[2m:41:5)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mAPI Performance Tests › Product API Performance › GET /products - Response Time Test\u001b[39m\u001b[22m\n\n    Table 'ecommerce_test.users' doesn't exist\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 21 |\u001b[39m     \u001b[36mfor\u001b[39m (\u001b[36mconst\u001b[39m [role\u001b[33m,\u001b[39m user] \u001b[36mof\u001b[39m \u001b[33mObject\u001b[39m\u001b[33m.\u001b[39mentries(config\u001b[33m.\u001b[39mtestUsers)) {\u001b[22m\n\u001b[2m     \u001b[90m 22 |\u001b[39m       \u001b[36mconst\u001b[39m hashedPassword \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m bcrypt\u001b[33m.\u001b[39mhash(user\u001b[33m.\u001b[39mpassword\u001b[33m,\u001b[39m \u001b[35m10\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 23 |\u001b[39m       \u001b[36mawait\u001b[39m connection\u001b[33m.\u001b[39mexecute(\u001b[22m\n\u001b[2m     \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 24 |\u001b[39m         \u001b[32m'INSERT IGNORE INTO users (email, password_hash, name, role) VALUES (?, ?, ?, ?)'\u001b[39m\u001b[33m,\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 25 |\u001b[39m         [user\u001b[33m.\u001b[39memail\u001b[33m,\u001b[39m hashedPassword\u001b[33m,\u001b[39m user\u001b[33m.\u001b[39mname\u001b[33m,\u001b[39m role]\u001b[22m\n\u001b[2m     \u001b[90m 26 |\u001b[39m       )\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat PromiseConnection.execute (\u001b[22m\u001b[2mnode_modules/mysql2/lib/promise/connection.js\u001b[2m:47:22)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat execute (\u001b[22m\u001b[2msetup.js\u001b[2m:23:24)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.<anonymous> (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/api-performance.test.js\u001b[39m\u001b[0m\u001b[2m:41:5)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mAPI Performance Tests › Categories API Performance › GET /categories - Categories List Performance\u001b[39m\u001b[22m\n\n    Table 'ecommerce_test.users' doesn't exist\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 21 |\u001b[39m     \u001b[36mfor\u001b[39m (\u001b[36mconst\u001b[39m [role\u001b[33m,\u001b[39m user] \u001b[36mof\u001b[39m \u001b[33mObject\u001b[39m\u001b[33m.\u001b[39mentries(config\u001b[33m.\u001b[39mtestUsers)) {\u001b[22m\n\u001b[2m     \u001b[90m 22 |\u001b[39m       \u001b[36mconst\u001b[39m hashedPassword \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m bcrypt\u001b[33m.\u001b[39mhash(user\u001b[33m.\u001b[39mpassword\u001b[33m,\u001b[39m \u001b[35m10\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 23 |\u001b[39m       \u001b[36mawait\u001b[39m connection\u001b[33m.\u001b[39mexecute(\u001b[22m\n\u001b[2m     \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 24 |\u001b[39m         \u001b[32m'INSERT IGNORE INTO users (email, password_hash, name, role) VALUES (?, ?, ?, ?)'\u001b[39m\u001b[33m,\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 25 |\u001b[39m         [user\u001b[33m.\u001b[39memail\u001b[33m,\u001b[39m hashedPassword\u001b[33m,\u001b[39m user\u001b[33m.\u001b[39mname\u001b[33m,\u001b[39m role]\u001b[22m\n\u001b[2m     \u001b[90m 26 |\u001b[39m       )\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat PromiseConnection.execute (\u001b[22m\u001b[2mnode_modules/mysql2/lib/promise/connection.js\u001b[2m:47:22)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat execute (\u001b[22m\u001b[2msetup.js\u001b[2m:23:24)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.<anonymous> (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/api-performance.test.js\u001b[39m\u001b[0m\u001b[2m:41:5)\u001b[22m\u001b[2m\u001b[22m\n\n\u001b[1m\u001b[31m  \u001b[1m● \u001b[22m\u001b[1mAPI Performance Tests › Load Test - High Concurrency › Mixed API Load Test\u001b[39m\u001b[22m\n\n    Table 'ecommerce_test.users' doesn't exist\n\u001b[2m\u001b[22m\n\u001b[2m    \u001b[0m \u001b[90m 21 |\u001b[39m     \u001b[36mfor\u001b[39m (\u001b[36mconst\u001b[39m [role\u001b[33m,\u001b[39m user] \u001b[36mof\u001b[39m \u001b[33mObject\u001b[39m\u001b[33m.\u001b[39mentries(config\u001b[33m.\u001b[39mtestUsers)) {\u001b[22m\n\u001b[2m     \u001b[90m 22 |\u001b[39m       \u001b[36mconst\u001b[39m hashedPassword \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m bcrypt\u001b[33m.\u001b[39mhash(user\u001b[33m.\u001b[39mpassword\u001b[33m,\u001b[39m \u001b[35m10\u001b[39m)\u001b[33m;\u001b[39m\u001b[22m\n\u001b[2m    \u001b[31m\u001b[1m>\u001b[22m\u001b[2m\u001b[39m\u001b[90m 23 |\u001b[39m       \u001b[36mawait\u001b[39m connection\u001b[33m.\u001b[39mexecute(\u001b[22m\n\u001b[2m     \u001b[90m    |\u001b[39m                        \u001b[31m\u001b[1m^\u001b[22m\u001b[2m\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 24 |\u001b[39m         \u001b[32m'INSERT IGNORE INTO users (email, password_hash, name, role) VALUES (?, ?, ?, ?)'\u001b[39m\u001b[33m,\u001b[39m\u001b[22m\n\u001b[2m     \u001b[90m 25 |\u001b[39m         [user\u001b[33m.\u001b[39memail\u001b[33m,\u001b[39m hashedPassword\u001b[33m,\u001b[39m user\u001b[33m.\u001b[39mname\u001b[33m,\u001b[39m role]\u001b[22m\n\u001b[2m     \u001b[90m 26 |\u001b[39m       )\u001b[33m;\u001b[39m\u001b[0m\u001b[22m\n\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat PromiseConnection.execute (\u001b[22m\u001b[2mnode_modules/mysql2/lib/promise/connection.js\u001b[2m:47:22)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat execute (\u001b[22m\u001b[2msetup.js\u001b[2m:23:24)\u001b[22m\u001b[2m\u001b[22m\n\u001b[2m      \u001b[2mat Object.<anonymous> (\u001b[22m\u001b[2m\u001b[0m\u001b[36mtests/api-performance.test.js\u001b[39m\u001b[0m\u001b[2m:41:5)\u001b[22m\u001b[2m\u001b[22m\n",
-      "duration": 1271,
+      "status": "passed",
+      "message": "",
+      "duration": 2449,
       "numFailingTests": 0,
       "numPassingTests": 0,
       "numPendingTests": 0,
       "assertionResults": [
         {
           "title": "POST /auth/login - Login Performance",
-          "status": "failed",
-          "failureMessages": [
-            "Error: Table 'ecommerce_test.users' doesn't exist\n    at PromiseConnection.execute (/usr/src/app/Test/Performance/node_modules/mysql2/lib/promise/connection.js:47:22)\n    at execute (/usr/src/app/Test/Performance/setup.js:23:24)\n    at Object.<anonymous> (/usr/src/app/Test/Performance/tests/api-performance.test.js:41:5)"
-          ],
-          "duration": 1
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 285
         },
         {
           "title": "GET /products - Response Time Test",
-          "status": "failed",
-          "failureMessages": [
-            "Error: Table 'ecommerce_test.users' doesn't exist\n    at PromiseConnection.execute (/usr/src/app/Test/Performance/node_modules/mysql2/lib/promise/connection.js:47:22)\n    at execute (/usr/src/app/Test/Performance/setup.js:23:24)\n    at Object.<anonymous> (/usr/src/app/Test/Performance/tests/api-performance.test.js:41:5)"
-          ],
-          "duration": 0
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 63
         },
         {
           "title": "GET /categories - Categories List Performance",
-          "status": "failed",
-          "failureMessages": [
-            "Error: Table 'ecommerce_test.users' doesn't exist\n    at PromiseConnection.execute (/usr/src/app/Test/Performance/node_modules/mysql2/lib/promise/connection.js:47:22)\n    at execute (/usr/src/app/Test/Performance/setup.js:23:24)\n    at Object.<anonymous> (/usr/src/app/Test/Performance/tests/api-performance.test.js:41:5)"
-          ],
-          "duration": 1
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 87
         },
         {
           "title": "Mixed API Load Test",
-          "status": "failed",
-          "failureMessages": [
-            "Error: Table 'ecommerce_test.users' doesn't exist\n    at PromiseConnection.execute (/usr/src/app/Test/Performance/node_modules/mysql2/lib/promise/connection.js:47:22)\n    at execute (/usr/src/app/Test/Performance/setup.js:23:24)\n    at Object.<anonymous> (/usr/src/app/Test/Performance/tests/api-performance.test.js:41:5)"
-          ],
-          "duration": 0
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 751
         }
       ]
     }
