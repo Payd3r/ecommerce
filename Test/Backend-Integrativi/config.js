@@ -3,8 +3,8 @@ require('dotenv').config();
 module.exports = {
   // Configurazione del server di test - usa backend di test
   server: {
-    port: process.env.PORT || 3015,
-    baseUrl: `http://backend-test:3015` // Backend di test che usa il database di test
+    port: process.env.PORT || 3017,
+    baseUrl: `http://localhost:3017` // Backend di test che usa il database di test
   },
   
   // Configurazione del database di test

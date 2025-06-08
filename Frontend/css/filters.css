@@ -97,3 +97,7 @@
     vertical-align: middle;
     transition: transform 0.2s;
 }
+
+.category-collapse-btn[aria-expanded="true"] i {
+    transform: rotate(90deg);
+}

@@ -6,7 +6,7 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 
 const app = express();
-const port = process.env.PORT || 3015;
+const port = process.env.PORT || 3010;
 app.use(express.static(path.join(__dirname, '../Frontend')));
 // Middleware
 app.use(cors({
