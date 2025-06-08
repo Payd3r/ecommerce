@@ -103,135 +103,84 @@ app.get('/api/metrics', (req, res) => {
 
 // === API TESTING ===
 
-// Funzione per eseguire test tramite PowerShell
-function runTestScript(testType, ws = null) {
+// Funzione per eseguire gli script di test
+function runTestScript(testType) {
   return new Promise((resolve, reject) => {
-    console.log(`🧪 Avvio test REALI ${testType}...`);
+    console.log(`🚀 Esecuzione test ${testType}...`);
     
-    if (ws) broadcastWebSocket('test_log', { text: `🚀 Eseguendo test reali ${testType}...\n`, type: 'stdout' });
+    let command;
+    let args;
     
+    switch(testType) {
+      case 'unitari':
+        command = 'docker';
+        args = ['run', '--rm', '--network', 'ecommerce_default', 'ecommerce-test-unitari'];
+        break;
+      case 'integrativi':
+        command = 'docker';
+        args = ['run', '--rm', '--network', 'ecommerce_default', 'ecommerce-test-integrativi'];
+        break;
+      case 'frontend':
+        command = 'docker';
+        args = ['run', '--rm', '--network', 'ecommerce_default', 'ecommerce-test-frontend'];
+        break;
+      case 'performance':
+        command = 'docker';
+        args = ['run', '--rm', '--network', 'ecommerce_default', 'ecommerce-test-performance'];
+        break;
+      default:
+        reject(new Error(`Tipo di test non supportato: ${testType}`));
+        return;
+    }
+
+    console.log(`📝 Comando: ${command} ${args.join(' ')}`);
+    
+    const testProcess = spawn(command, args, {
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+
     let output = '';
     let errorOutput = '';
 
-    // Esegue test tramite docker-compose (funziona sia da Windows che da container Linux)
-    let command, args;
-    if (testType === 'all') {
-      command = 'docker-compose';
-      args = ['-f', 'docker-compose-testing.yml', 'run', '--rm', 'test-unitari'];
-    } else if (testType === 'unitari') {
-      command = 'docker-compose';
-      args = ['-f', 'docker-compose-testing.yml', 'run', '--rm', 'test-unitari'];
-    } else if (testType === 'integrativi') {
-      command = 'docker-compose';
-      args = ['-f', 'docker-compose-testing.yml', 'run', '--rm', 'test-integrativi'];
-    } else if (testType === 'frontend') {
-      command = 'docker-compose';
-      args = ['-f', 'docker-compose-testing.yml', 'run', '--rm', 'test-frontend'];
-    } else if (testType === 'performance') {
-      command = 'docker-compose';
-      args = ['-f', 'docker-compose-testing.yml', 'run', '--rm', 'test-performance'];
-    } else {
-      command = 'echo';
-      args = [`Test type ${testType} not supported`];
-    }
-
-    const testProcess = spawn(command, args, { 
-      cwd: path.join(__dirname, '..'), // Esegue dalla root del progetto 
-      shell: true 
-    });
-
     testProcess.stdout.on('data', (data) => {
-      const text = data.toString();
-      output += text;
-      console.log('Test output:', text);
-      if (ws) broadcastWebSocket('test_log', { text, type: 'stdout' });
+      const chunk = data.toString();
+      console.log(`📤 Output test ${testType}:`, chunk);
+      output += chunk;
     });
 
     testProcess.stderr.on('data', (data) => {
-      const text = data.toString();
-      errorOutput += text;
-      console.log('Test error:', text);
-      if (ws) broadcastWebSocket('test_log', { text, type: 'stderr' });
-    });
-
-    testProcess.on('error', (error) => {
-      console.error('Errore esecuzione test:', error);
-      if (ws) broadcastWebSocket('test_log', { text: `❌ Errore: ${error.message}\n`, type: 'stderr' });
-      reject({ success: false, error: error.message });
+      const chunk = data.toString();
+      console.error(`❌ Errore test ${testType}:`, chunk);
+      errorOutput += chunk;
     });
 
     testProcess.on('close', (code) => {
-      console.log(`Test completato con codice: ${code}`);
-      
-      // Generiamo un file JSON di report fittizio
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const reportName = `test-${testType}-${timestamp}.json`;
-      const reportPath = path.join(__dirname, 'Test/Output', reportName);
-      
-      // Assicuriamoci che la cartella Test/Output esista
-      const outputDir = path.dirname(reportPath);
-      if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir, { recursive: true });
-      }
-
-      // Generiamo il report JSON
-      const testReport = {
-        testType: testType,
-        timestamp: new Date().toISOString(),
-        status: code === 0 ? 'success' : 'failed',
-        duration: '45.7s',
-        summary: {
-          total: 12,
-          passed: code === 0 ? 12 : 8,
-          failed: code === 0 ? 0 : 4,
-          skipped: 0
-        },
-        details: [
-          { name: 'Authentication Test', status: 'passed', duration: '2.1s' },
-          { name: 'Database Connection', status: 'passed', duration: '1.5s' },
-          { name: 'API Endpoints', status: 'passed', duration: '8.3s' },
-          { name: 'User Registration', status: 'passed', duration: '3.2s' },
-          { name: 'Product CRUD', status: 'passed', duration: '12.4s' },
-          { name: 'Order Processing', status: 'passed', duration: '18.2s' }
-        ],
-        output: output,
-        errors: errorOutput
-      };
-
-      try {
-        fs.writeFileSync(reportPath, JSON.stringify(testReport, null, 2));
-        console.log(`📄 Report salvato: ${reportName}`);
-        if (ws) broadcastWebSocket('test_log', { text: `📄 Report salvato: ${reportName}\n`, type: 'stdout' });
-      } catch (err) {
-        console.error('Errore salvataggio report:', err);
-      }
-
+      console.log(`✅ Test ${testType} completato con codice:`, code);
       if (code === 0) {
         resolve({ success: true, output, code });
       } else {
-        reject({ success: false, output: output + errorOutput, code });
+        reject(new Error(`Test ${testType} fallito: ${errorOutput || output}`));
       }
+    });
+
+    testProcess.on('error', (error) => {
+      console.error(`❌ Errore esecuzione test ${testType}:`, error);
+      reject(error);
     });
   });
 }
 
 // API per eseguire test
-app.post('/api/test/:type', async (req, res) => {
-  const testType = req.params.type;
-  const validTypes = ['unitari', 'integrativi', 'frontend', 'performance', 'all'];
+app.post('/api/test/:testType', async (req, res) => {
+  const testType = req.params.testType;
+  console.log(`🧪 Richiesta esecuzione test: ${testType}`);
   
-  if (!validTypes.includes(testType)) {
-    return res.status(400).json({ error: 'Tipo di test non valido' });
-  }
-
   try {
-    broadcastWebSocket('test_start', { type: testType });
     const result = await runTestScript(testType);
-    broadcastWebSocket('test_complete', { type: testType, success: true });
-    res.json({ success: true, message: 'Test completati con successo' });
+    res.json(result);
   } catch (error) {
-    broadcastWebSocket('test_complete', { type: testType, success: false, error: error.output || error.error });
-    res.status(500).json({ success: false, error: error.output || error.error });
+    console.error('Errore esecuzione test:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -247,49 +196,76 @@ app.get('/api/test/report/:filename', (req, res) => {
   res.download(reportPath, filename);
 });
 
-// API per elencare report disponibili
+// API per ottenere i report dei test
 app.get('/api/test/reports', (req, res) => {
-  // La cartella Test è montata come volume in /usr/src/app/Test
   const outputDir = path.join(__dirname, 'Test/Output');
   
   try {
+    // Assicuriamoci che la directory esista
     if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir, { recursive: true });
+      return res.json([]);
     }
     
+    // Leggi tutti i file JSON nella directory
     const files = fs.readdirSync(outputDir)
       .filter(file => file.endsWith('.json'))
       .map(file => {
         const filePath = path.join(outputDir, file);
         const stats = fs.statSync(filePath);
-        
-        // Leggiamo il contenuto per ottenere informazioni aggiuntive
-        let testData = null;
-        try {
-          const content = fs.readFileSync(filePath, 'utf8');
-          testData = JSON.parse(content);
-        } catch (err) {
-          console.error(`Errore lettura JSON ${file}:`, err);
-        }
+        const content = JSON.parse(fs.readFileSync(filePath, 'utf8'));
         
         return {
-          name: file,
-          size: stats.size,
-          modified: stats.mtime,
-          created: stats.birthtime,
-          testType: testData?.testType || 'unknown',
-          status: testData?.status || 'unknown',
-          duration: testData?.duration || 'unknown',
-          summary: testData?.summary || null
+          ...content,
+          timestamp: stats.mtime.toISOString()
         };
       })
-      .sort((a, b) => b.modified - a.modified);
+      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     
-    console.log(`📊 Trovati ${files.length} report test in ${outputDir}`);
     res.json(files);
   } catch (error) {
     console.error('Errore lettura report:', error);
-    res.status(500).json({ error: 'Errore lettura report: ' + error.message });
+    res.status(500).json({ error: 'Errore lettura report' });
+  }
+});
+
+// API per ottenere i dettagli di un report specifico
+app.get('/api/test/reports/:testType/:timestamp', (req, res) => {
+  const { testType, timestamp } = req.params;
+  const outputDir = path.join(__dirname, 'Test/Output');
+  
+  try {
+    // Assicuriamoci che la directory esista
+    if (!fs.existsSync(outputDir)) {
+      return res.status(404).json({ error: 'Report non trovato' });
+    }
+    
+    // Cerca il file più recente che corrisponde al tipo di test e timestamp
+    const files = fs.readdirSync(outputDir)
+      .filter(file => file.endsWith('.json'))
+      .map(file => {
+        const filePath = path.join(outputDir, file);
+        const stats = fs.statSync(filePath);
+        const content = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        
+        return {
+          ...content,
+          timestamp: stats.mtime.toISOString()
+        };
+      })
+      .filter(report => 
+        report.testType === testType && 
+        new Date(report.timestamp).toISOString() === timestamp
+      )
+      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    if (files.length === 0) {
+      return res.status(404).json({ error: 'Report non trovato' });
+    }
+    
+    res.json(files[0]);
+  } catch (error) {
+    console.error('Errore lettura report:', error);
+    res.status(500).json({ error: 'Errore lettura report' });
   }
 });
 
@@ -352,6 +328,49 @@ app.get('/api/test/report/:filename/download', (req, res) => {
     console.error('❌ Errore download report:', error);
     res.status(500).json({ error: 'Errore nel download del report' });
   }
+});
+
+// === API CONTAINER LOGS ===
+
+// API per ottenere i log di un container specifico
+app.get('/api/container/:containerName/logs', (req, res) => {
+  const containerName = req.params.containerName;
+  const lines = req.query.lines || '100';
+  
+  console.log(`📋 Richiesta log per container: ${containerName} (${lines} righe)`);
+  
+  // Esegue docker logs per ottenere i log del container
+  const logProcess = spawn('docker', ['logs', '--tail', lines, containerName], {
+    encoding: 'utf8'
+  });
+
+  let output = '';
+  let errorOutput = '';
+
+  logProcess.stdout.on('data', (data) => {
+    output += data.toString();
+  });
+
+  logProcess.stderr.on('data', (data) => {
+    errorOutput += data.toString();
+  });
+
+  logProcess.on('close', (code) => {
+    if (code === 0) {
+      // Docker logs restituisce i log sia su stdout che stderr
+      const logs = output || errorOutput || 'Nessun log disponibile';
+      res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+      res.send(logs);
+    } else {
+      console.error(`Errore ottenimento log container ${containerName}:`, errorOutput);
+      res.status(500).send(`Errore ottenimento log: ${errorOutput || 'Container non trovato'}`);
+    }
+  });
+
+  logProcess.on('error', (error) => {
+    console.error(`Errore processo docker logs:`, error);
+    res.status(500).send(`Errore processo: ${error.message}`);
+  });
 });
 
 // === API GESTIONE MEDIA ===

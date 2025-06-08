@@ -355,32 +355,32 @@ export async function loadProductsManagementPage() {
      * @returns {HTMLElement} - Ul HTML
      */
     function renderCategoryTree(categories, level = 1) {
-        const ul = document.createElement('ul');
-        ul.className = 'list-unstyled mb-0' + (level === 1 ? ' show' : '');
-        categories.forEach(cat => {
-            const hasChildren = Array.isArray(cat.children) && cat.children.length > 0;
-            const collapseId = `collapse-cat-${cat.id}`;
-            const li = document.createElement('li');
-            li.className = 'category-li position-relative';
-            li.innerHTML = `
-                <div class="form-check d-flex align-items-center gap-1" style="margin-bottom: 0.2rem; min-height: 1.8rem;">
-                    ${hasChildren
-                    ? `<button type=\"button\" class=\"btn btn-sm btn-link p-0 me-1 ms-0 category-collapse-btn d-flex align-items-center\" data-target=\"${collapseId}\" aria-expanded=\"false\" aria-controls=\"${collapseId}\"><i class=\"bi bi-caret-right-fill\"></i></button>`
-                    : '<span class=\"category-empty-icon me-1\" style=\"display:inline-block;width:1.5rem;\"></span>'}
-                    <input class="form-check-input ms-0" type="checkbox" id="cat-${cat.id}" value="${cat.id}" name="category[]">
-                    <label class="form-check-label ms-1" for="cat-${cat.id}">${cat.name}</label>
-                </div>
-            `;
-            if (hasChildren) {
-                const childUl = renderCategoryTree(cat.children, level + 1);
-                childUl.classList.add('ms-0');
-                childUl.id = collapseId;
-                li.appendChild(childUl);
-            }
-            ul.appendChild(li);
-        });
-        return ul;
+        function renderTree(nodes, level = 1) {
+            let html = '<ul class="list-unstyled mb-0' + (level === 1 ? ' show' : '') + '">';
+            nodes.forEach(cat => {
+                const hasChildren = Array.isArray(cat.children) && cat.children.length > 0;
+                const collapseId = `collapse-cat-${cat.id}`;
+                html += `<li class="category-li position-relative">
+                    <div class="form-check d-flex align-items-center gap-1" style="margin-bottom: 0.2rem; min-height: 1.8rem;">
+                        ${hasChildren
+                        ? `<button type=\"button\" class=\"btn btn-sm btn-link p-0 me-1 ms-0 category-collapse-btn d-flex align-items-center\" data-target=\"${collapseId}\" aria-expanded=\"false\" aria-controls=\"${collapseId}\"><i class=\"bi bi-caret-right-fill\"></i></button>`
+                        : '<span class=\"category-empty-icon me-1\" style=\"display:inline-block;width:1.5rem;\"></span>'}
+                        <input class="form-check-input ms-0" type="checkbox" id="cat-${cat.id}" value="${cat.id}" name="category[]">
+                        <label class="form-check-label ms-1" for="cat-${cat.id}">${cat.name}</label>
+                    </div>`;
+                if (hasChildren) {
+                    html += `<ul class='ms-0' id='${collapseId}' style='display:none;'>`;
+                    html += renderTree(cat.children, level + 1);
+                    html += '</ul>';
+                }
+                html += '</li>';
+            });
+            html += '</ul>';
+            return html;
+        }
+        return renderTree(categories, level);
     }
+
     /**
      * Popola il filtro categorie con l'albero.
      * @param {Array} categories - Albero categorie
@@ -393,45 +393,27 @@ export async function loadProductsManagementPage() {
             treeContainer.innerHTML = '<div class="text-muted">Nessuna categoria disponibile</div>';
             return;
         }
-        const tree = renderCategoryTree(categories);
-        treeContainer.appendChild(tree);
-        // CSS per minimizzazione/espansione e rotazione caret
-        const style = document.createElement('style');
-        style.textContent = `
-        .category-li ul {
-            display: none;
-            margin-left: 1.5rem;
-            padding-left: 0.5rem;
-            border-left: 1px solid #eee;
-        }
-        .category-li ul.show {
-            display: block;
-        }
-        .category-collapse-btn i {
-            transition: transform 0.2s;
-        }
-        .category-collapse-btn[aria-expanded="true"] i {
-            transform: rotate(90deg);
-        }
-        `;
-        treeContainer.appendChild(style);
-        // Collapse/expand caret
+        treeContainer.innerHTML = renderCategoryTree(categories);
+
+        // Gestione collapse/expand caret
         treeContainer.querySelectorAll('.category-collapse-btn').forEach(btn => {
             btn.addEventListener('click', function (e) {
                 e.preventDefault();
                 const targetId = btn.getAttribute('data-target');
-                const target = pageElement.querySelector(`#${targetId}`);
+                const target = document.getElementById(targetId);
                 if (!target) return;
-                const isOpen = target.classList.contains('show');
+                const isOpen = target.style.display !== 'none';
                 if (isOpen) {
-                    target.classList.remove('show');
-                    btn.setAttribute('aria-expanded', 'false');
+                    target.style.display = 'none';
+                    btn.querySelector('i').className = 'bi bi-caret-right-fill';
                 } else {
-                    target.classList.add('show');
-                    btn.setAttribute('aria-expanded', 'true');
+                    target.style.display = 'block';
+                    btn.querySelector('i').className = 'bi bi-caret-down-fill';
                 }
+                btn.setAttribute('aria-expanded', String(!isOpen));
             });
         });
+
         // Selezione/deselezione ricorsiva figli e selezione padre se tutti i figli sono selezionati
         treeContainer.querySelectorAll('input[type="checkbox"][name="category[]"]').forEach(checkbox => {
             checkbox.addEventListener('change', function () {
@@ -444,6 +426,7 @@ export async function loadProductsManagementPage() {
                 updateParentCheckbox(li);
             });
         });
+
         function updateParentCheckbox(li) {
             const parentUl = li.parentElement.closest('ul');
             if (!parentUl) return;

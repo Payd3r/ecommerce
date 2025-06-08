@@ -5,9 +5,9 @@ const path = require('path');
 // Config database di test
 const dbConfig = {
   host: 'db-test',
-  user: 'test_user',
-  password: 'test_password',
-  database: 'test_db',
+  user: 'admin',
+  password: '1234',
+  database: 'ecommerce_test_db',
   port: 3306
 };
 

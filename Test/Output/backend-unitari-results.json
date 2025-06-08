@@ -1,6 +1,6 @@
 {
   "testType": "backend-unitari",
-  "timestamp": "2025-06-05T18:16:13.546Z",
+  "timestamp": "2025-06-08T12:02:02.106Z",
   "summary": {
     "numTotalTests": 93,
     "numPassedTests": 93,
@@ -15,7 +15,7 @@
       "name": "/usr/src/app/Test/Backend-Unitari/tests/routes/orders.test.js",
       "status": "passed",
       "message": "",
-      "duration": 913,
+      "duration": 1305,
       "numFailingTests": 0,
       "numPassingTests": 0,
       "numPendingTests": 0,
@@ -24,37 +24,37 @@
           "title": "dovrebbe restituire tutti gli ordini per un admin",
           "status": "passed",
           "failureMessages": [],
-          "duration": 5
+          "duration": 6
         },
         {
           "title": "dovrebbe restituire gli ordini di un cliente specifico",
           "status": "passed",
           "failureMessages": [],
-          "duration": 4
+          "duration": 5
         },
         {
           "title": "dovrebbe negare l'accesso se non autorizzato",
           "status": "passed",
           "failureMessages": [],
-          "duration": 4
+          "duration": 7
         },
         {
           "title": "dovrebbe creare un nuovo ordine",
           "status": "passed",
           "failureMessages": [],
-          "duration": 4
+          "duration": 7
         },
         {
           "title": "dovrebbe validare i campi obbligatori",
           "status": "passed",
           "failureMessages": [],
-          "duration": 4
+          "duration": 3
         },
         {
           "title": "dovrebbe creare un ordine dal carrello",
           "status": "passed",
           "failureMessages": [],
-          "duration": 6
+          "duration": 8
         },
         {
           "title": "dovrebbe gestire un carrello vuoto",
@@ -66,7 +66,7 @@
           "title": "dovrebbe aggiornare lo stato di un ordine come admin",
           "status": "passed",
           "failureMessages": [],
-          "duration": 6
+          "duration": 7
         },
         {
           "title": "dovrebbe validare la transizione di stato",
@@ -84,7 +84,7 @@
           "title": "dovrebbe validare l'ID artigiano",
           "status": "passed",
           "failureMessages": [],
-          "duration": 3
+          "duration": 2
         },
         {
           "title": "dovrebbe restituire gli item di un ordine specifico",
@@ -108,7 +108,7 @@
           "title": "dovrebbe creare una payment intent per un checkout",
           "status": "passed",
           "failureMessages": [],
-          "duration": 5
+          "duration": 6
         }
       ]
     },
@@ -116,7 +116,7 @@
       "name": "/usr/src/app/Test/Backend-Unitari/tests/routes/users.test.js",
       "status": "passed",
       "message": "",
-      "duration": 251,
+      "duration": 246,
       "numFailingTests": 0,
       "numPassingTests": 0,
       "numPendingTests": 0,
@@ -137,7 +137,7 @@
           "title": "dovrebbe restituire un artigiano specifico",
           "status": "passed",
           "failureMessages": [],
-          "duration": 9
+          "duration": 7
         },
         {
           "title": "dovrebbe restituire 404 se l'artigiano non esiste",
@@ -149,13 +149,13 @@
           "title": "dovrebbe restituire un utente specifico per il proprietario",
           "status": "passed",
           "failureMessages": [],
-          "duration": 6
+          "duration": 4
         },
         {
           "title": "dovrebbe negare l'accesso a profili altrui per utenti non admin",
           "status": "passed",
           "failureMessages": [],
-          "duration": 5
+          "duration": 3
         },
         {
           "title": "dovrebbe creare un nuovo utente come admin",
@@ -167,7 +167,7 @@
           "title": "dovrebbe validare l'email",
           "status": "passed",
           "failureMessages": [],
-          "duration": 3
+          "duration": 2
         },
         {
           "title": "dovrebbe aggiornare un utente se è il proprietario",
@@ -185,7 +185,7 @@
           "title": "dovrebbe eliminare un utente come admin",
           "status": "passed",
           "failureMessages": [],
-          "duration": 3
+          "duration": 2
         },
         {
           "title": "dovrebbe restituire 404 se l'utente non esiste",
@@ -199,7 +199,7 @@
       "name": "/usr/src/app/Test/Backend-Unitari/tests/routes/cart.test.js",
       "status": "passed",
       "message": "",
-      "duration": 200,
+      "duration": 210,
       "numFailingTests": 0,
       "numPassingTests": 0,
       "numPendingTests": 0,
@@ -208,25 +208,25 @@
           "title": "dovrebbe creare un nuovo carrello se non esiste",
           "status": "passed",
           "failureMessages": [],
-          "duration": 4
+          "duration": 3
         },
         {
           "title": "dovrebbe riconoscere un carrello già esistente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 4
+          "duration": 2
         },
         {
           "title": "dovrebbe gestire errori del database",
           "status": "passed",
           "failureMessages": [],
-          "duration": 5
+          "duration": 10
         },
         {
           "title": "dovrebbe aggiungere un prodotto al carrello esistente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 3
+          "duration": 5
         },
         {
           "title": "dovrebbe aggiornare la quantità di un prodotto già presente",
@@ -238,19 +238,19 @@
           "title": "dovrebbe validare i dati in input",
           "status": "passed",
           "failureMessages": [],
-          "duration": 3
+          "duration": 2
         },
         {
           "title": "dovrebbe restituire il carrello vuoto se non esiste",
           "status": "passed",
           "failureMessages": [],
-          "duration": 5
+          "duration": 6
         },
         {
           "title": "dovrebbe restituire i prodotti nel carrello con immagini",
           "status": "passed",
           "failureMessages": [],
-          "duration": 9
+          "duration": 11
         },
         {
           "title": "dovrebbe aggiornare la quantità di un prodotto nel carrello",
@@ -280,7 +280,7 @@
           "title": "dovrebbe gestire il caso di carrello già vuoto",
           "status": "passed",
           "failureMessages": [],
-          "duration": 2
+          "duration": 3
         }
       ]
     },
@@ -288,7 +288,7 @@
       "name": "/usr/src/app/Test/Backend-Unitari/tests/routes/categories.test.js",
       "status": "passed",
       "message": "",
-      "duration": 193,
+      "duration": 240,
       "numFailingTests": 0,
       "numPassingTests": 0,
       "numPendingTests": 0,
@@ -297,49 +297,49 @@
           "title": "dovrebbe restituire l'albero delle categorie con immagini",
           "status": "passed",
           "failureMessages": [],
-          "duration": 4
+          "duration": 7
         },
         {
           "title": "dovrebbe gestire gli errori nel recupero dell'albero delle categorie",
           "status": "passed",
           "failureMessages": [],
-          "duration": 3
+          "duration": 7
         },
         {
           "title": "dovrebbe restituire tutte le categorie con conteggio prodotti",
           "status": "passed",
           "failureMessages": [],
-          "duration": 5
+          "duration": 15
         },
         {
           "title": "dovrebbe gestire gli errori nel recupero delle categorie",
           "status": "passed",
           "failureMessages": [],
-          "duration": 2
+          "duration": 4
         },
         {
           "title": "dovrebbe restituire una categoria specifica con immagine",
           "status": "passed",
           "failureMessages": [],
-          "duration": 2
+          "duration": 9
         },
         {
           "title": "dovrebbe restituire 404 se la categoria non esiste",
           "status": "passed",
           "failureMessages": [],
-          "duration": 3
+          "duration": 7
         },
         {
           "title": "dovrebbe creare una nuova categoria",
           "status": "passed",
           "failureMessages": [],
-          "duration": 3
+          "duration": 10
         },
         {
           "title": "dovrebbe validare i campi obbligatori",
           "status": "passed",
           "failureMessages": [],
-          "duration": 7
+          "duration": 3
         },
         {
           "title": "dovrebbe aggiornare una categoria esistente",
@@ -351,13 +351,13 @@
           "title": "dovrebbe impedire a una categoria di essere padre di se stessa",
           "status": "passed",
           "failureMessages": [],
-          "duration": 2
+          "duration": 3
         },
         {
           "title": "dovrebbe eliminare una categoria senza figli",
           "status": "passed",
           "failureMessages": [],
-          "duration": 3
+          "duration": 2
         },
         {
           "title": "dovrebbe impedire l'eliminazione di una categoria con figli",
@@ -371,7 +371,7 @@
       "name": "/usr/src/app/Test/Backend-Unitari/tests/routes/images.test.js",
       "status": "passed",
       "message": "",
-      "duration": 165,
+      "duration": 177,
       "numFailingTests": 0,
       "numPassingTests": 0,
       "numPendingTests": 0,
@@ -392,19 +392,19 @@
           "title": "dovrebbe restituire errore se non ci sono file",
           "status": "passed",
           "failureMessages": [],
-          "duration": 2
+          "duration": 3
         },
         {
           "title": "dovrebbe caricare un'immagine per una categoria",
           "status": "passed",
           "failureMessages": [],
-          "duration": 3
+          "duration": 4
         },
         {
           "title": "dovrebbe caricare un'immagine profilo",
           "status": "passed",
           "failureMessages": [],
-          "duration": 2
+          "duration": 3
         },
         {
           "title": "dovrebbe restituire errore se manca il file",
@@ -428,7 +428,7 @@
           "title": "dovrebbe restituire errore se mancano gli id delle immagini",
           "status": "passed",
           "failureMessages": [],
-          "duration": 2
+          "duration": 3
         }
       ]
     },
@@ -436,7 +436,7 @@
       "name": "/usr/src/app/Test/Backend-Unitari/tests/routes/products.test.js",
       "status": "passed",
       "message": "",
-      "duration": 164,
+      "duration": 166,
       "numFailingTests": 0,
       "numPassingTests": 0,
       "numPendingTests": 0,
@@ -445,7 +445,7 @@
           "title": "dovrebbe restituire una lista di prodotti con paginazione",
           "status": "passed",
           "failureMessages": [],
-          "duration": 3
+          "duration": 4
         },
         {
           "title": "dovrebbe filtrare i prodotti in base ai parametri",
@@ -493,7 +493,7 @@
           "title": "dovrebbe verificare che il prodotto appartenga all'artigiano",
           "status": "passed",
           "failureMessages": [],
-          "duration": 4
+          "duration": 3
         }
       ]
     },
@@ -501,7 +501,7 @@
       "name": "/usr/src/app/Test/Backend-Unitari/tests/routes/address.test.js",
       "status": "passed",
       "message": "",
-      "duration": 151,
+      "duration": 144,
       "numFailingTests": 0,
       "numPassingTests": 0,
       "numPendingTests": 0,
@@ -528,7 +528,7 @@
           "title": "dovrebbe creare un nuovo indirizzo quando non esiste",
           "status": "passed",
           "failureMessages": [],
-          "duration": 3
+          "duration": 4
         },
         {
           "title": "dovrebbe aggiornare un indirizzo esistente",
@@ -552,7 +552,7 @@
           "title": "dovrebbe negare l'accesso agli utenti non autorizzati",
           "status": "passed",
           "failureMessages": [],
-          "duration": 10
+          "duration": 8
         }
       ]
     },
@@ -560,7 +560,7 @@
       "name": "/usr/src/app/Test/Backend-Unitari/tests/routes/auth.test.js",
       "status": "passed",
       "message": "",
-      "duration": 135,
+      "duration": 137,
       "numFailingTests": 0,
       "numPassingTests": 0,
       "numPendingTests": 0,
@@ -569,7 +569,7 @@
           "title": "dovrebbe registrare un nuovo utente con successo",
           "status": "passed",
           "failureMessages": [],
-          "duration": 4
+          "duration": 3
         },
         {
           "title": "dovrebbe gestire errori di email già registrata",
@@ -587,19 +587,19 @@
           "title": "dovrebbe gestire credenziali non valide",
           "status": "passed",
           "failureMessages": [],
-          "duration": 2
+          "duration": 3
         },
         {
           "title": "dovrebbe recuperare il profilo utente",
           "status": "passed",
           "failureMessages": [],
-          "duration": 3
+          "duration": 4
         },
         {
           "title": "dovrebbe gestire utente non trovato",
           "status": "passed",
           "failureMessages": [],
-          "duration": 2
+          "duration": 3
         }
       ]
     },
@@ -607,7 +607,7 @@
       "name": "/usr/src/app/Test/Backend-Unitari/tests/routes/issue.test.js",
       "status": "passed",
       "message": "",
-      "duration": 128,
+      "duration": 126,
       "numFailingTests": 0,
       "numPassingTests": 0,
       "numPendingTests": 0,
@@ -622,7 +622,7 @@
           "title": "dovrebbe gestire errori nella query",
           "status": "passed",
           "failureMessages": [],
-          "duration": 2
+          "duration": 3
         },
         {
           "title": "dovrebbe creare una nuova segnalazione",
@@ -646,7 +646,7 @@
           "title": "dovrebbe gestire errori nell'aggiornamento",
           "status": "passed",
           "failureMessages": [],
-          "duration": 2
+          "duration": 3
         }
       ]
     },
@@ -654,7 +654,7 @@
       "name": "/usr/src/app/Test/Backend-Unitari/tests/base.test.js",
       "status": "passed",
       "message": "",
-      "duration": 96,
+      "duration": 94,
       "numFailingTests": 0,
       "numPassingTests": 0,
       "numPendingTests": 0,
@@ -669,13 +669,13 @@
           "title": "dovrebbe supportare i mock con sinon",
           "status": "passed",
           "failureMessages": [],
-          "duration": 8
+          "duration": 7
         },
         {
           "title": "dovrebbe supportare le asserzioni con chai",
           "status": "passed",
           "failureMessages": [],
-          "duration": 2
+          "duration": 1
         }
       ]
     }

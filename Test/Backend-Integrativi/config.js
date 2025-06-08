@@ -10,9 +10,9 @@ module.exports = {
   // Configurazione del database di test
   database: {
     host: process.env.DB_HOST || 'db-test',
-    user: process.env.DB_USER || 'test_user',
-    password: process.env.DB_PASSWORD || 'test_password',
-    name: process.env.DB_NAME || 'test_db',
+    user: process.env.DB_USER || 'admin',
+    password: process.env.DB_PASSWORD || '1234',
+    name: process.env.DB_NAME || 'ecommerce_test_db',
     port: process.env.DB_PORT || 3306
   },
   

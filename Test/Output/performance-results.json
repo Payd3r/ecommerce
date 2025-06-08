@@ -1,11 +1,11 @@
 {
   "testType": "performance",
-  "timestamp": "2025-06-05T20:09:44.280Z",
+  "timestamp": "2025-06-08T12:01:06.432Z",
   "summary": {
-    "numTotalTests": 6,
-    "numPassedTests": 3,
+    "numTotalTests": 4,
+    "numPassedTests": 4,
     "numFailedTests": 0,
-    "numPendingTests": 3,
+    "numPendingTests": 0,
     "numSkippedTests": 0,
     "success": true,
     "duration": 0
@@ -19,48 +19,36 @@
   "testResults": [
     {
       "name": "/usr/src/app/Test/Performance/tests/api-performance.test.js",
-      "status": "focused",
+      "status": "passed",
       "message": "",
-      "duration": 2185,
+      "duration": 2766,
       "numFailingTests": 0,
       "numPassingTests": 0,
       "numPendingTests": 0,
       "assertionResults": [
         {
+          "title": "POST /auth/login - Login Performance",
+          "status": "passed",
+          "failureMessages": [],
+          "duration": 361
+        },
+        {
           "title": "GET /products - Response Time Test",
           "status": "passed",
           "failureMessages": [],
-          "duration": 121
-        },
-        {
-          "title": "GET /products/:id - Single Product Performance (SKIPPED - no products in test DB)",
-          "status": "pending",
-          "failureMessages": [],
-          "duration": 0
+          "duration": 79
         },
         {
           "title": "GET /categories - Categories List Performance",
           "status": "passed",
           "failureMessages": [],
-          "duration": 101
-        },
-        {
-          "title": "POST /auth/login - Login Performance (SKIPPED - test users not available)",
-          "status": "pending",
-          "failureMessages": [],
-          "duration": 0
+          "duration": 113
         },
         {
           "title": "Mixed API Load Test",
           "status": "passed",
           "failureMessages": [],
-          "duration": 949
-        },
-        {
-          "title": "Database Connection Pool Test (SKIPPED - direct DB access not available)",
-          "status": "pending",
-          "failureMessages": [],
-          "duration": 0
+          "duration": 884
         }
       ]
     }

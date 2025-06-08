@@ -1,5 +1,6 @@
 const axios = require('axios');
 const config = require('../config');
+const setupTestData = require('../setup');
 
 // Test client con timeout configurabile
 const client = axios.create({
@@ -34,89 +35,52 @@ async function runConcurrentRequests(requestFn, count = config.performance.concu
   };
 }
 
-// Helper per login e token
-async function getAuthToken(userType = 'client') {
-  const user = config.testUsers[userType];
-  const start = Date.now();
-  
-  try {
-    const response = await client.post('/auth/login', {
-      email: user.email,
-      password: user.password
-    });
-    
-    return {
-      token: response.data.token,
-      duration: Date.now() - start
-    };
-  } catch (error) {
-    throw new Error(`Login failed for ${userType}: ${error.message}`);
-  }
-}
-
 describe('API Performance Tests', () => {
-  let authTokens = {};
-  
   beforeAll(async () => {
-    console.log('Setting up auth tokens for performance tests...');
-    
-    // Pre-authenticate users per evitare overhead durante test
-    try {
-      authTokens.client = await getAuthToken('client');
-      authTokens.admin = await getAuthToken('admin');
-      authTokens.artisan = await getAuthToken('artisan');
-      console.log('Auth tokens ready');
-    } catch (error) {
-      console.warn('Auth setup failed, some tests may fail:', error.message);
-    }
-  });
+    console.log('Setting up test environment...');
+    await setupTestData();
+  }, config.setup.setupTimeout);
 
-  describe('Product API Performance', () => {
-    test('GET /products - Response Time Test', async () => {
-      const { result: stats } = await measureTime(async () => {
-        return await runConcurrentRequests(async (i) => {
-          const start = Date.now();
-          const response = await client.get('/products?limit=20&page=1');
-          return {
-            status: response.status,
-            duration: Date.now() - start
-          };
-        });
-      });
-      
-      console.log(`Products API Stats:`, stats);
-      
-      // Assertions - più tolleranti per ambiente di test
-      expect(stats.errorRate).toBeLessThanOrEqual(20); // 20% invece di 5%
-      expect(stats.avgResponseTime).toBeLessThanOrEqual(3000); // 3s invece di 1s
-      expect(stats.successful).toBeGreaterThan(0);
-    });
-    
-    test.skip('GET /products/:id - Single Product Performance (SKIPPED - no products in test DB)', async () => {
-      // Prima otteniamo un prodotto esistente
-      let productId = 1;
-      try {
-        const productsResponse = await client.get('/products?limit=1');
-        if (productsResponse.data && productsResponse.data.length > 0) {
-          productId = productsResponse.data[0].id;
-        }
-      } catch (error) {
-        console.warn('Could not fetch products, using default ID 1');
-      }
-      
+  describe('Auth API Performance', () => {
+    test('POST /auth/login - Login Performance', async () => {
       const stats = await runConcurrentRequests(async (i) => {
+        const userType = Object.keys(config.testUsers)[i % Object.keys(config.testUsers).length];
+        const user = config.testUsers[userType];
         const start = Date.now();
-        const response = await client.get(`/products/${productId}`);
+        const response = await client.post('/auth/login', {
+          email: user.email,
+          password: user.password
+        });
         return {
           status: response.status,
           duration: Date.now() - start
         };
-      }, 50); // Test più leggero
+      });
       
-      console.log(`Single Product API Stats:`, stats);
+      console.log(`Login API Stats:`, stats);
       
-      expect(stats.errorRate).toBeLessThanOrEqual(20); // 20% invece di 5%
-      expect(stats.avgResponseTime).toBeLessThanOrEqual(2000); // 2s invece di 500ms
+      expect(stats.errorRate).toBeLessThanOrEqual(20);
+      expect(stats.avgResponseTime).toBeLessThanOrEqual(3000);
+      expect(stats.successful).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Product API Performance', () => {
+    test('GET /products - Response Time Test', async () => {
+      const stats = await runConcurrentRequests(async (i) => {
+        const start = Date.now();
+        const response = await client.get('/products?limit=20&page=1');
+        return {
+          status: response.status,
+          duration: Date.now() - start
+        };
+      });
+      
+      console.log(`Products API Stats:`, stats);
+      
+      expect(stats.errorRate).toBeLessThanOrEqual(20);
+      expect(stats.avgResponseTime).toBeLessThanOrEqual(3000);
+      expect(stats.successful).toBeGreaterThan(0);
     });
   });
 
@@ -133,29 +97,8 @@ describe('API Performance Tests', () => {
       
       console.log(`Categories API Stats:`, stats);
       
-      expect(stats.errorRate).toBeLessThanOrEqual(20); // 20% invece di 5%
-      expect(stats.avgResponseTime).toBeLessThanOrEqual(3000); // 3s invece di 1s
-    });
-  });
-
-  describe('Auth API Performance', () => {
-    test.skip('POST /auth/login - Login Performance (SKIPPED - test users not available)', async () => {
-      const stats = await runConcurrentRequests(async (i) => {
-        const start = Date.now();
-        const response = await client.post('/auth/login', {
-          email: config.testUsers.client.email,
-          password: config.testUsers.client.password
-        });
-        return {
-          status: response.status,
-          duration: Date.now() - start
-        };
-      }, 20); // Login è più pesante, riduciamo concorrenza
-      
-      console.log(`Login API Stats:`, stats);
-      
-      expect(stats.errorRate).toBeLessThanOrEqual(20); // 20% invece di 5%
-      expect(stats.avgResponseTime).toBeLessThanOrEqual(4000); // 4s per login
+      expect(stats.errorRate).toBeLessThanOrEqual(20);
+      expect(stats.avgResponseTime).toBeLessThanOrEqual(3000);
     });
   });
 
@@ -182,38 +125,8 @@ describe('API Performance Tests', () => {
       console.log(`Load Test Stats:`, stats);
       console.log(`Throughput: ${(stats.successful / (stats.avgResponseTime / 1000)).toFixed(2)} req/sec`);
       
-      expect(stats.errorRate).toBeLessThanOrEqual(30); // 30% per load test intensivo
-      expect(stats.avgResponseTime).toBeLessThanOrEqual(5000); // 5s per load test
-    });
-  });
-  
-  describe('Database Performance', () => {
-    test.skip('Database Connection Pool Test (SKIPPED - direct DB access not available)', async () => {
-      const mysql = require('mysql2/promise');
-      
-      const stats = await runConcurrentRequests(async (i) => {
-        const start = Date.now();
-        
-        const connection = await mysql.createConnection({
-          host: config.database.host,
-          user: config.database.user,
-          password: config.database.password,
-          database: config.database.name,
-          port: config.database.port
-        });
-        
-        await connection.query('SELECT COUNT(*) as count FROM products');
-        await connection.end();
-        
-        return {
-          duration: Date.now() - start
-        };
-      }, 20);
-      
-      console.log(`DB Connection Stats:`, stats);
-      
-      expect(stats.errorRate).toBeLessThanOrEqual(25); // 25% per DB test
-      expect(stats.avgResponseTime).toBeLessThanOrEqual(3000); // 3s per DB
+      expect(stats.errorRate).toBeLessThanOrEqual(30);
+      expect(stats.avgResponseTime).toBeLessThanOrEqual(5000);
     });
   });
 }); 
