@@ -1,53 +1,57 @@
 # Usa un'immagine Node.js come base
-FROM node:18-alpine
+FROM node:18-slim AS base
+
+# Imposta una variabile d'ambiente per la cartella dell'applicazione
+ENV APP_HOME /usr/src/app
+
+# Crea la directory di lavoro
+WORKDIR $APP_HOME
 
 # Installa le dipendenze di sistema necessarie
-RUN apk add --no-cache \
+# (Ho raggruppato tutto in uno strato per pulizia)
+RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
-    netcat-openbsd \
+    netcat-traditional \
     procps \
     htop \
-    docker-cli \
     mariadb-client \
     zip \
     unzip \
     bash \
     coreutils \
-    && rm -rf /var/cache/apk/*
+    && rm -rf /var/lib/apt/lists/*
 
-# Installa Docker Compose Plugin
+# Installa Docker CLI e Compose Plugin
+RUN curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-26.1.1.tgz | tar -xz \
+    && mv docker/docker /usr/local/bin/docker \
+    && rm -rf docker
 RUN mkdir -p /usr/local/lib/docker/cli-plugins && \
     curl -SL https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-x86_64 -o /usr/local/lib/docker/cli-plugins/docker-compose && \
     chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
 
-# Crea directory di lavoro
-WORKDIR /usr/src/app
+# --- FASE DI BUILD DELLE DIPENDENZE ---
+FROM base AS deps
 
-# --- SEZIONE CORRETTA DEI COPY ---
-# Copia i file di configurazione dalla sottocartella Monitoring del contesto
-COPY package*.json ./
+# Copia SOLO i file di package dalla sottocartella Monitoring del contesto
+COPY Monitoring/package.json Monitoring/package-lock.json* ./
 
-# Installa le dipendenze Node.js
-RUN npm install --only=production && npm cache clean --force
-RUN npm install -g nodemon
+# Installa le dipendenze in modo pulito e sicuro
+RUN npm ci --only=production --ignore-scripts
 
-# Copia il codice sorgente dalla sottocartella Monitoring del contesto
-COPY . .
+# --- FASE DI PRODUZIONE FINALE ---
+FROM base AS production
 
-# --- FINE SEZIONE CORRETTA ---
+# Copia le dipendenze installate dalla fase precedente
+COPY --from=deps $APP_HOME/node_modules ./node_modules
 
-# Crea l'utente non-root per sicurezza (QUESTO NON VIENE USATO)
-# ... le tue righe per creare l'utente nodejs ...
+# Copia SOLO il codice sorgente dalla sottocartella Monitoring
+COPY Monitoring/ ./
 
-# Cambia ownership dei file (QUESTO NON VIENE USATO)
-# ... la tua riga chown ...
-
-# Espone la porta del servizio
 EXPOSE 3017
 
-# Health check
+# Healthcheck rimane uguale
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:3017/api/health || exit 1
 
-# Comando di avvio
-CMD ["nodemon", "server.js"]
+# Comando di avvio corretto per la produzione (nodemon è per lo sviluppo)
+CMD ["node", "server.js"]
