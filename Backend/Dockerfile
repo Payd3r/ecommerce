@@ -1,21 +1,12 @@
-# Usa un'immagine Node.js stabile e completa
+# Usa l'immagine Node.js più standard possibile
 FROM node:18-bullseye
 
-# Aggiungi gli strumenti di compilazione essenziali
-RUN apt-get update && apt-get install -y --no-install-recommends build-essential && rm -rf /var/lib/apt/lists/*
-
+# Imposta la cartella di lavoro
 WORKDIR /usr/src/app
 
-# Copia SOLO i file di package dalla sottocartella Backend
-COPY Backend/package*.json ./
-
-# Installa le dipendenze in modo pulito e sicuro
-RUN npm ci --only=production --ignore-scripts
-
-# Copia SOLO il codice sorgente dalla sottocartella Backend
+# Copia TUTTO il necessario dalla sottocartella Backend
 COPY Backend/ .
 
-EXPOSE 3015
-
-# Comando di avvio per la produzione
-CMD ["node", "app.js"]
+# Esegui il comando di installazione più permissivo possibile
+# e cattura l'output dettagliato in un file di log
+RUN npm install --legacy-peer-deps --verbose > npm-log.txt 2>&1 || (cat npm-log.txt && exit 1)
