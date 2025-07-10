@@ -8,7 +8,7 @@
 */
 
 // Frontend/config.js
-const API_URL = "https://api.panesalame.andrea-mauri.duckdns.org";
+const API_URL = process.env.REACT_APP_API_URL;
 // Frontend/config.js
 // const API_URL = "http://localhost:3015";
 

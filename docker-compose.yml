@@ -19,7 +19,7 @@ services:
     volumes:
       - /mnt/condivisa/panesalame_data/database:/var/lib/mysql
       - "/mnt/condivisa/Scuola/Universita/Terzo Anno/Tecnologie Innovative per lo sviluppo Web/ecommerce/Backend/db.sql:/docker-entrypoint-initdb.d/db.sql:ro"
-    networks: 
+    networks:
       - ecommerce-internal
 
   # Production backend API
@@ -44,7 +44,8 @@ services:
       # - "/mnt/condivisa/Scuola/Universita/Terzo Anno/Tecnologie Innovative per lo sviluppo Web/ecommerce/Backend:/usr/src/app/src:ro"
       - /mnt/condivisa/panesalame_data/media:/usr/src/app/Media
       # - backend-node-modules:/usr/src/app/node_modules
-    networks:  # AGGIUNTO: Permette al frontend di parlare col backend
+    networks:
+      # AGGIUNTO: Permette al frontend di parlare col backend
       - ecommerce-internal
 
   # Image server
@@ -56,7 +57,8 @@ services:
       - /mnt/condivisa/panesalame_data/media:/usr/share/nginx/html/Media:ro
     depends_on:
       - backend
-    networks: # AGGIUNTO: Permette la comunicazione interna
+    networks:
+      # AGGIUNTO: Permette la comunicazione interna
       - ecommerce-internal
 
   # Production frontend server
@@ -69,10 +71,10 @@ services:
     depends_on:
       - backend
     environment:
-      REACT_APP_API_URL: https://api.panesalame.andrea-mauri.duckdns.org
+      REACT_APP_API_URL: /api # <- CAMBIA L'URL IN QUESTO # <- CAMBIA L'URL IN QUESTO
     networks:
       - ecommerce-internal # Comunica con il backend
-      - web-proxy 
+      - web-proxy
 
   # Monitoring system
   monitoring:
@@ -99,12 +101,12 @@ services:
       - frontend
     networks:
       - ecommerce-internal # Comunica con gli altri container dello stack
-      - web-proxy          # Comunica con il mondo esterno tramite NPM
+      - web-proxy # Comunica con il mondo esterno tramite NPM
 volumes:
   backend-node-modules:
+
 
 networks:
   web-proxy:
     external: true # La rete per parlare con il mondo, gestita esternamente
-  ecommerce-internal: {}
-    # Una rete interna solo per questo stack, per far parlare i container tra loro in sicurezza
+  ecommerce-internal: {} # Una rete interna solo per questo stack, per far parlare i container tra loro in sicurezza

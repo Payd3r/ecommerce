@@ -44,7 +44,7 @@ Il progetto è suddiviso in:
      - **Frontend**: [http://localhost:3010](http://localhost:3010) o [http://101.58.39.17:3010](http://101.58.39.17:3010)
      - **Backend/API**: [http://localhost:3015](http://localhost:3015) o [https://api.panesalame.andrea-mauri.duckdns.org](https://api.panesalame.andrea-mauri.duckdns.org)
      - **Database MariaDB**: porta 3306
-     - **Image server**: [http://localhost:8080/Media](http://localhost:8080/Media) o [ttps://media.panesalame.andrea-mauri.duckdns.org/Media](ttps://media.panesalame.andrea-mauri.duckdns.org/Media)
+     - **Image server**: [http://localhost:8080/Media](http://localhost:8080/Media) o [/Media](/Media)
 
 3. **Accesso rapido**
    - **Frontend**: [http://localhost:3010](http://localhost:3010) o [http://101.58.39.17:3010](http://101.58.39.17:3010)
@@ -535,7 +535,7 @@ Le immagini sono gestite attraverso il database con le seguenti tabelle:
    - Restore di una versione locale
 
 3. **Accesso alle Immagini**
-   - URL pubblico: `http://localhost:8080/Media/[tipo]/[filename]` o `ttps://media.panesalame.andrea-mauri.duckdns.org/Media/[tipo]/[filename]`
+   - URL pubblico: `http://localhost:8080/Media/[tipo]/[filename]` o `/Media/[tipo]/[filename]`
    - Accesso protetto per immagini private
    - CDN-ready per distribuzione geografica
    - Cache control per ottimizzazione
