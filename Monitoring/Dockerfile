@@ -8,7 +8,6 @@ ENV APP_HOME /usr/src/app
 WORKDIR $APP_HOME
 
 # Installa le dipendenze di sistema necessarie
-# (Ho raggruppato tutto in uno strato per pulizia)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     netcat-traditional \
@@ -19,9 +18,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     unzip \
     bash \
     coreutils \
+    tar \
+    # --- MODIFICA CHIAVE: Aggiunto 'tar' alla lista ---
     && rm -rf /var/lib/apt/lists/*
 
 # Installa Docker CLI e Compose Plugin
+# (Questo comando ora funzionerà perché 'tar' esiste)
 RUN curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-26.1.1.tgz | tar -xz \
     && mv docker/docker /usr/local/bin/docker \
     && rm -rf docker
