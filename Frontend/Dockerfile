@@ -1,26 +1,37 @@
-FROM nginx:alpine
+# ===============================================================
+# STAGE 1: Build dell'Applicazione Frontend
+# ===============================================================
+FROM node:18-slim AS builder
 
-COPY . /usr/share/nginx/html
+WORKDIR /app
 
-RUN echo 'server { \
-    listen 80; \
-    server_name localhost; \
-    root /usr/share/nginx/html; \
-    index index.html; \
-    location /api { \
-        try_files $uri $uri/ @api_backend; \
-    } \
-    location @api_backend { \
-        proxy_pass http://backend:3015; \
-        proxy_http_version 1.1; \
-        proxy_set_header Upgrade $http_upgrade; \
-        proxy_set_header Connection "upgrade"; \
-        proxy_set_header Host $host; \
-    } \
-    location / { \
-        try_files $uri $uri/ /index.html; \
-    } \
-}' > /etc/nginx/conf.d/default.conf
+# Copia SOLO i file di package dalla sottocartella Frontend
+COPY Frontend/package*.json ./
+
+# Installa le dipendenze in modo pulito e sicuro
+RUN npm ci --ignore-scripts
+
+# Copia SOLO il codice sorgente dalla sottocartella Frontend
+COPY Frontend/ ./
+
+# Esegui il comando di build che genera i file statici (es. in /app/dist)
+RUN npm run build
+
+
+# ===============================================================
+# STAGE 2: Servire i File Statici con Nginx
+# ===============================================================
+FROM nginx:1.25-alpine
+
+# Rimuovi la configurazione di default di Nginx
+RUN rm /etc/nginx/conf.d/default.conf
+
+# Copia la tua configurazione personalizzata
+COPY Frontend/nginx.conf /etc/nginx/conf.d/ecommerce.conf
+
+# Copia i file statici costruiti dalla fase precedente
+# Assicurati che 'dist' sia il nome corretto della cartella di output della build
+COPY --from=builder /app/dist /usr/share/nginx/html
 
 EXPOSE 80
 
