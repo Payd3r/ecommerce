@@ -1,23 +1,23 @@
-# Usa un'immagine Node.js stabile e completa
+# Usa un'immagine Node.js standard.
 FROM node:18-bullseye
 
-# Aggiungi gli strumenti di compilazione essenziali
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 make g++ build-essential \
-    && rm -rf /var/lib/apt/lists/*
-
-# Imposta la directory di lavoro dove risiederà l'applicazione
+# Imposta la cartella di lavoro
 WORKDIR /usr/src/app
 
-# Copia i file di package e installa le dipendenze.
-# Questo crea /usr/src/app/node_modules all'interno dell'immagine.
+# Copia i file di package
 COPY Backend/package.json Backend/package-lock.json* ./
-RUN npm install --only=production --legacy-peer-deps --ignore-scripts --build-from-source
 
-# Copia il codice sorgente nella directory di lavoro
+# ===============================================================
+# INSTALLA TUTTO, ESATTAMENTE COME FAI IN LOCALE
+# ===============================================================
+RUN npm install --legacy-peer-deps
+
+# Copia il resto del codice sorgente del backend
 COPY Backend/ .
 
 EXPOSE 3015
 
-# Il comando di avvio ora punta al file app.js nella WORKDIR corrente
+# ===============================================================
+# AVVIA L'APP ESATTAMENTE COME FAI IN LOCALE
+# ===============================================================
 CMD ["node", "app.js"]
