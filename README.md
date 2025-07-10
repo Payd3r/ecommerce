@@ -42,13 +42,13 @@ Il progetto è suddiviso in:
    - Esegue automaticamente la configurazione del database tramite `/Backend/db.sql`
    - Espone i servizi sulle seguenti porte:
      - **Frontend**: [http://localhost:3010](http://localhost:3010) o [http://101.58.39.17:3010](http://101.58.39.17:3010)
-     - **Backend/API**: [http://localhost:3015](http://localhost:3015) o [http://101.58.39.17:3015](http://101.58.39.17:3015)
+     - **Backend/API**: [http://localhost:3015](http://localhost:3015) o [https://api.panesalame.andrea-mauri.duckdns.org](https://api.panesalame.andrea-mauri.duckdns.org)
      - **Database MariaDB**: porta 3306
-     - **Image server**: [http://localhost:8080/Media](http://localhost:8080/Media) o [http://101.58.39.17:8080/Media](http://101.58.39.17:8080/Media)
+     - **Image server**: [http://localhost:8080/Media](http://localhost:8080/Media) o [ttps://media.panesalame.andrea-mauri.duckdns.org/Media](ttps://media.panesalame.andrea-mauri.duckdns.org/Media)
 
 3. **Accesso rapido**
    - **Frontend**: [http://localhost:3010](http://localhost:3010) o [http://101.58.39.17:3010](http://101.58.39.17:3010)
-   - **Documentazione API (Swagger)**: [http://localhost:3015/api-docs](http://localhost:3015/api-docs) o [http://101.58.39.17:3015/api-docs](http://101.58.39.17:3015/api-docs)
+   - **Documentazione API (Swagger)**: [http://localhost:3015/api-docs](http://localhost:3015/api-docs) o [https://api.panesalame.andrea-mauri.duckdns.org/api-docs](https://api.panesalame.andrea-mauri.duckdns.org/api-docs)
    - **Dashboard Monitoraggio**: [http://localhost:3017](http://localhost:3017) o [http://101.58.39.17:3017](http://101.58.39.17:3017)
 
 ### Ambiente di Testing
@@ -275,7 +275,7 @@ Il sistema di monitoraggio è disponibile anche nell'ambiente di testing:
 
 - **Swagger**:  
   Tutte le API REST sono documentate e testabili tramite interfaccia Swagger, accessibile su  
-  [http://localhost:3015/api-docs](http://localhost:3015/api-docs) o [http://101.58.39.17:3015/api-docs](http://101.58.39.17:3015/api-docs)
+  [http://localhost:3015/api-docs](http://localhost:3015/api-docs) o [https://api.panesalame.andrea-mauri.duckdns.org/api-docs](https://api.panesalame.andrea-mauri.duckdns.org/api-docs)
 
 - **Esempio di endpoint documentati**:
   - `/auth/register` - Registrazione utente
@@ -535,7 +535,7 @@ Le immagini sono gestite attraverso il database con le seguenti tabelle:
    - Restore di una versione locale
 
 3. **Accesso alle Immagini**
-   - URL pubblico: `http://localhost:8080/Media/[tipo]/[filename]` o `http://101.58.39.17:8080/Media/[tipo]/[filename]`
+   - URL pubblico: `http://localhost:8080/Media/[tipo]/[filename]` o `ttps://media.panesalame.andrea-mauri.duckdns.org/Media/[tipo]/[filename]`
    - Accesso protetto per immagini private
    - CDN-ready per distribuzione geografica
    - Cache control per ottimizzazione
