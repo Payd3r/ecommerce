@@ -16,18 +16,19 @@ services:
       MYSQL_ROOT_HOST: '%'
       MYSQL_ALLOW_EMPTY_PASSWORD: 'no'
     command: --default-authentication-plugin=mysql_native_password
-    ports:
-      - "3306:3306"
     volumes:
-      - mariadbdata:/var/lib/mysql
-      - ./Backend/db.sql:/docker-entrypoint-initdb.d/db.sql
+      - /mnt/condivisa/panesalame_data/database:/var/lib/mysql
+      - "/mnt/condivisa/Scuola/Universita/Terzo Anno/Tecnologie Innovative per lo sviluppo Web/ecommerce/Backend/db.sql:/docker-entrypoint-initdb.d/db.sql:ro"
+    networks: 
+      - ecommerce-internal
 
   # Production backend API
   backend:
-    build: ./Backend
+    build:
+      context: .
+      dockerfile: Backend/Dockerfile
+    image: panesalame/backend:latest
     container_name: ecommerce-backend
-    ports:
-      - "3015:3015"
     depends_on:
       - db
     environment:
@@ -40,67 +41,70 @@ services:
       DB_PORT: 3306
       JWT_SECRET: ecommerce_secret_key_2024
     volumes:
-      - ./Media:/usr/src/app/Media:cached
-      - ./Backend/app.js:/usr/src/app/app.js:ro
-      - ./Backend/package.json:/usr/src/app/package.json:ro
-      - ./Backend/db.sql:/usr/src/app/db.sql:ro
-      - ./Backend/routes:/usr/src/app/routes:ro
-      - ./Backend/services:/usr/src/app/services:ro
-      - ./Backend/models:/usr/src/app/models:ro
-      - ./Backend/middleware:/usr/src/app/middleware:ro
-      - /usr/src/app/node_modules
-
-  # Production frontend server
-  frontend:
-    build: ./Frontend
-    container_name: ecommerce-frontend
-    ports:
-      - "3010:80"
-    depends_on:
-      - backend
-    environment:
-      REACT_APP_API_URL: http://localhost:3015
-    volumes:
-      - ./Frontend:/usr/share/nginx/html
+      - "/mnt/condivisa/Scuola/Universita/Terzo Anno/Tecnologie Innovative per lo sviluppo Web/ecommerce/Backend:/usr/src/app/src:ro"
+      - /mnt/condivisa/panesalame_data/media:/data/media
+      - backend-node-modules:/usr/src/app/node_modules
+    networks:  # AGGIUNTO: Permette al frontend di parlare col backend
+      - ecommerce-internal
 
   # Image server
   imageserver:
     image: nginx:alpine
     container_name: ecommerce-imageserver
     restart: always
-    ports:
-      - "8080:80"
     volumes:
-      - ./Media:/usr/share/nginx/html/Media:cached
+      - /mnt/condivisa/panesalame_data/media:/usr/share/nginx/html/Media:ro
     depends_on:
       - backend
+    networks: # AGGIUNTO: Permette la comunicazione interna
+      - ecommerce-internal
+
+  # Production frontend server
+  frontend:
+    build:
+      context: .
+      dockerfile: Frontend/Dockerfile
+    image: panesalame/frontend:latest
+    container_name: ecommerce-frontend
+    depends_on:
+      - backend
+    environment:
+      REACT_APP_API_URL: https://api.panesalame.andrea-mauri.duckdns.org
+    networks:
+      - ecommerce-internal # Comunica con il backend
+      - web-proxy 
 
   # Monitoring system
   monitoring:
-    build: ./Monitoring
+    build:
+      context: .
+      dockerfile: Monitoring/Dockerfile
+    image: panesalame/monitoring:latest
     container_name: ecommerce-monitoring
     restart: always
-    ports:
-      - "3017:3017"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./Media:/usr/src/app/Media:ro
-      - ./Backend:/usr/src/app/Backend:ro
-      - ./Frontend:/usr/src/app/Frontend:ro
-      - ./Test:/usr/src/app/Test:ro
-      - ./Monitoring:/usr/src/app/Monitoring:ro
-      - ./Monitoring/public:/usr/src/app/public
-      - ./Documenti/cross_browser:/usr/src/app/public/api/test/screenshot:ro
-      - ./backups:/usr/src/app/backups
-      - ./docker-compose-testing.yml:/usr/src/app/docker-compose-testing.yml:ro
-      - ./README.md:/usr/src/app/README.md:ro
+      - /mnt/condivisa/panesalame_data/media:/data/Media
+      - "/mnt/condivisa/Scuola/Universita/Terzo Anno/Tecnologie Innovative per lo sviluppo Web/ecommerce/Test/Output:/data/Test/Output"
+      - "/mnt/condivisa/Scuola/Universita/Terzo Anno/Tecnologie Innovative per lo sviluppo Web/ecommerce/backups:/usr/src/app/backups"
+      - "/mnt/condivisa/Scuola/Universita/Terzo Anno/Tecnologie Innovative per lo sviluppo Web/ecommerce/README.md:/usr/src/app/README.md:ro"
+      - "/mnt/condivisa/Scuola/Universita/Terzo Anno/Tecnologie Innovative per lo sviluppo Web/ecommerce/docker-compose-testing.yml:/usr/src/app/docker-compose-testing.yml:ro"
+      - "/mnt/condivisa/Scuola/Universita/Terzo Anno/Tecnologie Innovative per lo sviluppo Web/ecommerce/Documenti:/usr/src/app/Documenti:ro"
+      - "/mnt/condivisa/Scuola/Universita/Terzo Anno/Tecnologie Innovative per lo sviluppo Web/ecommerce/safe-versions:/usr/src/app/safe-versions:ro" # <-- RIGA AGGIUNTA
     environment:
       NODE_ENV: production
       PORT: 3017
     depends_on:
       - backend
       - frontend
-
+    networks:
+      - ecommerce-internal # Comunica con gli altri container dello stack
+      - web-proxy          # Comunica con il mondo esterno tramite NPM
 volumes:
-  mariadbdata:    # Production data persistence
-  backend-node-modules:   # Backend node_modules volume
+  backend-node-modules:
+
+networks:
+  web-proxy:
+    external: true # La rete per parlare con il mondo, gestita esternamente
+  ecommerce-internal: {}
+    # Una rete interna solo per questo stack, per far parlare i container tra loro in sicurezza

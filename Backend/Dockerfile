@@ -1,25 +1,30 @@
-# Usa un'immagine Node.js leggera
+# Usa un'immagine Node.js leggera come base
 FROM node:20-alpine
 
-# Imposta la directory di lavoro all'interno del container
+# Imposta la directory di lavoro principale per l'applicazione
 WORKDIR /usr/src/app
 
-# Copia i file di package per installare le dipendenze
-COPY package*.json ./
-ENV NODE_ENV=development
+# Copia solo i file necessari per installare le dipendenze
+# Questo sfrutta la cache di Docker: se package.json non cambia,
+# questo strato non verrà rieseguito, velocizzando le build future.
+COPY Backend/package.json ./
 
-# Installa le dipendenze e nodemon globalmente
+# Installa le dipendenze di produzione e nodemon per lo sviluppo
+# Le dipendenze vengono installate in /usr/src/app/node_modules
 RUN npm install && npm install -g nodemon
 
-# Crea una directory per i moduli node
-RUN mkdir -p /usr/src/app/node_modules
+# Copia tutto il codice sorgente del backend in una sottocartella 'src'
+# Questo mantiene il codice separato dalle dipendenze
+COPY Backend/ /usr/src/app/src/
 
-# Copia tutto il resto del codice sorgente
-COPY . .
+# Imposta la directory di lavoro finale su quella del codice sorgente
+WORKDIR /usr/src/app/src
 
-# Espone la porta specificata nell'env
-EXPOSE 3001
+# Imposta la variabile d'ambiente per Node.js
+ENV NODE_ENV=development
+
+# Espone la porta su cui l'applicazione sarà in ascolto
 EXPOSE 3015
 
-# Comando per avviare l'applicazione
-CMD ["npm", "run", "dev"] 
+# Comando per avviare l'applicazione in modalità sviluppo con nodemon
+CMD ["npm", "run", "dev"]

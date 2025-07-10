@@ -4,7 +4,7 @@ const path = require('path');
 async function getStorageMetrics() {
   try {
     // Percorso della cartella Media
-    const mediaPath = path.join('/usr/src/app', 'Media');
+    const mediaPath = '/data/Media';
     const mediaExists = await fs.pathExists(mediaPath);
     
     let mediaMetrics = {
@@ -22,10 +22,10 @@ async function getStorageMetrics() {
 
     // Analizza anche altre cartelle importanti del progetto
     const projectPaths = [
-      '/usr/src/app/Backend',
-      '/usr/src/app/Frontend', 
-      '/usr/src/app/Test',
-      '/usr/src/app/Monitoring'
+      '/data/Backend',   // <--- MODIFICA QUI
+      '/data/Frontend',  // <--- MODIFICA QUI
+      '/data/Test',      // <--- MODIFICA QUI
+      '/usr/src/app'     // Lasciamo questo per analizzare il codice del monitoring stesso
     ];
 
     const projectMetrics = [];

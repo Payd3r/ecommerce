@@ -203,7 +203,7 @@ app.post('/api/test/:testType', async (req, res) => {
 // API per scaricare report test
 app.get('/api/test/report/:filename', (req, res) => {
   const filename = req.params.filename;
-  const reportPath = path.join(__dirname, 'Test/Output', filename);
+  const reportPath = path.join('/data/Test/Output', filename);
   
   if (!fs.existsSync(reportPath)) {
     return res.status(404).json({ error: 'Report non trovato' });
@@ -215,7 +215,7 @@ app.get('/api/test/report/:filename', (req, res) => {
 // API per ottenere i report dei test
 app.get('/api/test/reports', (req, res) => {
   // Nella configurazione Docker, Test/Output viene montato direttamente
-  const outputDir = path.join(__dirname, 'Test/Output');
+  const outputDir = '/data/Test/Output';
   
   console.log('📊 Richiesta report test, directory:', outputDir);
   
@@ -264,7 +264,7 @@ app.get('/api/test/reports', (req, res) => {
 // API per ottenere i dettagli di un report specifico
 app.get('/api/test/reports/:testType/:timestamp', (req, res) => {
   const { testType, timestamp } = req.params;
-  const outputDir = path.join(__dirname, 'Test/Output');
+  const outputDir = '/data/Test/Output';
   
   try {
     // Assicuriamoci che la directory esista
@@ -305,7 +305,7 @@ app.get('/api/test/reports/:testType/:timestamp', (req, res) => {
 // API per scaricare contenuto completo di un report
 app.get('/api/test/report/:filename/content', (req, res) => {
   const filename = req.params.filename;
-  const reportPath = path.join(__dirname, 'Test/Output', filename);
+  const reportPath = path.join('/data/Test/Output', filename);
   
   try {
     if (!fs.existsSync(reportPath)) {
@@ -325,7 +325,7 @@ app.get('/api/test/report/:filename/content', (req, res) => {
 // API per aggiornare la lista dei report (force refresh)
 app.post('/api/test/reports/refresh', (req, res) => {
   try {
-    const outputDir = path.join(__dirname, 'Test/Output');
+    const outputDir = '/data/Test/Output';
     
     console.log('🔄 Aggiornamento forzato lista report test...');
     
@@ -348,7 +348,7 @@ app.post('/api/test/reports/refresh', (req, res) => {
 app.get('/api/test/report/:filename/download', (req, res) => {
   try {
     const filename = req.params.filename;
-    const reportPath = path.join(__dirname, 'Test/Output', filename);
+    const reportPath = path.join('/data/Test/Output', filename);
     
     if (!fs.existsSync(reportPath)) {
       return res.status(404).json({ error: 'Report non trovato' });
@@ -391,7 +391,7 @@ app.get('/api/test/screenshot/:filename', (req, res) => {
   
   try {
     // Prova prima la cartella Documenti/cross_browser
-    const crossBrowserBasePath = path.join(__dirname, '../Documenti/cross_browser');
+    const crossBrowserBasePath = path.join(__dirname, 'Documenti/cross_browser');
     let screenshotPath = null;
     
     // Lista delle possibili posizioni per browser
@@ -519,7 +519,7 @@ app.get('/api/container/:containerName/logs', (req, res) => {
 app.get('/api/media/export', async (req, res) => {
   try {
     // Nel container Docker, la cartella Media è montata in /usr/src/app/Media
-    const mediaPath = path.join(__dirname, 'Media');
+    const mediaPath = '/data/Media';
     
     // Verifica che la cartella esista
     if (!fs.existsSync(mediaPath)) {
@@ -571,7 +571,7 @@ app.post('/api/media/import', upload.single('mediaZip'), async (req, res) => {
       return res.status(400).json({ error: 'Nessun file caricato' });
     }
 
-    const mediaPath = path.join(__dirname, 'Media');
+    const mediaPath = '/data/Media';
     
     // Backup attuale prima dell'import
     await createMediaBackup('pre-import');
@@ -647,7 +647,7 @@ app.post('/api/media/restore/:backupName', async (req, res) => {
   try {
     const backupName = req.params.backupName;
     const backupPath = path.join(__dirname, 'backups/media', backupName);
-    const mediaPath = path.join(__dirname, 'Media');
+    const mediaPath = '/data/Media';
 
     if (!fs.existsSync(backupPath)) {
       return res.status(404).json({ error: 'Backup non trovato' });
@@ -697,7 +697,7 @@ app.post('/api/media/restore/:backupName', async (req, res) => {
 app.post('/api/media/restore-safe', async (req, res) => {
   try {
     const safePath = path.join(__dirname, 'safe-versions/media');
-    const mediaPath = path.join(__dirname, 'Media');
+    const mediaPath = '/data/Media';
 
     if (!fs.existsSync(safePath) || fs.readdirSync(safePath).length === 0) {
       return res.status(404).json({ error: 'Versione safe non trovata' });
@@ -1066,7 +1066,7 @@ app.post('/api/rollback', async (req, res) => {
     // Step 6: Ripristina versione safe Media
     broadcastWebSocket('rollback_log', { text: '📁 Ripristinando versione safe Media...\n' });
     const safePath = path.join(__dirname, 'safe-versions/media');
-    const mediaPath = path.join(__dirname, 'Media');
+    const mediaPath = '/data/Media';
     
     if (fs.existsSync(safePath) && fs.readdirSync(safePath).length > 0) {
       try {
@@ -1147,7 +1147,7 @@ async function createMediaBackup(prefix = 'backup') {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const backupName = `${prefix}-${timestamp}.zip`;
   const backupPath = path.join(__dirname, 'backups/media', backupName);
-  const mediaPath = path.join(__dirname, 'Media');
+  const mediaPath = '/data/Media';
 
         // Assicurati che la cartella Backups/media esista
   const backupDir = path.dirname(backupPath);
