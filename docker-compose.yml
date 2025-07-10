@@ -47,6 +47,7 @@ services:
     networks:
       # AGGIUNTO: Permette al frontend di parlare col backend
       - ecommerce-internal
+      - web-proxy
 
   # Image server
   imageserver:
@@ -60,6 +61,7 @@ services:
     networks:
       # AGGIUNTO: Permette la comunicazione interna
       - ecommerce-internal
+      - web-proxy
 
   # Production frontend server
   frontend:
@@ -71,7 +73,7 @@ services:
     depends_on:
       - backend
     environment:
-      REACT_APP_API_URL: /api # <- CAMBIA L'URL IN QUESTO # <- CAMBIA L'URL IN QUESTO
+      REACT_APP_API_URL: https://api.panesalame.andrea-mauri.duckdns.org # <- CAMBIA L'URL IN QUESTO
     networks:
       - ecommerce-internal # Comunica con il backend
       - web-proxy
