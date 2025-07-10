@@ -5,12 +5,12 @@ function toPublicImageUrl(urlOrType, id, filename) {
         if (!url) return null;
         if (url.startsWith('http')) return url;
         // return `http://localhost:8080${url}`;
-        return `/media${url}`;
+        return window.APP_CONFIG.MEDIA_URL;
     }
     // Se chiamato con type, id, filename
     if (urlOrType && id && filename) {
         // return `http://localhost:8080/Media/${urlOrType}/${id}/${filename}`;
-        return `/media/Media/${urlOrType}/${id}/${filename}`;
+        return window.APP_CONFIG.MEDIA_URL + `/${urlOrType}/${id}/${filename}`;
     }
     return null;
 }

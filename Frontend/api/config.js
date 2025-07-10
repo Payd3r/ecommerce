@@ -1,20 +1,5 @@
-/*
-  config.js
-  -----------------------------
-  Questo modulo centralizza la configurazione dell'URL base delle API per il frontend di Pane e Salame.
-  - Permette di cambiare facilmente l'endpoint delle API (es. tra ambiente locale e produzione) modificando una sola variabile.
-  - La funzione getApiUrl() garantisce che tutti i servizi e moduli del frontend utilizzino un unico punto di riferimento per l'URL delle API, evitando errori e duplicazioni.
-  - Scelta tecnica: separazione della configurazione dal resto della logica applicativa per facilitare manutenzione e deploy.
-*/
-
-// Frontend/config.js
-const API_URL = process.env.REACT_APP_API_URL;
-// Frontend/config.js
-// const API_URL = "http://localhost:3015";
-
-// Frontend/api/config.js
+// Legge la configurazione dall'oggetto globale definito in index.html
+const API_URL = window.APP_CONFIG.API_URL;
 
 
-export function getApiUrl() {
-    return API_URL;
-}
+// Ora puoi usare API_URL e MEDIA_URL nel resto del tuo codice
