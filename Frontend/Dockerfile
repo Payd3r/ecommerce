@@ -1,5 +1,5 @@
 # ===============================================================
-# STAGE 1: Build dell'Applicazione Frontend (ORA ROBUSTO)
+# STAGE 1: Build dell'Applicazione Frontend
 # ===============================================================
 FROM node:18-bullseye AS builder
 
@@ -11,14 +11,17 @@ WORKDIR /app
 # Copia SOLO i file di package dalla sottocartella Frontend
 COPY Frontend/package*.json ./
 
-# Installa TUTTE le dipendenze (incluse devDependencies) necessarie per la build
-RUN npm ci --ignore-scripts
+# ===============================================================
+# MODIFICA CHIAVE: Usa 'npm install' più permissivo per la build del frontend
+# ===============================================================
+RUN npm install --legacy-peer-deps
 
 # Copia SOLO il codice sorgente dalla sottocartella Frontend
 COPY Frontend/ .
 
 # Esegui il comando di build
 RUN npm run build
+
 
 # ===============================================================
 # STAGE 2: Servire i File Statici con Nginx
