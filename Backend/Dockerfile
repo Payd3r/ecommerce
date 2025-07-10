@@ -1,5 +1,8 @@
-# Usa un'immagine Node.js stabile e compatibile
-FROM node:18-slim
+# Usa un'immagine Node.js stabile e completa
+FROM node:18-bullseye
+
+# Aggiungi gli strumenti di compilazione essenziali
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/app
 
