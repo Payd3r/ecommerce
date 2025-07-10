@@ -41,9 +41,9 @@ services:
       DB_PORT: 3306
       JWT_SECRET: ecommerce_secret_key_2024
     volumes:
-      - "/mnt/condivisa/Scuola/Universita/Terzo Anno/Tecnologie Innovative per lo sviluppo Web/ecommerce/Backend:/usr/src/app/src:ro"
+      # - "/mnt/condivisa/Scuola/Universita/Terzo Anno/Tecnologie Innovative per lo sviluppo Web/ecommerce/Backend:/usr/src/app/src:ro"
       - /mnt/condivisa/panesalame_data/media:/data/media
-      - backend-node-modules:/usr/src/app/node_modules
+      # - backend-node-modules:/usr/src/app/node_modules
     networks:  # AGGIUNTO: Permette al frontend di parlare col backend
       - ecommerce-internal
 
