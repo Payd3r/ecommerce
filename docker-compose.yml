@@ -3,12 +3,18 @@ services:
   db:
     image: mariadb:11
     container_name: ecommerce-db
-    restart: unless-stopped # Modificato per coerenza
+    restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: 1234
       MYSQL_DATABASE: ecommerce_db
       MYSQL_USER: admin
       MYSQL_PASSWORD: 1234
+      MYSQL_INNODB_BUFFER_POOL_SIZE: 256M
+      MYSQL_INNODB_LOG_FILE_SIZE: 128M
+      MYSQL_INNODB_FLUSH_LOG_AT_TRX_COMMIT: 1
+      MYSQL_INNODB_FLUSH_METHOD: O_DIRECT
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'no'
     command: --default-authentication-plugin=mysql_native_password
     volumes:
       - /mnt/condivisa/Scuola/Universita/Terzo Anno/Tecnologie Innovative per lo sviluppo Web/ecommerce/panesalame_data/database:/var/lib/mysql
@@ -23,7 +29,7 @@ services:
       dockerfile: Backend/Dockerfile
     image: panesalame/backend:latest
     container_name: ecommerce-backend
-    restart: unless-stopped # <--- RIGA AGGIUNTA FONDAMENTALE
+    restart: unless-stopped
     depends_on:
       - db
     environment:
@@ -36,8 +42,11 @@ services:
       DB_PORT: 3306
       JWT_SECRET: ecommerce_secret_key_2024
     volumes:
+      # - "/mnt/condivisa/Scuola/Universita/Terzo Anno/Tecnologie Innovative per lo sviluppo Web/ecommerce/Backend:/usr/src/app/src:ro"
       - /mnt/condivisa/Scuola/Universita/Terzo Anno/Tecnologie Innovative per lo sviluppo Web/ecommerce/panesalame_data/media:/usr/src/app/Media
+      # - backend-node-modules:/usr/src/app/node_modules
     networks:
+      # AGGIUNTO: Permette al frontend di parlare col backend
       - ecommerce-internal
       - web-proxy
 
@@ -45,12 +54,13 @@ services:
   imageserver:
     image: nginx:alpine
     container_name: ecommerce-imageserver
-    restart: unless-stopped # Modificato per coerenza
+    restart: unless-stopped
     volumes:
       - /mnt/condivisa/Scuola/Universita/Terzo Anno/Tecnologie Innovative per lo sviluppo Web/ecommerce/panesalame_data/media:/usr/share/nginx/html/Media:ro
     depends_on:
       - backend
     networks:
+      # AGGIUNTO: Permette la comunicazione interna
       - ecommerce-internal
       - web-proxy
 
@@ -61,14 +71,14 @@ services:
       dockerfile: Frontend/Dockerfile
     image: panesalame/frontend:latest
     container_name: ecommerce-frontend
-    restart: unless-stopped # <--- RIGA AGGIUNTA FONDAMENTALE
     depends_on:
       - backend
     environment:
-      REACT_APP_API_URL: https://api.panesalame.andrea-mauri.duckdns.org
+      REACT_APP_API_URL: https://api.panesalame.andrea-mauri.duckdns.org # <- CAMBIA L'URL IN QUESTO
     networks:
-      - ecommerce-internal
+      - ecommerce-internal # Comunica con il backend
       - web-proxy
+    restart: unless-stopped
 
   # Monitoring system
   monitoring:
@@ -77,7 +87,7 @@ services:
       dockerfile: Monitoring/Dockerfile
     image: panesalame/monitoring:latest
     container_name: ecommerce-monitoring
-    restart: unless-stopped # Modificato per coerenza
+    restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /mnt/condivisa/panesalame_data/media:/data/Media
@@ -86,7 +96,7 @@ services:
       - "/mnt/condivisa/Scuola/Universita/Terzo Anno/Tecnologie Innovative per lo sviluppo Web/ecommerce/README.md:/usr/src/app/README.md:ro"
       - "/mnt/condivisa/Scuola/Universita/Terzo Anno/Tecnologie Innovative per lo sviluppo Web/ecommerce/docker-compose-testing.yml:/usr/src/app/docker-compose-testing.yml:ro"
       - "/mnt/condivisa/Scuola/Universita/Terzo Anno/Tecnologie Innovative per lo sviluppo Web/ecommerce/Documenti:/usr/src/app/Documenti:ro"
-      - "/mnt/condivisa/Scuola/Universita/Terzo Anno/Tecnologie Innovative per lo sviluppo Web/ecommerce/safe-versions:/usr/src/app/safe-versions:ro"
+      - "/mnt/condivisa/Scuola/Universita/Terzo Anno/Tecnologie Innovative per lo sviluppo Web/ecommerce/safe-versions:/usr/src/app/safe-versions:ro" # <-- RIGA AGGIUNTA
     environment:
       NODE_ENV: production
       PORT: 3017
@@ -94,13 +104,13 @@ services:
       - backend
       - frontend
     networks:
-      - ecommerce-internal
-      - web-proxy
-
+      - ecommerce-internal # Comunica con gli altri container dello stack
+      - web-proxy # Comunica con il mondo esterno tramite NPM
 volumes:
   backend-node-modules:
 
+
 networks:
   web-proxy:
-    external: true
-  ecommerce-internal: {}
+    external: true # La rete per parlare con il mondo, gestita esternamente
+  ecommerce-internal: {} # Una rete interna solo per questo stack, per far parlare i container tra loro in sicurezza
