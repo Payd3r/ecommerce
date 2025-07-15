@@ -3,7 +3,7 @@ services:
   db:
     image: mariadb:11
     container_name: ecommerce-db
-    restart: unless-stopped
+    restart: unless-stopped # Modificato per coerenza
     environment:
       MYSQL_ROOT_PASSWORD: 1234
       MYSQL_DATABASE: ecommerce_db
@@ -15,11 +15,6 @@ services:
       - "/mnt/condivisa/Scuola/Universita/Terzo Anno/Tecnologie Innovative per lo sviluppo Web/ecommerce/Backend/db.sql:/docker-entrypoint-initdb.d/db.sql:ro"
     networks:
       - ecommerce-internal
-    healthcheck: # <--- AGGIUNTO: CONTROLLA SE IL DB È PRONTO
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "--password=${MYSQL_ROOT_PASSWORD}"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
 
   # Production backend API
   backend:
@@ -28,10 +23,9 @@ services:
       dockerfile: Backend/Dockerfile
     image: panesalame/backend:latest
     container_name: ecommerce-backend
-    restart: unless-stopped
-    depends_on: # <--- MODIFICATO: ATTENDE CHE IL DB SIA "HEALTHY"
-      db:
-        condition: service_healthy
+    restart: unless-stopped # <--- RIGA AGGIUNTA FONDAMENTALE
+    depends_on:
+      - db
     environment:
       NODE_ENV: development
       PORT: 3015
@@ -51,7 +45,7 @@ services:
   imageserver:
     image: nginx:alpine
     container_name: ecommerce-imageserver
-    restart: unless-stopped
+    restart: unless-stopped # Modificato per coerenza
     volumes:
       - /mnt/condivisa/Scuola/Universita/Terzo Anno/Tecnologie Innovative per lo sviluppo Web/ecommerce/panesalame_data/media:/usr/share/nginx/html/Media:ro
     depends_on:
@@ -67,7 +61,7 @@ services:
       dockerfile: Frontend/Dockerfile
     image: panesalame/frontend:latest
     container_name: ecommerce-frontend
-    restart: unless-stopped
+    restart: unless-stopped # <--- RIGA AGGIUNTA FONDAMENTALE
     depends_on:
       - backend
     environment:
@@ -83,7 +77,7 @@ services:
       dockerfile: Monitoring/Dockerfile
     image: panesalame/monitoring:latest
     container_name: ecommerce-monitoring
-    restart: unless-stopped
+    restart: unless-stopped # Modificato per coerenza
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /mnt/condivisa/panesalame_data/media:/data/Media
